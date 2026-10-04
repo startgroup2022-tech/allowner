@@ -1,0 +1,73 @@
+workflows:
+  android-apk-debug-real:
+    name: All Owners - REAL DEBUG (shows actual errors)
+    max_build_duration: 30
+    environment:
+      flutter: stable
+      vars:
+        PACKAGE_NAME: "com.superai.allowners"
+    scripts:
+      - name: Get Flutter packages
+        script: |
+          flutter pub get
+      - name: Generate launcher icons and native splash
+        script: |
+          dart run flutter_launcher_icons
+          dart run flutter_native_splash:create
+      - name: Build APK debug mode
+        script: |
+          flutter build apk --debug
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
+
+  android-apk-debug:
+    name: All Owners - Android APK (Debug/Preview)
+    max_build_duration: 30
+    environment:
+      flutter: stable
+      vars:
+        PACKAGE_NAME: "com.superai.allowners"
+    scripts:
+      - name: Get Flutter packages
+        script: |
+          flutter pub get
+      - name: Generate launcher icons & native splash
+        script: |
+          dart run flutter_launcher_icons
+          dart run flutter_native_splash:create
+      - name: Build APK (release, unsigned/debug-signed)
+        script: |
+          flutter build apk --release
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
+
+  android-aab-release:
+    name: All Owners - AAB (Signed Release for Google Play)
+    max_build_duration: 30
+    environment:
+      flutter: stable
+      android_signing:
+        - allowners_keystore
+      vars:
+        PACKAGE_NAME: "com.superai.allowners"
+    scripts:
+      - name: Get Flutter packages
+        script: |
+          flutter pub get
+      - name: Generate launcher icons & native splash
+        script: |
+          dart run flutter_launcher_icons
+          dart run flutter_native_splash:create
+      - name: Set up Android signing (key.properties)
+        script: |
+          cat > $CM_BUILD_DIR/android/key.properties <<EOF
+          storePassword=$CM_KEYSTORE_PASSWORD
+          keyPassword=$CM_KEY_PASSWORD
+          keyAlias=$CM_KEY_ALIAS
+          storeFile=$CM_KEYSTORE_PATH
+          EOF
+      - name: Build App Bundle (AAB) for Google Play
+        script: |
+          flutter build appbundle --release
+    artifacts:
+      - build/app/outputs/bundle/release/*.aab
