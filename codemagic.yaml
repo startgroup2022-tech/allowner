@@ -47,7 +47,7 @@ workflows:
     environment:
       flutter: stable
       android_signing:
-        - allowners_keystore
+        - allowners_keystor
       vars:
         PACKAGE_NAME: "com.superai.allowners"
     scripts:

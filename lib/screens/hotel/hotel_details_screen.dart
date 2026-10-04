@@ -28,21 +28,34 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
   int _galleryIndex = 0;
   final PageController _galleryController = PageController();
   late Future<List<Map<String, dynamic>>> _unitsFuture;
+  late Future<List<Map<String, dynamic>>> _amenitiesFuture;
 
-  static const _amenityIcons = [
-    Icons.wifi_rounded,
-    Icons.local_parking_outlined,
-    Icons.pool_outlined,
-    Icons.fitness_center_outlined,
-    Icons.ac_unit_rounded,
-    Icons.room_service_outlined,
-  ];
+  IconData _amenityIcon(Map<String, dynamic> amenity) {
+    final raw = '${amenity['icon'] ?? ''} ${amenity['name_en'] ?? ''} ${amenity['name_ar'] ?? ''}'.toLowerCase();
+    if (raw.contains('wifi') || raw.contains('واي')) return Icons.wifi_rounded;
+    if (raw.contains('parking') || raw.contains('موقف')) return Icons.local_parking_outlined;
+    if (raw.contains('pool') || raw.contains('مسبح')) return Icons.pool_outlined;
+    if (raw.contains('fitness') || raw.contains('gym') || raw.contains('رياضي')) return Icons.fitness_center_outlined;
+    if (raw.contains('ac_unit') || raw.contains('air conditioning') || raw.contains('مكيف')) return Icons.ac_unit_rounded;
+    if (raw.contains('restaurant') || raw.contains('مطعم')) return Icons.restaurant_outlined;
+    if (raw.contains('breakfast') || raw.contains('إفطار')) return Icons.free_breakfast_outlined;
+    if (raw.contains('coffee') || raw.contains('قهوة')) return Icons.coffee_maker_outlined;
+    if (raw.contains('smoke') || raw.contains('تدخين')) return Icons.smoke_free_outlined;
+    if (raw.contains('accessible') || raw.contains('احتياجات')) return Icons.accessible_rounded;
+    if (raw.contains('meeting') || raw.contains('اجتماع')) return Icons.meeting_room_outlined;
+    if (raw.contains('car') || raw.contains('transport') || raw.contains('سيار') || raw.contains('نقل')) return Icons.directions_car_outlined;
+    if (raw.contains('family') || raw.contains('عائل')) return Icons.family_restroom_outlined;
+    if (raw.contains('pet') || raw.contains('حيوان')) return Icons.pets_outlined;
+    if (raw.contains('room_service') || raw.contains('room service') || raw.contains('خدمة الغرف')) return Icons.room_service_outlined;
+    return Icons.check_circle_outline_rounded;
+  }
 
   @override
   void initState() {
     super.initState();
     _isFavorite = widget.hotel.isFavorite;
     _unitsFuture = _hotelService.getUnits(widget.hotel.id);
+    _amenitiesFuture = _hotelService.getHotelAmenities(widget.hotel.id);
   }
 
   Future<void> _toggleFavorite() async {
@@ -78,8 +91,6 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
 
     final images = hotel.galleryUrls.isNotEmpty ? hotel.galleryUrls : [hotel.imageUrl];
 
-    final amenitiesAr = ['واي فاي مجاني', 'موقف سيارات', 'مسبح', 'صالة رياضية', 'مكيف هواء', 'خدمة الغرف'];
-    final amenitiesEn = ['Free WiFi', 'Parking', 'Pool', 'Gym', 'AC', 'Room Service'];
 
     final description = isArabic
         ? 'يقع ${hotel.name} في موقع متميز بـ${hotel.cityAr}، يوفر إقامة فاخرة مع خدمات متكاملة وإطلالات رائعة، مناسب للأعمال والعائلات. يضم العقار غرفاً مجهزة بالكامل وفريق استقبال يعمل على مدار الساعة لتلبية كل احتياجاتك خلال إقامتك.'
@@ -385,34 +396,32 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
 
                   Text(AppStrings.t(isArabic, 'amenities'), style: textTheme.titleMedium),
                   const SizedBox(height: AppDimens.md),
-                  Column(
-                    children: List.generate((amenitiesAr.length / 2).ceil(), (rowIndex) {
-                      final firstIndex = rowIndex * 2;
-                      final secondIndex = firstIndex + 1;
-                      final isLastRow = secondIndex >= amenitiesAr.length - 1;
-                      return Padding(
-                        padding: EdgeInsets.only(bottom: isLastRow ? 0 : AppDimens.md),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: _AmenityTile(
-                                icon: _amenityIcons[firstIndex],
-                                label: isArabic ? amenitiesAr[firstIndex] : amenitiesEn[firstIndex],
-                              ),
-                            ),
-                            const SizedBox(width: AppDimens.md),
-                            Expanded(
-                              child: secondIndex < amenitiesAr.length
-                                  ? _AmenityTile(
-                                      icon: _amenityIcons[secondIndex],
-                                      label: isArabic ? amenitiesAr[secondIndex] : amenitiesEn[secondIndex],
-                                    )
-                                  : const SizedBox.shrink(),
-                            ),
-                          ],
-                        ),
+                  FutureBuilder<List<Map<String, dynamic>>>(
+                    future: _amenitiesFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: Padding(
+                          padding: EdgeInsets.all(AppDimens.md),
+                          child: CircularProgressIndicator(),
+                        ));
+                      }
+                      final amenities = snapshot.data ?? const <Map<String, dynamic>>[];
+                      if (amenities.isEmpty) {
+                        return Text(isArabic ? 'لا توجد مرافق مضافة لهذا الفندق' : 'No amenities added for this hotel',
+                            style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted));
+                      }
+                      return Wrap(
+                        spacing: AppDimens.md,
+                        runSpacing: AppDimens.md,
+                        children: amenities.map((a) => SizedBox(
+                          width: (MediaQuery.sizeOf(context).width - (AppDimens.pagePadding * 2) - AppDimens.md) / 2,
+                          child: _AmenityTile(
+                            icon: _amenityIcon(a),
+                            label: (isArabic ? a['name_ar'] : a['name_en'])?.toString() ?? '',
+                          ),
+                        )).toList(),
                       );
-                    }),
+                    },
                   ),
                   const SizedBox(height: AppDimens.lg),
                   const Divider(),
