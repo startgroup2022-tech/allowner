@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../utils/safe_parse.dart';
+import '../utils/service_request_payload.dart';
 import 'api_client.dart';
 
 /// كل استدعاءات الـ API الخاصة بلوحة المالك (الوحدات، الحجوزات، الإيرادات، الصيانة)
@@ -113,12 +114,13 @@ class OwnerService {
     String? description,
   }) async {
     try {
-      await _dio.post('/user/owner-requests.php', data: {
-        'type': type,
-        'hotel_id': hotelId,
-        'unit_id': unitId,
-        if (description != null) 'description': description,
-      });
+      await _dio.post('/user/owner-requests.php',
+          data: buildOwnerRequestPayload(
+        type: type,
+        hotelId: hotelId,
+        unitId: unitId,
+        description: description,
+      ));
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }

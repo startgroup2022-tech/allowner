@@ -4,6 +4,7 @@ import '../models/unit_model.dart';
 import '../utils/safe_parse.dart';
 import '../utils/arabic_text.dart';
 import '../utils/booking_payload.dart';
+import '../utils/service_request_payload.dart';
 import 'api_client.dart';
 
 /// كل استدعاءات الـ API الخاصة بالضيوف: الفنادق، الوحدات، المفضلة، الحجوزات.
@@ -369,12 +370,13 @@ class HotelService {
     String? description,
   }) async {
     try {
-      final res = await _dio.post('/services/request.php', data: {
-        if (bookingId != null) 'booking_id': bookingId,
-        'room_number': roomNumber,
-        'service_type': serviceType,
-        if (description != null) 'description': description,
-      });
+      final res = await _dio.post('/services/request.php',
+          data: buildServiceRequestPayload(
+        bookingId: bookingId,
+        roomNumber: roomNumber,
+        serviceType: serviceType,
+        description: description,
+      ));
       _ensureSuccess(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
@@ -388,12 +390,13 @@ class HotelService {
     String? notes,
   }) async {
     try {
-      final res = await _dio.post('/services/meal-request.php', data: {
-        'booking_id': bookingId,
-        'room_number': roomNumber,
-        'meal_types': mealTypes,
-        if (notes != null) 'notes': notes,
-      });
+      final res = await _dio.post('/services/meal-request.php',
+          data: buildMealRequestPayload(
+        bookingId: bookingId,
+        roomNumber: roomNumber,
+        mealTypes: mealTypes,
+        notes: notes,
+      ));
       _ensureSuccess(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);

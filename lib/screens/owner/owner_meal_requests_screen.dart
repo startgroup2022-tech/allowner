@@ -5,6 +5,7 @@ import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
+import '../../utils/service_request_payload.dart';
 import '../../services/api_client.dart';
 import '../../utils/safe_parse.dart';
 
@@ -151,10 +152,10 @@ class _OwnerMealRequestsScreenState extends ConsumerState<OwnerMealRequestsScree
                                   type: 'meal',
                                   hotelId: selectedHotelId!,
                                   unitId: selectedUnitId!,
-                                  description: [
-                                    'meals: ${selectedMeals.join(',')}',
-                                    if (descCtrl.text.trim().isNotEmpty) descCtrl.text.trim(),
-                                  ].join(' — '),
+                                  description: buildOwnerMealDescription(
+                                    mealTypes: selectedMeals.toList(),
+                                    notes: descCtrl.text,
+                                  ),
                                 );
                                 if (ctx.mounted) Navigator.of(ctx).pop();
                                 _reload();

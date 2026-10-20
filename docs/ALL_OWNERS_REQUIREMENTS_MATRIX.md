@@ -567,9 +567,9 @@
 - **القسم:** الضيف والوجبات والسرير — 12 نقطة
 - **التنفيذ:** Execution 02
 - **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** meal_request_screen.dart
+- **ملفات Flutter:** meal_request_screen.dart + service_request_payload.buildMealRequestPayload (مُختبَرة)
 - **اعتماد الـ API:** /services/meal-request.php
-- **الدليل:** طلب وجبة مستقل بعدة وجبات
+- **الدليل:** طلب وجبة مستقل بعدة وجبات؛ جسم الطلب صار دالة نقية مع اختبارين يثبتان إرسال عدة وجبات معًا وحذف الملاحظة الفارغة. المتبقي اختبار حقيقي بحساب ضيف
 - **المتبقي:** اختبار حقيقي
 - **معيار القبول:** يستطيع الضيف طلب عدة وجبات
 
@@ -611,9 +611,9 @@
 - **القسم:** الضيف والوجبات والسرير — 12 نقطة
 - **التنفيذ:** Execution 02
 - **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** meal_request_screen.dart
+- **ملفات Flutter:** meal_request_screen.dart + buildMealRequestPayload
 - **اعتماد الـ API:** /services/meal-request.php
-- **الدليل:** إرسال طلب الوجبات للمالك
+- **الدليل:** إرسال طلب الوجبات: الحقول المُرسلة (booking_id/room_number/meal_types/notes) مثبَتة باختبار. وصوله للمالك يعتمد على السيرفر
 - **المتبقي:** اختبار حقيقي
 - **معيار القبول:** يصل طلب الوجبات للمالك
 
@@ -655,9 +655,9 @@
 - **القسم:** الضيف والوجبات والسرير — 12 نقطة
 - **التنفيذ:** Execution 02
 - **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** service_request_screen.dart
+- **ملفات Flutter:** service_request_screen.dart + buildServiceRequestPayload (مُختبَرة)
 - **اعتماد الـ API:** /services/request.php
-- **الدليل:** طلب النظافة من الضيف
+- **الدليل:** طلب النظافة من الضيف؛ جسم الطلب مُختبَر (service_type=housekeeping، رقم الوحدة مشذَّب، الوصف الفارغ يُحذف)
 - **المتبقي:** اختبار حقيقي
 - **معيار القبول:** يستطيع الضيف طلب النظافة
 
@@ -666,9 +666,9 @@
 - **القسم:** الضيف والوجبات والسرير — 12 نقطة
 - **التنفيذ:** Execution 02
 - **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** service_request_screen.dart
+- **ملفات Flutter:** service_request_screen.dart + buildServiceRequestPayload (مُختبَرة)
 - **اعتماد الـ API:** /services/request.php
-- **الدليل:** طلب الصيانة من الضيف
+- **الدليل:** طلب الصيانة من الضيف؛ نفس الدالة النقية تغطي service_type=maintenance باختبار
 - **المتبقي:** اختبار حقيقي
 - **معيار القبول:** يستطيع الضيف طلب الصيانة
 
@@ -710,9 +710,9 @@
 - **القسم:** المالك والخدمات — 17 نقطة
 - **التنفيذ:** Execution 03
 - **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** owner_cleaning_screen.dart
+- **ملفات Flutter:** owner_cleaning_screen.dart + buildOwnerRequestPayload (مُختبَرة)
 - **اعتماد الـ API:** /user/owner-requests.php
-- **الدليل:** إنشاء طلب نظافة من التطبيق
+- **الدليل:** إنشاء طلب نظافة من التطبيق: الجسم يُرسل type=cleaning مع hotel_id/unit_id (مثبَت باختبار يغطي الأنواع الأربعة)
 - **المتبقي:** اختبار حقيقي
 - **معيار القبول:** يُنشئ المالك طلب نظافة
 
@@ -754,9 +754,9 @@
 - **القسم:** المالك والخدمات — 17 نقطة
 - **التنفيذ:** Execution 03
 - **الحالة:** BACKEND BLOCKED
-- **ملفات Flutter:** —
+- **ملفات Flutter:** owner_meal_requests_screen.dart + buildOwnerMealDescription (مُختبَرة)
 - **اعتماد الـ API:** /user/owner-meals.php
-- **الدليل:** تمرير طلب الضيف/الوكيل للفندق يحتاج ربط سيرفر
+- **الدليل:** جانب التطبيق: المالك يرى طلبات الوجبات الواردة ويقدّم حالتها (pending→preparing→delivered) عبر /user/owner-meals.php، ويستطيع إنشاء طلب جديد بنفس الوصف المتوقع (مثبَت باختبارين). تمرير الطلب الأصلي من الضيف/الوكيل تلقائيًا للفندق يحتاج ربطًا على السيرفر
 - **المتبقي:** تنفيذ التمرير
 - **معيار القبول:** يُمرّر الطلب للفندق
 
@@ -765,9 +765,9 @@
 - **القسم:** المالك والخدمات — 17 نقطة
 - **التنفيذ:** Execution 03
 - **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** owner_extra_bed_screen.dart (جديد), owner_home_screen.dart ربط البطاقة
+- **ملفات Flutter:** owner_extra_bed_screen.dart, owner_home_screen.dart ربط البطاقة + buildOwnerRequestPayload
 - **اعتماد الـ API:** /user/owner-requests.php (type=extra_bed)
-- **الدليل:** شاشة طلب سرير إضافي جديدة ترسل type=extra_bed عبر نفس مسار النظافة/الصيانة؛ كان الزر يفتح شاشة الصيانة بالخطأ (زر غير فعّال فعلياً) وصُحّح
+- **الدليل:** شاشة طلب سرير إضافي ترسل type=extra_bed عبر نفس مسار النظافة/الصيانة؛ كان الزر يفتح شاشة الصيانة بالخطأ وصُحّح. الجسم مُختبَر ضمن تغطية الأنواع الأربعة
 - **المتبقي:** اختبار حقيقي بجهاز
 - **معيار القبول:** ينشئ المالك طلب سرير
 

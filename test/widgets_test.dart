@@ -11,6 +11,7 @@ import 'package:allowners/screens/booking/booking_screen.dart';
 import 'package:allowners/screens/booking/booking_success_screen.dart';
 import 'package:allowners/utils/availability.dart';
 import 'package:allowners/utils/booking_payload.dart';
+import 'package:allowners/utils/service_request_payload.dart';
 import 'package:allowners/screens/bookings/my_bookings_screen.dart';
 import 'package:allowners/screens/shared/app_about_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -691,9 +692,24 @@ void main() {
 
   group('بحث موظف الفندق برقم الوحدة (المتطلب 81)', () {
     final bookings = <Map<String, dynamic>>[
-      {'id': 1, 'unit_number': '4005', 'unit_name_ar': 'جناح مطل كعبة', 'unit_name_en': 'Kaaba View Suite'},
-      {'id': 2, 'unit_number': '1201', 'unit_name_ar': 'غرفة سيتي', 'unit_name_en': 'City Room'},
-      {'id': 3, 'unit_number': null, 'unit_name_ar': 'شقة مفروشة', 'unit_name_en': 'Furnished Flat'},
+      {
+        'id': 1,
+        'unit_number': '4005',
+        'unit_name_ar': 'جناح مطل كعبة',
+        'unit_name_en': 'Kaaba View Suite'
+      },
+      {
+        'id': 2,
+        'unit_number': '1201',
+        'unit_name_ar': 'غرفة سيتي',
+        'unit_name_en': 'City Room'
+      },
+      {
+        'id': 3,
+        'unit_number': null,
+        'unit_name_ar': 'شقة مفروشة',
+        'unit_name_en': 'Furnished Flat'
+      },
     ];
 
     test('مطابقة برقم الوحدة', () {
@@ -749,7 +765,8 @@ void main() {
           {'type': 'breakfast'}
         ]
       });
-      expect(lines.single, contains(AppStrings.t(true, 'meal_option_breakfast')));
+      expect(
+          lines.single, contains(AppStrings.t(true, 'meal_option_breakfast')));
     });
 
     test('السرير الإضافي يعرض الكمية والسعر', () {
@@ -771,7 +788,8 @@ void main() {
     });
 
     test('الملاحظات تظهر إن وُجدت', () {
-      final lines = buildBookingAddonLines(true, const {'notes': '  سرير قرب النافذة  '});
+      final lines =
+          buildBookingAddonLines(true, const {'notes': '  سرير قرب النافذة  '});
       expect(lines.single, contains('سرير قرب النافذة'));
     });
 
@@ -894,19 +912,25 @@ void main() {
       expect(addon('per_stay', 300).billing, 'per_stay');
     });
     test('per_person_night يضرب في الليالي والأشخاص', () {
-      expect(addonLineTotal(addon('per_person_night', 110), nights: 3, guests: 2), 660);
+      expect(
+          addonLineTotal(addon('per_person_night', 110), nights: 3, guests: 2),
+          660);
     });
     test('per_stay يُحتسب مرة واحدة مهما طالت الإقامة', () {
       expect(addonLineTotal(addon('per_stay', 300), nights: 5, guests: 4), 300);
     });
     test('per_night يضرب في الليالي فقط', () {
-      expect(addonLineTotal(addon('per_night', 100), nights: 4, guests: 3), 400);
+      expect(
+          addonLineTotal(addon('per_night', 100), nights: 4, guests: 3), 400);
     });
     test('يحمي من ليالٍ أو ضيوف صفر', () {
-      expect(addonLineTotal(addon('per_person_night', 100), nights: 0, guests: 0), 100);
+      expect(
+          addonLineTotal(addon('per_person_night', 100), nights: 0, guests: 0),
+          100);
     });
     test('يقبل billing القديم كبديل', () {
-      final legacy = UnitAddonModel.fromJson({'price': 100, 'billing': 'per_stay'});
+      final legacy =
+          UnitAddonModel.fromJson({'price': 100, 'billing': 'per_stay'});
       expect(legacy.billing, 'per_stay');
       expect(addonLineTotal(legacy, nights: 9, guests: 9), 100);
     });
@@ -920,8 +944,12 @@ void main() {
           contains('Hotel Unit & Property Owners'));
     });
     test('نص التعريف العربي والإنجليزي غير فارغ ومختلف عن المفتاح', () {
-      for (final k in ['app_description_title', 'app_description_intro',
-                       'app_description_body', 'app_description_closing']) {
+      for (final k in [
+        'app_description_title',
+        'app_description_intro',
+        'app_description_body',
+        'app_description_closing'
+      ]) {
         expect(AppStrings.t(true, k), isNotEmpty, reason: '$k ar');
         expect(AppStrings.t(false, k), isNotEmpty, reason: '$k en');
         expect(AppStrings.t(true, k), isNot(equals(k)), reason: '$k ar');
@@ -929,11 +957,13 @@ void main() {
     });
     testWidgets('شاشة التعريف تعرض النص المعتمد بالعربية', (tester) async {
       SharedPreferences.setMockInitialValues({});
-      await tester.pumpWidget(ProviderScope(child: wrap(const AppAboutScreen())));
+      await tester
+          .pumpWidget(ProviderScope(child: wrap(const AppAboutScreen())));
       await tester.pumpAndSettle();
       expect(find.textContaining('المنصة الموثوقة لملاك الوحدات الفندقية'),
           findsOneWidget);
-      expect(find.textContaining('كل ما تحتاجه لإدارة ممتلكاتك'), findsOneWidget);
+      expect(
+          find.textContaining('كل ما تحتاجه لإدارة ممتلكاتك'), findsOneWidget);
     });
     testWidgets('شاشة التعريف تعرض النص الإنجليزي المعتمد', (tester) async {
       SharedPreferences.setMockInitialValues({'app_locale': 'en'});
@@ -956,7 +986,8 @@ void main() {
   });
 
   group('تسمية النظافة بدل هاوس كيبنج (المتطلب 61)', () {
-    test('مفتاح housekeeping يعرض «النظافة» بالعربية وCleaning بالإنجليزية', () {
+    test('مفتاح housekeeping يعرض «النظافة» بالعربية وCleaning بالإنجليزية',
+        () {
       expect(AppStrings.t(true, 'housekeeping'), 'النظافة');
       expect(AppStrings.t(false, 'housekeeping'), 'Cleaning');
     });
@@ -1010,7 +1041,8 @@ void main() {
       await pumpAgentProfile(tester);
       await tester.tap(find.byType(EditableAvatar));
       await tester.pumpAndSettle();
-      expect(find.text(AppStrings.t(true, 'choose_from_gallery')), findsOneWidget);
+      expect(
+          find.text(AppStrings.t(true, 'choose_from_gallery')), findsOneWidget);
       expect(find.text(AppStrings.t(true, 'take_photo')), findsOneWidget);
     });
   });
@@ -1021,7 +1053,8 @@ void main() {
           (n) => n,
         ).toList();
 
-    test('المدن المطلوبة في المستند تُقدَّم بالترتيب مكة/المدينة/جدة/الرياض', () {
+    test('المدن المطلوبة في المستند تُقدَّم بالترتيب مكة/المدينة/جدة/الرياض',
+        () {
       final out = orderedNames([
         'الدمام',
         'جدة',
@@ -1062,8 +1095,10 @@ void main() {
 
   group('تسوية تكلفة الصيانة (المتطلبات 390–394)', () {
     test('كل خيار له قيمة تُرسل للسيرفر ولا تتشابه مع الأخرى', () {
-      expect(settlementPayload(MaintenanceSettlement.unitBalance), 'unit_balance');
-      expect(settlementPayload(MaintenanceSettlement.whatsappLink), 'whatsapp_link');
+      expect(
+          settlementPayload(MaintenanceSettlement.unitBalance), 'unit_balance');
+      expect(settlementPayload(MaintenanceSettlement.whatsappLink),
+          'whatsapp_link');
     });
     test('تنظيف رقم الواتساب يزيل + والمسافات والشرطات', () {
       expect(normalizeWhatsAppPhone('+966 555-634-615'), '966555634615');
@@ -1184,11 +1219,15 @@ void main() {
     test('طريقة الدفع والحالة تُترجمان عبر مفاتيحهما', () {
       final r = rows(payment: 'owner_transfer', status: 'confirmed');
       expect(
-          r.firstWhere((e) => e.$1 == AppStrings.t(true, 'payment_method_label'))
+          r
+              .firstWhere(
+                  (e) => e.$1 == AppStrings.t(true, 'payment_method_label'))
               .$2,
           AppStrings.t(true, 'pay_method_owner_transfer'));
       expect(
-          r.firstWhere((e) => e.$1 == AppStrings.t(true, 'booking_status_label'))
+          r
+              .firstWhere(
+                  (e) => e.$1 == AppStrings.t(true, 'booking_status_label'))
               .$2,
           AppStrings.t(true, 'status_confirmed'));
     });
@@ -1204,9 +1243,86 @@ void main() {
     test('التواريخ بصيغة ثابتة والغياب يظهر شرطة', () {
       final r = buildBookingSuccessRows(
           isArabic: true, hotelName: 'فندق', checkIn: null, checkOut: null);
-      final dates = r.firstWhere((e) => e.$1 == AppStrings.t(true, 'stay_dates')).$2;
+      final dates =
+          r.firstWhere((e) => e.$1 == AppStrings.t(true, 'stay_dates')).$2;
       expect(dates.contains('2026'), isFalse);
       expect(dates.contains('-'), isTrue);
+    });
+  });
+  group('أجسام طلبات الخدمات (المتطلبات 49، 53، 57، 58، 62، 65–67)', () {
+    test('المتطلبات 49 و53: طلب الوجبات المستقل يرسل عدة وجبات معًا', () {
+      final p = buildMealRequestPayload(
+        bookingId: 9,
+        roomNumber: ' 204 ',
+        mealTypes: ['breakfast', 'dinner'],
+      );
+      expect(p['booking_id'], 9);
+      expect(p['room_number'], '204');
+      expect(p['meal_types'], ['breakfast', 'dinner']);
+      expect(p.containsKey('notes'), isFalse);
+    });
+    test('طلب الوجبات يرسل الملاحظة فقط عند وجود نص فعلي', () {
+      expect(
+          buildMealRequestPayload(
+                  bookingId: 1,
+                  roomNumber: '1',
+                  mealTypes: ['lunch'],
+                  notes: '  ')
+              .containsKey('notes'),
+          isFalse);
+      expect(
+          buildMealRequestPayload(
+              bookingId: 1,
+              roomNumber: '1',
+              mealTypes: ['lunch'],
+              notes: ' بدون ملح ')['notes'],
+          'بدون ملح');
+    });
+    test('المتطلبات 57 و58: طلب خدمة الضيف يحمل النوع ورقم الوحدة', () {
+      for (final type in ['housekeeping', 'maintenance']) {
+        final p =
+            buildServiceRequestPayload(roomNumber: '12', serviceType: type);
+        expect(p['service_type'], type);
+        expect(p['room_number'], '12');
+        expect(p.containsKey('booking_id'), isFalse);
+      }
+    });
+    test('طلب خدمة الضيف يحذف الوصف الفارغ ويشذب غير الفارغ', () {
+      expect(
+          buildServiceRequestPayload(
+                  roomNumber: '1',
+                  serviceType: 'maintenance',
+                  description: '  ')
+              .containsKey('description'),
+          isFalse);
+      expect(
+          buildServiceRequestPayload(
+              roomNumber: '1',
+              serviceType: 'maintenance',
+              description: ' تكييف ')['description'],
+          'تكييف');
+    });
+    test('المتطلبات 62 و65 و67: طلب المالك يحمل النوع والفندق والوحدة', () {
+      for (final type in ['cleaning', 'meal', 'extra_bed', 'maintenance']) {
+        final p = buildOwnerRequestPayload(type: type, hotelId: 2, unitId: 30);
+        expect(p['type'], type);
+        expect(p['hotel_id'], 2);
+        expect(p['unit_id'], 30);
+        expect(p.containsKey('description'), isFalse);
+      }
+    });
+    test('المتطلب 65: وصف طلب الوجبات من المالك يجمع الوجبات والملاحظة', () {
+      expect(buildOwnerMealDescription(mealTypes: ['breakfast', 'lunch']),
+          'meals: breakfast,lunch');
+      expect(
+          buildOwnerMealDescription(mealTypes: ['dinner'], notes: 'للغرفة 12'),
+          'meals: dinner — للغرفة 12');
+      expect(buildOwnerMealDescription(mealTypes: ['lunch'], notes: '   '),
+          'meals: lunch');
+    });
+    test('وصف طلب الوجبات لا يخترع نصًا عند غياب الوجبات والملاحظة', () {
+      expect(buildOwnerMealDescription(mealTypes: []), '');
+      expect(buildOwnerMealDescription(mealTypes: ['', '  '], notes: ' '), '');
     });
   });
   group('جسم طلب إنشاء الحجز — حقول البريد (المتطلبات 144–148)', () {
@@ -1285,7 +1401,9 @@ void main() {
       final v = checkAvailability(
           checkIn: DateTime(2026, 1, 1),
           checkOut: DateTime(2026, 1, 3),
-          periods: [UnitAvailabilityModel.fromJson({'date_from': '', 'date_to': ''})]);
+          periods: [
+            UnitAvailabilityModel.fromJson({'date_from': '', 'date_to': ''})
+          ]);
       expect(v, AvailabilityVerdict.unknown);
     });
     test('إقامة داخل فترة واحدة تُقبل بلا تحذير', () {
@@ -1317,7 +1435,10 @@ void main() {
           checkAvailability(
               checkIn: DateTime(2026, 2, 27),
               checkOut: DateTime(2026, 3, 2),
-              periods: [p('2026-02-01', '2026-02-28'), p('2026-03-01', '2026-03-31')]),
+              periods: [
+                p('2026-02-01', '2026-02-28'),
+                p('2026-03-01', '2026-03-31')
+              ]),
           AvailabilityVerdict.outside);
     });
     test('يكفي أن تغطي فترة واحدة الإقامة كاملة من بين عدة فترات', () {
@@ -1325,7 +1446,10 @@ void main() {
           checkAvailability(
               checkIn: DateTime(2026, 4, 5),
               checkOut: DateTime(2026, 4, 7),
-              periods: [p('2026-01-01', '2026-01-31'), p('2026-04-01', '2026-04-30')]),
+              periods: [
+                p('2026-01-01', '2026-01-31'),
+                p('2026-04-01', '2026-04-30')
+              ]),
           AvailabilityVerdict.inside);
     });
     test('تواريخ معكوسة تُرفض', () {
@@ -1393,9 +1517,15 @@ void main() {
     });
     test('نفس الحساب مستخدم في نافذة التأكيد وملخص الصفحة (قيمة واحدة)', () {
       final a = computeBookingTotals(
-          basePricePerNight: 700, nights: 2, addonsTotal: 50, extraBedCharge: 0);
+          basePricePerNight: 700,
+          nights: 2,
+          addonsTotal: 50,
+          extraBedCharge: 0);
       final b = computeBookingTotals(
-          basePricePerNight: 700, nights: 2, addonsTotal: 50, extraBedCharge: 0);
+          basePricePerNight: 700,
+          nights: 2,
+          addonsTotal: 50,
+          extraBedCharge: 0);
       expect(a.total, b.total);
     });
   });
@@ -1484,7 +1614,8 @@ void main() {
         'cleaning_total': 50,
       });
       expect(e.length, 2);
-      expect(e.firstWhere((x) => x.labelKey == 'maintenance_expense').total, 200);
+      expect(
+          e.firstWhere((x) => x.labelKey == 'maintenance_expense').total, 200);
       expect(e.firstWhere((x) => x.labelKey == 'cleaning_expense').total, 50);
     });
     test('صافي الإيراد يخصم المصروفات المُرجَعة فقط', () {
@@ -1607,9 +1738,14 @@ void main() {
 
   group('أسعار خدمات الفندق للمالك (المتطلب 68)', () {
     test('مفاتيح الأسعار موجودة بالعربي والإنجليزي', () {
-      for (final k in ['service_prices', 'no_service_prices',
-                       'req_type_cleaning', 'req_type_maintenance',
-                       'req_type_meal', 'req_type_extra_bed']) {
+      for (final k in [
+        'service_prices',
+        'no_service_prices',
+        'req_type_cleaning',
+        'req_type_maintenance',
+        'req_type_meal',
+        'req_type_extra_bed'
+      ]) {
         expect(AppStrings.t(true, k), isNotEmpty, reason: '$k ar');
         expect(AppStrings.t(false, k), isNotEmpty, reason: '$k en');
       }
