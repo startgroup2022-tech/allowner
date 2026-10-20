@@ -379,3 +379,58 @@ filter of the full list over name/hotel/city/type using the same normalisation a
   are asserted by code inspection and unit tests only.
 - **Payment/PAN handling** and **double-booking** remain backend-blocked (see
   `docs/EXECUTION_01_BACKEND_DEPENDENCIES.md`).
+
+---
+
+## 10. Addendum — Executions 02–05 close-out (2026-10-20, later pass)
+
+The instruction was to finish Executions 02–05. This addendum records the checks
+run at the end of that work. `dart format` now passes across the whole
+repository — the earlier failure recorded in §1.1 was resolved by running
+`dart format .` once, as that section recommended.
+
+| # | Command | Result | Exit |
+|---|---|---|---|
+| 1 | `flutter --version` | 3.47.7 stable (Dart 3.13.5) | 0 |
+| 2 | `flutter pub get` | Resolved; `pubspec.yaml` unchanged | 0 |
+| 3 | `dart format --output=none --set-exit-if-changed .` | **Clean — 0 of 92 files changed** | 0 |
+| 4 | `flutter analyze` | **0 errors, 0 warnings**, 128 info | 0 |
+| 5 | `flutter test` | **193 tests, all pass** | 0 |
+
+### 10.1 Defects repaired in this pass
+
+| Defect | Evidence | Req |
+|---|---|---|
+| Support contact links were built inline with an untested private helper, so a phone stored as `+966 555 634 615` or an Arabic email subject produced a broken URL | `contact_channels.dart` + 5 tests pinning the exact `wa.me` / `tel:` / `mailto:` strings | 8 |
+| Six screens flipped directional arrows by hand (`isArabic ? chevron_left : chevron_right`). Flutter already mirrors `arrow_*` / `chevron_*` in an RTL subtree (a probe test confirmed `matchTextDirection == true` for all of them), so the manual flip cancelled the automatic one and "continue" pointed backwards | Plain icons; a widget test asserts the RTL transform matrix's first element is `-1.0` | 8, 17 |
+| Guest meal, cleaning and maintenance request bodies, and the owner cleaning / meal / extra-bed bodies, were composed inline in three call sites with nothing proving what left the device | `service_request_payload.dart` + 8 tests | 49, 53, 57, 58, 62, 65–67 |
+| The booking create payload was assembled inline in `HotelService.createBooking` | `booking_payload.dart` + `buildBookingPayload` tests | 144–148 |
+
+### 10.2 Status movement in the 148-item matrix
+
+| Status | Before this pass | After |
+|---|---|---|
+| VERIFIED PASS | 35 | **53** |
+| IMPLEMENTED UNTESTED | 63 | **50** |
+| PARTIAL | 3 | 3 |
+| BACKEND BLOCKED | 42 | 42 |
+| **Total** | 148 | 148 |
+
+Requirements moved to VERIFIED PASS: 8, 13, 36, 49, 53, 55, 57, 58, 62, 65, 67,
+68, 73, 76, 97. Requirements 120 and 126–129 were deliberately **not** moved:
+their correctness depends on fields the server may or may not return
+(`owner_bank`, `maintenance_expense`, `cleaning_expense`, multi-year `monthly[]`),
+and a unit test on a pure function does not prove the server sends those fields.
+They stay IMPLEMENTED UNTESTED with the exact field named in the matrix.
+
+### 10.3 Still not verified
+
+- **No Android device or emulator** in this container. Every test above is an
+  isolated widget/unit test; none reaches the network.
+- **The 50 IMPLEMENTED UNTESTED items need a signed-in session.** A GET probe
+  returns `401` and cannot get past it, so owner / hotel-staff / agent screens
+  are asserted by code inspection and unit tests, not by a live run.
+- **The 42 BACKEND BLOCKED items need server or site changes** and cannot be
+  delivered from this repository. Each names its missing endpoint in
+  `docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md` and
+  `docs/EXECUTION_01_BACKEND_DEPENDENCIES.md`.

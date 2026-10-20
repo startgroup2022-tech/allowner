@@ -16,9 +16,9 @@ Arabic-first (RTL) with full English (LTR) support. Builds via Codemagic.
 ```bash
 export PATH=/opt/flutter/bin:$PATH
 flutter pub get
-flutter analyze                 # baseline: 0 errors, 0 warnings, 80 info
-flutter test                    # 58 tests
-dart format lib/ test/          # see "Formatting" below
+flutter analyze                 # 0 errors, 0 warnings (info items are style-only)
+flutter test                    # 193 tests, all pass
+dart format --output=none --set-exit-if-changed .   # now clean
 ```
 
 **`/opt/flutter` does not exist in every container.** A fresh container has no Flutter at
@@ -103,22 +103,31 @@ Details and owner decisions: `docs/EXECUTION_01_BACKEND_DEPENDENCIES.md`.
 - **No subscriptions module** exists in the client. **No email** path exists (in-app
   notifications only).
 - **No Android device/emulator here**, so booking/payment/RTL behaviour is unverified on
-  hardware; the 58 tests are unit/widget tests.
+  hardware; the 193 tests are unit/widget tests.
 
 Full analysis: `docs/ALL_OWNERS_IMPLEMENTATION_GAP_REPORT.md`.
 
 ## Formatting
 
-`dart format --set-exit-if-changed .` **fails** on this repo, for two
-pre-existing reasons: the formatter changed between Dart versions (files
-byte-identical to `main` are re-wrapped), and parts of `main` were never
-formatted. Do not run a repo-wide format as part of an unrelated change — it
-produces a large diff that hides the real work. Format only the files you touch.
+`dart format --output=none --set-exit-if-changed .` **now passes** (92 files, 0
+changed). It used to fail because the formatter changed between Dart versions and
+parts of `main` were never formatted; a single dedicated `dart format .` commit
+resolved that, as the Execution 01 test-results addendum recommended. Keep it
+clean: run `dart format` on the files you touch before committing.
 
 ## Branches
 
-Work on `feature/allowners-new-version-exec01` (Execution 01). Never commit
-directly to `main`. Execution 01 is complete at commit `bfe0a93`.
+Work on `feature/allowners-new-version-exec01`. Never commit directly to `main`.
+Execution 01 is complete; Executions 02–05 are tracked in
+`docs/EXECUTION_02_05_PROGRESS.md` and `docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md`
+(53 VERIFIED PASS, 50 IMPLEMENTED UNTESTED, 3 PARTIAL, 42 BACKEND BLOCKED).
+
+**Directional icons:** do not write `isArabic ? chevron_left : chevron_right`.
+Flutter mirrors every `arrow_*` / `chevron_*` icon in an RTL subtree
+(`matchTextDirection` is true for all of them), so the manual flip cancels the
+automatic one and the arrow points the wrong way. Use the plain icon and let
+`Directionality` do the work; a widget test in `test/widgets_test.dart` guards
+this.
 
 ## Environment notes
 
