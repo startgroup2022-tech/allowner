@@ -265,3 +265,65 @@ the following, all verified by live read-only requests.
 (`/units/browse.php?owner_only=1` and `/hotels/list.php`). It requires no new
 backend work. If the backend later adds an explicit "hotels that contain owner
 units" endpoint, the section can switch to it without a UI change.
+
+---
+
+## 10. Addendum — endpoint probes run while closing Executions 02–05
+
+Every probe below is a plain `GET` against `https://all-owner.online/api`, with no
+token and no writes. The status code is the evidence, and the three codes mean
+different things:
+
+- **`401`** — the route exists and is auth-gated. A GET cannot get past it, so a
+  signed-in owner / hotel / agent account is the only way to confirm the feature.
+- **`405`** — the route exists but rejects `GET`; it is `POST`-only.
+- **`404`** — no such route. This is a real backend gap, not a client defect.
+
+### 10.1 Routes that exist (auth-gated) — the feature is unverified, not missing
+
+| Endpoint | Probe | Used by |
+|---|---|---|
+| `/user/owner-bank.php` | 401 | Owner bank details (req 118) |
+| `/user/owner-revenue.php` | 401 | Owner revenue reports (reqs 126–129) |
+| `/user/owner-requests.php` | 401 | Owner cleaning / meal / extra-bed requests (reqs 60, 62, 65, 67, 70) |
+| `/user/owner-maintenance.php` | 401 | Owner maintenance requests (reqs 69, 72) |
+| `/user/owner-meals.php` | 401 | Owner meal list (req 65) |
+| `/user/owner-staff.php` | 401 | Owner staff management (req 75) |
+| `/hotel/requests.php` | 401 | Hotel-side request handling (reqs 83, 85, 86, 88, 90–92) |
+| `/hotel/prices.php` | 401 | Service pricing, hotel and owner (reqs 68, 82, 84, 87, 89) |
+| `/hotel/bookings.php` | 401 | Hotel check-in / check-out (reqs 78, 79) |
+| `/hotel/dashboard.php` | 401 | Hotel dashboard (req 80) |
+| `/user/agent-clients.php` | 401 | Agent client list (reqs 93, 99) |
+| `/user/agent-commission.php` | 401 | Agent commissions (reqs 108, 109) |
+
+### 10.2 Routes that exist but are `POST`-only
+
+| Endpoint | Probe | Used by |
+|---|---|---|
+| `/bookings/create.php` | 405 | Booking creation (reqs 144–148) |
+| `/bookings/manage.php` | 405 | Booking edit / cancel (reqs 40–43) |
+| `/services/request.php` | 405 | Guest maintenance / cleaning request (reqs 57–59) |
+| `/services/meal-request.php` | 405 | Guest meal request (reqs 49, 53) |
+
+### 10.3 Routes that do **not** exist — genuine backend gaps
+
+These are the reason the corresponding matrix items are `BACKEND BLOCKED` or
+`PARTIAL`. None of them can be created from this repository.
+
+| Missing route | Blocks | Requirement |
+|---|---|---|
+| `/auth/forgot-password.php` (and every `auth/forgot*` path) | Password reset — the login screen routes to Help & Support instead of a dead button | 110 |
+| `/services/my-requests.php`, `/services/requests.php`, `/services/my_service_requests.php` | Guest viewing their own service-request status | 59 (partly) |
+| `/user/owner-subscription.php`, `/subscription/status.php` | Owner annual subscription, gating, payment page, terms | 121–125 |
+| `/user/owner-prices.php` | Owner-specific price endpoint (the hotel endpoint is reused) | 68 |
+| `/user/agent-bank.php`, `/user/agent-commission-transfer.php`, `/user/agent-payout.php`, `/user/agent-commission-withdraw.php` | Agent commission transfer / payout | 108, 109 |
+| any wallet / ledger / payout route | Owner wallet, ledger, weekly payout, split payment | 132–143 |
+
+### 10.4 One mobile-side dependency worth naming
+
+`units/detail.php` returns **no** `facilities` or `amenities` key. The unit-detail
+screen therefore renders the service-category sections only from what the
+endpoint actually sends, and the matrix item (76) records that the amenity
+relationship for a *unit* has to come from the server before the section can be
+populated with real data. Hotel amenities are unaffected — `hotels/detail.php`
+does return them (11 for hotel 4).
