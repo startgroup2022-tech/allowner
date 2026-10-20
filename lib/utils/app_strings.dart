@@ -200,6 +200,19 @@ class AppStrings {
       'ar': 'متاحة لجميع ضيوف الفندق',
       'en': 'Available to all guests of the hotel'
     },
+    // المتطلب 76: تصنيفات خدمات الوحدة الخمسة (مفارش/طعام/حمام/وسائط/معدات).
+    'unit_services': {'ar': 'خدمات الوحدة', 'en': 'Unit services'},
+    'svc_cat_bedding': {'ar': 'المفارش', 'en': 'Bedding'},
+    'svc_cat_food': {'ar': 'الطعام والمشروبات', 'en': 'Food & beverages'},
+    'svc_cat_bathroom': {'ar': 'الحمام', 'en': 'Bathroom'},
+    'svc_cat_media': {'ar': 'الوسائط والتكنولوجيا', 'en': 'Media & technology'},
+    'svc_cat_equipment': {'ar': 'الخدمة والمعدات', 'en': 'Service & equipment'},
+    'svc_cat_other': {'ar': 'خدمات أخرى', 'en': 'Other services'},
+    'unit_services_empty_note': {
+      'ar': 'لم تُضف خدمات خاصة لهذه الوحدة — راجع مرافق الفندق المشتركة أدناه',
+      'en':
+          'No unit-specific services were added — see the shared hotel facilities below'
+    },
     'unit_facilities_empty_note': {
       'ar': 'لم تُضف مرافق خاصة لهذه الوحدة — راجع مرافق الفندق المشتركة أدناه',
       'en':

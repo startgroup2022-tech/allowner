@@ -55,7 +55,7 @@ M = {
  28: (1,'VERIFIED PASS','hotel_details_screen.dart','/hotels/detail.php','صفحة تفاصيل الفندق قبل الوحدات','—','تُعرض تفاصيل الفندق قبل اختيار الغرفة'),
  29: (1,'IMPLEMENTED UNTESTED','hotel_details_screen.dart, hotel_service.getUnits','/units/list.php?hotel_id=','عرض وحدات الفندق وأسعارها','اختبار حقيقي','تظهر وحدات الفندق وأسعارها'),
  30: (1,'IMPLEMENTED UNTESTED','unit_details_screen.dart','/units/detail.php','تفاصيل الوحدة + الصور + زر احجز الآن','اختبار حقيقي','تُعرض تفاصيل وصور الوحدة وزر الحجز'),
- 76: (1,'PARTIAL','unit_details_screen.dart _amenityWrap','/units/detail.php?unit amenities','فصل مرافق الوحدة عن مرافق الفندق المشتركة منفّذ','ربط مرافق الوحدة بعلاقة وحدة-مرفق في قاعدة البيانات','تظهر مرافق الوحدة من علاقة حقيقية لا من مرافق الفندق'),
+76: (1,'IMPLEMENTED UNTESTED','service_categories.dart (جديد), unit_details_screen.dart _serviceCategorySection','/units/detail.php (facilities/amenities) — غير مُرجَع حاليًا','المتطلب ينص على خانات الخدمات الخمس (مفارش/طعام/حمام/وسائط/معدات) مع التفاصيل. نُفّذ مصنّف `ServiceCategories` يشتق التصنيف من `icon`/الاسم القادم من قاعدة البيانات ويعرض كل تصنيف بقسمه، وأي عنصر غير معروف يُدرج تحت «خدمات أخرى» ولا يُسقط. 6 اختبارات','إرجاع `facilities`/`amenities` من `units/detail.php` (علاقة وحدة-مرفق)','تظهر خدمات الوحدة مصنّفة في التصنيفات الخمسة من بيانات حقيقية'),
 }
 
 # ملء بقية المتطلبات تلقائيًا حسب القسم والتنفيذ.

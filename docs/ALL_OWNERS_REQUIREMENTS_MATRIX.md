@@ -26,8 +26,8 @@
 | الحالة | العدد |
 |---|---|
 | VERIFIED PASS | 22 |
-| IMPLEMENTED UNTESTED | 73 |
-| PARTIAL | 4 |
+| IMPLEMENTED UNTESTED | 74 |
+| PARTIAL | 3 |
 | NOT IMPLEMENTED | 0 |
 | BACKEND BLOCKED | 49 |
 | OWNER DECISION REQUIRED | 0 |
@@ -863,12 +863,12 @@
 
 - **القسم:** المالك والخدمات — 17 نقطة
 - **التنفيذ:** Execution 01
-- **الحالة:** PARTIAL
-- **ملفات Flutter:** unit_details_screen.dart _amenityWrap
-- **اعتماد الـ API:** /units/detail.php?unit amenities
-- **الدليل:** فصل مرافق الوحدة عن مرافق الفندق المشتركة منفّذ
-- **المتبقي:** ربط مرافق الوحدة بعلاقة وحدة-مرفق في قاعدة البيانات
-- **معيار القبول:** تظهر مرافق الوحدة من علاقة حقيقية لا من مرافق الفندق
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** service_categories.dart (جديد), unit_details_screen.dart _serviceCategorySection
+- **اعتماد الـ API:** /units/detail.php (facilities/amenities) — غير مُرجَع حاليًا
+- **الدليل:** المتطلب ينص على خانات الخدمات الخمس (مفارش/طعام/حمام/وسائط/معدات) مع التفاصيل. نُفّذ مصنّف `ServiceCategories` يشتق التصنيف من `icon`/الاسم القادم من قاعدة البيانات ويعرض كل تصنيف بقسمه، وأي عنصر غير معروف يُدرج تحت «خدمات أخرى» ولا يُسقط. 6 اختبارات
+- **المتبقي:** إرجاع `facilities`/`amenities` من `units/detail.php` (علاقة وحدة-مرفق)
+- **معيار القبول:** تظهر خدمات الوحدة مصنّفة في التصنيفات الخمسة من بيانات حقيقية
 
 ### 77. استقبال رسائل الطلبات بالبريد الإلكتروني
 

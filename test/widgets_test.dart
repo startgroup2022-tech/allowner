@@ -15,6 +15,7 @@ import 'package:allowners/theme/app_colors.dart';
 import 'package:allowners/theme/app_theme.dart';
 import 'package:allowners/utils/amenity_icons.dart';
 import 'package:allowners/utils/app_strings.dart';
+import 'package:allowners/utils/service_categories.dart';
 import 'package:allowners/widgets/cards.dart';
 import 'package:allowners/widgets/state_views.dart';
 import 'package:flutter/material.dart';
@@ -937,6 +938,59 @@ void main() {
       );
       expect(find.textContaining('everything you need to manage your property'),
           findsOneWidget);
+    });
+  });
+
+  group('تصنيفات خدمات الوحدة (المتطلب 76)', () {
+    ServiceCategory classify(String icon) =>
+        ServiceCategories.classify(iconKey: icon);
+
+    test('تصنيف أيقونات الملاف والمفارش', () {
+      expect(classify('bed'), ServiceCategory.bedding);
+      expect(classify('extra_bed'), ServiceCategory.bedding);
+      expect(ServiceCategories.classify(nameAr: 'مفارش قطنية'),
+          ServiceCategory.bedding);
+    });
+    test('تصنيف الطعام والمشروبات', () {
+      expect(classify('restaurant'), ServiceCategory.food);
+      expect(classify('room_service'), ServiceCategory.food);
+      expect(classify('coffee_maker'), ServiceCategory.food);
+      expect(ServiceCategories.classify(nameAr: 'وجبة إفطار'),
+          ServiceCategory.food);
+    });
+    test('تصنيف الحمام والوسائط والمعدات', () {
+      expect(classify('bathroom'), ServiceCategory.bathroom);
+      expect(classify('tv'), ServiceCategory.media);
+      expect(classify('wifi'), ServiceCategory.media);
+      expect(classify('safe'), ServiceCategory.equipment);
+      expect(classify('laundry'), ServiceCategory.equipment);
+    });
+    test('العنصر غير المعروف يُوضع في «خدمات أخرى» ولا يُسقط', () {
+      final groups = ServiceCategories.group([
+        {'icon': 'unknown_key_xyz', 'name_ar': 'شيء', 'name_en': 'Thing'},
+      ]);
+      expect(groups.length, 1);
+      expect(groups.single.category, ServiceCategory.other);
+      expect(groups.single.items.length, 1);
+    });
+    test('التجميع يحافظ على كل العناصر وترتيب التصنيفات', () {
+      final items = [
+        {'icon': 'wifi'},
+        {'icon': 'bed'},
+        {'icon': 'restaurant'},
+        {'icon': 'laundry'},
+      ];
+      final groups = ServiceCategories.group(items);
+      expect(groups.map((g) => g.category).toList(), [
+        ServiceCategory.bedding,
+        ServiceCategory.food,
+        ServiceCategory.media,
+        ServiceCategory.equipment,
+      ]);
+      expect(groups.fold<int>(0, (n, g) => n + g.items.length), 4);
+    });
+    test('القائمة الفارغة تُرجع بلا مجموعات', () {
+      expect(ServiceCategories.group(const []), isEmpty);
     });
   });
 

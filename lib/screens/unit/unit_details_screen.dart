@@ -9,6 +9,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
+import '../../utils/service_categories.dart';
 import '../../widgets/cards.dart';
 import '../../widgets/state_views.dart';
 import '../booking/booking_screen.dart';
@@ -464,28 +465,31 @@ class _UnitDetailsScreenState extends ConsumerState<UnitDetailsScreen> {
     );
   }
 
-  /// مرافق الوحدة ثم مرافق الفندق المشتركة، في قسمين واضحين.
+  /// خدمات الوحدة (مصنّفة حسب المتطلب 76) ثم مرافق الفندق المشتركة.
   ///
-  /// الـ API الحالي لا يعيد أي حقل مرافق للوحدة (`units/detail.php`)، لذلك
-  /// قسم الوحدة يشرح الوضع بدل أن يبدو معطّلًا. مرافق الفندق تُعرض كمرافق
-  /// مشتركة موسومة بوضوح حتى لا يظن الضيف أنها خاصة بالوحدة.
+  /// الـ API الحالي لا يعيد أي حقل مرافق/خدمات للوحدة (`units/detail.php`)،
+  /// لذلك قسم الوحدة يشرح الوضع بدل أن يبدو معطّلًا. عند توفّر `facilities`
+  /// أو `amenities` في الوحدة تُعرض مصنّفة في التصنيفات الخمسة (مفارش/طعام/
+  /// حمام/وسائط/معدات). مرافق الفندق تُعرض كمرافق مشتركة موسومة بوضوح حتى لا
+  /// يظن الضيف أنها خاصة بالوحدة.
   Widget _buildFacilities(BuildContext context, UnitModel unit, bool isArabic) {
     final textTheme = Theme.of(context).textTheme;
     final unitFacilities = unit.facilities;
+    final groups = ServiceCategories.group(unitFacilities);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(AppStrings.t(isArabic, 'unit_facilities'),
+        Text(AppStrings.t(isArabic, 'unit_services'),
             style: textTheme.titleMedium),
         const SizedBox(height: AppDimens.sm),
-        if (unitFacilities.isEmpty)
+        if (groups.isEmpty)
           Text(
-            AppStrings.t(isArabic, 'unit_facilities_empty_note'),
+            AppStrings.t(isArabic, 'unit_services_empty_note'),
             style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
           )
         else
-          _amenityWrap(unitFacilities, isArabic),
+          ...groups.map((group) => _serviceCategorySection(group, isArabic)),
         if (_hotelAmenities.isNotEmpty) ...[
           const SizedBox(height: AppDimens.lg),
           Row(
@@ -511,6 +515,53 @@ class _UnitDetailsScreenState extends ConsumerState<UnitDetailsScreen> {
         ],
       ],
     );
+  }
+
+  /// قسم تصنيف خدمة واحد: عنوان بأيقونة التصنيف ثم شرائح المرافق.
+  Widget _serviceCategorySection(ServiceCategoryGroup group, bool isArabic) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppDimens.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(ServiceCategories.iconFor(group.category),
+                  size: 16, color: AppColors.goldDark),
+              const SizedBox(width: AppDimens.sm),
+              Expanded(
+                child: Text(
+                  AppStrings.t(isArabic, _categoryKey(group.category)),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDimens.sm),
+          _amenityWrap(group.items, isArabic),
+        ],
+      ),
+    );
+  }
+
+  String _categoryKey(ServiceCategory category) {
+    switch (category) {
+      case ServiceCategory.bedding:
+        return 'svc_cat_bedding';
+      case ServiceCategory.food:
+        return 'svc_cat_food';
+      case ServiceCategory.bathroom:
+        return 'svc_cat_bathroom';
+      case ServiceCategory.media:
+        return 'svc_cat_media';
+      case ServiceCategory.equipment:
+        return 'svc_cat_equipment';
+      case ServiceCategory.other:
+        return 'svc_cat_other';
+    }
   }
 
   Widget _amenityWrap(List<Map<String, dynamic>> items, bool isArabic) {
