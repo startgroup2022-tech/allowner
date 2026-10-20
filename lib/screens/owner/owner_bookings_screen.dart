@@ -8,6 +8,42 @@ import '../../services/owner_service.dart';
 import '../../services/api_client.dart';
 import '../../utils/safe_parse.dart';
 
+/// المتطلب 73: أسطر ملخّص إضافات الحجز (وجبات / سرير إضافي / ملاحظات) من الحقول
+/// الحقيقية التي يُرجعها الـ API. دالة نقية قابلة للاختبار؛ لا تُختلق بيانات.
+List<String> buildBookingAddonLines(bool isArabic, Map<String, dynamic> b) {
+  final lines = <String>[];
+
+  final meals = asMapList(b['addons'] ?? b['meal_addons'])
+      .map((a) => (isArabic ? a['name_ar'] : a['name_en']) ?? a['name'])
+      .where((n) => n != null && n.toString().trim().isNotEmpty)
+      .map((n) => n.toString())
+      .toList();
+  final legacyMeals = asMapList(b['meal_types'])
+      .map((m) => m['name'] ?? m['type'])
+      .where((n) => n != null && n.toString().trim().isNotEmpty)
+      .map((n) => AppStrings.t(isArabic, 'meal_option_$n'))
+      .toList();
+  final allMeals = [...meals, ...legacyMeals];
+  if (allMeals.isNotEmpty) {
+    lines.add('🍽️ ${AppStrings.t(isArabic, 'meal_type')}: ${allMeals.join(isArabic ? '، ' : ', ')}');
+  }
+
+  final extraBedQty = asInt(b['extra_bed_count'] ?? b['extra_beds'], 0);
+  final extraBedPrice = asDouble(b['extra_bed_price']);
+  if (extraBedQty > 0 || extraBedPrice > 0) {
+    final qtyPart = extraBedQty > 0 ? ' × $extraBedQty' : '';
+    final pricePart = extraBedPrice > 0
+        ? ' (${extraBedPrice.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')})'
+        : '';
+    lines.add('🛏️ ${AppStrings.t(isArabic, 'add_extra_bed')}$qtyPart$pricePart');
+  }
+
+  final notes = (b['notes'] ?? '').toString().trim();
+  if (notes.isNotEmpty) lines.add('📝 $notes');
+
+  return lines;
+}
+
 class OwnerBookingsScreen extends ConsumerStatefulWidget {
   const OwnerBookingsScreen({super.key});
 
@@ -188,6 +224,12 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
     }
   }
 
+  List<Widget> _addonSummaryLines(
+          bool isArabic, TextTheme textTheme, Map<String, dynamic> b) =>
+      buildBookingAddonLines(isArabic, b)
+          .map((line) => Text(line, style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)))
+          .toList();
+
   Color _statusColor(String status) {
     switch (status) {
       case 'confirmed':
@@ -292,6 +334,11 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
                           Text('📞 ${b['guest_phone']}', style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
                         if ((b['guest_id_number'] ?? '').toString().isNotEmpty)
                           Text('🪪 ${b['guest_id_number']}', style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                        // المتطلب 73: إظهار إضافات الوجبات والسرير الإضافي في حجوزات
+                        // المالك. تُعرض فقط الحقول التي يُرجعها الـ API فعليًا؛ إن لم
+                        // يُرجعها بعد فلا تُختلق بيانات (اعتماد السيرفر موثّق في
+                        // docs/EXECUTION_01_BACKEND_DEPENDENCIES.md).
+                        ..._addonSummaryLines(isArabic, textTheme, b),
                         const Divider(height: AppDimens.lg),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -54,6 +54,133 @@ class _OwnerMealRequestsScreenState extends ConsumerState<OwnerMealRequestsScree
     }
   }
 
+  /// المتطلب 65: إنشاء طلب وجبات من حساب المالك وإرساله لإدارة الفندق.
+  /// يستخدم نفس مسار الطلبات المُثبت `/user/owner-requests.php` بنوع `meal`،
+  /// فيظهر الطلب في قائمة طلبات الفندق (نوع `meal` مدعوم في hotel/requests.php).
+  Future<void> _openNewMealRequest(bool isArabic) async {
+    List<Map<String, dynamic>> units;
+    try {
+      units = await _service.getUnits();
+    } catch (_) {
+      units = const [];
+    }
+    if (!mounted) return;
+
+    int? selectedUnitId = units.isNotEmpty ? asInt(units.first['id']) : null;
+    int? selectedHotelId = units.isNotEmpty ? asInt(units.first['hotel_id']) : null;
+    final selectedMeals = <String>{};
+    final descCtrl = TextEditingController();
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: AppDimens.pagePadding,
+            right: AppDimens.pagePadding,
+            top: AppDimens.pagePadding,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + AppDimens.pagePadding,
+          ),
+          child: StatefulBuilder(
+            builder: (ctx, setSheetState) => SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(AppStrings.t(isArabic, 'new_meal_request'), style: Theme.of(ctx).textTheme.titleMedium),
+                  const SizedBox(height: AppDimens.md),
+                  if (units.isNotEmpty)
+                    DropdownButtonFormField<int>(
+                      value: selectedUnitId,
+                      decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'select_unit')),
+                      items: units
+                          .map((u) => DropdownMenuItem<int>(
+                                value: asInt(u['id']),
+                                child: Text(isArabic ? (u['name_ar']?.toString() ?? '') : (u['name_en']?.toString() ?? '')),
+                              ))
+                          .toList(),
+                      onChanged: (v) {
+                        final unit = units.firstWhere((u) => u['id'] == v);
+                        setSheetState(() {
+                          selectedUnitId = v;
+                          selectedHotelId = asInt(unit['hotel_id']);
+                        });
+                      },
+                    )
+                  else
+                    Text(AppStrings.t(isArabic, 'no_units_yet'), style: const TextStyle(color: AppColors.textMuted)),
+                  const SizedBox(height: AppDimens.md),
+                  Text(AppStrings.t(isArabic, 'meal_type'), style: Theme.of(ctx).textTheme.titleSmall),
+                  const SizedBox(height: AppDimens.sm),
+                  Wrap(
+                    spacing: AppDimens.sm,
+                    runSpacing: AppDimens.sm,
+                    children: ['breakfast', 'lunch', 'dinner'].map((m) {
+                      final selected = selectedMeals.contains(m);
+                      return FilterChip(
+                        label: Text(AppStrings.t(isArabic, 'meal_option_$m')),
+                        selected: selected,
+                        selectedColor: AppColors.gold.withOpacity(0.2),
+                        onSelected: (v) => setSheetState(() {
+                          if (v) {
+                            selectedMeals.add(m);
+                          } else {
+                            selectedMeals.remove(m);
+                          }
+                        }),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: AppDimens.md),
+                  TextField(
+                    controller: descCtrl,
+                    maxLines: 3,
+                    decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'notes')),
+                  ),
+                  const SizedBox(height: AppDimens.lg),
+                  SizedBox(
+                    width: double.infinity,
+                    height: AppDimens.buttonHeight,
+                    child: ElevatedButton(
+                      onPressed: (selectedUnitId == null || selectedHotelId == null || selectedMeals.isEmpty)
+                          ? null
+                          : () async {
+                              try {
+                                await _service.createOwnerHotelRequest(
+                                  type: 'meal',
+                                  hotelId: selectedHotelId!,
+                                  unitId: selectedUnitId!,
+                                  description: [
+                                    'meals: ${selectedMeals.join(',')}',
+                                    if (descCtrl.text.trim().isNotEmpty) descCtrl.text.trim(),
+                                  ].join(' — '),
+                                );
+                                if (ctx.mounted) Navigator.of(ctx).pop();
+                                _reload();
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(AppStrings.t(isArabic, 'request_sent'))),
+                                  );
+                                }
+                              } on ApiException catch (e) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+                                }
+                              }
+                            },
+                      child: Text(AppStrings.t(isArabic, 'submit')),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _advanceStatus(bool isArabic, int id, String currentStatus) async {
     final idx = _statusFlow.indexOf(currentStatus);
     if (idx == -1 || idx >= _statusFlow.length - 1) return;
@@ -81,6 +208,11 @@ class _OwnerMealRequestsScreenState extends ConsumerState<OwnerMealRequestsScree
         backgroundColor: AppColors.surface,
         elevation: 0,
         title: Text(AppStrings.t(isArabic, 'meal_requests')),
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.gold,
+        onPressed: () => _openNewMealRequest(isArabic),
+        child: const Icon(Icons.add, color: AppColors.textOnGold),
       ),
       body: SafeArea(
         child: RefreshIndicator(

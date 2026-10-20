@@ -773,6 +773,7 @@ class AppStrings {
       'en': 'Add-ons (extra bed / meal plans)'
     },
     'meals_total': {'ar': 'إجمالي الوجبات', 'en': 'Meals total'},
+    'new_meal_request': {'ar': 'طلب وجبات جديد', 'en': 'New meal request'},
     'search_unit_number': {'ar': 'ابحث برقم الوحدة', 'en': 'Search by unit number'},
     'unit_no': {'ar': 'وحدة رقم', 'en': 'Unit'},
     'no_matching_bookings': {'ar': 'لا توجد حجوزات مطابقة', 'en': 'No matching bookings'},

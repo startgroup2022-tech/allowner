@@ -4,6 +4,7 @@ import 'package:allowners/models/hotel_model.dart';
 import 'package:allowners/models/owner_hotel_summary.dart';
 import 'package:allowners/models/unit_model.dart';
 import 'package:allowners/screens/hotel_staff/hotel_bookings_screen.dart';
+import 'package:allowners/screens/owner/owner_bookings_screen.dart';
 import 'package:allowners/services/hotel_service.dart';
 import 'package:allowners/theme/app_colors.dart';
 import 'package:allowners/theme/app_theme.dart';
@@ -703,6 +704,60 @@ void main() {
 
     test('لا نتائج عند عدم التطابق', () {
       expect(filterBookingsByUnit(bookings, 'zzz'), isEmpty);
+    });
+  });
+
+  group('إضافات الحجز في حجوزات المالك (المتطلب 73)', () {
+    test('حجز بلا إضافات لا ينتج أسطرًا', () {
+      expect(buildBookingAddonLines(true, const {'id': 1}), isEmpty);
+    });
+
+    test('وجبات من addons تُعرض بالاسم العربي', () {
+      final lines = buildBookingAddonLines(true, const {
+        'addons': [
+          {'name_ar': 'فطور', 'name_en': 'Breakfast'},
+          {'name_ar': 'عشاء', 'name_en': 'Dinner'},
+        ]
+      });
+      expect(lines.single, contains('فطور'));
+      expect(lines.single, contains('عشاء'));
+    });
+
+    test('الوجبات القديمة meal_types تُترجم', () {
+      final lines = buildBookingAddonLines(true, const {
+        'meal_types': [
+          {'type': 'breakfast'}
+        ]
+      });
+      expect(lines.single, contains(AppStrings.t(true, 'meal_option_breakfast')));
+    });
+
+    test('السرير الإضافي يعرض الكمية والسعر', () {
+      final lines = buildBookingAddonLines(true, const {
+        'extra_bed_count': 2,
+        'extra_bed_price': 150.0,
+      });
+      expect(lines.single, contains('× 2'));
+      expect(lines.single, contains('150'));
+    });
+
+    test('قيم نصية للسرير الإضافي لا ترمي استثناء', () {
+      final lines = buildBookingAddonLines(false, const {
+        'extra_bed_count': '3',
+        'extra_bed_price': '99.5',
+      });
+      expect(lines.single, contains('× 3'));
+      expect(lines.single, contains('100'));
+    });
+
+    test('الملاحظات تظهر إن وُجدت', () {
+      final lines = buildBookingAddonLines(true, const {'notes': '  سرير قرب النافذة  '});
+      expect(lines.single, contains('سرير قرب النافذة'));
+    });
+
+    test('addons بقيمة غير قائمة لا ترمي استثناء', () {
+      expect(buildBookingAddonLines(true, const {'addons': 'oops'}), isEmpty);
+      expect(buildBookingAddonLines(true, const {'addons': null}), isEmpty);
     });
   });
 }
