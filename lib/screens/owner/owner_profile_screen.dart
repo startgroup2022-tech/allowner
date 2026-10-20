@@ -138,10 +138,10 @@ class OwnerProfileScreen extends ConsumerWidget {
               const SizedBox(height: AppDimens.xl),
 
               _MenuSection(items: [
-                // الوكيل يرى «تقارير عمولات» لا «التقارير المالية» (متطلب 100).
+                // الوكيل يرى «تقارير العمولات» لا «التقارير المالية» (متطلب 100).
                 _MenuItem(
                   icon: Icons.bar_chart_outlined,
-                  label: AppStrings.t(isArabic, isAgent ? 'my_commission' : 'financial_reports'),
+                  label: AppStrings.t(isArabic, isAgent ? 'commission_reports' : 'financial_reports'),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => isAgent ? const OwnerCommissionScreen() : const OwnerRevenueScreen(),
                   )),

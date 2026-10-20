@@ -25,8 +25,8 @@
 
 | الحالة | العدد |
 |---|---|
-| VERIFIED PASS | 24 |
-| IMPLEMENTED UNTESTED | 79 |
+| VERIFIED PASS | 32 |
+| IMPLEMENTED UNTESTED | 71 |
 | PARTIAL | 2 |
 | NOT IMPLEMENTED | 0 |
 | BACKEND BLOCKED | 43 |
@@ -1127,10 +1127,10 @@
 
 - **القسم:** وكيل الحجوزات — 17 نقطة
 - **التنفيذ:** Execution 03
-- **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** owner_profile_screen.dart:138-146, app_strings my_commission
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** role_menus.dart agentMenu + app_strings commission_reports
 - **اعتماد الـ API:** /user/agent-commission.php
-- **الدليل:** أول عنصر في قائمة الوكيل أصبح «تقارير عمولاتي» ويقود لشاشة العمولات
+- **الدليل:** قائمة الوكيل تعرض «تقارير العمولات» (commission_reports) لا «التقارير المالية»، وتقود لشاشة العمولات. مُتحقَّق باختبار على بيانات القائمة
 - **المتبقي:** —
 - **معيار القبول:** تظهر تقارير العمولات
 
@@ -1138,10 +1138,10 @@
 
 - **القسم:** وكيل الحجوزات — 17 نقطة
 - **التنفيذ:** Execution 03
-- **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** owner_profile_screen.dart:150 if(!isAgent)
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** role_menus.dart agentMenu (لا contracts)
 - **اعتماد الـ API:** —
-- **الدليل:** العقود والمستندات مخفية عن الوكيل
+- **الدليل:** لا يوجد عنصر contracts في قائمة الوكيل، ولا في قائمة بريده. مُتحقَّق باختبار
 - **المتبقي:** —
 - **معيار القبول:** لا تظهر للوكيل
 
@@ -1149,10 +1149,10 @@
 
 - **القسم:** وكيل الحجوزات — 17 نقطة
 - **التنفيذ:** Execution 03
-- **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** owner_profile_screen.dart:177 if(!isAgent)
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** role_menus.dart agentMenu (لا community)
 - **اعتماد الـ API:** —
-- **الدليل:** مجتمع الملاك مخفي عن الوكيل
+- **الدليل:** لا يوجد عنصر community في قائمة الوكيل. مُتحقَّق باختبار
 - **المتبقي:** —
 - **معيار القبول:** لا يظهر للوكيل
 
@@ -1160,10 +1160,10 @@
 
 - **القسم:** وكيل الحجوزات — 17 نقطة
 - **التنفيذ:** Execution 03
-- **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** owner_profile_screen.dart:161 if(!isAgent)
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** role_menus.dart agentMenu (لا voting)
 - **اعتماد الـ API:** —
-- **الدليل:** التصويت مخفي عن الوكيل
+- **الدليل:** لا يوجد عنصر voting في قائمة الوكيل. مُتحقَّق باختبار
 - **المتبقي:** —
 - **معيار القبول:** لا يظهر للوكيل
 
@@ -1171,10 +1171,10 @@
 
 - **القسم:** وكيل الحجوزات — 17 نقطة
 - **التنفيذ:** Execution 03
-- **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** owner_home_screen.dart
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** role_menus.dart agentMenu (maintenance)
 - **اعتماد الـ API:** —
-- **الدليل:** خدمات الصيانة باقية للوكيل (لم تُحجب مع 101-103)
+- **الدليل:** خدمات الصيانة باقية في قائمة الوكيل. مُتحقَّق باختبار
 - **المتبقي:** —
 - **معيار القبول:** تظهر للوكيل
 
@@ -1182,33 +1182,33 @@
 
 - **القسم:** وكيل الحجوزات — 17 نقطة
 - **التنفيذ:** Execution 03
-- **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** owner_home_screen.dart:80-85 OwnerMealRequestsScreen
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** role_menus.dart agentMenu mealRequests → OwnerMealRequestsScreen
 - **اعتماد الـ API:** /services/meal-request.php
-- **الدليل:** طلب الوجبات مُضاف لقائمة الوكيل
-- **المتبقي:** اختبار حقيقي
+- **الدليل:** طلب الوجبات مُضاف لقائمة الوكيل ويقود للشاشة. مُتحقَّق باختبار
+- **المتبقي:** اختبار حقيقي بحساب وكيل
 - **معيار القبول:** يظهر للوكيل
 
 ### 106. إضافة طلب النظافة في قائمة الوكيل
 
 - **القسم:** وكيل الحجوزات — 17 نقطة
 - **التنفيذ:** Execution 03
-- **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** owner_home_screen.dart:86-90 OwnerCleaningScreen
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** role_menus.dart agentMenu cleaningRequests → OwnerCleaningScreen
 - **اعتماد الـ API:** /services/request.php
-- **الدليل:** طلب النظافة مُضاف لقائمة الوكيل
-- **المتبقي:** اختبار حقيقي
+- **الدليل:** طلب النظافة مُضاف لقائمة الوكيل ويقود للشاشة. مُتحقَّق باختبار
+- **المتبقي:** اختبار حقيقي بحساب وكيل
 - **معيار القبول:** يظهر للوكيل
 
 ### 107. إضافة طلب سرير إضافي في قائمة الوكيل
 
 - **القسم:** وكيل الحجوزات — 17 نقطة
 - **التنفيذ:** Execution 03
-- **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** owner_home_screen.dart:91-95 خدمة السرير الإضافي
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** role_menus.dart agentMenu extraBedRequests → OwnerExtraBedScreen
 - **اعتماد الـ API:** /services/request.php
-- **الدليل:** طلب السرير الإضافي مُضاف لقائمة الوكيل ويقود لسطح طلبات الخدمة
-- **المتبقي:** اختبار حقيقي
+- **الدليل:** طلب السرير الإضافي مُضاف لقائمة الوكيل ويقود للشاشة. مُتحقَّق باختبار
+- **المتبقي:** اختبار حقيقي بحساب وكيل
 - **معيار القبول:** يظهر للوكيل
 
 ### 108. تحويل العمولات غير المدفوعة

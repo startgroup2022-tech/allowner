@@ -116,6 +116,7 @@ class AppStrings {
     'featured_deals': {'ar': 'عروض مميزة', 'en': 'Featured Deals'},
     'newest_suites': {'ar': 'أحدث الوحدات', 'en': 'Newest Units'},
     'my_commission': {'ar': 'عمولتي', 'en': 'My Commission'},
+    'commission_reports': {'ar': 'تقارير العمولات', 'en': 'Commission Reports'},
     'commission_setting': {
       'ar': 'إعداد العمولة الحالي',
       'en': 'Current commission setting'

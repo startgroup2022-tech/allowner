@@ -21,6 +21,7 @@ import 'package:allowners/utils/arabic_text.dart';
 import 'package:allowners/utils/category_labels.dart';
 import 'package:allowners/utils/city_ordering.dart';
 import 'package:allowners/utils/maintenance_settlement.dart';
+import 'package:allowners/utils/role_menus.dart';
 import 'package:allowners/utils/revenue_reports.dart';
 import 'package:allowners/utils/session_provider.dart';
 import 'package:allowners/utils/service_categories.dart';
@@ -1091,6 +1092,61 @@ void main() {
         expect(AppStrings.t(false, key).isNotEmpty, isTrue, reason: key);
         expect(AppStrings.t(true, key) == key, isFalse, reason: key);
       }
+    });
+  });
+  group('قائمة الوكيل (المتطلبات 100–107)', () {
+    List<MenuTarget> targets(String? role) =>
+        menuForRole(role).map((e) => e.target).toList();
+
+    test('المتطلب 100: الوكيل يرى تقارير العمولات لا التقارير المالية', () {
+      final keys = agentMenu.map((e) => e.labelKey).toList();
+      expect(keys.contains('commission_reports'), isTrue);
+      expect(keys.contains('financial_reports'), isFalse);
+      expect(agentMenu.any((e) => e.target == MenuTarget.commission), isTrue);
+    });
+    test('المتطلبات 101–103: لا عقود ولا مجتمع ملاك ولا تصويت للوكيل', () {
+      final t = targets('booking_agent');
+      expect(t.contains(MenuTarget.contracts), isFalse);
+      expect(t.contains(MenuTarget.community), isFalse);
+      expect(t.contains(MenuTarget.voting), isFalse);
+    });
+    test('المتطلب 104: خدمات الصيانة تبقى في قائمة الوكيل', () {
+      expect(targets('booking_agent').contains(MenuTarget.maintenance), isTrue);
+    });
+    test('المتطلبات 105–107: طلبات الوجبات والنظافة والسرير مضافة للوكيل', () {
+      final t = targets('booking_agent');
+      expect(t.contains(MenuTarget.mealRequests), isTrue);
+      expect(t.contains(MenuTarget.cleaningRequests), isTrue);
+      expect(t.contains(MenuTarget.extraBedRequests), isTrue);
+    });
+    test('قائمة المالك تحتفظ بكل الأقسام التي أُزيلت من الوكيل', () {
+      final t = targets('owner');
+      for (final target in [
+        MenuTarget.contracts,
+        MenuTarget.voting,
+        MenuTarget.community,
+        MenuTarget.marketplace,
+        MenuTarget.revenueReports,
+        MenuTarget.bankAccount,
+        MenuTarget.servicePrices,
+      ]) {
+        expect(t.contains(target), isTrue, reason: '$target');
+      }
+    });
+    test('لا تكرار في أي قائمة، وكل مفتاح نصي موجود بالعربي والإنجليزي', () {
+      for (final menu in [agentMenu, ownerMenu]) {
+        final keys = menu.map((e) => e.labelKey).toList();
+        expect(keys.toSet().length, keys.length, reason: 'duplicate in $keys');
+        for (final key in keys) {
+          expect(AppStrings.t(true, key), isNot(key), reason: key);
+          expect(AppStrings.t(false, key), isNot(key), reason: key);
+        }
+      }
+    });
+    test('دور غير معروف أو null يعامل كمالك (لا يفقد الأقسام)', () {
+      expect(menuForRole(null).length, ownerMenu.length);
+      expect(menuForRole('owner').length, ownerMenu.length);
+      expect(menuForRole('unit_manager').length, ownerMenu.length);
     });
   });
   group('تقارير إيرادات المالك (المتطلبات 126–129)', () {

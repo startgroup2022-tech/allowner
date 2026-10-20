@@ -6,6 +6,7 @@ import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../utils/session_provider.dart';
 import '../../services/owner_service.dart';
+import '../../utils/role_menus.dart';
 import '../../utils/safe_parse.dart';
 import 'owner_bookings_screen.dart';
 import 'owner_maintenance_screen.dart';
@@ -55,134 +56,48 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
     final textTheme = Theme.of(context).textTheme;
     final user = ref.watch(sessionProvider).user;
 
-    final agentLinks = [
-      (
-        icon: Icons.people_alt_outlined,
-        title: AppStrings.t(isArabic, 'my_clients'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerClientsScreen())),
-      ),
-      (
-        icon: Icons.add_business_outlined,
-        title: AppStrings.t(isArabic, 'book_new_stay'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => const SearchScreen(initialQuery: ''))),
-      ),
-      (
-        icon: Icons.calendar_month_outlined,
-        title: AppStrings.t(isArabic, 'owner_bookings'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerBookingsScreen())),
-      ),
-      (
-        icon: Icons.payments_outlined,
-        title: AppStrings.t(isArabic, 'my_commission'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerCommissionScreen())),
-      ),
-      (
-        icon: Icons.chat_bubble_outline_rounded,
-        title: AppStrings.t(isArabic, 'messages'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerMessagesScreen())),
-      ),
-      // الطلبات التي طلب المالك إضافتها لقائمة الوكيل: الوجبات والنظافة والسرير.
-      (
-        icon: Icons.restaurant_outlined,
-        title: AppStrings.t(isArabic, 'meal_requests'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerMealRequestsScreen())),
-      ),
-      (
-        icon: Icons.cleaning_services_outlined,
-        title: AppStrings.t(isArabic, 'housekeeping'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerCleaningScreen())),
-      ),
-      (
-        icon: Icons.bed_outlined,
-        title: AppStrings.t(isArabic, 'add_extra_bed'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerExtraBedScreen())),
-      ),
-    ];
+    // القوائم معرّفة كبيانات نقية في `utils/role_menus.dart` (المتطلبات
+    // 100–107) حتى يمكن اختبار ترتيبها ووجود عناصرها. هنا نربط كل وجهة بشاشتها.
+    void open(MenuTarget target) {
+      Widget screen;
+      switch (target) {
+        case MenuTarget.ownerClients:
+          screen = const OwnerClientsScreen();
+        case MenuTarget.newBooking:
+          screen = const SearchScreen(initialQuery: '');
+        case MenuTarget.ownerBookings:
+          screen = const OwnerBookingsScreen();
+        case MenuTarget.commission:
+          screen = const OwnerCommissionScreen();
+        case MenuTarget.messages:
+          screen = const OwnerMessagesScreen();
+        case MenuTarget.mealRequests:
+          screen = const OwnerMealRequestsScreen();
+        case MenuTarget.cleaningRequests:
+          screen = const OwnerCleaningScreen();
+        case MenuTarget.extraBedRequests:
+          screen = const OwnerExtraBedScreen();
+        case MenuTarget.maintenance:
+          screen = const OwnerMaintenanceScreen();
+        case MenuTarget.revenueReports:
+          screen = const OwnerRevenueScreen();
+        case MenuTarget.servicePrices:
+          screen = const OwnerServicePricesScreen();
+        case MenuTarget.bankAccount:
+          screen = const OwnerBankScreen();
+        case MenuTarget.contracts:
+          screen = const OwnerDocumentsScreen();
+        case MenuTarget.voting:
+          screen = const OwnerDecisionsScreen();
+        case MenuTarget.community:
+          screen = const OwnerCommunityScreen();
+        case MenuTarget.marketplace:
+          screen = const OwnerMarketplaceScreen();
+      }
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+    }
 
-    final ownerLinks = [
-      (
-        icon: Icons.calendar_month_outlined,
-        title: AppStrings.t(isArabic, 'owner_bookings'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerBookingsScreen())),
-      ),
-      (
-        icon: Icons.bar_chart_outlined,
-        title: AppStrings.t(isArabic, 'financial_reports'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerRevenueScreen())),
-      ),
-      // المتطلب 68: أسعار خدمات الفندق التي يضبطها الفندق (قراءة فقط للمالك).
-      (
-        icon: Icons.sell_outlined,
-        title: AppStrings.t(isArabic, 'service_prices'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerServicePricesScreen())),
-      ),
-      // المتطلب 118: تسجيل/تعديل بيانات الحساب البنكي لاستلام المستحقات.
-      (
-        icon: Icons.account_balance_outlined,
-        title: AppStrings.t(isArabic, 'nav_bank'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerBankScreen())),
-      ),
-      (
-        icon: Icons.build_outlined,
-        title: AppStrings.t(isArabic, 'maintenance_requests'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerMaintenanceScreen())),
-      ),
-      (
-        icon: Icons.cleaning_services_outlined,
-        title: AppStrings.t(isArabic, 'housekeeping'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerCleaningScreen())),
-      ),
-      (
-        icon: Icons.restaurant_outlined,
-        title: AppStrings.t(isArabic, 'meal_requests'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerMealRequestsScreen())),
-      ),
-      (
-        icon: Icons.folder_outlined,
-        title: AppStrings.t(isArabic, 'contracts_docs'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerDocumentsScreen())),
-      ),
-      (
-        icon: Icons.how_to_vote_outlined,
-        title: AppStrings.t(isArabic, 'voting_decisions'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerDecisionsScreen())),
-      ),
-      (
-        icon: Icons.groups_outlined,
-        title: AppStrings.t(isArabic, 'owners_community'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerCommunityScreen())),
-      ),
-      (
-        icon: Icons.storefront_outlined,
-        title: AppStrings.t(isArabic, 'units_marketplace'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerMarketplaceScreen())),
-      ),
-      (
-        icon: Icons.chat_bubble_outline_rounded,
-        title: AppStrings.t(isArabic, 'messages'),
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const OwnerMessagesScreen())),
-      ),
-    ];
+    final links = menuForRole(user?.role);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -330,12 +245,10 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
                   mainAxisSpacing: AppDimens.md,
                   crossAxisSpacing: AppDimens.md,
                   childAspectRatio: 1.5,
-                  children:
-                      (user?.role == 'booking_agent' ? agentLinks : ownerLinks)
-                          .map((link) {
+                  children: links.map((link) {
                     return InkWell(
                       borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-                      onTap: link.onTap,
+                      onTap: () => open(link.target),
                       child: Container(
                         padding: const EdgeInsets.all(AppDimens.md),
                         decoration: BoxDecoration(
@@ -348,10 +261,9 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Icon(link.icon,
-                                color: AppColors.goldDark, size: 24),
+                            Icon(link.icon, color: AppColors.goldDark, size: 24),
                             Text(
-                              link.title,
+                              AppStrings.t(isArabic, link.labelKey),
                               style: textTheme.bodySmall
                                   ?.copyWith(fontWeight: FontWeight.w600),
                               maxLines: 2,
