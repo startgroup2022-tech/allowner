@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
+import '../../utils/maintenance_settlement.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/hotel_staff_service.dart';
 import '../../services/api_client.dart';
@@ -51,6 +53,10 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
     final canAttachImage = (r['type'] ?? '') == 'maintenance';
     File? imageFile;
 
+    // المتطلبات 390–394: عند تأكيد طلب صيانة يختار المستخدم طريقة التسوية.
+    final isMaintenanceConfirm = canAttachImage && action == 'confirm';
+    MaintenanceSettlement settlement = MaintenanceSettlement.unitBalance;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -70,6 +76,36 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
               maxLines: 2,
               decoration: InputDecoration(labelText: AppStrings.t(isArabic, needsNote ? 'reject_reason' : 'note_optional')),
             ),
+            if (isMaintenanceConfirm) ...[
+              const SizedBox(height: AppDimens.sm),
+              StatefulBuilder(
+                builder: (ictx, setSettleState) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppStrings.t(isArabic, 'maintenance_settlement'),
+                      style: Theme.of(ictx).textTheme.titleSmall,
+                    ),
+                    RadioListTile<MaintenanceSettlement>(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      value: MaintenanceSettlement.unitBalance,
+                      groupValue: settlement,
+                      onChanged: (v) => setSettleState(() => settlement = v!),
+                      title: Text(AppStrings.t(isArabic, 'settle_unit_balance')),
+                    ),
+                    RadioListTile<MaintenanceSettlement>(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      value: MaintenanceSettlement.whatsappLink,
+                      groupValue: settlement,
+                      onChanged: (v) => setSettleState(() => settlement = v!),
+                      title: Text(AppStrings.t(isArabic, 'settle_whatsapp_link')),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             if (canAttachImage) ...[
               const SizedBox(height: AppDimens.sm),
               StatefulBuilder(
@@ -115,6 +151,9 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
     );
     if (confirmed != true) return;
 
+    final parsedPrice =
+        priceCtrl.text.trim().isNotEmpty ? double.tryParse(priceCtrl.text.trim()) : null;
+
     setState(() => _busyId = asInt(r['id']));
     try {
       await _service.actOnRequest(
@@ -122,9 +161,30 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
         id: asInt(r['id']),
         action: action,
         note: noteCtrl.text.trim().isNotEmpty ? noteCtrl.text.trim() : null,
-        price: priceCtrl.text.trim().isNotEmpty ? double.tryParse(priceCtrl.text.trim()) : null,
+        price: parsedPrice,
         imagePath: imageFile?.path,
+        settlement: isMaintenanceConfirm ? settlementPayload(settlement) : null,
       );
+      if (!mounted) return;
+      // عند اختيار رابط واتساب نفتح المحادثة فعلًا برسالة تحمل رقم الطلب
+      // والوحدة والمبلغ. لا رقم مزيف ولا رسالة فارغة (المتطلبات 391–394).
+      if (isMaintenanceConfirm && settlement == MaintenanceSettlement.whatsappLink) {
+        final unitName = (isArabic ? r['unit_name_ar'] : r['unit_name_en'])?.toString();
+        final uri = buildWhatsAppPaymentUri(
+          phone: (r['requester_phone'] ?? r['owner_phone'] ?? r['guest_phone'])?.toString(),
+          isArabic: isArabic,
+          requestId: asInt(r['id']),
+          unitName: unitName,
+          amount: parsedPrice,
+        );
+        if (uri == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppStrings.t(isArabic, 'whatsapp_no_number'))),
+          );
+        } else {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      }
       _reload();
     } on ApiException catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));

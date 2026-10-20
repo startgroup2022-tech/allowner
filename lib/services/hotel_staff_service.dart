@@ -56,6 +56,10 @@ class HotelStaffService {
   }
 
   /// action: confirm | done | reject | preparing | delivered
+  ///
+  /// [settlement] (المتطلبات 390–394): عند تأكيد طلب الصيانة يختار المستخدم
+  /// «خصم من رصيد الوحدة» أو «إرسال رابط الدفع عبر واتساب». القيمة تُرسل في
+  /// الحقل `settlement`؛ إن لم يعرفها السيرفر بعد فلا يضر وجودها.
   Future<void> actOnRequest({
     required String type,
     required int id,
@@ -63,6 +67,7 @@ class HotelStaffService {
     String? note,
     double? price,
     String? imagePath,
+    String? settlement,
   }) async {
     try {
       // المتطلب 92: صورة اختيارية لطلب الصيانة من حساب إدارة الفندق.
@@ -73,6 +78,7 @@ class HotelStaffService {
           'action': action,
           if (note != null) 'note': note,
           if (price != null) 'price': price.toString(),
+          if (settlement != null) 'settlement': settlement,
           'image': await MultipartFile.fromFile(imagePath),
         });
         await _dio.post('/hotel/requests.php', data: form);
@@ -84,6 +90,7 @@ class HotelStaffService {
         'action': action,
         if (note != null) 'note': note,
         if (price != null) 'price': price,
+        if (settlement != null) 'settlement': settlement,
       });
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);

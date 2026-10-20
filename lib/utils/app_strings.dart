@@ -679,6 +679,10 @@ class AppStrings {
     'mark_done': {'ar': 'تم التنفيذ', 'en': 'Mark Done'},
     'reject_request': {'ar': 'رفض الطلب', 'en': 'Reject Request'},
     'price_optional': {'ar': 'السعر (اختياري)', 'en': 'Price (optional)'},
+    'maintenance_settlement': {'ar': 'طريقة تسوية تكلفة الصيانة', 'en': 'Maintenance settlement'},
+    'settle_unit_balance': {'ar': 'خصم من رصيد الوحدة', 'en': 'Deduct from unit balance'},
+    'settle_whatsapp_link': {'ar': 'إرسال رابط الدفع عبر واتساب', 'en': 'Send payment link via WhatsApp'},
+    'whatsapp_no_number': {'ar': 'لا يوجد رقم هاتف صالح لإرسال رابط الدفع', 'en': 'No valid phone number to send the payment link'},
     'note_optional': {'ar': 'ملاحظة (اختياري)', 'en': 'Note (optional)'},
     'reject_reason': {'ar': 'سبب الرفض', 'en': 'Rejection reason'},
     'no_open_requests': {

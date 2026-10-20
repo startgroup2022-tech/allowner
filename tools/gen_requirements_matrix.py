@@ -163,7 +163,17 @@ RANGES = {
     127: (4,'IMPLEMENTED UNTESTED','revenue_reports.netRevenue + owner_revenue_screen صافي الإيراد','/user/owner-revenue.php حقول المصروفات','يُعرض الصافي = الإجمالي − المصروفات المُرجَعة فقط؛ لا خصم لأرقام غير موجودة','إرجاع حقول مصروفات الصيانة/النظافة من السيرفر','يظهر الصافي بعد خصم الصيانة والنظافة'),
     128: (4,'IMPLEMENTED UNTESTED','revenue_reports.expenses(maintenance_expense)','/user/owner-revenue.php maintenance_expense','عرض مصروفات الصيانة فقط عند إرجاع الـ API للحقل؛ وإلا رسالة صريحة بغيابه','إرجاع maintenance_expense من السيرفر','تظهر مصروفات الصيانة الشهرية والسنوية'),
     129: (4,'IMPLEMENTED UNTESTED','revenue_reports.expenses(cleaning_expense)','/user/owner-revenue.php cleaning_expense','عرض مصروفات النظافة فقط عند إرجاع الـ API للحقل؛ وإلا رسالة صريحة بغيابه','إرجاع cleaning_expense من السيرفر','تظهر مصروفات النظافة الشهرية والسنوية'),
+    130: (4,'PARTIAL','maintenance_settlement.dart (جديد), hotel_requests_screen.dart خيار «خصم من رصيد الوحدة»','/hotel/requests.php حقل settlement — لا يوجد endpoint للرصيد','الخيار يظهر عند تأكيد طلب الصيانة ويُرسل settlement=unit_balance. الخصم الفعلي من الرصيد يحتاج تنفيذًا على السيرفر لأن الرصيد غير مُعرَّض لأي endpoint','تنفيذ الخصم الفعلي من الرصيد على السيرفر','يختار المستخدم الخصم من رصيد الوحدة'),
+    131: (4,'PARTIAL','maintenance_settlement.dart (جديد) buildWhatsAppPaymentUri, hotel_requests_screen.dart','/hotel/requests.php حقل settlement + رقم هاتف الطالب','عند اختيار «إرسال رابط الدفع عبر واتساب» يفتح التطبيق محادثة wa.me برسالة تحمل رقم الطلب والوحدة والمبلغ، ويُرسل settlement=whatsapp_link. 7 اختبارات للدوال النقية؛ ورسالة واضحة إن غاب الرقم','توليد رابط دفع فعلي على السيرفر','يفتح واتساب برسالة دفع ببيانات الطلب'),
     # الإشعارات والبريد (144-148)
+    # التطبيق يُرسل كل الحقول التي يحتاجها قالب البريد (اسم الضيف، رقم الهوية،
+    # تاريخ الدخول، الوحدة) في bookings/create.php؛ الناقص هو تنفيذ القالب على
+    # السيرفر وإرسال البريد فعلًا.
+    144: (5,'BACKEND BLOCKED','booking_screen.dart createBooking payload','/bookings/create.php + قالب البريد على السيرفر','التطبيق يُرسل بيانات الحجز كاملة؛ تفعيل البريد المتبادل بين الفندق والمالك والعميل يحتاج SMTP/قالب على السيرفر','تنفيذ إرسال البريد على السيرفر','يصل بريد التأكيد للأطراف'),
+    145: (5,'BACKEND BLOCKED','booking_screen.dart customerName/guestName في الطلب','/bookings/create.php + قالب البريد','اسم الضيف يُرسل فعلًا (customer_name للوكيل واسم المستخدم للضيف) ويُعرض في شاشة التأكيد؛ إدراجه في نص البريد يحتاج القالب','إدراج الاسم في قالب البريد','يظهر اسم الضيف في البريد'),
+    146: (5,'BACKEND BLOCKED','booking_screen.dart guestIdNumber → guest_id_number','/bookings/create.php + قالب البريد','رقم الهوية يُرسل ضمن الحجز ويُعرض الآن في شاشة نجاح الحجز للتأكد من صحته (المتطلب 146)؛ إدراجه في البريد يحتاج القالب','إدراج رقم الهوية في قالب البريد','يظهر رقم الهوية/الجواز في البريد'),
+    147: (5,'BACKEND BLOCKED','booking_screen.dart checkIn → check_in','/bookings/create.php + قالب البريد','تاريخ الدخول يُرسل بصيغة YYYY-MM-DD ضمن الحجز','إدراج تاريخ الدخول في قالب البريد','يظهر تاريخ الدخول في البريد'),
+    148: (5,'BACKEND BLOCKED','booking_screen.dart unitId → unit_id','/bookings/create.php + قالب البريد','معرّف الوحدة يُرسل، والسيرفر يعرف unit_type/unit_number منه','إدراج نوع الوحدة ورقم الغرفة في قالب البريد','يظهر نوع الوحدة ورقم الغرفة في البريد'),
 }
 
 # نطاقات تُصنَّف BACKEND BLOCKED افتراضيًا (محاسبة/اشتراكات/بريد)

@@ -22,6 +22,7 @@ class BookingSuccessScreen extends ConsumerWidget {
   final String? unitName;
   final String? guestName;
   final String? guestPhone;
+  final String? guestIdNumber;
   final String? status;
   final String? paymentMethod;
 
@@ -37,6 +38,7 @@ class BookingSuccessScreen extends ConsumerWidget {
     this.unitName,
     this.guestName,
     this.guestPhone,
+    this.guestIdNumber,
     this.status,
     this.paymentMethod,
   });
@@ -66,6 +68,10 @@ class BookingSuccessScreen extends ConsumerWidget {
       if (guests != null) (AppStrings.t(isArabic, 'guests'), '$guests'),
       if (guestName != null && guestName!.isNotEmpty)
         (AppStrings.t(isArabic, 'customer_label'), '$guestName${guestPhone != null && guestPhone!.isNotEmpty ? '\n$guestPhone' : ''}'),
+      // المتطلب 146: رقم الهوية/الجواز جزء من بيانات التأكيد التي يعتمد عليها
+      // بريد التأكيد — نعرضه للضيف للتأكد من صحته قبل إرسال البريد.
+      if (guestIdNumber != null && guestIdNumber!.isNotEmpty)
+        (AppStrings.t(isArabic, 'guest_id_number'), guestIdNumber!),
       if (paymentMethod != null) (AppStrings.t(isArabic, 'payment_method_label'), AppStrings.t(isArabic, 'pay_method_$paymentMethod')),
       if (status != null) (AppStrings.t(isArabic, 'booking_status_label'), AppStrings.t(isArabic, 'status_$status')),
       if (total != null) (AppStrings.t(isArabic, 'total_price'), '${total!.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}'),

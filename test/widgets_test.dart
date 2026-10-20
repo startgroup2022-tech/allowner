@@ -20,6 +20,7 @@ import 'package:allowners/utils/app_strings.dart';
 import 'package:allowners/utils/arabic_text.dart';
 import 'package:allowners/utils/category_labels.dart';
 import 'package:allowners/utils/city_ordering.dart';
+import 'package:allowners/utils/maintenance_settlement.dart';
 import 'package:allowners/utils/revenue_reports.dart';
 import 'package:allowners/utils/session_provider.dart';
 import 'package:allowners/utils/service_categories.dart';
@@ -1031,6 +1032,67 @@ void main() {
     });
   });
 
+  group('تسوية تكلفة الصيانة (المتطلبات 390–394)', () {
+    test('كل خيار له قيمة تُرسل للسيرفر ولا تتشابه مع الأخرى', () {
+      expect(settlementPayload(MaintenanceSettlement.unitBalance), 'unit_balance');
+      expect(settlementPayload(MaintenanceSettlement.whatsappLink), 'whatsapp_link');
+    });
+    test('تنظيف رقم الواتساب يزيل + والمسافات والشرطات', () {
+      expect(normalizeWhatsAppPhone('+966 555-634-615'), '966555634615');
+      expect(normalizeWhatsAppPhone('(966) 555634615'), '966555634615');
+    });
+    test('الرقم غير الصالح يُرفض بدل بناء رابط بلا وجهة', () {
+      expect(normalizeWhatsAppPhone(null), isNull);
+      expect(normalizeWhatsAppPhone(''), isNull);
+      expect(normalizeWhatsAppPhone('123'), isNull);
+      expect(
+        buildWhatsAppPaymentUri(phone: '123', isArabic: true, requestId: 5),
+        isNull,
+      );
+    });
+    test('الرسالة تحتوي رقم الطلب والوحدة والمبلغ', () {
+      final msg = buildMaintenancePaymentMessage(
+        isArabic: true,
+        requestId: 42,
+        unitName: 'جناح 12',
+        amount: 350,
+      );
+      expect(msg.contains('42'), isTrue);
+      expect(msg.contains('جناح 12'), isTrue);
+      expect(msg.contains('350'), isTrue);
+    });
+    test('الحقول الناقصة تُحذف من الرسالة ولا يظهر مبلغ صفر', () {
+      final msg = buildMaintenancePaymentMessage(isArabic: true, requestId: 7);
+      expect(msg.contains('المبلغ'), isFalse);
+      expect(msg.contains('0 SAR'), isFalse);
+      expect(msg.contains('الوحدة'), isFalse);
+    });
+    test('الرابط النهائي يحمل رسالة مُرمَّزة للرقم الصحيح', () {
+      final uri = buildWhatsAppPaymentUri(
+        phone: '+966555634615',
+        isArabic: false,
+        requestId: 9,
+        unitName: 'Suite 3',
+        amount: 199.5,
+      );
+      expect(uri, isNotNull);
+      expect(uri!.host, 'wa.me');
+      expect(uri.path, '/966555634615');
+      expect(uri.queryParameters['text'], contains('199.5'));
+    });
+    test('المفاتيح النصية موجودة بالعربي والإنجليزي', () {
+      for (final key in [
+        'maintenance_settlement',
+        'settle_unit_balance',
+        'settle_whatsapp_link',
+        'whatsapp_no_number',
+      ]) {
+        expect(AppStrings.t(true, key).isNotEmpty, isTrue, reason: key);
+        expect(AppStrings.t(false, key).isNotEmpty, isTrue, reason: key);
+        expect(AppStrings.t(true, key) == key, isFalse, reason: key);
+      }
+    });
+  });
   group('تقارير إيرادات المالك (المتطلبات 126–129)', () {
     test('التجميع السنوي يجمع أشهر السنة نفسها ويرتّب تنازليًا', () {
       final years = RevenueReports.yearTotals([

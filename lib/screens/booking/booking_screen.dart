@@ -370,6 +370,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             unitName: widget.unitName,
             guestName: _isAgent ? _customerNameController.text.trim() : ref.read(sessionProvider).user?.fullName,
             guestPhone: _isAgent ? _customerPhoneController.text.trim() : ref.read(sessionProvider).user?.phone,
+            guestIdNumber: _guestIdNumberController.text.trim(),
             status: booking['status']?.toString(),
             paymentMethod: booking['payment_method']?.toString(),
           ),
