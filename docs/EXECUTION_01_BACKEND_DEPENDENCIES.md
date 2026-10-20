@@ -226,3 +226,42 @@ Recorded to prevent misattribution in later executions:
 | Remaining `as List?` casts in 6 owner screens | Mobile scope — `AO-API-02` |
 | `dart format` check failing | Repository/CI scope, pre-existing |
 | Missing `.gitignore` | Repository hygiene — `AO-CLEAN-01` |
+
+---
+
+## 9. Reconciliation addendum (2026-10-20)
+
+The 148-item inventory is now available (`docs/AllOwners_Requirements_Inventory.md`)
+and fully reconciled in `docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md`. The
+reconciliation re-confirmed every backend dependency recorded above and surfaced
+the following, all verified by live read-only requests.
+
+### 9.1 Newly confirmed backend gaps
+
+| Inventory items | Gap | Evidence |
+|---|---|---|
+| 24, 25 | Named Makkah hotels (فيرمونت إعمار، رافلز، كونراد، هيلتون…) and the "قريبًا" (coming soon) states do not exist in `hotels/list.php`. | Live `hotels/list.php` returns 4 hotels total; none of the named properties is present. |
+| 18 | Riyadh (الرياض) is not in `cities/list.php`. | Live response lists 5 cities: جدة، مكة المكرمة، المدينة المنورة، الخبر، الدمام — no الرياض. |
+| 13 | The primary category is named «فنادق»/Hotels in the database, but the requirement asks for «وحدات فندقية» (hotel units). | Live `categories/list.php` returns 4 categories. |
+| 14 | The requirement lists 5 categories; the database returns 4. | Live `categories/list.php` count = 4. |
+| 110 | No password-reset endpoint exists (`/auth/forgot*` returns 404). | Confirmed in `login_screen.dart`; the UI routes to support instead of a dead button. |
+| 56 | Extra-bed cost calculation needs a server correction. | `units/addons.php` addon pricing. |
+| 44, 45, 47, 63, 64, 66, 77, 108, 109, 111–117 | Booking-confirmation email, double-booking prevention, site sync, request forwarding, commission payout, bank-account capture, admin-console work — all require server/site changes. | Recorded per-item in the matrix. |
+| 118–143 | Subscription / accounting / payments module: no mobile surface and no supporting endpoints. | `grep` for wallet/subscription/bank across `lib/` finds no screen. |
+| 144–148 | Notifications/email module: depends on server-side email delivery. | Same. |
+
+### 9.2 Field-shape notes re-confirmed
+
+- `hotels/list.php` returns the hotel name in `name` (not `name_ar`), a mix of
+  `int` and quoted-decimal prices, and `free_cancellation` as `true` in `list.php`
+  but `1` in `detail.php`. The typed models already handle all three.
+- `units/browse.php` list rows carry `hotel_name`, `city_ar`, `city_en` inline —
+  this is what lets the new owner-hotels section build hotel cards without an
+  extra per-unit request.
+
+### 9.3 What the new owner-hotels section depends on
+
+`OwnerHotelSummary.build` reads **only** existing endpoints
+(`/units/browse.php?owner_only=1` and `/hotels/list.php`). It requires no new
+backend work. If the backend later adds an explicit "hotels that contain owner
+units" endpoint, the section can switch to it without a UI change.

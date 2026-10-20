@@ -310,3 +310,24 @@ and do not invalidate the captures above, but they are recorded in
 **Conclusion:** visual acceptance is claimed for the twelve captured screens at
 the widths tested, with the limitations above stated explicitly. No defect
 identified in §4 remains open.
+
+---
+
+## 8. Addendum — owner-units section (2026-10-20)
+
+The reconciliation added a new homepage component, `OwnerHotelCard`, in the
+"hotels with owner units" section (matrix items 21–22). Its layout was verified
+in the existing widget harness, not on a device:
+
+| Check | Result |
+|---|---|
+| Renders name, city, unit count, rating, min price | Verified (`widgets_test.dart`, `OwnerHotelCard` group) |
+| Rating pill suppressed when rating is 0 | Verified |
+| Does not throw when the image URL is empty | Verified |
+| `onTap` fires | Verified |
+| Arabic RTL / English LTR text direction | Inherited from the shared `wrap()` harness used by all card tests |
+
+**Not verified visually:** an actual device screenshot of the new card. No
+emulator is available in this environment, so the claim is limited to
+layout-integrity and RTL direction in the widget harness — consistent with the
+limitations already stated in §7 of this document.

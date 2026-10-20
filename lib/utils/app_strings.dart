@@ -109,7 +109,7 @@ class AppStrings {
     'featured_hotels': {'ar': 'فنادق مميزة', 'en': 'Featured Hotels'},
     'featured_destinations': {'ar': 'وجهات مميزة', 'en': 'Featured Destinations'},
     'recently_added_units': {'ar': 'أحدث الوحدات المضافة', 'en': 'Recently Added Units'},
-    'browse_by_category': {'ar': 'تصفّح حسب التصنيف', 'en': 'Browse by Category'},
+    'browse_by_category': {'ar': 'اكتشف حسب النوع', 'en': 'Discover by Type'},
     'hotels_in_city': {'ar': 'فنادق في', 'en': 'Hotels in'},
     'units_in_city': {'ar': 'وحدات في', 'en': 'Units in'},
     'search_city_or_hotel': {

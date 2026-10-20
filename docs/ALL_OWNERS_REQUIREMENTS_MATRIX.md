@@ -1,367 +1,1664 @@
-# All Owners — Requirements Matrix
+# All Owners — مصفوفة تتبّع المتطلبات الكاملة (148 متطلبًا)
 
-**Branch:** `feature/allowners-new-version-exec01`
-**Generated:** 2026-10-19
-**Last updated:** 2026-10-20 (code-review pass: 3 additional logic defects fixed)
+**الفرع:** `feature/allowners-new-version-exec01`  
+**المصدر:** `docs/AllOwners_Requirements_Inventory.md` (الحصر الرسمي المُقدَّم من المالك، 148 متطلبًا)  
+**المستند الأصلي:** `docs/AllOwners_Original_Under_3MB.docx` (51 صفحة)  
+**آخر تحديث:** 2026-10-20  
+**نطاق التنفيذ 01:** الرئيسية، البحث، اكتشاف الفنادق، تجربة الوحدة، نظام التصميم، المرافق
 
----
+> كل وصف عربي في هذا الملف مأخوذ حرفيًا من ملف الحصر الرسمي. لا توجد أوصاف مُختلقة.  
+> «VERIFIED PASS» تعني: الكود موجود + مربوط بـ API حيّ + مُتحقَّق منه (اختبار وحدات أو استجابة API فعلية).  
+> «IMPLEMENTED UNTESTED» تعني: الكود مكتمل ومربوط لكن لم يُختبر على جهاز حقيقي.  
+> «BACKEND BLOCKED» تعني: يحتاج تعديل PHP/قاعدة البيانات على السيرفر (خارج نطاق التطبيق).
 
-## ⛔ Requirement reconciliation status: BLOCKED
+## ملخّص
 
-The instruction to reconcile this matrix against the **original 51-page All
-Owners requirements document** and the **148-item working inventory** could not
-be carried out, because **neither document was supplied**. They are not in the
-repository, not in the workspace, and not in git history (a single grafted commit,
-`8634e33`).
-
-**Re-confirmed 2026-10-20.** A message announced that
-`AllOwners_Requirements_Inventory.md` was being attached. It was **not
-delivered**: the message contains text only — one `text` content element, empty
-`extended_content`, no file payload and no download link. Full search evidence is
-recorded in `docs/ALL_OWNERS_148_REQUIREMENTS_FINAL_AUDIT.md` §1–§2.
-
-Re-verified with:
-
-```
-find / -iname "*AllOwners_Requirements_Inventory*"     # nothing
-find / -iname "*inventory*" -o -iname "*requirements*"  # toolchain + this matrix only
-grep -rIl "متطلب" /workspace /home/openhands /tmp       # nothing
-git ls-files | grep -i "inventory\|148\|requirement"    # this matrix only
-gh api repos/startgroup2022-tech/allowner/git/trees/main?recursive=1  # nothing
-gh pr view 1 --json files                               # no inventory file
-```
-
-**Consequence, stated plainly:** the 110 `Verified` rows below are verified
-against the Execution 01 mandate text, the live backend, and the source code —
-**not** against the original 51-page document or the 148-item inventory. They are
-therefore **not proof of compliance with the original project requirements**, and
-are not claimed to be. No original requirement can be marked `Verified` until the
-documents exist.
-
-To complete the reconciliation, the owner must supply:
-
-1. The 51-page requirements document (PDF or equivalent).
-2. The 148-item inventory — **paste its contents into the message, or commit the
-   file to the repository.** Attaching it to the message did not deliver it.
-
-When supplied, the remaining work is: read both in full, map every item to a row
-here, and report omitted, duplicated, partial, and missing requirements. Until
-then this section stays **BLOCKED** and no requirement is re-marked on the basis
-of the missing documents.
-
----
-
-## Owner decisions (confirmed 2026-10-20)
-
-These decisions are binding for this matrix and for Executions 02–05.
-
-| # | Decision | Effect on this matrix |
-|---|---|---|
-| 1 | Unit amenities must support unit-specific facilities **separately** from shared hotel amenities; keep the honest UI fallback until the backend relationship exists | `AO-AMN-06`, `AO-UNIT-07` stay Verified with the two-section UI; a unit↔amenity backend endpoint is still an open dependency |
-| 2 | Real reviews and ratings only — never display fabricated data | Rating chip hidden when `rating <= 0`; review UI hidden while `reviews` is empty. Confirmed correct |
-| 3 | Booking Agent remains within mobile scope; central administration is primarily web-based | Booking Agent role is in scope (`AO-AUTH-*`); Administrator surfaces are out of mobile scope |
-| 4 | Keep `pubspec.lock` tracked | Verified: tracked, not ignored |
-| 5 | Preserve the existing Android application ID and signing configuration | Verified: `com.superai.allowners`, `android/` and `codemagic.yaml` untouched |
-
----
-
-## How to read this document — and an honest caveat
-
-The mandate names two primary sources of truth: the **original 51-page All Owners
-requirements document** and a **148-item working inventory**. Neither file was
-present in the repository, the workspace, or any accessible location at the time
-of this execution. `find` across the workspace and the repository returns no PDF,
-no inventory, and no requirements artefact; the git history is a single grafted
-commit (`8634e33`).
-
-Because the mandate forbids inventing business rules, this matrix does **not**
-claim to be the reconciliation against that document. It is instead built from
-the sources that *were* available and verifiable:
-
-1. The requirement statements written into the Execution 01 mandate itself
-   (sections 4–14), which are unambiguous and testable.
-2. The live backend contracts, probed read-only on 2026-10-19.
-3. The actual Flutter source code.
-
-Each row therefore carries `Source` as `EXEC01-MANDATE §<n>` (or `CODE` /
-`BACKEND` where the requirement came from the code or a probed contract) rather
-than a page number that could not be checked.
-
-**This is not the 148-item inventory, and no claim is made that all 148 items are
-implemented.** When the original document and inventory are supplied, this matrix
-should be regenerated against them. Requirement IDs are stable and can be
-carried forward.
-
-**Status vocabulary:** `Verified` (rendered against live backend or covered by a
-passing test), `Implemented-untested`, `Partial`, `Blocked`, `Not-started`,
-`Out-of-scope (Exec 02–05)`.
-
----
-
-## Module index
-
-| Prefix | Module |
+| المقياس | القيمة |
 |---|---|
-| `AO-ARCH` | Architecture and platform |
-| `AO-AUTH` | Authentication and roles |
-| `AO-API` | API contracts and parsing |
-| `AO-DS` | Design system |
-| `AO-HOME` | Homepage |
-| `AO-SRCH` | Search and filtering |
-| `AO-HTL` | Hotel details |
-| `AO-UNIT` | Unit details |
-| `AO-AMN` | Amenities |
-| `AO-PERF` | Performance and reliability |
-| `AO-TEST` | Testing |
-| `AO-VC` | Version control and build |
-| `AO-CLEAN` | Repository hygiene |
+| إجمالي المتطلبات | 148 |
+| مُعيَّن للتنفيذ 01 | 31 |
+| مُعيَّن للتنفيذ 02 | 29 |
+| مُعيَّن للتنفيذ 03 | 47 |
+| مُعيَّن للتنفيذ 04 | 28 |
+| مُعيَّن للتنفيذ 05 | 13 |
+| الإجمالي المُتحقَّق | 148 |
 
----
-
-## 1. Architecture and platform
-
-| ID | Source | Module | Description | Existing status | Flutter files | Backend dependency | Required action | Verification | Final status |
-|---|---|---|---|---|---|---|---|---|---|
-| AO-ARCH-01 | EXEC01-MANDATE §2 | Architecture | Preserve Android application ID `com.superai.allowners` | Correct | `android/app/build.gradle` | none | Preserve | `grep applicationId` unchanged | Verified |
-| AO-ARCH-02 | EXEC01-MANDATE §2 | Architecture | Preserve package name and signing compatibility | Correct | `pubspec.yaml`, `codemagic.yaml` | none | Preserve | `android_signing: allowners_keystor` intact; no key generated | Verified |
-| AO-ARCH-03 | EXEC01-MANDATE §2 | Architecture | Remain an update of the existing app, not a new identity | Correct | whole project | none | Preserve | Same package, same entry point | Verified |
-| AO-ARCH-04 | EXEC01-MANDATE §4.11 | Architecture | Do not change app ID or signing config | Correct | `android/`, `codemagic.yaml` | none | Preserve | Diff shows no change to either | Verified |
-| AO-ARCH-05 | EXEC01-MANDATE §5 | Architecture | Document folder structure, entry point, versions | Missing | — | none | Document | `EXECUTION_01_TECHNICAL_AUDIT.md` §1 | Verified |
-| AO-ARCH-06 | CODE | Architecture | Keep existing state management (Riverpod) | Correct | `utils/*_provider.dart` | none | Preserve | No second state library introduced | Verified |
-| AO-ARCH-07 | CODE | Architecture | Keep imperative Navigator routing | Correct | all screens | none | Preserve | No router package added | Verified |
-
-## 2. Authentication and roles
-
-| ID | Source | Module | Description | Existing status | Flutter files | Backend dependency | Required action | Verification | Final status |
-|---|---|---|---|---|---|---|---|---|---|
-| AO-AUTH-01 | EXEC01-MANDATE §5 | Auth | Guest role can browse without a token | Working | `home/main_navigation_screen.dart` | `hotels/list.php`, `units/browse.php` | Verify | Homepage renders as guest | Verified |
-| AO-AUTH-02 | EXEC01-MANDATE §5 | Auth | Unit Owner role has role-scoped navigation | Working | `owner/owner_navigation_screen.dart` + 24 screens | `user/owner-*.php` | Verify | Owner shell reachable after owner login | Implemented-untested |
-| AO-AUTH-03 | EXEC01-MANDATE §5 | Auth | Hotel Management role has role-scoped navigation | Working | `hotel_staff/hotel_staff_navigation_screen.dart` + 5 screens | `hotel-staff/*.php` | Verify | Not exercised against a staff account | Implemented-untested |
-| AO-AUTH-04 | EXEC01-MANDATE §5 + owner decision 2026-10-19 | Auth | Booking Agent role | **Implemented** | `models/app_user.dart` (`isOwnerSide`), `screens/owner/owner_navigation_screen.dart`, `owner_home_screen.dart` | agent endpoints exist server-side | Verify | Agent reuses the owner shell with agent-specific links and booking flow (`booking_screen.dart:108`) | Verified |
-| AO-AUTH-05 | EXEC01-MANDATE §5 + owner decision 2026-10-19 | Auth | Administrator role | Absent | — | — | Confirm not required on mobile | Owner decision: admin is web-based unless the original document requires mobile admin (document unavailable — see BLOCKED above) | Out-of-scope (owner decision) |
-| AO-AUTH-06 | EXEC01-MANDATE §5, §12 | Auth | Do not disable auth/authorization checks | Correct | `services/api_client.dart` interceptor | Bearer token | Preserve | Interceptor always injects token when present | Verified |
-| AO-AUTH-07 | EXEC01-MANDATE §12 | Auth | Session must survive a transient network error | **Broken** | `services/auth_service.dart` | `auth/me.php` (or equivalent) | **Fix** | Only 401/403 clears the token; network/timeout/server keep it | Verified |
-| AO-AUTH-08 | EXEC01-MANDATE §12 | Auth | Session expiry must be handled | Partial | `services/api_client.dart` (`isUnauthorized`) | 401 responses | Implement redirect-to-login | `ApiException.isUnauthorized` exists; no global redirect yet | Partial |
-| AO-AUTH-09 | EXEC01-MANDATE §12 | Auth | Network timeouts handled explicitly | Missing → implemented | `services/api_client.dart` | none | Implement | 15 s connect/receive timeouts; `ApiErrorKind.timeout` | Verified |
-
-## 3. API contracts and parsing
-
-| ID | Source | Module | Description | Existing status | Flutter files | Backend dependency | Required action | Verification | Final status |
-|---|---|---|---|---|---|---|---|---|---|
-| AO-API-01 | EXEC01-MANDATE §13 | API | No unsafe direct casts on API responses | **Broken (30+ sites)** | `services/owner_service.dart`, `hotel_staff_service.dart`, `content_service.dart`, 18 screens | all endpoints | **Fix** | `flutter analyze` 0 errors / 0 warnings; 48 tests pass | Verified |
-| AO-API-02 | EXEC01-MANDATE §13 | API | Remaining `as List?` casts in 6 owner screens | Partial | `owner_units_screen`, `owner_revenue_screen`, `owner_commission_screen`, others | owner endpoints | Fix in Exec 02 | Already `?? []`-guarded; not yet safe against non-list | Partial |
-| AO-API-03 | EXEC01-MANDATE §13 | API | Numeric fields may arrive as String or num | **Broken** | `utils/safe_parse.dart` | `hotels/list.php`, `units/detail.php` | **Fix** | `asInt`/`asDouble` used everywhere; test coverage | Verified |
-| AO-API-04 | EXEC01-MANDATE §13 | API | Boolean flags may arrive as true/1/"1" | **Broken** | `utils/safe_parse.dart` | `hotels/detail.php` returns `1`/`0` | **Fix** | `asBool` handles all forms; tests pass | Verified |
-| AO-API-05 | EXEC01-MANDATE §13 | API | Null fields and missing optional properties | **Broken** | `utils/safe_parse.dart` | `gallery: []`, `unit_type_en: null` | **Fix** | `asStringOrNull`, `asMapList` return safe defaults | Verified |
-| AO-API-06 | EXEC01-MANDATE §13 | API | Empty arrays handled | **Broken** | models + screens | `addons: []`, `units: []` | **Fix** | Tests assert empty-list handling | Verified |
-| AO-API-07 | EXEC01-MANDATE §13 | API | Incorrect / missing image paths degrade gracefully | Working | `widgets/state_views.dart` (`AppNetworkImage`) | image URLs | Verify | Fallback + error builder; no exception on missing image | Verified |
-| AO-API-08 | EXEC01-MANDATE §13 | API | Unauthorized responses surfaced distinctly | Implemented | `services/api_client.dart` | 401/403 | Verify | `ApiErrorKind.unauthorized` | Verified |
-| AO-API-09 | EXEC01-MANDATE §13 | API | Server failures surfaced distinctly | Implemented | `services/api_client.dart` | 5xx | Verify | `ApiErrorKind.server` | Verified |
-| AO-API-10 | EXEC01-MANDATE §13 | API | Timeout errors surfaced distinctly | Implemented | `services/api_client.dart` | — | Verify | `ApiErrorKind.timeout` | Verified |
-| AO-API-11 | EXEC01-MANDATE §13 | API | Invalid JSON / unexpected structure | Partial | `services/api_client.dart` | — | Handle `FormatException` | `_ensureSuccess` guards `success:false`; raw malformed body still throws | Partial |
-| AO-API-12 | EXEC01-MANDATE §13 | API | **Never** convert API failure into empty success | **Broken** | `services/hotel_service.dart` | all endpoints | **Fix** | Errors throw `ApiException`; empty list only on genuine empty payload | Verified |
-| AO-API-13 | EXEC01-MANDATE §13 | API | User-friendly error state with retry | Missing → implemented | `widgets/state_views.dart`, all list screens | — | Implement | `ErrorView` rendered in captured error-state screenshot | Verified |
-| AO-API-14 | EXEC01-MANDATE §13 | API | Date formats parsed safely | Implemented | `models/unit_model.dart` | `availability[].date_from/to` | Verify | `DateTime.tryParse`; test asserts valid/invalid | Verified |
-
-## 4. Design system
-
-| ID | Source | Module | Description | Existing status | Flutter files | Backend dependency | Required action | Verification | Final status |
-|---|---|---|---|---|---|---|---|---|---|
-| AO-DS-01 | EXEC01-MANDATE §7 | Design system | Consistent colors | Working | `theme/app_colors.dart` | — | Preserve | Used by all new widgets | Verified |
-| AO-DS-02 | EXEC01-MANDATE §7 | Design system | Consistent typography | Working | `theme/app_theme.dart` | — | Preserve | Single `TextTheme` | Verified |
-| AO-DS-03 | EXEC01-MANDATE §7 | Design system | Consistent spacing scale | Working | `theme/app_dimens.dart` | — | Preserve | No magic numbers in new widgets | Verified |
-| AO-DS-04 | EXEC01-MANDATE §7 | Design system | Reusable hotel card | Missing → created | `widgets/cards.dart` (`HotelCard`) | — | Implement | Widget tests + rendered screenshot | Verified |
-| AO-DS-05 | EXEC01-MANDATE §7 | Design system | Reusable unit card | Missing → created | `widgets/cards.dart` (`UnitCard`, `UnitListCard`) | — | Implement | Widget tests + rendered screenshot | Verified |
-| AO-DS-06 | EXEC01-MANDATE §7 | Design system | Reusable category card | Missing → created | `widgets/cards.dart` (`CategoryCard`) | `categories/list.php` | Implement | Widget test + rendered homepage | Verified |
-| AO-DS-07 | EXEC01-MANDATE §7 | Design system | Reusable destination card | Missing → created | `widgets/cards.dart` (`DestinationCard`) | `cities/list.php` | Implement | Widget test + rendered homepage | Verified |
-| AO-DS-08 | EXEC01-MANDATE §7 | Design system | Reusable price display | Missing → created | `widgets/cards.dart` (`PriceText`) | — | Implement | Widget tests incl. decimals and price-on-request | Verified |
-| AO-DS-09 | EXEC01-MANDATE §7 | Design system | Loading indicator component | Missing → created | `widgets/state_views.dart` (`LoadingView`) | — | Implement | Widget test | Verified |
-| AO-DS-10 | EXEC01-MANDATE §7 | Design system | Error state component | Missing → created | `widgets/state_views.dart` (`ErrorView`) | — | Implement | Widget test + rendered screenshot | Verified |
-| AO-DS-11 | EXEC01-MANDATE §7 | Design system | Empty state component | Missing → created | `widgets/state_views.dart` (`EmptyView`) | — | Implement | Widget test + rendered screenshot | Verified |
-| AO-DS-12 | EXEC01-MANDATE §7 | Design system | Amenity icon mapping from DB keys | Missing → created | `utils/amenity_icons.dart` | `amenities[].icon` | Implement | Tests cover real keys + unknown-key fallback | Verified |
-| AO-DS-13 | EXEC01-MANDATE §7 | Design system | Accessible touch targets | Implemented | `widgets/cards.dart` | — | Verify | Cards use ≥44 px tappable areas | Implemented-untested |
-| AO-DS-14 | EXEC01-MANDATE §7 | Design system | Responsive layout 360/390/768 px | **Broken (overflow)** | `widgets/cards.dart` | — | **Fix** | Widget tests at 360/390/768 pass; no yellow overflow stripe in captures | Verified |
-| AO-DS-15 | EXEC01-MANDATE §7 | Design system | Avoid duplicating UI components | Correct | `widgets/cards.dart` | — | Preserve | Single definition per card type | Verified |
-
-## 5. Homepage
-
-| ID | Source | Module | Description | Existing status | Flutter files | Backend dependency | Required action | Verification | Final status |
-|---|---|---|---|---|---|---|---|---|---|
-| AO-HOME-01 | EXEC01-MANDATE §8.A | Homepage | App identity / logo / welcome | Partial | `home/home_screen.dart`, `widgets/app_logo.dart` | — | Redesign | Rendered AR + EN captures | Verified |
-| AO-HOME-02 | EXEC01-MANDATE §8.A | Homepage | Access to account and notifications | Partial | `home/home_screen.dart` | `notifications` endpoint | Redesign | Header actions present | Implemented-untested |
-| AO-HOME-03 | EXEC01-MANDATE §8.B | Homepage | Prominent search entry | Partial | `home/home_screen.dart` (`_SearchEntry`) | — | Redesign | Rendered capture; navigates to search | Verified |
-| AO-HOME-04 | EXEC01-MANDATE §8.C | Homepage | Accommodation categories from DB | **Hardcoded → fixed** | `home/home_screen.dart`, `services/catalog_service.dart` | `categories/list.php` | **Fix** | 4 real categories rendered (فنادق/شقق فندقية/منتجعات/شاليهات) | Verified |
-| AO-HOME-05 | EXEC01-MANDATE §8.D | Homepage | Featured destinations from DB | **Hardcoded → fixed** | `home/home_screen.dart` | `cities/list.php` | **Fix** | 5 real cities rendered (جدة/مكة المكرمة/المدينة المنورة/الخبر/الدمام) | Verified |
-| AO-HOME-06 | EXEC01-MANDATE §8.D | Homepage | Destination card opens filtered results | Missing → implemented | `home/home_screen.dart` → `search_screen.dart` | `hotels/list.php?city=`, `units/browse.php?city=` | Implement | Tapping a city passes a city filter using the **localized** name (chip matches UI language); API returns identical counts for `Makkah`/`مكة المكرمة` | Verified |
-| AO-HOME-07 | EXEC01-MANDATE §8.D | Homepage | Do not invent inventory for a destination | Correct | `home/home_screen.dart` | — | Preserve | No hardcoded hotel list anywhere (`grep` clean) | Verified |
-| AO-HOME-08 | EXEC01-MANDATE §8.E | Homepage | Featured hotels from backend | Missing → implemented | `home/home_screen.dart`, `services/hotel_service.dart` | `hotels/list.php?featured=1` | **Implement** | 1 real featured hotel rendered (`فيرمونت مكة`) | Verified |
-| AO-HOME-09 | EXEC01-MANDATE §8.E | Homepage | Hotel card shows name/image/city/price | Partial | `widgets/cards.dart` | — | Implement | Widget test + rendered capture | Verified |
-| AO-HOME-10 | EXEC01-MANDATE §8.E | Homepage | Rating shown only if supported | Correct | `widgets/cards.dart` | `rating` (0 on all live rows) | Preserve | Rating suppressed when 0 — no fabricated rating | Verified |
-| AO-HOME-11 | EXEC01-MANDATE §8.F | Homepage | Recently added units from real API | Partial | `home/home_screen.dart` | `units/browse.php?sort=newest` | Redesign | Real units rendered (baseline had a section; rebuilt with cards + error/empty states) | Verified |
-| AO-HOME-12 | EXEC01-MANDATE §8.G | Homepage | Distinguish hotels from owner-owned units | Missing → implemented | `home/home_screen.dart` (`_buildOwnerUnits`) | `units/browse.php?owner_only=1` | Implement | Dedicated "فنادق بوحدات ملاك" section rendered | Verified |
-
-## 6. Search and filtering
-
-| ID | Source | Module | Description | Existing status | Flutter files | Backend dependency | Required action | Verification | Final status |
-|---|---|---|---|---|---|---|---|---|---|
-| AO-SRCH-01 | EXEC01-MANDATE §9.1 | Search | Search by city | **Broken (no city filter wired)** | `services/hotel_service.dart`, `screens/search/search_screen.dart` | `units/browse.php?city=`, `hotels/list.php?city=` | **Fix** | `city=Makkah` → 3 hotels, 4 units on live backend | Verified |
-| AO-SRCH-02 | EXEC01-MANDATE §9.2 | Search | Search by hotel name | Partial | `services/hotel_service.dart` | `units/browse.php?q=` (server-side); **`hotels/list.php` has no `q`** | Fix | `q=فيرمونت` → 3 units; hotel names matched client-side (no server support — documented) | Verified |
-| AO-SRCH-03 | EXEC01-MANDATE §9.3 | Search | Filter by accommodation category | Partial → fixed | `screens/search/search_screen.dart`, `services/hotel_service.dart` | `categories/list.php` | **Fix** | Category chips from DB; empty-type hotels no longer match every category; units tab now constrained to hotels of that category (server ignores `category`) | Verified |
-| AO-SRCH-04 | EXEC01-MANDATE §9.4 | Search | Display relevant hotels | **Missing → implemented** | `screens/search/search_screen.dart` | `hotels/list.php` | **Implement** | Hotels tab renders (baseline had units only, no hotels tab) | Verified |
-| AO-SRCH-05 | EXEC01-MANDATE §9.5 | Search | Display relevant units | Implemented | `screens/search/search_screen.dart` | `units/browse.php` | Verify | Units tab renders 12 real units | Verified |
-| AO-SRCH-06 | EXEC01-MANDATE §9.6 | Search | Navigate hotel → its units | Missing → implemented | `screens/hotel/hotel_details_screen.dart` | `units/browse.php?hotel_id=` | Implement | Unit list on hotel detail | Verified |
-| AO-SRCH-07 | EXEC01-MANDATE §9.7 | Search | Preserve selected criteria | **Broken → fixed** | `screens/search/search_screen.dart` | — | **Fix** | State kept in `State`; `initialTab` honoured | Verified |
-| AO-SRCH-08 | EXEC01-MANDATE §9.8 | Search | Handle empty results | Partial | `widgets/state_views.dart` | — | Redesign | `EmptyView` rendered in captured empty-state screenshot (baseline had a bare text string) | Verified |
-| AO-SRCH-09 | EXEC01-MANDATE §9.9 | Search | Handle network errors | Partial | `widgets/state_views.dart` | — | Redesign | `ErrorView` + retry (baseline had a raw `e.toString()` dump) | Verified |
-| AO-SRCH-10 | EXEC01-MANDATE §9.10 | Search | Avoid duplicate API requests | **Broken → fixed** | `screens/search/search_screen.dart` | — | **Fix** | 450 ms debounce, single in-flight future, hotels+units fetched in parallel via `Future.wait` (baseline fired on every keystroke, sequentially) | Verified |
-| AO-SRCH-11 | EXEC01-MANDATE §9.11 | Search | Loading indicators | Missing → implemented | `widgets/state_views.dart` | — | Implement | `LoadingView` on every async section | Verified |
-| AO-SRCH-12 | EXEC01-MANDATE §9.12 | Search | Refresh results correctly | Implemented | `screens/search/search_screen.dart` | — | Verify | `RefreshIndicator` wired | Implemented-untested |
-| AO-SRCH-13 | EXEC01-MANDATE §9 | Search | Do not add unsupported filters with fake behaviour | Correct | `screens/search/filters_sheet.dart` | `min_price`/`max_price`/`min_capacity` only | Preserve | Filters map only to real params | Verified |
-| AO-SRCH-14 | EXEC01-MANDATE §9 | Search | **Makkah must return real results** | **Broken → fixed** | `services/hotel_service.dart` | `city=Makkah` | **Fix** | Live: 3 hotels, 4 units for Makkah | Verified |
-
-## 7. Hotel details
-
-| ID | Source | Module | Description | Existing status | Flutter files | Backend dependency | Required action | Verification | Final status |
-|---|---|---|---|---|---|---|---|---|---|
-| AO-HTL-01 | EXEC01-MANDATE §10 | Hotel | Hotel name | Working | `screens/hotel/hotel_details_screen.dart` | `hotels/detail.php` | Verify | Rendered capture shows `فيرمونت مكة` | Verified |
-| AO-HTL-02 | EXEC01-MANDATE §10 | Hotel | City and location | Working | same | `city_ar/en`, `address` | Verify | Rendered: `مكة المكرمة · فندق` | Verified |
-| AO-HTL-03 | EXEC01-MANDATE §10 | Hotel | Cover image | Working | same, `widgets/state_views.dart` | `cover_image` | Verify | Rendered with fallback on missing | Verified |
-| AO-HTL-04 | EXEC01-MANDATE §10 | Hotel | Image gallery | **Partial (backend)** | same | `gallery` is `[]` for all live hotels | Document dependency | Falls back to cover image only | Partial |
-| AO-HTL-05 | EXEC01-MANDATE §10 | Hotel | Hotel description | **Fabricated → fixed** | same | `description_ar/en` | **Fix** | Shows real text or "no description"; no invented prose | Verified |
-| AO-HTL-06 | EXEC01-MANDATE §10 | Hotel | Facilities / amenities | Implemented | same, `utils/amenity_icons.dart` | `amenities[]` | Verify | 11 real amenities rendered with DB icons | Verified |
-| AO-HTL-07 | EXEC01-MANDATE §10 | Hotel | Available units | Missing → implemented | same | `units/browse.php?hotel_id=` | Implement | Units section present; shows empty state when none | Verified |
-| AO-HTL-08 | EXEC01-MANDATE §10 | Hotel | Unit prices when available | Implemented | same | `price_per_night` | Verify | Price rendered | Verified |
-| AO-HTL-09 | EXEC01-MANDATE §10 | Hotel | Navigation to unit details | Missing → implemented | same → `unit_details_screen.dart` | — | Implement | Tap opens unit detail | Implemented-untested |
-| AO-HTL-10 | EXEC01-MANDATE §10 | Hotel | Booking entry point | Working | same → `booking_screen.dart` | — | Preserve | Book button present | Implemented-untested |
-| AO-HTL-11 | EXEC01-MANDATE §10 | Hotel | Do not fabricate facilities or prices | **Violated → fixed** | same | — | **Fix** | Fake reviews and auto-written descriptions removed | Verified |
-| AO-HTL-12 | EXEC01-MANDATE §10 | Hotel | Handle missing optional info gracefully | Missing → implemented | same | — | Implement | Null-safe throughout | Verified |
-
-## 8. Unit details
-
-| ID | Source | Module | Description | Existing status | Flutter files | Backend dependency | Required action | Verification | Final status |
-|---|---|---|---|---|---|---|---|---|---|
-| AO-UNIT-01 | EXEC01-MANDATE §11 | Unit | Unit detail screen exists | **Existing → redesigned** | `screens/unit/unit_details_screen.dart` | `units/detail.php` | **Implement** | Rendered capture of unit 13 | Verified |
-| AO-UNIT-02 | EXEC01-MANDATE §11 | Unit | Unit name | Implemented | same | `name_ar/en` | Verify | Rendered: `4005` | Verified |
-| AO-UNIT-03 | EXEC01-MANDATE §11 | Unit | Associated hotel | Implemented | same | `hotel_name` | Verify | Rendered: `فندق فيرمونت مكه` | Verified |
-| AO-UNIT-04 | EXEC01-MANDATE §11 | Unit | Unit images | Implemented | same | `images[]` | Verify | Gallery with cover fallback | Verified |
-| AO-UNIT-05 | EXEC01-MANDATE §11 | Unit | Description | Implemented | same | `description_ar/en` | Verify | Rendered real text | Verified |
-| AO-UNIT-06 | EXEC01-MANDATE §11 | Unit | Accommodation capacity | Implemented | same | `capacity`, `bed_count` | Verify | Rendered: `2 ضيوف`, `1 الأسرّة` | Verified |
-| AO-UNIT-07 | EXEC01-MANDATE §11 + owner decision 2026-10-19 | Unit | Unit facilities / amenities | **Implemented (backend limited)** | `screens/unit/unit_details_screen.dart` | `units/detail.php` has no amenity key; hotel amenities via `hotels/detail.php` | Implement per owner decision | Unit section + clearly labelled shared-hotel section; never merged or invented | Verified |
-| AO-UNIT-08 | EXEC01-MANDATE §11 | Unit | Unit pricing | Implemented | same | `price_per_night` | Verify | Rendered: `1500 ريال /ليلة` | Verified |
-| AO-UNIT-09 | EXEC01-MANDATE §11 | Unit | Availability information | Implemented | same | `availability[]` | Verify | Rendered: `2026-10-05 → 2026-10-31` | Verified |
-| AO-UNIT-10 | EXEC01-MANDATE §11 | Unit | Additional service information | Implemented | same, `models/unit_model.dart` | `addons[]` | Verify | Typed `UnitAddonModel`; empty state when absent | Verified |
-| AO-UNIT-11 | EXEC01-MANDATE §11 | Unit | Booking entry point | Implemented | same → `booking_screen.dart` | — | Preserve | Book button present | Implemented-untested |
-| AO-UNIT-12 | EXEC01-MANDATE §11 | Unit | Homepage → City → Hotel → Unit → Booking | Partial | `home_screen`, `search_screen`, `hotel_details_screen`, `unit_details_screen`, `booking_screen` | all above | Verify end-to-end | Each hop verified individually; full chain not yet walked | Partial |
-
-## 9. Amenities
-
-| ID | Source | Module | Description | Existing status | Flutter files | Backend dependency | Required action | Verification | Final status |
-|---|---|---|---|---|---|---|---|---|---|
-| AO-AMN-01 | EXEC01-MANDATE §12 | Amenities | DB-driven amenities, not hardcoded labels | **Hardcoded → fixed** | `models/amenity_model.dart`, `utils/amenity_icons.dart` | `amenities[]` | **Fix** | 11 real amenities rendered from API | Verified |
-| AO-AMN-02 | EXEC01-MANDATE §12 | Amenities | Wi-Fi, Parking, A/C, Restaurant, Room service, Coffee | Implemented | `utils/amenity_icons.dart` | `icon` keys `wifi`, `local_parking`, `ac_unit`, `restaurant`, `room_service`, `coffee_maker` | Verify | Tests assert each real key | Verified |
-| AO-AMN-03 | EXEC01-MANDATE §12 | Amenities | Accessibility, Meeting, Family, Non-smoking | Implemented | same | real keys from API | Verify | Rendered in hotel detail capture | Verified |
-| AO-AMN-04 | EXEC01-MANDATE §12 | Amenities | Transport, Bedding, F&B, Bathroom, Media, Services | Partial | same | not all keys observed live | Verify when data exists | Generic fallback icon for unknown keys (tested) | Partial |
-| AO-AMN-05 | EXEC01-MANDATE §12 | Amenities | Amenities bound to the correct record | Working | `screens/hotel/hotel_details_screen.dart` | `hotels/detail.php` → `amenities[]` | Verify | Amenities come from the per-hotel response, not a global list | Verified |
-| AO-AMN-06 | EXEC01-MANDATE §12 + owner decision 2026-10-19 | Amenities | Unit amenities relationship | **Implemented (backend limited)** | `models/unit_model.dart` (`facilities`), `screens/unit/unit_details_screen.dart` | `units/detail.php` has no amenity key | Implement per owner decision | Unit-specific amenities render when present; shared hotel amenities shown in a separate labelled section | Verified |
-| AO-AMN-07 | EXEC01-MANDATE §12 | Amenities | Do not assume an amenity exists from the global table | Correct | `utils/amenity_icons.dart` | — | Preserve | Icons are a rendering map only; existence comes from the record | Verified |
-
-## 10. Performance and reliability
-
-| ID | Source | Module | Description | Existing status | Flutter files | Backend dependency | Required action | Verification | Final status |
-|---|---|---|---|---|---|---|---|---|---|
-| AO-PERF-01 | EXEC01-MANDATE §14 | Performance | Reduce unnecessary rebuilds | Partial | `home/home_screen.dart` | — | Improve | Section futures created once in `initState` | Verified |
-| AO-PERF-02 | EXEC01-MANDATE §14 | Performance | Reduce repeated API requests | **Broken → fixed** | `screens/search/search_screen.dart` | — | **Fix** | Debounce + single in-flight future | Verified |
-| AO-PERF-03 | EXEC01-MANDATE §14 | Performance | Image loading | Working | `widgets/state_views.dart` | — | Preserve | `cached_network_image` + placeholder + error | Verified |
-| AO-PERF-04 | EXEC01-MANDATE §14 | Performance | List scrolling | Working | all list screens | — | Preserve | `ListView.builder` used throughout | Verified |
-| AO-PERF-05 | EXEC01-MANDATE §14 | Performance | Async lifecycle safety | **Broken → fixed** | screens | — | **Fix** | `mounted` guards on awaited `setState` | Verified |
-| AO-PERF-06 | EXEC01-MANDATE §14 | Performance | No large architectural rewrite | Correct | — | — | Preserve | Riverpod retained; no router package | Verified |
-| AO-PERF-07 | EXEC01-MANDATE §14 | Performance | State cleanup | Working | screens | — | Verify | Controllers/timers disposed | Implemented-untested |
-
-## 11. Testing
-
-| ID | Source | Module | Description | Existing status | Flutter files | Backend dependency | Required action | Verification | Final status |
-|---|---|---|---|---|---|---|---|---|---|
-| AO-TEST-01 | EXEC01-MANDATE §15 | Testing | `flutter pub get` succeeds | — | `pubspec.yaml` | — | Run | Executed | Verified |
-| AO-TEST-02 | EXEC01-MANDATE §15 | Testing | `flutter analyze` clean of errors/warnings | **5 warnings baseline** | `analysis_options.yaml` | — | Run | 0 errors, 0 warnings | Verified |
-| AO-TEST-03 | EXEC01-MANDATE §15 | Testing | `flutter test` passes | **No test suite existed** | `test/` | — | **Create + run** | 48 tests, all pass | Verified |
-| AO-TEST-04 | EXEC01-MANDATE §15 | Testing | `dart format --set-exit-if-changed` | **Baseline unformatted (52 files)** | `lib/` | — | Report | Repo baseline was never formatted; new files conform | Partial |
-| AO-TEST-05 | EXEC01-MANDATE §15 | Testing | Tests for repaired defects | Missing | `test/models_parsing_test.dart` | — | **Create** | Regression tests for every parsing defect | Verified |
-| AO-TEST-06 | EXEC01-MANDATE §15 | Testing | Separate isolated from live-integration tests | Missing | `test/` | — | **Document** | `EXECUTION_01_TEST_RESULTS.md` §3 | Verified |
-| AO-TEST-07 | EXEC01-MANDATE §15 | Testing | Responsive widths 360/390/768 | Missing | `test/widgets_test.dart` | — | **Create** | Tests at all three widths pass | Verified |
-
-## 12. Version control and build
-
-| ID | Source | Module | Description | Existing status | Flutter files | Backend dependency | Required action | Verification | Final status |
-|---|---|---|---|---|---|---|---|---|---|
-| AO-VC-01 | EXEC01-MANDATE §17 | VC | Work on `feature/allowners-new-version-exec01` | Correct | — | — | Preserve | Branch is checked out | Verified |
-| AO-VC-02 | EXEC01-MANDATE §17 | VC | Do not push to `main` | Correct | — | — | Preserve | `main` untouched | Verified |
-| AO-VC-03 | EXEC01-MANDATE §17 | VC | Do not merge automatically | Correct | — | — | Preserve | No merge performed | Verified |
-| AO-VC-04 | EXEC01-MANDATE §18 | VC | Preserve Codemagic pipeline | Correct | `codemagic.yaml` | — | Preserve | 3 workflows unchanged; signing reference intact | Verified |
-| AO-VC-05 | EXEC01-MANDATE §18 | VC | Do not generate/replace signing keys | Correct | `codemagic.yaml` | — | Preserve | No key created | Verified |
-| AO-VC-06 | EXEC01-MANDATE §18 | VC | Do not publish an AAB in Exec 01 | Correct | — | — | Preserve | No build or upload performed | Verified |
-| AO-VC-07 | EXEC01-MANDATE §4.19 | VC | Avoid unnecessary new dependencies | Correct | `pubspec.yaml` | — | Preserve | No dependency added | Verified |
-| AO-VC-08 | EXEC01-MANDATE §4.20 | VC | Document architectural changes | Missing | `docs/` | — | **Create** | 5 documents produced | Verified |
-
-## 13. Repository hygiene
-
-| ID | Source | Module | Description | Existing status | Flutter files | Backend dependency | Required action | Verification | Final status |
-|---|---|---|---|---|---|---|---|---|---|
-| AO-CLEAN-01 | CODE | Hygiene | No `.gitignore`; build artefacts untracked | **Missing** | — | — | Add `.gitignore` | Artefacts left untracked; owner decision recorded | Partial |
-| AO-CLEAN-02 | CODE | Hygiene | `ComingSoonScreen` is dead code (no caller) | Unused | `screens/shared/coming_soon_screen.dart` | — | Decide remove/keep | Not referenced anywhere in `lib/` | Partial |
-| AO-CLEAN-03 | EXEC01-MANDATE §4.5 | Hygiene | No fake data | Correct | all `lib/` | — | Preserve | `grep` for lorem/dummy/mock/placeholder clean | Verified |
-| AO-CLEAN-04 | EXEC01-MANDATE §4.7 | Hygiene | No placeholder screens shipped as complete | Correct | — | — | Preserve | Only unused `ComingSoonScreen` exists (AO-CLEAN-02) | Verified |
-| AO-CLEAN-05 | EXEC01-MANDATE §4.8 | Hygiene | No hardcoded hotels/units/prices/availability | **Violated → fixed** | `services/hotel_service.dart`, `screens/home/home_screen.dart`, `screens/search/search_screen.dart` | — | **Fix** | `grep` for city names in `lib/` returns nothing outside strings | Verified |
-
----
-
-## Duplicate and overlapping requirements
-
-| Pair | Note |
+| الحالة | العدد |
 |---|---|
-| AO-API-01 / AO-API-03 / AO-API-04 / AO-API-05 / AO-API-06 | All five describe the same root defect (unsafe parsing) from different angles. They share one fix (`safe_parse.dart`) and one test group. Kept separate because each names a distinct data shape that must be handled. |
-| AO-HOME-06 / AO-SRCH-01 | Destination tap and city search are the same code path (`city` query parameter). |
-| AO-SRCH-01 / AO-SRCH-14 | AO-SRCH-14 is the acceptance test for AO-SRCH-01. Kept separate because the mandate calls it out explicitly as *critical*. |
-| AO-DS-14 / AO-TEST-07 | The responsive requirement and its test. |
-| AO-HTL-11 / AO-CLEAN-03 / AO-CLEAN-05 | Three statements of the "no fabricated content" rule at three layers. |
+| VERIFIED PASS | 11 |
+| IMPLEMENTED UNTESTED | 34 |
+| PARTIAL | 45 |
+| NOT IMPLEMENTED | 5 |
+| BACKEND BLOCKED | 52 |
+| OWNER DECISION REQUIRED | 1 |
 
-## Inventory entries that could not be checked
+## المصفوفة الكاملة
 
-The following are named in the Execution 01 mandate but could not be verified
-because they depend on the missing source documents or on a backend change:
+### 1. نص الترحيب العربي داخل التطبيق
 
-| Item | Reason |
-|---|---|
-| Requirement count reconciliation against the 148-item inventory | Inventory file not supplied |
-| Page citations for any requirement | 51-page document not supplied |
-| Full booking engine rules | Deferred to Execution 02 by mandate §11 |
-| Unit-level amenity relationships | Backend does not expose them (`AO-AMN-06`) |
-| Hotel gallery images | Backend returns `gallery: []` (`AO-HTL-04`) |
-| Booking Agent workflow | No mobile shell; scope undecided (`AO-AUTH-04`) |
-| Administrator mobile role | Not present; undecided (`AO-AUTH-05`) |
+- **القسم:** الهوية والمحتوى والدعم — 9 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** home_screen.dart _Header, app_strings hello_guest
+- **اعتماد الـ API:** —
+- **الدليل:** السلسلة ar=«مرحبًا بك» مطابقة لنص المستند ص1
+- **المتبقي:** —
+- **معيار القبول:** تظهر رسالة الترحيب العربية بلا مستخدم مسجّل
 
----
+### 2. نص الترحيب الإنجليزي داخل التطبيق
 
-## Summary counts (of this matrix, not of the 148-item inventory)
+- **القسم:** الهوية والمحتوى والدعم — 9 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** app_strings hello_guest
+- **اعتماد الـ API:** —
+- **الدليل:** en=«Welcome»
+- **المتبقي:** —
+- **معيار القبول:** تظهر رسالة الترحيب الإنجليزية عند تبديل اللغة
 
-| Final status | Count |
-|---|---|
-| Verified | 110 |
-| Implemented-untested | 9 |
-| Partial | 9 |
-| Out-of-scope (owner decision) | 1 |
-| **Total rows** | **129** |
+### 3. الوصف العربي للتطبيق
 
-Changes in the 2026-10-19 owner-review pass: `AO-UNIT-07` and `AO-AMN-06` moved
-from Partial/Blocked to Verified after the approved unit-amenity decision was
-implemented; `AO-AUTH-04` (Booking Agent) moved from Out-of-scope to Verified
-after the owner confirmed it is in mobile scope; `AO-AUTH-05` (Administrator)
-moved to Out-of-scope on the owner's decision.
+- **القسم:** الهوية والمحتوى والدعم — 9 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** app_strings onboard_desc_1, content_page_screen
+- **اعتماد الـ API:** /content/get.php
+- **الدليل:** وصف عربي موجود داخل التطبيق
+- **المتبقي:** مطابقة نص الوصف مع نص المستند النهائي
+- **معيار القبول:** يطابق الوصف العربي نص المستند المعتمد
 
-Changes in the 2026-10-20 code-review pass: `AO-HOME-06` and `AO-SRCH-03` moved
-from Implemented-untested to Verified after the destination localization fix and
-the category-filter fix were confirmed against the live backend.
+### 4. الوصف الإنجليزي للتطبيق
 
-**No claim is made that all 148 inventory items are implemented.** This matrix
-covers the requirements that were verifiable from the available sources. The
-reconciliation against the original 51-page document and the 148-item inventory
-is **BLOCKED** — see the top of this file.
+- **القسم:** الهوية والمحتوى والدعم — 9 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** app_strings onboard_desc_1
+- **اعتماد الـ API:** /content/get.php
+- **الدليل:** وصف إنجليزي موجود
+- **المتبقي:** مطابقة النص الإنجليزي المعتمد
+- **معيار القبول:** يطابق الوصف الإنجليزي نص المستند
+
+### 5. العبارة التعريفية العربية والإنجليزية
+
+- **القسم:** الهوية والمحتوى والدعم — 9 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** app_strings app_tagline
+- **اعتماد الـ API:** —
+- **الدليل:** العبارة الحالية «فندقك، أينما كنت» لا تطابق المستند («المنصة الموثوقة لملاك الوحدات والعقارات»)
+- **المتبقي:** تحديث العبارة لنص المستند ص1
+- **معيار القبول:** تظهر العبارة التعريفية المعتمدة عربيًا وإنجليزيًا
+
+### 6. استبدال شعارات التطبيق بالشعارات الجديدة
+
+- **القسم:** الهوية والمحتوى والدعم — 9 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** assets/images/logo.png, logo_full.png, app_logo.dart
+- **اعتماد الـ API:** /content/settings.php
+- **الدليل:** الشعار يُحمّل من الإعدادات مع بديل محلي
+- **المتبقي:** تأكيد أن ملفات الشعار هي النسخة الجديدة المعتمدة
+- **معيار القبول:** يظهر الشعار الجديد في كل الشاشات
+
+### 7. تكبير شعار AO في الترحيب
+
+- **القسم:** الهوية والمحتوى والدعم — 9 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** home_screen.dart _Header AppLogo(width:68)
+- **اعتماد الـ API:** —
+- **الدليل:** الحجم الحالي 68؛ المستند يطلب +15–20%
+- **المتبقي:** قياس الحجم المعتمد من المالك
+- **معيار القبول:** حجم الشعار مطابق للمقترح (أكبر 15–20%)
+
+### 8. إضافة بيانات المساعدة والدعم
+
+- **القسم:** الهوية والمحتوى والدعم — 9 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** help_support_screen.dart
+- **اعتماد الـ API:** /content/settings.php
+- **الدليل:** الشاشة تقرأ هاتف/واتساب/بريد الدعم
+- **المتبقي:** إدخال بيانات الدعم الفعلية في الإعدادات
+- **معيار القبول:** تُفتح شاشة الدعم وتعمل قنوات التواصل
+
+### 9. تغيير الصورة الشخصية لكل الأدوار
+
+- **القسم:** الهوية والمحتوى والدعم — 9 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** editable_avatar.dart, profile_screen.dart, owner_profile_screen.dart, hotel_profile_screen.dart
+- **اعتماد الـ API:** /user/avatar.php
+- **الدليل:** رفع الصورة متاح للضيف والمالك وموظف الفندق
+- **المتبقي:** تأكيد تغطية دور الوكيل أيضًا
+- **معيار القبول:** كل الأدوار تستطيع تغيير صورتها
+
+### 10. ترحيب مخصص باسم المستخدم
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** home_screen.dart _Header userName
+- **اعتماد الـ API:** /auth/me.php
+- **الدليل:** ترحيب باسم المستخدم المسجّل
+- **المتبقي:** —
+- **معيار القبول:** يظهر اسم المستخدم في الترحيب بعد الدخول
+
+### 11. ترحيب خاص بحساب المالك
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** owner_home_screen.dart
+- **اعتماد الـ API:** /user/owner-dashboard.php
+- **الدليل:** شاشة المالك ترحيب + اسم
+- **المتبقي:** —
+- **معيار القبول:** يظهر ترحيب خاص بحساب المالك
+
+### 12. إبراز مربع البحث وتغيير نصه
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** home_screen.dart _SearchEntry, app_strings search_city_or_hotel
+- **اعتماد الـ API:** /units/browse.php
+- **الدليل:** مربع بحث بارز نصّه «ابحث عن مدينة أو فندق أو وحدة»
+- **المتبقي:** —
+- **معيار القبول:** مربع البحث هو العنصر الأبرز ويفتح شاشة البحث
+
+### 13. تغيير تصنيف فنادق إلى وحدات فندقية
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** home_screen.dart _buildCategories
+- **اعتماد الـ API:** /categories/list.php
+- **الدليل:** التصنيف في قاعدة البيانات اسمه «فنادق»/Hotels
+- **المتبقي:** تغيير الاسم إلى «الوحدات الفندقية» في جدول categories
+- **معيار القبول:** يظهر التصنيف الرئيسي باسم «وحدات فندقية»
+
+### 14. إضافة تصنيفات الوحدات الخمسة
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** home_screen.dart _buildCategories
+- **اعتماد الـ API:** /categories/list.php
+- **الدليل:** قاعدة البيانات تُرجع 4 تصنيفات فقط
+- **المتبقي:** إضافة تصنيف «عقارات» الخامس في قاعدة البيانات
+- **معيار القبول:** تظهر التصنيفات الخمسة كاملة
+
+### 15. سحب التصنيفات أفقياً
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** home_screen.dart ListView(scrollDirection: horizontal)
+- **اعتماد الـ API:** /categories/list.php
+- **الدليل:** شريط التصنيفات أفقي قابل للسحب
+- **المتبقي:** —
+- **معيار القبول:** تُسحب التصنيفات أفقيًا
+
+### 16. تغيير أحدث الأجنحة إلى أحدث الوحدات
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** app_strings recently_added_units
+- **اعتماد الـ API:** /units/browse.php?sort=newest
+- **الدليل:** العنوان «أحدث الوحدات المضافة»
+- **المتبقي:** —
+- **معيار القبول:** قسم «أحدث الوحدات» بدل «أحدث الأجنحة»
+
+### 17. تقليل المساحات البيضاء وإظهار البطاقات
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** home_screen.dart الأقسام كبطاقات مباشرة
+- **اعتماد الـ API:** —
+- **الدليل:** البطاقات تظهر أسفل الفلاتر
+- **المتبقي:** مراجعة بصرية للمساحات البيضاء
+- **معيار القبول:** تقليل الفراغ وإظهار البطاقات مباشرة
+
+### 18. قسم الوجهات الرئيسية مكة جدة المدينة الرياض
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** home_screen.dart _buildDestinations
+- **اعتماد الـ API:** /cities/list.php
+- **الدليل:** الـ API يُرجع مكة/جدة/المدينة/الخبر/الدمام — الرياض غير موجودة
+- **المتبقي:** إضافة مدينة الرياض في قاعدة البيانات
+- **معيار القبول:** تظهر الوجهات مكة/جدة/المدينة/الرياض
+
+### 19. بطاقات مدن قابلة للنقر والتصفية
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** home_screen.dart DestinationCard onTap→_openSearch(city:)
+- **اعتماد الـ API:** /units/browse.php?city=
+- **الدليل:** الضغط يفتح البحث مُفلترًا بالمدينة
+- **المتبقي:** —
+- **معيار القبول:** الضغط على مدينة يعرض وحداتها
+
+### 20. قسم اكتشف حسب النوع
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** home_screen.dart _buildCategories browse_by_category
+- **اعتماد الـ API:** /categories/list.php
+- **الدليل:** قسم «اكتشف حسب النوع»
+- **المتبقي:** —
+- **معيار القبول:** يظهر قسم اكتشاف حسب النوع
+
+### 21. قسم فنادق بوحدات ملاك
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_hotel_summary.dart, cards.dart OwnerHotelCard, home_screen _buildOwnerUnits
+- **اعتماد الـ API:** /units/browse.php?owner_only=1 + /hotels/list.php
+- **الدليل:** قسم جديد يعرض فنادق فيها وحدات ملاك من بيانات حقيقية
+- **المتبقي:** اختبار على جهاز حقيقي
+- **معيار القبول:** يظهر قسم «فنادق بوحدات ملاك» ببطاقات فنادق
+
+### 22. عرض عدد الوحدات والتقييم والمدينة في بطاقات فنادق الملاك
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** cards.dart OwnerHotelCard (عدد الوحدات/التقييم/المدينة)
+- **اعتماد الـ API:** /units/browse.php + /hotels/list.php
+- **الدليل:** البطاقة تعرض العدد والتقييم والمدينة
+- **المتبقي:** اختبار على جهاز حقيقي
+- **معيار القبول:** تُظهر البطاقة عدد الوحدات والتقييم والمدينة
+
+### 23. قسم وحدات الملاك مرتبط بالمدينة المختارة
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** home_screen.dart _buildOwnerUnits
+- **اعتماد الـ API:** /units/browse.php?city=
+- **الدليل:** القسم يعرض كل الوحدات؛ الربط بالمدينة يتم عبر البحث
+- **المتبقي:** ربط قسم وحدات الملاك بالمدينة المختارة مباشرة في الرئيسية
+- **معيار القبول:** تتغير وحدات الملاك حسب المدينة المختارة
+
+### 24. إضافة الفنادق المحددة في قائمة مكة وحالات قريباً
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** /hotels/list.php
+- **الدليل:** أسماء الفنادق المحددة (فيرمونت إعمار، رافلز، هيلتون...) غير موجودة في قاعدة البيانات
+- **المتبقي:** إدخال الفنادق المحددة وحالات «قريبًا» في قاعدة البيانات
+- **معيار القبول:** تظهر فنادق مكة المحددة وحالات «قريبًا»
+
+### 25. إضافة فنادق المدينة وجدة والرياض وحالات قريباً
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** /hotels/list.php
+- **الدليل:** لا توجد فنادق للمدينة/جدة/الرياض مع حالات «قريبًا»
+- **المتبقي:** إدخال فنادق المدن المحددة في قاعدة البيانات
+- **معيار القبول:** تظهر فنادق المدينة وجدة والرياض
+
+### 26. إظهار الفنادق المضافة من لوحة المالك عند البحث باسم المدينة
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** hotel_service.dart searchHotels, search_screen.dart
+- **اعتماد الـ API:** /hotels/list.php?city=
+- **الدليل:** البحث باسم المدينة يرجع الفنادق الحقيقية من الـ API
+- **المتبقي:** —
+- **معيار القبول:** البحث باسم المدينة يعرض الفنادق المضافة من لوحة المالك
+
+### 27. تعديل ترتيب أقسام الرئيسية والقائمة السفلية
+
+- **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** OWNER DECISION REQUIRED
+- **ملفات Flutter:** home_screen.dart build, main_navigation_screen.dart
+- **اعتماد الـ API:** —
+- **الدليل:** ترتيب الأقسام: المستند يذكر الوجهات قبل التصنيفات، والمهمة تذكر العكس؛ الشريط السفلي 5 عناصر
+- **المتبقي:** حسم المالك لترتيب الأقسام والشريط السفلي
+- **معيار القبول:** ترتيب الرئيسية والشريط السفلي مطابق للقرار
+
+### 28. عرض تفاصيل الفندق قبل اختيار الغرف
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** hotel_details_screen.dart
+- **اعتماد الـ API:** /hotels/detail.php
+- **الدليل:** صفحة تفاصيل الفندق قبل الوحدات
+- **المتبقي:** —
+- **معيار القبول:** تُعرض تفاصيل الفندق قبل اختيار الغرفة
+
+### 29. عرض وحدات الفندق وأسعارها وخدماتها
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** hotel_details_screen.dart, hotel_service.getUnits
+- **اعتماد الـ API:** /units/list.php?hotel_id=
+- **الدليل:** عرض وحدات الفندق وأسعارها
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** تظهر وحدات الفندق وأسعارها
+
+### 30. عرض تفاصيل وصور الوحدة وزر احجز الآن
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** unit_details_screen.dart
+- **اعتماد الـ API:** /units/detail.php
+- **الدليل:** تفاصيل الوحدة + الصور + زر احجز الآن
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** تُعرض تفاصيل وصور الوحدة وزر الحجز
+
+### 31. عرض سعر الوحدة وإضافات الوجبات والسرير قبل الحجز
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** booking_screen.dart
+- **اعتماد الـ API:** /units/addons.php
+- **الدليل:** إضافات الوجبات/السرير تُحسب في شاشة الحجز
+- **المتبقي:** تحقق كامل على جهاز
+- **معيار القبول:** تظهر الإضافات والسعر قبل الحجز
+
+### 32. تغيير زر تأكيد الحجز إلى تفاصيل الحجز
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** booking_screen.dart
+- **اعتماد الـ API:** /bookings/create.php
+- **الدليل:** زر الحجز ينقل لصفحة النجاح بتفاصيل الحجز
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** ينقل الزر إلى تفاصيل الحجز
+
+### 33. صفحة ملخص الحجز ببيانات الضيف والتواريخ والأشخاص والإضافات
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** booking_screen.dart, booking_success_screen.dart
+- **اعتماد الـ API:** /bookings/create.php
+- **الدليل:** ملخص ببيانات الضيف والتواريخ والأشخاص
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** يظهر ملخص الحجز كاملًا
+
+### 34. عرض طرق الدفع ضمن تفاصيل الحجز
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** booking_screen.dart PaymentMethod
+- **اعتماد الـ API:** /bookings/create.php
+- **الدليل:** خيار الدفع الإلكتروني أو في الفندق
+- **المتبقي:** اختبار بوابة الدفع الحقيقية
+- **معيار القبول:** تظهر طرق الدفع وتُختار
+
+### 35. إظهار تفاصيل الحجز في تطبيق المالك ولوحته
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** owner_bookings_screen.dart
+- **اعتماد الـ API:** /user/owner-bookings.php
+- **الدليل:** شاشة حجوزات المالك تعرض تفاصيل الحجز
+- **المتبقي:** مزامنة التفاصيل الكاملة
+- **معيار القبول:** تظهر تفاصيل الحجز في تطبيق المالك
+
+### 36. إظهار الحجوزات الواردة من الضيف والوكيل للمالك
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** owner_bookings_screen.dart
+- **اعتماد الـ API:** /user/owner-bookings.php
+- **الدليل:** عرض الحجوزات الواردة من الضيف/الوكيل
+- **المتبقي:** تأكيد ظهور كل المصادر
+- **معيار القبول:** تظهر حجوزات الضيف والوكيل للمالك
+
+### 37. تأكيد الحجز من تطبيق المالك
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_bookings_screen.dart _confirmBooking
+- **اعتماد الـ API:** owner_service
+- **الدليل:** زر تأكيد الحجز في تطبيق المالك
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** يستطيع المالك تأكيد الحجز
+
+### 38. إلغاء الحجز من تطبيق المالك
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_bookings_screen.dart _cancelBooking
+- **اعتماد الـ API:** owner_service
+- **الدليل:** زر إلغاء الحجز
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** يستطيع المالك إلغاء الحجز
+
+### 39. تعديل الحجز من حساب المالك
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** NOT IMPLEMENTED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** —
+- **الدليل:** تعديل الحجز من حساب المالك غير موجود
+- **المتبقي:** تنفيذ شاشة/إجراء التعديل
+- **معيار القبول:** يستطيع المالك تعديل الحجز
+
+### 40. تعديل الحجز من حساب الضيف
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** my_bookings_screen.dart _editBooking
+- **اعتماد الـ API:** /bookings/manage.php
+- **الدليل:** تعديل الحجز من حساب الضيف
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** يستطيع الضيف تعديل الحجز
+
+### 41. إلغاء الحجز من حساب الضيف
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** my_bookings_screen.dart _cancelBooking
+- **اعتماد الـ API:** /bookings/manage.php
+- **الدليل:** إلغاء الحجز من حساب الضيف
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** يستطيع الضيف إلغاء الحجز
+
+### 42. تعديل الحجز من حساب الوكيل
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** NOT IMPLEMENTED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** —
+- **الدليل:** تعديل الحجز من حساب الوكيل غير منفّذ
+- **المتبقي:** تنفيذ إجراء التعديل للوكيل
+- **معيار القبول:** يستطيع الوكيل تعديل الحجز
+
+### 43. إلغاء الحجز من حساب الوكيل
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** NOT IMPLEMENTED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** —
+- **الدليل:** إلغاء الحجز من حساب الوكيل غير منفّذ
+- **المتبقي:** تنفيذ إجراء الإلغاء للوكيل
+- **معيار القبول:** يستطيع الوكيل إلغاء الحجز
+
+### 44. إرسال تأكيد الحجز للفندق بالبريد تلقائياً
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** بريد السيرفر
+- **الدليل:** إرسال تأكيد الحجز للفندق بالبريد تلقائيًا يحتاج PHP/SMTP
+- **المتبقي:** تنفيذ إرسال البريد في السيرفر
+- **معيار القبول:** يُرسل بريد التأكيد تلقائيًا
+
+### 45. منع الحجز المزدوج لنفس الوحدة والتواريخ
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** /bookings/create.php
+- **الدليل:** منع الحجز المزدوج يحتاج تحقق توفّر على السيرفر
+- **المتبقي:** تنفيذ فحص التوفّر في السيرفر
+- **معيار القبول:** يُرفض الحجز المزدوج لنفس الوحدة/التواريخ
+
+### 46. إظهار بيانات وصول الضيف للوحدة بعد التأكيد
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** booking_success_screen.dart
+- **اعتماد الـ API:** /bookings/create.php
+- **الدليل:** عرض رقم الحجز/الوحدة بعد التأكيد
+- **المتبقي:** تأكيد بيانات الوصول للوحدة
+- **معيار القبول:** تظهر بيانات الوصول بعد التأكيد
+
+### 47. مزامنة تفاصيل الحجز والتغييرات بين التطبيق والموقع
+
+- **القسم:** الحجز وتفاصيله — 20 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** مزامنة الموقع
+- **الدليل:** مزامنة تفاصيل الحجز مع الموقع تحتاج تكامل سيرفر
+- **المتبقي:** تنفيذ المزامنة
+- **معيار القبول:** تتزامن التفاصيل بين التطبيق والموقع
+
+### 48. اختيار عدة وجبات عند إنشاء الحجز
+
+- **القسم:** الضيف والوجبات والسرير — 12 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** booking_screen.dart _mealAddons
+- **اعتماد الـ API:** /units/addons.php
+- **الدليل:** اختيار عدة وجبات عند الحجز
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** يختار الضيف عدة وجبات
+
+### 49. اختيار عدة وجبات في طلب وجبة مستقل
+
+- **القسم:** الضيف والوجبات والسرير — 12 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** meal_request_screen.dart
+- **اعتماد الـ API:** /services/meal-request.php
+- **الدليل:** طلب وجبة مستقل بعدة وجبات
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** يستطيع الضيف طلب عدة وجبات
+
+### 50. عرض سعر كل وجبة
+
+- **القسم:** الضيف والوجبات والسرير — 12 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** booking_screen.dart
+- **اعتماد الـ API:** /units/addons.php
+- **الدليل:** عرض سعر كل وجبة
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** يظهر سعر كل وجبة
+
+### 51. عرض إجمالي الوجبات بدلاً من حقل الملاحظات
+
+- **القسم:** الضيف والوجبات والسرير — 12 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** booking_screen.dart
+- **اعتماد الـ API:** /units/addons.php
+- **الدليل:** إجمالي الوجبات معروض
+- **المتبقي:** إبراز الإجمالي بدل الملاحظات
+- **معيار القبول:** يظهر إجمالي الوجبات
+
+### 52. عرض عدد الأشخاص أسفل رقم الغرفة
+
+- **القسم:** الضيف والوجبات والسرير — 12 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** booking_screen.dart guests
+- **اعتماد الـ API:** /bookings/create.php
+- **الدليل:** عدد الأشخاص في الحجز
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** يظهر عدد الأشخاص
+
+### 53. إرسال طلب الوجبات من الضيف إلى مالك الوحدة
+
+- **القسم:** الضيف والوجبات والسرير — 12 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** meal_request_screen.dart
+- **اعتماد الـ API:** /services/meal-request.php
+- **الدليل:** إرسال طلب الوجبات للمالك
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** يصل طلب الوجبات للمالك
+
+### 54. إضافة طلب سرير إضافي للضيف
+
+- **القسم:** الضيف والوجبات والسرير — 12 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** booking_screen.dart extraBed
+- **اعتماد الـ API:** /units/addons.php
+- **الدليل:** خيار السرير الإضافي
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** يستطيع الضيف طلب سرير إضافي
+
+### 55. عرض تفاصيل وأسعار السرير الإضافي
+
+- **القسم:** الضيف والوجبات والسرير — 12 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** booking_screen.dart
+- **اعتماد الـ API:** /units/addons.php
+- **الدليل:** عرض سعر السرير الإضافي
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** يظهر سعر السرير
+
+### 56. تصحيح حساب تكلفة السرير الإضافي
+
+- **القسم:** الضيف والوجبات والسرير — 12 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** booking_screen.dart
+- **اعتماد الـ API:** /units/addons.php
+- **الدليل:** حساب تكلفة السرير يحتاج تصحيحًا على السيرفر
+- **المتبقي:** تصحيح الحساب في السيرفر
+- **معيار القبول:** يُحسب السرير بشكل صحيح
+
+### 57. تمكين الضيف من طلب النظافة
+
+- **القسم:** الضيف والوجبات والسرير — 12 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** service_request_screen.dart
+- **اعتماد الـ API:** /services/request.php
+- **الدليل:** طلب النظافة من الضيف
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** يستطيع الضيف طلب النظافة
+
+### 58. تمكين الضيف من طلب الصيانة
+
+- **القسم:** الضيف والوجبات والسرير — 12 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** service_request_screen.dart
+- **اعتماد الـ API:** /services/request.php
+- **الدليل:** طلب الصيانة من الضيف
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** يستطيع الضيف طلب الصيانة
+
+### 59. إظهار حالة طلبات الخدمات للضيف
+
+- **القسم:** الضيف والوجبات والسرير — 12 نقطة
+- **التنفيذ:** Execution 02
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** service_request_screen.dart
+- **اعتماد الـ API:** /services/request.php
+- **الدليل:** حالة طلبات الخدمة للضيف
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** تظهر حالة الطلبات للضيف
+
+### 60. قائمة طلب النظافة في حساب المالك
+
+- **القسم:** المالك والخدمات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_cleaning_screen.dart
+- **اعتماد الـ API:** /user/owner-requests.php?type=cleaning
+- **الدليل:** قائمة طلب النظافة في حساب المالك
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** تظهر قائمة طلبات النظافة
+
+### 61. تغيير هاوس كيبنج إلى النظافة
+
+- **القسم:** المالك والخدمات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** app_strings
+- **اعتماد الـ API:** —
+- **الدليل:** التسمية «النظافة» بدل «هاوس كيبنج»
+- **المتبقي:** —
+- **معيار القبول:** تظهر التسمية «النظافة»
+
+### 62. إنشاء طلب نظافة من تطبيق المالك
+
+- **القسم:** المالك والخدمات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_cleaning_screen.dart
+- **اعتماد الـ API:** /user/owner-requests.php
+- **الدليل:** إنشاء طلب نظافة من التطبيق
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** يُنشئ المالك طلب نظافة
+
+### 63. إنشاء طلب نظافة من لوحة المالك
+
+- **القسم:** المالك والخدمات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** لوحة المالك
+- **الدليل:** إنشاء طلب نظافة من لوحة المالك يحتاج تعديل الموقع
+- **المتبقي:** تنفيذ الواجهة على الموقع
+- **معيار القبول:** يُنشأ الطلب من اللوحة
+
+### 64. إرسال طلب النظافة من المالك للفندق
+
+- **القسم:** المالك والخدمات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** /user/owner-requests.php
+- **الدليل:** إرسال الطلب من المالك للفندق يحتاج ربط سيرفر
+- **المتبقي:** تنفيذ الإرسال
+- **معيار القبول:** يصل الطلب للفندق
+
+### 65. إنشاء طلب وجبات من حساب المالك ولوحته
+
+- **القسم:** المالك والخدمات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** owner_meal_requests_screen.dart
+- **اعتماد الـ API:** /user/owner-meals.php
+- **الدليل:** طلبات الوجبات من حساب المالك
+- **المتبقي:** تغطية كامل الإجراءات
+- **معيار القبول:** ينشئ المالك طلب وجبات
+
+### 66. تمرير طلب وجبات الضيف أو الوكيل من المالك للفندق
+
+- **القسم:** المالك والخدمات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** /user/owner-meals.php
+- **الدليل:** تمرير طلب الضيف/الوكيل للفندق يحتاج ربط سيرفر
+- **المتبقي:** تنفيذ التمرير
+- **معيار القبول:** يُمرّر الطلب للفندق
+
+### 67. إنشاء طلب سرير إضافي من تطبيق المالك ولوحته
+
+- **القسم:** المالك والخدمات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** NOT IMPLEMENTED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** —
+- **الدليل:** إنشاء طلب سرير إضافي من المالك غير منفّذ
+- **المتبقي:** تنفيذ الشاشة
+- **معيار القبول:** ينشئ المالك طلب سرير
+
+### 68. عرض أسعار خدمات الفندق للمالك
+
+- **القسم:** المالك والخدمات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** hotel_staff/hotel_prices_screen.dart, owner screens
+- **اعتماد الـ API:** /hotel/prices.php
+- **الدليل:** عرض أسعار خدمات الفندق للمالك
+- **المتبقي:** تأكيد ظهور الأسعار للمالك
+- **معيار القبول:** يرى المالك أسعار الخدمات
+
+### 69. عرض تكلفة الصيانة المؤكدة للمالك
+
+- **القسم:** المالك والخدمات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** owner_maintenance_screen.dart
+- **اعتماد الـ API:** /user/owner-maintenance.php
+- **الدليل:** عرض تكلفة الصيانة المؤكدة
+- **المتبقي:** تأكيد عرض التكلفة
+- **معيار القبول:** يرى المالك تكلفة الصيانة
+
+### 70. عرض تكلفة النظافة المؤكدة للمالك
+
+- **القسم:** المالك والخدمات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** owner_cleaning_screen.dart
+- **اعتماد الـ API:** /user/owner-requests.php
+- **الدليل:** عرض تكلفة النظافة المؤكدة
+- **المتبقي:** تأكيد عرض التكلفة
+- **معيار القبول:** يرى المالك تكلفة النظافة
+
+### 71. عرض محتوى إشعارات طلبات الضيف وتفاصيل الخدمة
+
+- **القسم:** المالك والخدمات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** owner_notifications_screen.dart
+- **اعتماد الـ API:** /user/notifications.php
+- **الدليل:** عرض محتوى إشعارات الطلبات
+- **المتبقي:** تأكيد التفاصيل
+- **معيار القبول:** تظهر تفاصيل إشعار الطلبات
+
+### 72. إضافة صورة إلى طلب الصيانة في حساب المالك
+
+- **القسم:** المالك والخدمات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** owner_maintenance_screen.dart
+- **اعتماد الـ API:** /user/owner-maintenance.php
+- **الدليل:** إضافة صورة لطلب الصيانة
+- **المتبقي:** تأكيد رفع الصورة
+- **معيار القبول:** تُضاف صورة للطلب
+
+### 73. إظهار تفاصيل إضافات الوجبات والسرير في حجوزات المالك
+
+- **القسم:** المالك والخدمات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** owner_bookings_screen.dart
+- **اعتماد الـ API:** /user/owner-bookings.php
+- **الدليل:** إظهار إضافات الوجبات/السرير في حجوزات المالك
+- **المتبقي:** تأكيد العرض
+- **معيار القبول:** تظهر الإضافات في الحجوزات
+
+### 74. إدارة صلاحيات موظفي المالك كاملة
+
+- **القسم:** المالك والخدمات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** owner_staff_screen.dart
+- **اعتماد الـ API:** /user/owner-staff.php
+- **الدليل:** إدارة صلاحيات موظفي المالك
+- **المتبقي:** تأكيد الصلاحيات الكاملة
+- **معيار القبول:** تُدار الصلاحيات
+
+### 75. تصحيح توجيه حساب موظف المالك إلى واجهته المناسبة
+
+- **القسم:** المالك والخدمات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** splash_screen.dart, owner_navigation_screen.dart
+- **اعتماد الـ API:** —
+- **الدليل:** توجيه موظف المالك لواجهته
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** يُوجّه الموظف لواجهته الصحيحة
+
+### 76. إضافة تصنيفات خدمات الوحدة المفارش والطعام والحمام والوسائط والمعدات مع التفاصيل
+
+- **القسم:** المالك والخدمات — 17 نقطة
+- **التنفيذ:** Execution 01
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** unit_details_screen.dart _amenityWrap
+- **اعتماد الـ API:** /units/detail.php?unit amenities
+- **الدليل:** فصل مرافق الوحدة عن مرافق الفندق المشتركة منفّذ
+- **المتبقي:** ربط مرافق الوحدة بعلاقة وحدة-مرفق في قاعدة البيانات
+- **معيار القبول:** تظهر مرافق الوحدة من علاقة حقيقية لا من مرافق الفندق
+
+### 77. استقبال رسائل الطلبات بالبريد الإلكتروني
+
+- **القسم:** إدارة الفندق — 16 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** بريد السيرفر
+- **الدليل:** استقبال رسائل الطلبات بالبريد يحتاج SMTP
+- **المتبقي:** تنفيذ البريد
+- **معيار القبول:** تُستقبل الرسائل بالبريد
+
+### 78. تأكيد دخول الضيف Check-in
+
+- **القسم:** إدارة الفندق — 16 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** hotel_staff/hotel_bookings_screen.dart
+- **اعتماد الـ API:** /hotel/bookings.php
+- **الدليل:** تأكيد دخول الضيف
+- **المتبقي:** تأكيد الإجراء
+- **معيار القبول:** يؤكد الفندق الدخول
+
+### 79. تأكيد خروج الضيف Check-out
+
+- **القسم:** إدارة الفندق — 16 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** hotel_staff/hotel_bookings_screen.dart
+- **اعتماد الـ API:** /hotel/bookings.php
+- **الدليل:** تأكيد خروج الضيف
+- **المتبقي:** تأكيد الإجراء
+- **معيار القبول:** يؤكد الفندق الخروج
+
+### 80. فتح أقسام لوحة إدارة الفندق القابلة للدخول
+
+- **القسم:** إدارة الفندق — 16 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** hotel_staff/hotel_dashboard_screen.dart
+- **اعتماد الـ API:** /hotel/dashboard.php
+- **الدليل:** أقسام لوحة الفندق مفتوحة
+- **المتبقي:** اختبار حقيقي
+- **معيار القبول:** تُفتح أقسام اللوحة
+
+### 81. البحث عن الوحدة برقمها في شاشة الوصول
+
+- **القسم:** إدارة الفندق — 16 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** hotel_staff screens
+- **اعتماد الـ API:** /hotel/bookings.php
+- **الدليل:** البحث عن الوحدة برقمها
+- **المتبقي:** تأكيد البحث
+- **معيار القبول:** تُبحث الوحدة برقمها
+
+### 82. تحديد أسعار النظافة حسب الوحدة
+
+- **القسم:** إدارة الفندق — 16 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** hotel_staff/hotel_prices_screen.dart
+- **اعتماد الـ API:** /hotel/prices.php
+- **الدليل:** تحديد أسعار النظافة حسب الوحدة
+- **المتبقي:** تأكيد الحفظ
+- **معيار القبول:** تُحدَّد الأسعار
+
+### 83. تأكيد طلب النظافة مع وصف
+
+- **القسم:** إدارة الفندق — 16 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** hotel_staff/hotel_requests_screen.dart
+- **اعتماد الـ API:** /hotel/requests.php
+- **الدليل:** تأكيد طلب النظافة مع وصف
+- **المتبقي:** تأكيد الإجراء
+- **معيار القبول:** يُؤكَّد الطلب بوصف
+
+### 84. تحديد أسعار الصيانة
+
+- **القسم:** إدارة الفندق — 16 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** hotel_staff/hotel_prices_screen.dart
+- **اعتماد الـ API:** /hotel/prices.php
+- **الدليل:** تحديد أسعار الصيانة
+- **المتبقي:** تأكيد الحفظ
+- **معيار القبول:** تُحدَّد الأسعار
+
+### 85. تأكيد طلب الصيانة مع وصف
+
+- **القسم:** إدارة الفندق — 16 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** hotel_staff/hotel_requests_screen.dart
+- **اعتماد الـ API:** /hotel/requests.php
+- **الدليل:** تأكيد طلب الصيانة مع وصف
+- **المتبقي:** تأكيد الإجراء
+- **معيار القبول:** يُؤكَّد الطلب
+
+### 86. تسجيل إنجاز الصيانة مع وصف
+
+- **القسم:** إدارة الفندق — 16 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** hotel_staff/hotel_requests_screen.dart
+- **اعتماد الـ API:** /hotel/requests.php
+- **الدليل:** تسجيل إنجاز الصيانة مع وصف
+- **المتبقي:** تأكيد الإجراء
+- **معيار القبول:** يُسجَّل الإنجاز
+
+### 87. تحديد أسعار الوجبات
+
+- **القسم:** إدارة الفندق — 16 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** hotel_staff/hotel_prices_screen.dart
+- **اعتماد الـ API:** /hotel/prices.php
+- **الدليل:** تحديد أسعار الوجبات
+- **المتبقي:** تأكيد الحفظ
+- **معيار القبول:** تُحدَّد الأسعار
+
+### 88. تأكيد طلب الوجبات
+
+- **القسم:** إدارة الفندق — 16 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** hotel_staff/hotel_requests_screen.dart
+- **اعتماد الـ API:** /hotel/requests.php
+- **الدليل:** تأكيد طلب الوجبات
+- **المتبقي:** تأكيد الإجراء
+- **معيار القبول:** يُؤكَّد الطلب
+
+### 89. تحديد أسعار السرير الإضافي
+
+- **القسم:** إدارة الفندق — 16 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** hotel_staff/hotel_prices_screen.dart
+- **اعتماد الـ API:** /hotel/prices.php
+- **الدليل:** تحديد أسعار السرير الإضافي
+- **المتبقي:** تأكيد الحفظ
+- **معيار القبول:** تُحدَّد الأسعار
+
+### 90. تأكيد طلب السرير الإضافي
+
+- **القسم:** إدارة الفندق — 16 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** hotel_staff/hotel_requests_screen.dart
+- **اعتماد الـ API:** /hotel/requests.php
+- **الدليل:** تأكيد طلب السرير الإضافي
+- **المتبقي:** تأكيد الإجراء
+- **معيار القبول:** يُؤكَّد الطلب
+
+### 91. استقبال الطلبات المرسلة من المالك
+
+- **القسم:** إدارة الفندق — 16 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** hotel_staff/hotel_requests_screen.dart
+- **اعتماد الـ API:** /hotel/requests.php
+- **الدليل:** استقبال الطلبات من المالك
+- **المتبقي:** تأكيد الاستقبال
+- **معيار القبول:** تُستقبل الطلبات
+
+### 92. إضافة صورة لطلب الصيانة من حساب إدارة الفندق
+
+- **القسم:** إدارة الفندق — 16 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** hotel_staff/hotel_requests_screen.dart
+- **اعتماد الـ API:** /hotel/requests.php
+- **الدليل:** إضافة صورة لطلب الصيانة
+- **المتبقي:** تأكيد الرفع
+- **معيار القبول:** تُضاف الصورة
+
+### 93. إصلاح إضافة عملاء الوكيل
+
+- **القسم:** وكيل الحجوزات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** owner_clients_screen.dart
+- **اعتماد الـ API:** /user/agent-clients.php
+- **الدليل:** إصلاح إضافة عملاء الوكيل
+- **المتبقي:** تأكيد الإضافة
+- **معيار القبول:** يُضيف الوكيل عملاء
+
+### 94. إضافة حقل اسم العميل عند الحجز
+
+- **القسم:** وكيل الحجوزات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** booking_screen.dart customerName
+- **اعتماد الـ API:** /bookings/create.php
+- **الدليل:** حقل اسم العميل عند الحجز
+- **المتبقي:** تأكيد الحقل
+- **معيار القبول:** يُدخل اسم العميل
+
+### 95. اختيار فندق عند إنشاء حجز للعميل
+
+- **القسم:** وكيل الحجوزات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** booking_screen.dart
+- **اعتماد الـ API:** /hotels/list.php
+- **الدليل:** اختيار فندق عند حجز العميل
+- **المتبقي:** تأكيد الاختيار
+- **معيار القبول:** يختار الوكيل الفندق
+
+### 96. عرض وحدات الفندق المختار للوكيل
+
+- **القسم:** وكيل الحجوزات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** booking_screen.dart, hotel_details_screen.dart
+- **اعتماد الـ API:** /units/list.php
+- **الدليل:** عرض وحدات الفندق للوكيل
+- **المتبقي:** تأكيد العرض
+- **معيار القبول:** يرى الوكيل الوحدات
+
+### 97. عرض تفاصيل حجز الوكيل
+
+- **القسم:** وكيل الحجوزات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** my_bookings_screen.dart
+- **اعتماد الـ API:** /bookings/my.php
+- **الدليل:** عرض تفاصيل حجز الوكيل
+- **المتبقي:** تأكيد العرض
+- **معيار القبول:** يرى الوكيل التفاصيل
+
+### 98. تغيير وحداتي إلى حجوزاتي
+
+- **القسم:** وكيل الحجوزات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_navigation_screen.dart, app_strings
+- **اعتماد الـ API:** —
+- **الدليل:** التسمية «حجوزاتي»
+- **المتبقي:** —
+- **معيار القبول:** تظهر «حجوزاتي»
+
+### 99. عرض جميع حجوزات عملاء الوكيل
+
+- **القسم:** وكيل الحجوزات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** owner_bookings_screen.dart
+- **اعتماد الـ API:** /user/agent-clients.php
+- **الدليل:** عرض جميع حجوزات عملاء الوكيل
+- **المتبقي:** تأكيد العرض
+- **معيار القبول:** يراها الوكيل
+
+### 100. تغيير التقارير المالية إلى تقارير عمولات
+
+- **القسم:** وكيل الحجوزات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_commission_screen.dart, app_strings
+- **اعتماد الـ API:** /user/agent-commission.php
+- **الدليل:** «تقارير عمولات»
+- **المتبقي:** —
+- **معيار القبول:** تظهر تقارير العمولات
+
+### 101. إزالة العقود والمستندات من قائمة الوكيل
+
+- **القسم:** وكيل الحجوزات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_home_screen.dart agentLinks
+- **اعتماد الـ API:** —
+- **الدليل:** إزالة العقود والمستندات من قائمة الوكيل
+- **المتبقي:** —
+- **معيار القبول:** لا تظهر للوكيل
+
+### 102. إزالة مجتمع الملاك من قائمة الوكيل
+
+- **القسم:** وكيل الحجوزات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_home_screen.dart agentLinks
+- **اعتماد الـ API:** —
+- **الدليل:** إزالة مجتمع الملاك من قائمة الوكيل
+- **المتبقي:** —
+- **معيار القبول:** لا يظهر للوكيل
+
+### 103. إزالة التصويت من قائمة الوكيل
+
+- **القسم:** وكيل الحجوزات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_home_screen.dart agentLinks
+- **اعتماد الـ API:** —
+- **الدليل:** إزالة التصويت من قائمة الوكيل
+- **المتبقي:** —
+- **معيار القبول:** لا يظهر للوكيل
+
+### 104. الإبقاء على خدمات الصيانة في قائمة الوكيل
+
+- **القسم:** وكيل الحجوزات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_home_screen.dart agentLinks
+- **اعتماد الـ API:** —
+- **الدليل:** الإبقاء على خدمات الصيانة للوكيل
+- **المتبقي:** —
+- **معيار القبول:** تظهر للوكيل
+
+### 105. إضافة طلب الوجبات في قائمة الوكيل
+
+- **القسم:** وكيل الحجوزات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** owner_meal_requests_screen.dart
+- **اعتماد الـ API:** /services/meal-request.php
+- **الدليل:** طلب الوجبات في قائمة الوكيل
+- **المتبقي:** تأكيد الإضافة
+- **معيار القبول:** يظهر للوكيل
+
+### 106. إضافة طلب النظافة في قائمة الوكيل
+
+- **القسم:** وكيل الحجوزات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** PARTIAL
+- **ملفات Flutter:** owner_cleaning_screen.dart
+- **اعتماد الـ API:** /services/request.php
+- **الدليل:** طلب النظافة في قائمة الوكيل
+- **المتبقي:** تأكيد الإضافة
+- **معيار القبول:** يظهر للوكيل
+
+### 107. إضافة طلب سرير إضافي في قائمة الوكيل
+
+- **القسم:** وكيل الحجوزات — 17 نقطة
+- **التنفيذ:** Execution 03
+- **الحالة:** NOT IMPLEMENTED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** —
+- **الدليل:** طلب سرير إضافي في قائمة الوكيل
+- **المتبقي:** تنفيذ الإضافة
+- **معيار القبول:** يظهر للوكيل
+
+### 108. تحويل العمولات غير المدفوعة
+
+- **القسم:** وكيل الحجوزات — 17 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** /user/agent-commission.php
+- **الدليل:** تحويل العمولات غير المدفوعة يحتاج سيرفر
+- **المتبقي:** تنفيذ التحويل
+- **معيار القبول:** تُحوّل العمولات
+
+### 109. إدخال بيانات حساب الوكيل البنكي لاستلام العمولات
+
+- **القسم:** وكيل الحجوزات — 17 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر
+- **الدليل:** إدخال الحساب البنكي للوكيل
+- **المتبقي:** تنفيذ الحفظ
+- **معيار القبول:** يُدخل الحساب البنكي
+
+### 110. إصلاح نسيت كلمة المرور
+
+- **القسم:** الإدارة والموقع والأمان — 8 نقطة
+- **التنفيذ:** Execution 05
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** login_screen.dart
+- **اعتماد الـ API:** لا يوجد endpoint
+- **الدليل:** لا يوجد Endpoint لاستعادة كلمة المرور (كل مسارات forgot* ترجع 404)
+- **المتبقي:** تنفيذ Endpoint الاستعادة على السيرفر
+- **معيار القبول:** تعمل استعادة كلمة المرور
+
+### 111. إضافة طلبات الصيانة إلى لوحة الأدمن
+
+- **القسم:** الإدارة والموقع والأمان — 8 نقطة
+- **التنفيذ:** Execution 05
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** لوحة الأدمن
+- **الدليل:** طلبات الصيانة في لوحة الأدمن (موقع)
+- **المتبقي:** تنفيذ في الموقع
+- **معيار القبول:** تظهر في اللوحة
+
+### 112. إضافة إدارة وسائل الدفع والصلاحيات للأدمن
+
+- **القسم:** الإدارة والموقع والأمان — 8 نقطة
+- **التنفيذ:** Execution 05
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** لوحة الأدمن
+- **الدليل:** إدارة وسائل الدفع والصلاحيات (موقع)
+- **المتبقي:** تنفيذ في الموقع
+- **معيار القبول:** تُدار في اللوحة
+
+### 113. التحكم في وسائل الدفع المسموحة لكل مالك
+
+- **القسم:** الإدارة والموقع والأمان — 8 نقطة
+- **التنفيذ:** Execution 05
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر
+- **الدليل:** التحكم بوسائل الدفع لكل مالك
+- **المتبقي:** تنفيذ في السيرفر
+- **معيار القبول:** يُتحكَّم بها
+
+### 114. إعادة ترتيب 16 قسمًا في قائمة الأدمن
+
+- **القسم:** الإدارة والموقع والأمان — 8 نقطة
+- **التنفيذ:** Execution 05
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** لوحة الأدمن
+- **الدليل:** إعادة ترتيب 16 قسمًا في لوحة الأدمن
+- **المتبقي:** تنفيذ في الموقع
+- **معيار القبول:** تُرتَّب الأقسام
+
+### 115. إضافة رسوم الاشتراك السنوي عند إنشاء المالك من الأدمن
+
+- **القسم:** الإدارة والموقع والأمان — 8 نقطة
+- **التنفيذ:** Execution 05
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** لوحة الأدمن
+- **الدليل:** رسوم الاشتراك السنوي عند إنشاء المالك
+- **المتبقي:** تنفيذ في اللوحة
+- **معيار القبول:** تُضاف الرسوم
+
+### 116. تحديث العبارة التعريفية على الموقع
+
+- **القسم:** الإدارة والموقع والأمان — 8 نقطة
+- **التنفيذ:** Execution 05
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** الموقع
+- **الدليل:** تحديث العبارة التعريفية على الموقع
+- **المتبقي:** تنفيذ في الموقع
+- **معيار القبول:** تُحدَّث العبارة
+
+### 117. توحيد عرض تفاصيل الحجوزات على الموقع مع التطبيق
+
+- **القسم:** الإدارة والموقع والأمان — 8 نقطة
+- **التنفيذ:** Execution 05
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** الموقع
+- **الدليل:** توحيد تفاصيل الحجوزات بين الموقع والتطبيق
+- **المتبقي:** تنفيذ في الموقع
+- **معيار القبول:** تتوحّد التفاصيل
+
+### 118. تسجيل بيانات حساب المالك البنكي
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 119. خيار تحويل مباشر إلى حساب المالك في الحجز
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 120. عرض حساب مالك الوحدة الصحيح عند التحويل المباشر
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 121. تفعيل اشتراك سنوي للمالك فقط
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 122. السماح للمالك غير المشترك بالاستعراض دون عمليات
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 123. منع إضافة الوحدات والطلبات حتى الاشتراك
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 124. صفحة تفعيل ودفع الاشتراك في حسابي
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 125. عرض شروط الاشتراك ونسبة العمولة
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 126. تقارير مبيعات المالك الشهرية والسنوية
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 127. خصم الصيانة والنظافة من صافي الإيرادات
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 128. تقارير مصروفات الصيانة الشهرية والسنوية
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 129. تقارير مصروفات النظافة الشهرية والسنوية
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 130. خيار خصم الصيانة من رصيد الوحدة
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 131. خيار إرسال رابط دفع الصيانة عبر واتساب
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 132. حساب تحصيل مركزي للمنصة
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 133. حساب أستاذ مستقل لكل مالك Ledger
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 134. تسجيل الحجوزات والعمولات والاستردادات والتسويات
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 135. محفظة مالك تعرض الرصيد والحجوزات والعمولة والمصروفات والقابل للتحويل
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 136. طلب تحويل مستحقات المالك
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 137. تسوية وتحويل مستحقات المالك إلى حسابه البنكي
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 138. دعم Split Payment أو Payouts عبر مزود مرخص
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 139. احتساب عمولة 10 بالمئة على المالك
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 140. إظهار السعر النهائي للضيف
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 141. التسوية بعد انتهاء الإقامة
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 142. دفع مستحقات المالك أسبوعياً
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 143. حساب إيرادات مستقل لكل وحدة
+
+- **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
+- **التنفيذ:** Execution 04
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 04
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 144. تفعيل البريد المتبادل بين الفندق والمالك والعميل
+
+- **القسم:** الإشعارات والبريد — 5 نقطة
+- **التنفيذ:** Execution 05
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 05
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 145. تضمين اسم الضيف تلقائياً في رسالة التأكيد
+
+- **القسم:** الإشعارات والبريد — 5 نقطة
+- **التنفيذ:** Execution 05
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 05
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 146. تضمين رقم الهوية أو الجواز تلقائياً
+
+- **القسم:** الإشعارات والبريد — 5 نقطة
+- **التنفيذ:** Execution 05
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 05
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 147. تضمين تاريخ الدخول تلقائياً
+
+- **القسم:** الإشعارات والبريد — 5 نقطة
+- **التنفيذ:** Execution 05
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 05
+- **معيار القبول:** غير مُنفّذ بعد
+
+### 148. تضمين نوع الوحدة ورقم الغرفة تلقائياً
+
+- **القسم:** الإشعارات والبريد — 5 نقطة
+- **التنفيذ:** Execution 05
+- **الحالة:** BACKEND BLOCKED
+- **ملفات Flutter:** —
+- **اعتماد الـ API:** سيرفر/موقع
+- **الدليل:** خارج نطاق التنفيذ 01 — يحتاج تعديل سيرفر/موقع أو اشتراكات
+- **المتبقي:** تنفيذ المتطلب في Execution 05
+- **معيار القبول:** غير مُنفّذ بعد
+

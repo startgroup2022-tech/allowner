@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/category_model.dart';
 import '../models/city_model.dart';
 import '../models/hotel_model.dart';
+import '../models/owner_hotel_summary.dart';
 import '../models/unit_model.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimens.dart';
@@ -628,6 +629,163 @@ class DestinationCard extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// بطاقة فندق يحتوي على وحدات ملاك — تُستخدم في قسم «فنادق بوحدات ملاك».
+///
+/// تُظهر: صورة الفندق، الاسم، المدينة، التقييم (إن وُجد)، وعدد الوحدات المتاحة
+/// للحجز. كل القيم من بيانات الـ API الفعلية — لا أرقام مكتوبة في الواجهة.
+class OwnerHotelCard extends StatelessWidget {
+  final OwnerHotelSummary summary;
+  final bool isArabic;
+  final VoidCallback onTap;
+
+  const OwnerHotelCard({
+    super.key,
+    required this.summary,
+    required this.isArabic,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Semantics(
+      button: true,
+      label: summary.name,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+        child: Container(
+          width: 220,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  AppNetworkImage(
+                    url: summary.imageUrl,
+                    width: 220,
+                    height: 118,
+                    borderRadius: BorderRadius.zero,
+                  ),
+                  if (summary.rating > 0)
+                    Positioned(
+                      top: AppDimens.sm,
+                      left: isArabic ? AppDimens.sm : null,
+                      right: isArabic ? null : AppDimens.sm,
+                      child: _RatingPill(
+                        rating: summary.rating,
+                        reviews: summary.reviewsCount,
+                      ),
+                    ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(AppDimens.sm),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      summary.name,
+                      style: textTheme.titleSmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on_outlined,
+                            size: 12, color: AppColors.textMuted),
+                        const SizedBox(width: 2),
+                        Expanded(
+                          child: Text(
+                            summary.city(isArabic),
+                            style: textTheme.bodySmall
+                                ?.copyWith(color: AppColors.textMuted),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        const Icon(Icons.meeting_room_outlined,
+                            size: 13, color: AppColors.goldDark),
+                        const SizedBox(width: 3),
+                        Expanded(
+                          child: Text(
+                            '${summary.unitCount} ${AppStrings.t(isArabic, 'units_available_count')}',
+                            style: textTheme.bodySmall
+                                ?.copyWith(color: AppColors.goldDark),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Align(
+                      alignment: isArabic
+                          ? Alignment.centerLeft
+                          : Alignment.centerRight,
+                      child: PriceText(
+                        amount: summary.minPrice,
+                        isArabic: isArabic,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// شارة تقييم صغيرة تُعرض فوق صورة البطاقة.
+class _RatingPill extends StatelessWidget {
+  final double rating;
+  final int reviews;
+
+  const _RatingPill({required this.rating, this.reviews = 0});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.62),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.star_rounded, size: 13, color: AppColors.gold),
+          const SizedBox(width: 2),
+          Text(
+            rating.toStringAsFixed(1),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }

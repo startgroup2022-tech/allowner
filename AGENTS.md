@@ -164,3 +164,30 @@ Several requirements (e.g. the named Makkah hotels with «قريباً», per-me
 wallet/ledger) need data or endpoints that do not exist. Hard-coding a hotel list or inventing
 a meal price to make a screen look complete is forbidden here. Leave the requirement open and
 record the blocker.
+
+### Requirement traceability matrix
+
+`docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md` is the machine-generated traceability matrix: one row
+per requirement (1–148), Arabic text verbatim, each mapped to section, execution, status,
+Flutter files, API dependency, evidence, remaining work, and an acceptance criterion. Regenerate
+it with `tools/gen_requirements_matrix.py` (reads the inventory; never invents text). It
+complements `docs/ALL_OWNERS_ORIGINAL_REQUIREMENTS_MASTER.md` (the file/line audit).
+
+Homepage section order is **unresolved** (inventory item 27): the original document lists
+destinations before categories; the mandate text lists the reverse. Left as-is and flagged for
+owner decision — do not "fix" it without confirmation.
+
+## Environment reset gotcha
+
+The container can be reset mid-session, wiping `/opt/flutter`. If `flutter` is
+missing, reinstall Flutter **3.47.7 stable** (required by `pubspec.lock`'s
+`flutter: ">=3.47.0"` and Codemagic's `flutter: stable`):
+
+```bash
+curl -sL -o /tmp/flutter.tar.xz \
+  https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.47.7-stable.tar.xz
+mkdir -p ~/sdk && tar -xf /tmp/flutter.tar.xz -C ~/sdk
+export PATH=~/sdk/flutter/bin:$PATH
+```
+
+Extracting to `/opt` fails on a symlinked pub-cache entry; extract to `$HOME`.

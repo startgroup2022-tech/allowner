@@ -473,3 +473,36 @@ against the corrected tree: no working functionality removed, no fabricated data
 no hardcoded inventory, booking reachable from all four entry points, all role
 routes intact, application ID and signing untouched, `codemagic.yaml` untouched,
 no secrets, no dead buttons.
+
+---
+
+## 12. Reconciliation addendum (2026-10-20)
+
+The 148-item inventory arrived in commit `91de5fe` and is fully reconciled in
+`docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md`. Reconciliation findings relevant to
+this audit:
+
+- **Homepage "hotels with owner units" section (items 21, 22)** was classified
+  PARTIAL: the section existed but rendered *unit* cards, whereas the requirement
+  is a section of *hotel* cards that contain owner units, showing unit count and
+  rating. Fixed in this pass — see §12.1.
+- **Category header wording (item 20)** did not match the source document. Fixed.
+- **Item 27** (homepage section order and bottom-navigation composition) — the
+  original document and the mandate text disagree; left unchanged and flagged for
+  owner decision rather than guessed.
+- The remaining Execution 01 items (1–30, 76) are classified in the matrix with
+  evidence; none is claimed complete merely because a widget renders.
+
+### 12.1 Change made
+
+| File | Change |
+|---|---|
+| `lib/models/owner_hotel_summary.dart` | New model. Merges `/units/browse.php?owner_only=1` with `/hotels/list.php` into per-hotel summaries (name, city, unit count, rating, min price, image). No hardcoded data. |
+| `lib/widgets/cards.dart` | New `OwnerHotelCard` (+ `_RatingPill`) rendering the summary. |
+| `lib/screens/home/home_screen.dart` | Owner section fetches units and hotels in parallel and renders `OwnerHotelCard`s; navigation opens hotel details when the hotel record is known, else opens a name-scoped search. |
+| `lib/utils/app_strings.dart` | Category header → «اكتشف حسب النوع» / "Discover by Type". |
+
+Architecture, state management, routing, roles, application ID, signing, and
+`codemagic.yaml` are unchanged. The new code follows the existing
+Riverpod + `FutureBuilder` + typed-model conventions and introduces no new
+dependency.

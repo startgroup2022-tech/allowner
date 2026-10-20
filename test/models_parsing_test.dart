@@ -3,6 +3,7 @@ import 'package:allowners/models/app_user.dart';
 import 'package:allowners/models/category_model.dart';
 import 'package:allowners/models/city_model.dart';
 import 'package:allowners/models/hotel_model.dart';
+import 'package:allowners/models/owner_hotel_summary.dart';
 import 'package:allowners/models/unit_model.dart';
 import 'package:allowners/utils/safe_parse.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -224,6 +225,100 @@ void main() {
       final unit = UnitModel.fromJson({'id': 1, 'hotel_id': 1});
       expect(unit.unitType(true), '');
       expect(unit.unitType(false), '');
+    });
+  });
+
+  group('OwnerHotelSummary.build — قسم فنادق بوحدات ملاك (المتطلب 21–22)', () {
+    test('يجمع الوحدات حسب الفندق ويحسب العدد وأقل سعر', () {
+      final units = [
+        UnitModel.fromJson({
+          'id': 13,
+          'hotel_id': 2,
+          'hotel_name': 'فندق فيرمونت مكه',
+          'name_ar': '4005',
+          'price_per_night': 1500,
+          'city_ar': 'مكة المكرمة',
+          'city_en': 'Makkah',
+        }),
+        UnitModel.fromJson({
+          'id': 9,
+          'hotel_id': 2,
+          'hotel_name': 'فندق فيرمونت مكه',
+          'name_ar': 'جناح',
+          'price_per_night': 900,
+          'city_ar': 'مكة المكرمة',
+          'city_en': 'Makkah',
+        }),
+        UnitModel.fromJson({
+          'id': 12,
+          'hotel_id': 3,
+          'hotel_name': 'فندق العنوان',
+          'name_ar': 'غرفة',
+          'price_per_night': 1200,
+          'city_ar': 'مكة المكرمة',
+          'city_en': 'Makkah',
+        }),
+      ];
+      final hotels = [
+        HotelModel.fromJson({
+          'id': 2,
+          'name': 'فندق فيرمونت مكه',
+          'city_ar': 'مكة المكرمة',
+          'city_en': 'Makkah',
+          'rating': 4.8,
+          'reviews_count': 12,
+          'cover_image': 'https://x/h2.jpg',
+        }),
+        HotelModel.fromJson({
+          'id': 3,
+          'name': 'فندق العنوان',
+          'city_ar': 'مكة المكرمة',
+          'city_en': 'Makkah',
+          'cover_image': 'https://x/h3.jpg',
+        }),
+      ];
+
+      final summaries = OwnerHotelSummary.build(units, hotels);
+      expect(summaries.length, 2);
+
+      final first = summaries.first;
+      expect(first.hotelId, '2');
+      expect(first.unitCount, 2);
+      expect(first.minPrice, 900.0);
+      expect(first.rating, 4.8);
+      expect(first.reviewsCount, 12);
+      expect(first.imageUrl, 'https://x/h2.jpg');
+      expect(first.hotel, isNotNull);
+
+      final second = summaries[1];
+      expect(second.hotelId, '3');
+      expect(second.unitCount, 1);
+      expect(second.rating, 0);
+    });
+
+    test('يرجع لبيانات الوحدة عند غياب بيانات الفندق', () {
+      final units = [
+        UnitModel.fromJson({
+          'id': 13,
+          'hotel_id': 2,
+          'hotel_name': 'فندق فيرمونت مكه',
+          'name_ar': '4005',
+          'price_per_night': 1500,
+          'cover_image': 'https://x/u.jpg',
+          'city_ar': 'مكة المكرمة',
+          'city_en': 'Makkah',
+        }),
+      ];
+
+      final summaries = OwnerHotelSummary.build(units, const []);
+      expect(summaries.single.name, 'فندق فيرمونت مكه');
+      expect(summaries.single.imageUrl, 'https://x/u.jpg');
+      expect(summaries.single.hotel, isNull);
+      expect(summaries.single.city(true), 'مكة المكرمة');
+    });
+
+    test('قائمة فارغة عند عدم وجود وحدات ملاك', () {
+      expect(OwnerHotelSummary.build(const [], const []), isEmpty);
     });
   });
 

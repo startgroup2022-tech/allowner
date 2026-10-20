@@ -273,3 +273,49 @@ empty states for data the backend does not supply.
 
 **No test result in this document is inferred.** Every command listed was run and
 its real outcome recorded.
+
+---
+
+## 8. Addendum — owner-units section rebuild + reconciliation (2026-10-20)
+
+This addendum records the checks run after the 148-item reconciliation and the
+homepage "hotels with owner units" rebuild (matrix items 20, 21, 22).
+
+**Environment note.** The container was reset mid-session and the Flutter SDK was
+absent. Flutter **3.47.7 (stable)** was reinstalled (matching `pubspec.lock`'s
+`flutter: ">=3.47.0"` and Codemagic's `flutter: stable`) before any command below
+was run. No result here is carried over from before the reset.
+
+| # | Command | Result | Exit |
+|---|---|---|---|
+| 1 | `flutter pub get` | Resolved; `pubspec.yaml` unchanged | 0 |
+| 2 | `dart format --output=none --set-exit-if-changed <6 changed files>` | Clean — 0 changed | 0 |
+| 3 | `dart format --output=none --set-exit-if-changed .` | **Fails** — 50 of 75 files differ; reproduced at `HEAD` with changes stashed, so pre-existing | 1 |
+| 4 | `flutter analyze` | **0 errors, 0 warnings**, 80 info | 0 |
+| 5 | `flutter test` | **64 tests, all pass** | 0 |
+
+### 8.1 New tests added (58 → 64)
+
+| File | Tests | What is asserted |
+|---|---|---|
+| `test/models_parsing_test.dart` | 3 | `OwnerHotelSummary.build` groups units by hotel; computes unit count and min price; enriches from `hotels/list.php`; falls back to unit data when the hotel record is absent; empty input yields an empty list |
+| `test/widgets_test.dart` | 3 | `OwnerHotelCard` shows name, city, unit count and rating and fires `onTap`; rating pill suppressed when rating is 0; renders without throwing when the image is empty |
+
+### 8.2 Code changed in this pass
+
+| File | Change |
+|---|---|
+| `lib/models/owner_hotel_summary.dart` | New. Merges owner units + hotel data into per-hotel summaries. No hardcoded inventory. |
+| `lib/widgets/cards.dart` | Added `OwnerHotelCard` + `_RatingPill`; imported the new model. |
+| `lib/screens/home/home_screen.dart` | Owner section now fetches units + hotels in parallel (`Future.wait`, no `as List` cast) and renders `OwnerHotelCard`s. |
+| `lib/utils/app_strings.dart` | Category header → «اكتشف حسب النوع» / "Discover by Type" (item 20). |
+| `test/models_parsing_test.dart`, `test/widgets_test.dart` | New tests above. |
+
+### 8.3 What is still not verified
+
+- **Device/emulator integration testing** — not run; no emulator is available in
+  this environment. All 64 tests are isolated widget/unit tests.
+- **Visual screenshot QA on a device** — not run for the new card; layout is
+  asserted only for overflow-freedom via the existing widget harness.
+- **Item 27** (homepage section order / bottom navigation) — awaiting owner
+  decision; deliberately not changed.

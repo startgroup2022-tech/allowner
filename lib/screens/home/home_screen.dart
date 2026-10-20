@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/category_model.dart';
 import '../../models/city_model.dart';
 import '../../models/hotel_model.dart';
+import '../../models/owner_hotel_summary.dart';
 import '../../models/unit_model.dart';
 import '../../services/api_client.dart';
 import '../../services/catalog_service.dart';
@@ -46,7 +47,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   late Future<List<CityModel>> _citiesFuture;
   late Future<List<HotelModel>> _featuredHotelsFuture;
   late Future<List<UnitModel>> _recentUnitsFuture;
-  late Future<List<UnitModel>> _ownerUnitsFuture;
+  late Future<List<OwnerHotelSummary>> _ownerHotelsFuture;
 
   @override
   void initState() {
@@ -59,8 +60,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _citiesFuture = _catalogService.listCities();
     _featuredHotelsFuture = _hotelService.featuredHotels();
     _recentUnitsFuture = _hotelService.browseUnits(sort: 'newest', limit: 12);
-    _ownerUnitsFuture =
-        _hotelService.browseUnits(ownerOnly: true, sort: 'newest', limit: 10);
+    _ownerHotelsFuture = _loadOwnerHotels();
+  }
+
+  /// قسم «فنادق بوحدات ملاك»: نجلب وحدات المالك والفنادق معًا ثم نبني ملخّصات
+  /// فندقية حقيقية (المتطلب 21–22). الطلبان بالتوازي لتقليل زمن التحميل.
+  ///
+  /// نستخدم `.then` بدل `as List` لتفادي أي تحويل غير آمن (المتطلب 13).
+  Future<List<OwnerHotelSummary>> _loadOwnerHotels() {
+    List<UnitModel> units = const [];
+    List<HotelModel> hotels = const [];
+    return Future.wait([
+      _hotelService
+          .browseUnits(ownerOnly: true, sort: 'newest', limit: 40)
+          .then((value) => units = value),
+      _hotelService.listHotels().then((value) => hotels = value),
+    ]).then((_) => OwnerHotelSummary.build(units, hotels));
   }
 
   Future<void> _refresh() async {
@@ -70,7 +85,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _citiesFuture.catchError((_) => const <CityModel>[]),
       _featuredHotelsFuture.catchError((_) => const <HotelModel>[]),
       _recentUnitsFuture.catchError((_) => const <UnitModel>[]),
-      _ownerUnitsFuture.catchError((_) => const <UnitModel>[]),
+      _ownerHotelsFuture.catchError((_) => const <OwnerHotelSummary>[]),
     ]);
   }
 
@@ -103,6 +118,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => HotelDetailsScreen(hotel: hotel)),
     );
+  }
+
+  /// فتح فندق من قسم «فنادق بوحدات ملاك». عند توفر بيانات الفندق نفتح صفحة
+  /// التفاصيل مباشرة؛ وإلا نفتح البحث مُقيّدًا باسم الفندق (بحث بالاسم يعمل
+  /// محليًا على بيانات الـ API).
+  void _openOwnerHotel(OwnerHotelSummary summary) {
+    final hotel = summary.hotel;
+    if (hotel != null) {
+      _openHotel(hotel);
+    } else {
+      _openSearch(query: summary.name);
+    }
   }
 
   @override
@@ -144,6 +171,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ),
               ),
+              // ترتيب الأقسام الحالي. المصدران يتعارضان حول ترتيب الوجهات مقابل
+              // التصنيفات (المتطلب 27) — يُحسم بقرار المالك، انظر مصفوفة المتطلبات.
               ..._buildCategories(isArabic, textTheme),
               ..._buildDestinations(isArabic, textTheme),
               ..._buildFeaturedHotels(isArabic, textTheme),
@@ -352,24 +381,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ];
   }
 
-  // ===== وحدات الملاك =====
+  // ===== فنادق بوحدات ملاك (من وحدات المالك + بيانات الفنادق) =====
   List<Widget> _buildOwnerUnits(bool isArabic, TextTheme textTheme) {
     return [
       SliverToBoxAdapter(
         child: _SectionHeader(
           title: AppStrings.t(isArabic, 'hotels_with_owner_units'),
           isArabic: isArabic,
-          onSeeAll: () => _openSearch(tab: 1),
+          onSeeAll: () => _openSearch(tab: 0),
         ),
       ),
       SliverToBoxAdapter(
         child: SizedBox(
-          height: 250,
-          child: FutureBuilder<List<UnitModel>>(
-            future: _ownerUnitsFuture,
+          height: 238,
+          child: FutureBuilder<List<OwnerHotelSummary>>(
+            future: _ownerHotelsFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const LoadingView(height: 250);
+                return const LoadingView(height: 238);
               }
               if (snapshot.hasError) {
                 return ErrorView(
@@ -377,13 +406,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   isArabic: isArabic,
                   message: _errorMessage(snapshot.error),
                   onRetry: () => setState(() {
-                    _ownerUnitsFuture = _hotelService.browseUnits(
-                        ownerOnly: true, sort: 'newest', limit: 10);
+                    _ownerHotelsFuture = _loadOwnerHotels();
                   }),
                 );
               }
-              final units = snapshot.data ?? const <UnitModel>[];
-              if (units.isEmpty) {
+              final summaries = snapshot.data ?? const <OwnerHotelSummary>[];
+              if (summaries.isEmpty) {
                 return EmptyView(
                   compact: true,
                   icon: Icons.villa_outlined,
@@ -394,18 +422,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(
                     horizontal: AppDimens.pagePadding),
-                itemCount: units.length,
+                itemCount: summaries.length,
                 itemBuilder: (context, index) {
-                  final unit = units[index];
+                  final summary = summaries[index];
                   return Padding(
                     padding: EdgeInsets.only(
                       left: isArabic ? 0 : AppDimens.md,
                       right: isArabic ? AppDimens.md : 0,
                     ),
-                    child: UnitCard(
-                      unit: unit,
+                    child: OwnerHotelCard(
+                      summary: summary,
                       isArabic: isArabic,
-                      onTap: () => _openUnit(unit),
+                      onTap: () => _openOwnerHotel(summary),
                     ),
                   );
                 },

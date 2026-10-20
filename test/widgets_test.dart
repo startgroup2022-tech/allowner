@@ -1,6 +1,7 @@
 import 'package:allowners/models/category_model.dart';
 import 'package:allowners/models/city_model.dart';
 import 'package:allowners/models/hotel_model.dart';
+import 'package:allowners/models/owner_hotel_summary.dart';
 import 'package:allowners/models/unit_model.dart';
 import 'package:allowners/services/hotel_service.dart';
 import 'package:allowners/theme/app_colors.dart';
@@ -146,6 +147,63 @@ void main() {
     testWidgets('UnitListCard لا تنهار بدون صور', (tester) async {
       await tester.pumpWidget(wrap(
         UnitListCard(unit: unit(), isArabic: false, onTap: () {}),
+      ));
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('بطاقة فندق بوحدات ملاك (OwnerHotelCard)', () {
+    OwnerHotelSummary summary({double rating = 4.8, int count = 3}) =>
+        OwnerHotelSummary(
+          hotelId: '2',
+          name: 'فندق فيرمونت مكه',
+          cityAr: 'مكة المكرمة',
+          cityEn: 'Makkah',
+          unitCount: count,
+          rating: rating,
+          reviewsCount: 12,
+          imageUrl: '',
+          minPrice: 900,
+        );
+
+    testWidgets('تعرض الاسم والمدينة وعدد الوحدات وتستدعي onTap',
+        (tester) async {
+      var tapped = false;
+      await tester.pumpWidget(wrap(
+        OwnerHotelCard(
+          summary: summary(),
+          isArabic: true,
+          onTap: () => tapped = true,
+        ),
+      ));
+      await tester.pump();
+
+      expect(find.text('فندق فيرمونت مكه'), findsOneWidget);
+      expect(find.text('مكة المكرمة'), findsOneWidget);
+      expect(find.textContaining('3'), findsWidgets);
+      expect(find.text('4.8'), findsOneWidget);
+
+      await tester.tap(find.byType(OwnerHotelCard));
+      expect(tapped, isTrue);
+    });
+
+    testWidgets('لا تعرض شارة التقييم عند غياب التقييم', (tester) async {
+      await tester.pumpWidget(wrap(
+        OwnerHotelCard(
+          summary: summary(rating: 0),
+          isArabic: false,
+          onTap: () {},
+        ),
+      ));
+      await tester.pump();
+      expect(find.text('0.0'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('لا تنهار بدون صورة', (tester) async {
+      await tester.pumpWidget(wrap(
+        OwnerHotelCard(summary: summary(), isArabic: true, onTap: () {}),
       ));
       await tester.pump();
       expect(tester.takeException(), isNull);

@@ -1,156 +1,148 @@
-# All Owners — 148-Requirement Final Reconciliation Audit
+# All Owners — 148-Requirement Reconciliation Audit
 
 **Branch:** `feature/allowners-new-version-exec01`
 **PR:** [#1](https://github.com/startgroup2022-tech/allowner/pull/1) (Draft)
-**Head at time of audit:** `8545258`
 **Date:** 2026-10-20
-**Status:** ⛔ **RECONCILIATION STOPPED — SOURCE INVENTORY NOT ACCESSIBLE**
+**Status:** ✅ **RECONCILIATION COMPLETE — SOURCE INVENTORY ACCESSIBLE**
+
+> Supersedes the earlier "blocked" version of this document (commit `4e98000`).
+> The owner supplied both source artifacts in commit `91de5fe`; the blocker is
+> resolved and the full reconciliation has now been performed.
 
 ---
 
 ## 0. Executive statement (read this first)
 
-The task instructs:
+The earlier version of this document reported that the 148-item inventory had
+**not been delivered**. That was correct at the time. The owner then committed
+both source artifacts to the repository:
 
-> *"Locate the attached inventory file. … If the attachment cannot be accessed,
-> stop the reconciliation and report the exact missing file path. Do not
-> fabricate requirement descriptions."*
-
-**The attachment is not accessible.** `AllOwners_Requirements_Inventory.md` was
-**not delivered** with the message that announced it. The message that says
-*"the owner is now providing the actual file"* contains **text only** — no file
-body, no attachment payload, no download link.
-
-Because of this, and because the task explicitly forbids fabricating requirement
-descriptions, **the 148-item reconciliation could not be performed**. This
-document therefore reports:
-
-1. The exact missing artifact and every place it was searched for (§1).
-2. Proof that no attachment content was ever delivered (§2).
-3. What *was* verified independently, and its exact results (§4).
-4. The one action the owner must take to unblock the reconciliation (§5).
-
-**No 148-row matrix is produced, because producing one would require inventing
-the 148 requirement descriptions — which the task forbids.** The earlier matrix
-(`docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md`) remains valid for the 129
-requirements that *are* derivable from the source, the live backend, and the
-mandate text; it is not presented as the owner's inventory.
-
----
-
-## 1. Exact missing artifact and search coverage
-
-| Field | Value |
-|---|---|
-| Expected filename | `AllOwners_Requirements_Inventory.md` |
-| Expected content | 148 numbered requirements across 10 sections, Arabic descriptions |
-| Expected delivery | attachment on the 2026-10-20 message |
-| Actual result | **not found** — no such file, and no inline attachment payload |
-
-Searches performed (all returned nothing for this artifact):
-
-```
-# 1. Exact filename, whole filesystem
-find / -iname "*AllOwners_Requirements_Inventory*"
-
-# 2. Name patterns
-find / -iname "*inventory*" -o -iname "*requirements*"   # only toolchain + this repo's matrix
-
-# 3. Content: Arabic word for "requirement"
-grep -rIl "متطلب" /workspace /home/openhands /tmp /root   # nothing
-
-# 4. Content: any file with ≥100 numbered lines (a 148-item list)
-#    scanned every .md/.txt/.csv under /workspace /home/openhands /tmp  → nothing
-
-# 5. Files touched since the previous message
-find / -newermt "2026-10-19 23:00" -type f \( -name "*.md" -o -name "*.txt" \
-     -o -name "*.json" -o -name "*.csv" -o -name "*.xlsx" -o -name "*.docx" -o -name "*.pdf" \)
-
-# 6. Repository and history
-git ls-files | grep -i "inventory\|148\|requirement"     # only this repo's own matrix
-git log --all --oneline ; git grep across all reachable commits
-
-# 7. GitHub remote (all branches, PR #1 file list, issue/PR comments)
-gh api repos/startgroup2022-tech/allowner/git/trees/main?recursive=1
-gh pr view 1 --json files
-gh api repos/startgroup2022-tech/allowner/issues/1/comments
-```
-
-None of the above located the artifact.
-
----
-
-## 2. Proof that no attachment content was delivered
-
-The conversation event log was read directly. For every user message event, the
-message `content` array and `extended_content` were inspected:
-
-| Event | Role | Content types | Attachment payload |
-|---|---|---|---|
-| `event-00001` | user | `['text']` | none — `extended_content` is only the `<EXTRA_INFO>` skill block |
-| `event-01093` | user | `['text']` | none |
-| `event-01533` | user | `['text']` | none |
-| `event-01616` | user | `['text']` | none — this message *described* the inventory but said it "must be supplied" |
-| `event-02041` (current task) | user | `['text']` | **none** — single text element; `extended_content: []`; `activated_skills: []` |
-
-The current task message (`event-02041`) has `extended_content: []` and exactly
-one `text` content element of ~5,140 characters — the instruction text itself.
-There is no second content element, no `image`/`file`/`document` part, and no
-download URL. **No inventory was attached.**
-
----
-
-## 3. Why a 148-row matrix is not produced
-
-The task requires each row to contain the *"Original Arabic requirement"* and
-forbids fabricating descriptions. Without the file:
-
-- The 148 requirement texts are unknown.
-- The 10 section boundaries are unknown.
-- Which ID maps to which feature is unknown.
-
-Any 148-row table produced now would be invention. It would also repeat the exact
-failure the task warns against ("Do not create another artificial list of 148
-empty slots"). Therefore none is produced.
-
-The existing `docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md` (129 requirements, IDs
-`AO-*`) is left intact. It is **not** the owner's inventory and is not claimed to
-be; it is a reconciliation against the mandate text, the live API and the source.
-
----
-
-## 4. What was independently verified in this pass
-
-These checks do not depend on the inventory and were re-run now.
-
-| Check | Command | Result |
+| Artifact | Commit | Size |
 |---|---|---|
-| Dependency resolution | `flutter pub get` | OK — 23 packages have newer *incompatible* versions (informational) |
-| Static analysis | `flutter analyze` | **80 issues — all severity `info`** (0 errors, 0 warnings) |
-| Test suite | `flutter test` | **58 passing, 0 failing** |
-| Formatting (changed files) | `dart format --set-exit-if-changed <4 changed files>` | Clean — 0 changed |
+| `docs/AllOwners_Requirements_Inventory.md` | `91de5fe` | 11,274 bytes, 182 lines |
+| `docs/AllOwners_Original_Under_3MB.docx` | `91de5fe` | 2,051,627 bytes (original 51-page document) |
 
-Analyzer severity breakdown, measured: `80 info`, `0 warning`, `0 error`.
-This is a decrease from the `main` baseline of 117 (5 warnings, 112 info).
+Both were fetched and read. The reconciliation described by the task has been
+performed and is published as:
 
-Preserved and re-confirmed unchanged: application ID `com.superai.allowners`,
-signing configuration, `codemagic.yaml`, all four roles, Arabic RTL / English LTR,
-live backend connectivity.
+- **`docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md`** — all 148 requirements, Arabic
+  text verbatim from the supplied inventory, each mapped to section, execution,
+  status, Flutter files, API dependency, evidence, remaining work, and an
+  acceptance criterion.
+
+**No requirement text was invented.** Every Arabic description in the matrix is
+copied character-for-character from `AllOwners_Requirements_Inventory.md`.
 
 ---
 
-## 5. The single action required to unblock
+## 1. Inventory integrity verification
 
-Deliver the file as **message text** (paste the 148 items into the chat) or as a
-committed file. The simplest reliable path:
+| Check | Method | Result |
+|---|---|---|
+| Total items | regex `^(\d+)\.` over the file | **148** |
+| ID range | min / max | **1 / 148** |
+| Uniqueness | distinct count | **148 unique — no duplicates** |
+| Gaps | `set(1..148) - found` | **none** |
+| Sections | `##` headings | **10** |
 
-1. Place `AllOwners_Requirements_Inventory.md` in the repository (e.g. `docs/`),
-   **or**
-2. Paste its full contents into the conversation message body.
+Section breakdown (Arabic headings, counts sum to 148):
 
-On the next run, the reconciliation will: parse all 148 IDs, confirm 1–148 each
-appear once, preserve the Arabic text verbatim, map each to source/API/execution,
-and produce the full matrix and the numeric summary the task requests.
+| # | Section (ar) | Items |
+|---|---|---|
+| 1 | الهوية والمحتوى والدعم | 9 |
+| 2 | الرئيسية والبحث والاكتشاف | 18 |
+| 3 | الحجز وتفاصيله | 20 |
+| 4 | الضيف والوجبات والسرير | 12 |
+| 5 | المالك والخدمات | 17 |
+| 6 | إدارة الفندق | 16 |
+| 7 | وكيل الحجوزات | 17 |
+| 8 | الإدارة والموقع والأمان | 8 |
+| 9 | الاشتراكات والمحاسبة والمدفوعات | 26 |
+| 10 | الإشعارات والبريد | 5 |
+| | **الإجمالي** | **148** |
+
+### 1.1 Original 51-page document
+
+`AllOwners_Original_Under_3MB.docx` was extracted (386 paragraphs, 0 tables).
+It confirms the inventory's wording — e.g. the welcome text, the search prompt,
+and named Makkah hotels (Raffles, Conrad, Hyatt) marked "قريبًا". It contains no
+data tables, so it adds no additional enumerable requirement rows beyond the
+inventory; it is used as corroboration, not as a second list.
+
+---
+
+## 2. Duplicates and missing inventory entries
+
+- **Duplicate requirements:** none found at the ID level. Several items are
+  *thematically* adjacent (e.g. items 78/79 confirm check-in/check-out; items
+  82/84/87/89 set prices for cleaning/maintenance/meals/extra-bed). These are
+  distinct functional requirements and are kept separate, matching the inventory.
+- **Missing inventory entries:** none. The inventory is internally complete
+  (1–148, no gaps). The task's warning that the count "may not be the final
+  number of unique requirements" is noted: the matrix does not claim 148 is
+  provably minimal or maximal, only that all 148 supplied items are accounted for.
+
+---
+
+## 3. Reconciliation result
+
+Full per-requirement detail is in `docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md`.
+Summary:
+
+### 3.1 By execution (scope assignment)
+
+| Execution | Requirements | Focus |
+|---|---|---|
+| 01 | 31 | Homepage, search, hotel/unit discovery, design system, amenities |
+| 02 | 29 | Booking engine and booking details |
+| 03 | 47 | Owner services, hotel management, booking agent |
+| 04 | 28 | Subscriptions, accounting, payments |
+| 05 | 13 | Admin/site, notifications, email |
+| | **148** | |
+
+### 3.2 By status (measured against code + live API)
+
+| Status | Count | Meaning |
+|---|---|---|
+| VERIFIED PASS | 11 | Code present + wired to a live endpoint + verified |
+| IMPLEMENTED UNTESTED | 34 | Code complete and wired; not yet exercised on a device |
+| PARTIAL | 45 | Surface exists; verification/integration incomplete |
+| NOT IMPLEMENTED | 5 | No application surface exists yet |
+| BACKEND BLOCKED | 52 | Needs a PHP/database/site change outside the app |
+| OWNER DECISION REQUIRED | 1 | Item 27 — see §4 |
+| | **148** | |
+
+**Do not read this as "148 done".** 11 are verified; the rest are explicitly
+open, partial, or blocked. Nothing is marked complete merely because a widget
+renders.
+
+---
+
+## 4. Item 27 — owner decision required
+
+The two source documents disagree on the homepage section order:
+
+- The original 51-page document lists **destinations before categories**.
+- The Execution 01 mandate text (§8) lists **categories before destinations**.
+
+The mandate also forbids inventing business rules when requirements conflict.
+The current code therefore keeps the mandate order (categories → destinations)
+and flags item 27 for owner confirmation. The bottom navigation bar (5 items) is
+also unconfirmed against the document. No guess was implemented.
+
+---
+
+## 5. What this pass changed in code
+
+In addition to the reconciliation, this pass closed two Execution 01 gaps that
+the reconciliation surfaced:
+
+| Item | Change |
+|---|---|
+| 21, 22 | New `OwnerHotelSummary` model + `OwnerHotelCard` widget; the homepage "hotels with owner units" section now renders **hotel** cards (name, city, unit count, rating, min price) built from real `units/browse.php?owner_only=1` + `hotels/list.php` data — previously it rendered unit cards. |
+| 20 | Homepage category header aligned to the source document wording: «اكتشف حسب النوع» / "Discover by Type". |
+
+See `docs/EXECUTION_01_TEST_RESULTS.md` for the test evidence (64 tests pass).
 
 ---
 
@@ -158,25 +150,20 @@ and produce the full matrix and the numeric summary the task requests.
 
 | Verification type | Status |
 |---|---|
-| Reconciliation against the supplied 148-item inventory | **NOT POSSIBLE** — inventory not supplied |
-| Verification against the original 51-page DOCX | **NOT POSSIBLE** — document never available |
-
-Neither is claimed complete. Both remain open for the same reason: the source
-documents are not in this environment.
+| Reconciliation against the supplied 148-item inventory | ✅ **COMPLETE** (148/148 rows) |
+| Corroboration against the original 51-page DOCX | ✅ **COMPLETE** (no additional rows; wording confirmed) |
+| Live-backend integration testing of all screens | ⏳ **NOT DONE** — requires a device/emulator; isolated tests only |
 
 ---
 
 ## 7. Final recommendation
 
-**EXECUTION 01 BLOCKED (on requirements reconciliation).**
+**Reconciliation: COMPLETE.** The 148-item inventory is fully reconciled and
+traceable in `docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md`.
 
-The *code* work of Execution 01 is complete and verified (58 tests pass, 0
-analyzer errors/warnings, all changed files format-clean, application identity
-and roles preserved). The *requirements reconciliation* — the specific goal of
-this task — is blocked solely by the missing inventory file.
-
-Supplying the file unblocks the entire reconciliation; no further code
-investigation is needed to begin it.
+The one item requiring owner input is **item 27** (homepage section order and
+bottom-navigation composition). Everything else is either verified, scheduled to
+a later execution, or explicitly blocked on the backend.
 
 ---
 
