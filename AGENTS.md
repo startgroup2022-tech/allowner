@@ -128,3 +128,39 @@ directly to `main`. Execution 01 is complete at commit `bfe0a93`.
   `?screen=` / `?lang=` / `?v=` URL parameters, served on port 8899. It is
   temporary and deliberately **not** committed.
 - `git` has no global identity; a repo-local one is set to `openhands`.
+
+## Original requirements document (resolved)
+
+The owner delivered the original Arabic document in commit `91de5fe`:
+
+- `docs/AllOwners_Original_Under_3MB.docx` — the 51-page requirements document (56 images).
+- `docs/AllOwners_Requirements_Inventory.md` — 148 numbered requirements (IDs 1-148, verified
+  contiguous with no gaps or duplicates).
+
+Both are authoritative. The earlier `docs/ALL_OWNERS_ORIGINAL_DOCUMENT_BLOCKER.md` is
+**superseded** and kept only as a record.
+
+- **Extract the document in document order.** A naive `<w:t>`-only regex silently loses text:
+  `<w:tab/>` also matches `<w:t[^>]*>`, which swallows markup into the output. Use
+  `(<w:t(?:\s[^>]*)?>(.*?)</w:t>)` and treat `</w:p>` as a line break. Verified extraction:
+  17,466 chars / 442 lines / 56 images, matching the raw `<w:t>` total.
+- The verbatim extraction and all 56 images are committed under
+  `docs/evidence/exec01/original/`.
+- **Audit trail:** `docs/ALL_OWNERS_ORIGINAL_REQUIREMENTS_MASTER.md` maps every one of the
+  148 requirements to a status and to the file/line that satisfies or misses it.
+  `docs/ALL_OWNERS_IMPLEMENTATION_GAP_REPORT.md` records what was implemented, what needs the
+  PHP backend / admin panel / website, and what needs an owner decision.
+
+### This repo is the Flutter client only
+
+There is **no PHP backend, no admin panel and no website** here (`find . -name "*.php"`
+returns nothing). 26 of the 148 requirements target those surfaces and are marked
+"outside this repository" — they are **not** client defects. Do not implement them here, and
+do not stub them.
+
+### Do not fabricate to close a requirement
+
+Several requirements (e.g. the named Makkah hotels with «قريباً», per-meal prices, the owner
+wallet/ledger) need data or endpoints that do not exist. Hard-coding a hotel list or inventing
+a meal price to make a screen look complete is forbidden here. Leave the requirement open and
+record the blocker.

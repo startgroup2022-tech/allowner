@@ -11,6 +11,7 @@ import '../home/main_navigation_screen.dart';
 import 'owner_bookings_screen.dart';
 import 'owner_maintenance_screen.dart';
 import 'owner_revenue_screen.dart';
+import 'owner_commission_screen.dart';
 import 'owner_documents_screen.dart';
 import 'owner_decisions_screen.dart';
 import 'owner_community_screen.dart';
@@ -111,6 +112,7 @@ class OwnerProfileScreen extends ConsumerWidget {
     final isArabic = ref.watch(localeProvider).languageCode == 'ar';
     final textTheme = Theme.of(context).textTheme;
     final user = ref.watch(sessionProvider).user;
+    final isAgent = user?.role == 'booking_agent';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -135,31 +137,38 @@ class OwnerProfileScreen extends ConsumerWidget {
               const SizedBox(height: AppDimens.xl),
 
               _MenuSection(items: [
+                // الوكيل يرى «تقارير عمولات» لا «التقارير المالية» (متطلب 100).
                 _MenuItem(
                   icon: Icons.bar_chart_outlined,
-                  label: AppStrings.t(isArabic, 'financial_reports'),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerRevenueScreen())),
+                  label: AppStrings.t(isArabic, isAgent ? 'my_commission' : 'financial_reports'),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => isAgent ? const OwnerCommissionScreen() : const OwnerRevenueScreen(),
+                  )),
                 ),
                 _MenuItem(
                   icon: Icons.calendar_month_outlined,
                   label: AppStrings.t(isArabic, 'owner_bookings'),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerBookingsScreen())),
                 ),
-                _MenuItem(
-                  icon: Icons.folder_outlined,
-                  label: AppStrings.t(isArabic, 'contracts_docs'),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerDocumentsScreen())),
-                ),
+                // الوكيل لا يرى العقود ولا مجتمع الملاك ولا التصويت (متطلبات 101-103)،
+                // لكنه يبقى يرى خدمات الصيانة (متطلب 104).
+                if (!isAgent)
+                  _MenuItem(
+                    icon: Icons.folder_outlined,
+                    label: AppStrings.t(isArabic, 'contracts_docs'),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerDocumentsScreen())),
+                  ),
                 _MenuItem(
                   icon: Icons.build_outlined,
                   label: AppStrings.t(isArabic, 'maintenance_requests'),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerMaintenanceScreen())),
                 ),
-                _MenuItem(
-                  icon: Icons.how_to_vote_outlined,
-                  label: AppStrings.t(isArabic, 'voting_decisions'),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerDecisionsScreen())),
-                ),
+                if (!isAgent)
+                  _MenuItem(
+                    icon: Icons.how_to_vote_outlined,
+                    label: AppStrings.t(isArabic, 'voting_decisions'),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerDecisionsScreen())),
+                  ),
                 if (user?.role == 'owner')
                   _MenuItem(
                     icon: Icons.badge_outlined,
@@ -170,11 +179,12 @@ class OwnerProfileScreen extends ConsumerWidget {
               const SizedBox(height: AppDimens.md),
 
               _MenuSection(items: [
-                _MenuItem(
-                  icon: Icons.groups_outlined,
-                  label: AppStrings.t(isArabic, 'owners_community'),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerCommunityScreen())),
-                ),
+                if (!isAgent)
+                  _MenuItem(
+                    icon: Icons.groups_outlined,
+                    label: AppStrings.t(isArabic, 'owners_community'),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerCommunityScreen())),
+                  ),
                 _MenuItem(
                   icon: Icons.storefront_outlined,
                   label: AppStrings.t(isArabic, 'units_marketplace'),

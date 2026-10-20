@@ -4,7 +4,10 @@ class AppStrings {
   static const Map<String, Map<String, String>> _strings = {
     // ===== عام =====
     'app_name': {'ar': 'All Owners', 'en': 'All Owners'},
-    'app_tagline': {'ar': 'فندقك، أينما كنت', 'en': 'Your stay, anywhere'},
+    'app_tagline': {
+      'ar': 'المنصة الموثوقة لملاك الوحدات والعقارات',
+      'en': 'The Trusted Platform for Property Owners'
+    },
     'continue': {'ar': 'استمرار', 'en': 'Continue'},
     'next': {'ar': 'التالي', 'en': 'Next'},
     'skip': {'ar': 'تخطي', 'en': 'Skip'},

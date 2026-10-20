@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../utils/session_provider.dart';
+import '../bookings/my_bookings_screen.dart';
 import 'owner_home_screen.dart';
 import 'owner_units_screen.dart';
 import 'owner_revenue_screen.dart';
@@ -29,7 +30,8 @@ class _OwnerNavigationScreenState extends ConsumerState<OwnerNavigationScreen> {
 
     final screens = <Widget>[
       const OwnerHomeScreen(),
-      const OwnerUnitsScreen(),
+      // الوكيل لا يملك وحدات: التبويب الثاني يعرض حجوزات عملائه لا «وحداتي».
+      if (isAgent) const MyBookingsScreen() else const OwnerUnitsScreen(),
       isAgent ? const OwnerCommissionScreen() : const OwnerRevenueScreen(),
       const OwnerNotificationsScreen(),
       const OwnerProfileScreen(),
@@ -49,7 +51,7 @@ class _OwnerNavigationScreenState extends ConsumerState<OwnerNavigationScreen> {
           BottomNavigationBarItem(
             icon: const Icon(Icons.apartment_outlined),
             activeIcon: const Icon(Icons.apartment_rounded),
-            label: AppStrings.t(isArabic, 'nav_units'),
+            label: isAgent ? AppStrings.t(isArabic, 'my_bookings') : AppStrings.t(isArabic, 'nav_units'),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.account_balance_wallet_outlined),

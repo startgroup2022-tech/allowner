@@ -510,4 +510,28 @@ void main() {
       expect(HotelService.filterHotels(list), hasLength(2));
     });
   });
+
+  group('متطلبات المستند الأصلي (الجولة الثانية)', () {
+    test('العبارة التعريفية تطابق نص المستند لا النص القديم', () {
+      expect(AppStrings.t(true, 'app_tagline'), 'المنصة الموثوقة لملاك الوحدات والعقارات');
+      expect(AppStrings.t(false, 'app_tagline'), 'The Trusted Platform for Property Owners');
+      expect(AppStrings.t(true, 'app_tagline'), isNot(contains('فندقك')));
+    });
+
+    test('مفاتيح المتطلبات المضافة موجودة بالعربي والإنجليزي', () {
+      const keys = ['app_tagline', 'my_bookings', 'booking_details', 'add_extra_bed', 'housekeeping'];
+      for (final k in keys) {
+        expect(AppStrings.t(true, k), isNotEmpty, reason: '$k ar');
+        expect(AppStrings.t(false, k), isNotEmpty, reason: '$k en');
+        expect(AppStrings.t(true, k), isNot(equals(k)), reason: '$k ar غير مترجم');
+        expect(AppStrings.t(false, k), isNot(equals(k)), reason: '$k en غير مترجم');
+      }
+    });
+
+    test('تسمية الوكيل الثانية هي «حجوزاتي» لا «وحداتي»', () {
+      expect(AppStrings.t(true, 'my_bookings'), 'حجوزاتي');
+      expect(AppStrings.t(true, 'nav_units'), 'وحداتي');
+      expect(AppStrings.t(true, 'my_bookings'), isNot(equals(AppStrings.t(true, 'nav_units'))));
+    });
+  });
 }

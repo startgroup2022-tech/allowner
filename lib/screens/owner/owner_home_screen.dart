@@ -77,6 +77,22 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
         title: AppStrings.t(isArabic, 'messages'),
         onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerMessagesScreen())),
       ),
+      // الطلبات التي طلب المالك إضافتها لقائمة الوكيل: الوجبات والنظافة والسرير.
+      (
+        icon: Icons.restaurant_outlined,
+        title: AppStrings.t(isArabic, 'meal_requests'),
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerMealRequestsScreen())),
+      ),
+      (
+        icon: Icons.cleaning_services_outlined,
+        title: AppStrings.t(isArabic, 'housekeeping'),
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerCleaningScreen())),
+      ),
+      (
+        icon: Icons.bed_outlined,
+        title: AppStrings.t(isArabic, 'add_extra_bed'),
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerMaintenanceScreen())),
+      ),
     ];
 
     final ownerLinks = [

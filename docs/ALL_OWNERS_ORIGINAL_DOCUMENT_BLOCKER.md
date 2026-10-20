@@ -1,3 +1,13 @@
+> **SUPERSEDED — 2026-10-20.** This blocker was resolved. The owner committed the original
+> document as `docs/AllOwners_Original_Under_3MB.docx` together with
+> `docs/AllOwners_Requirements_Inventory.md` in commit `91de5fe`. The document was extracted
+> verbatim and all 148 requirements were audited. See
+> `docs/ALL_OWNERS_ORIGINAL_REQUIREMENTS_MASTER.md` and
+> `docs/ALL_OWNERS_IMPLEMENTATION_GAP_REPORT.md`. This file is kept only as a record of the
+> earlier state; nothing below should be treated as current.
+
+---
+
 # All Owners — Original Requirements: Access Blocker
 
 **Branch:** `feature/allowners-new-version-exec01`

@@ -162,6 +162,87 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   bool get _isAgent => ref.read(sessionProvider).user?.role == 'booking_agent';
 
+  /// متطلب 32: الخطوة الرابعة تُظهر «تفاصيل الحجز» — ملخص كامل لبيانات العميل
+  /// والتواريخ والإضافات ووسيلة الدفع — قبل إرسال الحجز فعليًا.
+  Future<void> _openDetailsReview(bool isArabic) async {
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) {
+        final textTheme = Theme.of(ctx).textTheme;
+        final roomPrice = _basePricePerNight * _nights;
+        final addonsTotal = _addonsTotal;
+        final hasAddonsSelected = _selectedMealAddonIds.isNotEmpty || _selectedOtherAddonIds.isNotEmpty;
+        final extraBedCharge =
+            (!hasAddonsSelected && _extraBed && widget.hotel.extraBedPrice != null) ? widget.hotel.extraBedPrice! : 0.0;
+        final taxes = (roomPrice + addonsTotal + extraBedCharge) * 0.15;
+        final total = roomPrice + addonsTotal + extraBedCharge + taxes;
+
+        final paymentLabel = switch (_paymentMethod) {
+          PaymentMethod.online => 'pay_online',
+          PaymentMethod.atHotel => 'pay_at_hotel',
+          PaymentMethod.ownerTransfer => 'pay_owner_transfer',
+        };
+
+        return Padding(
+          padding: EdgeInsets.only(
+            left: AppDimens.pagePadding,
+            right: AppDimens.pagePadding,
+            top: AppDimens.pagePadding,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + AppDimens.pagePadding,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(AppStrings.t(isArabic, 'booking_details'), style: textTheme.titleLarge),
+                const SizedBox(height: AppDimens.md),
+                _ReviewRow(icon: Icons.hotel_outlined, text: widget.unitName ?? widget.hotel.name),
+                _ReviewRow(
+                  icon: Icons.event_outlined,
+                  text: '${_formatDate(_checkIn, isArabic)} — ${_formatDate(_checkOut, isArabic)}  ·  '
+                      '$_nights ${AppStrings.t(isArabic, _nights == 1 ? 'night' : 'nights')}',
+                ),
+                _ReviewRow(icon: Icons.people_outline, text: '$_guests ${AppStrings.t(isArabic, 'guests')}'),
+                if (_isAgent && _customerNameController.text.trim().isNotEmpty)
+                  _ReviewRow(icon: Icons.person_outline, text: _customerNameController.text.trim()),
+                if (_guestIdNumberController.text.trim().isNotEmpty)
+                  _ReviewRow(icon: Icons.badge_outlined, text: _guestIdNumberController.text.trim()),
+                if (_extraBed)
+                  _ReviewRow(icon: Icons.bed_outlined, text: AppStrings.t(isArabic, 'add_extra_bed')),
+                const SizedBox(height: AppDimens.lg),
+                Text(AppStrings.t(isArabic, 'price_details'), style: textTheme.titleMedium),
+                const SizedBox(height: AppDimens.sm),
+                _PriceRow(label: AppStrings.t(isArabic, 'room_price'), value: roomPrice, isArabic: isArabic),
+                if (addonsTotal > 0)
+                  _PriceRow(label: AppStrings.t(isArabic, 'unit_addons_title'), value: addonsTotal, isArabic: isArabic),
+                if (extraBedCharge > 0)
+                  _PriceRow(label: AppStrings.t(isArabic, 'add_extra_bed'), value: extraBedCharge, isArabic: isArabic),
+                _PriceRow(label: AppStrings.t(isArabic, 'taxes_fees'), value: taxes, isArabic: isArabic),
+                const Divider(height: 24),
+                _PriceRow(label: AppStrings.t(isArabic, 'total_price'), value: total, isArabic: isArabic, isTotal: true),
+                const SizedBox(height: AppDimens.md),
+                _ReviewRow(icon: Icons.payments_outlined, text: AppStrings.t(isArabic, paymentLabel)),
+                const SizedBox(height: AppDimens.xl),
+                SizedBox(
+                  width: double.infinity,
+                  height: AppDimens.buttonHeight,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(ctx, true),
+                    child: Text(AppStrings.t(isArabic, 'confirm_booking')),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (confirmed == true && mounted) await _confirmBooking();
+  }
+
   Future<void> _confirmBooking() async {
     final isArabic = ref.read(localeProvider).languageCode == 'ar';
 
@@ -697,18 +778,40 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 width: double.infinity,
                 height: AppDimens.buttonHeight,
                 child: ElevatedButton(
-                  onPressed: _isSubmitting ? null : _confirmBooking,
+                  onPressed: _isSubmitting ? null : () => _openDetailsReview(isArabic),
                   child: _isSubmitting
                       ? const SizedBox(
                           width: 22,
                           height: 22,
                           child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
                         )
-                      : Text(AppStrings.t(isArabic, 'confirm_booking')),
+                      : Text(AppStrings.t(isArabic, 'booking_details')),
                 ),
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// سطر عرض بسيط داخل ملخص «تفاصيل الحجز» (أيقونة + نص) — بدون قيمة رقمية.
+class _ReviewRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _ReviewRow({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppDimens.sm),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: AppColors.textSecondary),
+          const SizedBox(width: AppDimens.sm),
+          Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium)),
         ],
       ),
     );
