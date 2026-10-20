@@ -10,6 +10,7 @@ import '../../models/hotel_model.dart';
 import '../../services/hotel_service.dart';
 import '../../services/owner_service.dart';
 import '../../models/unit_model.dart';
+import '../../utils/availability.dart';
 import '../../utils/booking_totals.dart';
 import '../../utils/safe_parse.dart';
 import '../auth/login_screen.dart';
@@ -64,6 +65,12 @@ class BookingScreen extends ConsumerStatefulWidget {
 
   /// حساب المالك البنكي للوحدة (المتطلب 120) — يُعرض عند اختيار التحويل المباشر.
   final Map<String, dynamic>? ownerBank;
+
+  /// فترات إتاحة الوحدة المُعلنة من `units/detail.php` (المتطلب 45) — تُستخدم
+  /// لتحذير الضيف محليًا قبل الدفع إن اختار تواريخ خارج كل الفترات. الفحص
+  /// النهائي يبقى على السيرفر.
+  final List<UnitAvailabilityModel> unitAvailability;
+
   const BookingScreen({
     super.key,
     required this.hotel,
@@ -72,6 +79,7 @@ class BookingScreen extends ConsumerStatefulWidget {
     this.unitPricePerNight,
     this.unitImageUrl,
     this.ownerBank,
+    this.unitAvailability = const [],
   });
 
   @override
@@ -213,6 +221,16 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   }
 
   bool get _isAgent => ref.read(sessionProvider).user?.role == 'booking_agent';
+
+  /// نتيجة فحص الإتاحة المحلي للتواريخ المختارة (المتطلب 45).
+  AvailabilityVerdict get _availabilityVerdict => checkAvailability(
+        checkIn: _checkIn,
+        checkOut: _checkOut,
+        periods: widget.unitAvailability,
+      );
+
+  String? get _availabilityWarningKey =>
+      availabilityWarningKey(_availabilityVerdict);
 
   /// متطلب 32: الخطوة الرابعة تُظهر «تفاصيل الحجز» — ملخص كامل لبيانات العميل
   /// والتواريخ والإضافات ووسيلة الدفع — قبل إرسال الحجز فعليًا.
@@ -521,6 +539,33 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                         ),
                       ],
                     ),
+                    // المتطلب 45: تحذير محلي إن كانت التواريخ خارج فترات الإتاحة
+                    // المُعلنة للوحدة. لا يُمنع الحجز — الفحص النهائي على السيرفر.
+                    if (_availabilityWarningKey != null) ...[
+                      const SizedBox(height: AppDimens.sm),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(AppDimens.sm),
+                        decoration: BoxDecoration(
+                          color: AppColors.warning.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(AppDimens.radiusSm),
+                          border: Border.all(color: AppColors.warning.withOpacity(0.4)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.info_outline_rounded,
+                                size: 18, color: AppColors.warning),
+                            const SizedBox(width: AppDimens.sm),
+                            Expanded(
+                              child: Text(
+                                AppStrings.t(isArabic, _availabilityWarningKey!),
+                                style: textTheme.bodySmall,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: AppDimens.md),
                     Row(
                       children: [

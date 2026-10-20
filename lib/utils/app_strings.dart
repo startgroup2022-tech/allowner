@@ -224,6 +224,10 @@ class AppStrings {
       'ar': 'لا توجد فترة إتاحة محددة — تواصل مع الفندق للتأكد',
       'en': 'No availability period set — contact the property to confirm'
     },
+    'dates_outside_availability': {
+      'ar': 'التواريخ المختارة خارج فترات إتاحة الوحدة — اختر تواريخ أخرى',
+      'en': 'Selected dates are outside the unit availability periods'
+    },
     'unit_number_label': {'ar': 'رقم الوحدة', 'en': 'Unit number'},
     'capacity_label': {'ar': 'السعة', 'en': 'Capacity'},
     'beds_label': {'ar': 'الأسرّة', 'en': 'Beds'},

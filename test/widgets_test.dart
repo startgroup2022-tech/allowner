@@ -9,6 +9,7 @@ import 'package:allowners/screens/owner/owner_bookings_screen.dart';
 import 'package:allowners/screens/owner/owner_profile_screen.dart';
 import 'package:allowners/screens/booking/booking_screen.dart';
 import 'package:allowners/screens/booking/booking_success_screen.dart';
+import 'package:allowners/utils/availability.dart';
 import 'package:allowners/screens/bookings/my_bookings_screen.dart';
 import 'package:allowners/screens/shared/app_about_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -1205,6 +1206,80 @@ void main() {
       final dates = r.firstWhere((e) => e.$1 == AppStrings.t(true, 'stay_dates')).$2;
       expect(dates.contains('2026'), isFalse);
       expect(dates.contains('-'), isTrue);
+    });
+  });
+  group('فحص الإتاحة المحلي قبل الحجز (المتطلب 45)', () {
+    UnitAvailabilityModel p(String from, String to) =>
+        UnitAvailabilityModel.fromJson({'date_from': from, 'date_to': to});
+
+    test('بلا فترات مُعلنة لا يُمنع ولا يُحذَّر', () {
+      final v = checkAvailability(
+          checkIn: DateTime(2026, 1, 1),
+          checkOut: DateTime(2026, 1, 3),
+          periods: const []);
+      expect(v, AvailabilityVerdict.unknown);
+      expect(availabilityWarningKey(v), isNull);
+    });
+    test('الفترات غير الصالحة تُعامل كغياب معلومات', () {
+      final v = checkAvailability(
+          checkIn: DateTime(2026, 1, 1),
+          checkOut: DateTime(2026, 1, 3),
+          periods: [UnitAvailabilityModel.fromJson({'date_from': '', 'date_to': ''})]);
+      expect(v, AvailabilityVerdict.unknown);
+    });
+    test('إقامة داخل فترة واحدة تُقبل بلا تحذير', () {
+      final v = checkAvailability(
+          checkIn: DateTime(2026, 2, 10),
+          checkOut: DateTime(2026, 2, 12),
+          periods: [p('2026-02-01', '2026-02-28')]);
+      expect(v, AvailabilityVerdict.inside);
+      expect(availabilityWarningKey(v), isNull);
+    });
+    test('الحدود المطابقة تمامًا (دخول=بداية، مغادرة=نهاية) تُقبل', () {
+      expect(
+          checkAvailability(
+              checkIn: DateTime(2026, 2, 1),
+              checkOut: DateTime(2026, 2, 28),
+              periods: [p('2026-02-01', '2026-02-28')]),
+          AvailabilityVerdict.inside);
+    });
+    test('إقامة خارج كل الفترات تُحذّر', () {
+      final v = checkAvailability(
+          checkIn: DateTime(2026, 3, 10),
+          checkOut: DateTime(2026, 3, 12),
+          periods: [p('2026-02-01', '2026-02-28')]);
+      expect(v, AvailabilityVerdict.outside);
+      expect(availabilityWarningKey(v), 'dates_outside_availability');
+    });
+    test('إقامة تمتد بين فترتين متجاورتين لا تُعتبر مغطاة', () {
+      expect(
+          checkAvailability(
+              checkIn: DateTime(2026, 2, 27),
+              checkOut: DateTime(2026, 3, 2),
+              periods: [p('2026-02-01', '2026-02-28'), p('2026-03-01', '2026-03-31')]),
+          AvailabilityVerdict.outside);
+    });
+    test('يكفي أن تغطي فترة واحدة الإقامة كاملة من بين عدة فترات', () {
+      expect(
+          checkAvailability(
+              checkIn: DateTime(2026, 4, 5),
+              checkOut: DateTime(2026, 4, 7),
+              periods: [p('2026-01-01', '2026-01-31'), p('2026-04-01', '2026-04-30')]),
+          AvailabilityVerdict.inside);
+    });
+    test('تواريخ معكوسة تُرفض', () {
+      expect(
+          checkAvailability(
+              checkIn: DateTime(2026, 2, 12),
+              checkOut: DateTime(2026, 2, 10),
+              periods: [p('2026-02-01', '2026-02-28')]),
+          AvailabilityVerdict.outside);
+    });
+    test('نص التحذير متاح بالعربية والإنجليزية', () {
+      expect(AppStrings.t(true, 'dates_outside_availability'), isNotEmpty);
+      expect(AppStrings.t(false, 'dates_outside_availability'), isNotEmpty);
+      expect(AppStrings.t(true, 'dates_outside_availability'),
+          isNot(equals(AppStrings.t(false, 'dates_outside_availability'))));
     });
   });
   group('ترتيب صفوف تفاصيل الحجز (المتطلبات 52 و97)', () {

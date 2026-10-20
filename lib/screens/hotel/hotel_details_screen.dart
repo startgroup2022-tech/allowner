@@ -691,6 +691,8 @@ class _UnitsListState extends State<_UnitsList> {
                           unitName: unit.name(widget.isArabic),
                           unitPricePerNight: unit.pricePerNight,
                           unitImageUrl: unit.coverImage,
+                          ownerBank: unit.ownerBank,
+                          unitAvailability: unit.availability,
                         ),
                       ),
                     ),
