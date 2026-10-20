@@ -807,4 +807,21 @@ void main() {
       expect(rows.single.$2, 'سعد');
     });
   });
+
+  group('مصدر الحجز (المتطلب 36)', () {
+    test('يستنتج الوكيل من agent_name', () {
+      expect(bookingSourceKey({'agent_name': 'شركة الأفق'}), 'booked_by_agent');
+    });
+    test('يستنتج الوكيل من source', () {
+      expect(bookingSourceKey({'source': 'agent'}), 'booked_by_agent');
+    });
+    test('يستنتج الضيف من customer', () {
+      expect(bookingSourceKey({'booked_by': 'customer'}), 'booked_by_guest');
+    });
+    test('لا يعرض شيئًا عند غياب البيانات', () {
+      expect(bookingSourceKey({}), isNull);
+      expect(bookingSourceKey({'source': 'something_else'}), isNull);
+      expect(bookingSourceKey({'agent_name': '  '}), isNull);
+    });
+  });
 }

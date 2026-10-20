@@ -10,6 +10,25 @@ import '../../utils/safe_parse.dart';
 
 /// المتطلب 73: أسطر ملخّص إضافات الحجز (وجبات / سرير إضافي / ملاحظات) من الحقول
 /// الحقيقية التي يُرجعها الـ API. دالة نقية قابلة للاختبار؛ لا تُختلق بيانات.
+/// المتطلب 36: مصدر الحجز (ضيف / وكيل حجوزات) ليعرف المالك من أين جاء الطلب.
+/// دالة نقية تُرجع مفتاح الترجمة فقط عند وجود بيانات حقيقية من الـ API
+/// (`source` أو `booked_by` أو `agent_name`)، وإلا null بلا اختلاق.
+String? bookingSourceKey(Map<String, dynamic> b) {
+  final agentName = (b['agent_name'] ?? b['agent'] ?? '').toString().trim();
+  if (agentName.isNotEmpty) return 'booked_by_agent';
+  final raw = (b['source'] ?? b['booked_by'] ?? b['booking_source'] ?? '')
+      .toString()
+      .trim()
+      .toLowerCase();
+  if (raw.isEmpty) return null;
+  if (raw.contains('agent')) return 'booked_by_agent';
+  if (raw.contains('owner')) return 'booked_by_owner';
+  if (raw.contains('guest') || raw.contains('customer') || raw.contains('user')) {
+    return 'booked_by_guest';
+  }
+  return null;
+}
+
 List<String> buildBookingAddonLines(bool isArabic, Map<String, dynamic> b) {
   final lines = <String>[];
 
@@ -334,6 +353,10 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
                           Text('📞 ${b['guest_phone']}', style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
                         if ((b['guest_id_number'] ?? '').toString().isNotEmpty)
                           Text('🪪 ${b['guest_id_number']}', style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                        // المتطلب 36: مصدر الحجز (ضيف/وكيل) — يُعرض فقط إن أرجعه الـ API.
+                        if (bookingSourceKey(b) != null)
+                          Text('👤 ${AppStrings.t(isArabic, bookingSourceKey(b)!)}',
+                              style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
                         // المتطلب 73: إظهار إضافات الوجبات والسرير الإضافي في حجوزات
                         // المالك. تُعرض فقط الحقول التي يُرجعها الـ API فعليًا؛ إن لم
                         // يُرجعها بعد فلا تُختلق بيانات (اعتماد السيرفر موثّق في

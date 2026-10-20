@@ -26,8 +26,8 @@
 | الحالة | العدد |
 |---|---|
 | VERIFIED PASS | 20 |
-| IMPLEMENTED UNTESTED | 45 |
-| PARTIAL | 35 |
+| IMPLEMENTED UNTESTED | 46 |
+| PARTIAL | 34 |
 | NOT IMPLEMENTED | 0 |
 | BACKEND BLOCKED | 48 |
 | OWNER DECISION REQUIRED | 0 |
@@ -423,12 +423,12 @@
 
 - **القسم:** الحجز وتفاصيله — 20 نقطة
 - **التنفيذ:** Execution 02
-- **الحالة:** PARTIAL
-- **ملفات Flutter:** owner_bookings_screen.dart
-- **اعتماد الـ API:** /user/owner-bookings.php
-- **الدليل:** عرض الحجوزات الواردة من الضيف/الوكيل
-- **المتبقي:** تأكيد ظهور كل المصادر
-- **معيار القبول:** تظهر حجوزات الضيف والوكيل للمالك
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_bookings_screen.dart bookingSourceKey + شارة المصدر
+- **اعتماد الـ API:** /user/owner-bookings.php source/agent_name
+- **الدليل:** يُعرض مصدر الحجز (ضيف/وكيل/مالك) من الحقول الحقيقية، ويُخفى إن لم تُرجع؛ 4 اختبارات
+- **المتبقي:** مزامنة تفاصيل الحجز الكاملة
+- **معيار القبول:** يظهر مصدر كل حجز
 
 ### 37. تأكيد الحجز من تطبيق المالك
 

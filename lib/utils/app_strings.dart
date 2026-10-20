@@ -294,6 +294,9 @@ class AppStrings {
     'owner_bank_account_name': {'ar': 'اسم صاحب الحساب', 'en': 'Account Holder'},
     'owner_bank_account_number': {'ar': 'رقم الحساب', 'en': 'Account Number'},
     'owner_bank_iban': {'ar': 'رقم الآيبان IBAN', 'en': 'IBAN'},
+    'booked_by_guest': {'ar': 'حجز من الضيف', 'en': 'Booked by guest'},
+    'booked_by_agent': {'ar': 'حجز من وكيل الحجوزات', 'en': 'Booked by agent'},
+    'booked_by_owner': {'ar': 'حجز من المالك', 'en': 'Booked by owner'},
     'attach_image': {'ar': 'إرفاق صورة (اختياري)', 'en': 'Attach Image (optional)'},
     'image_attached': {'ar': 'تم إرفاق صورة ✓', 'en': 'Image attached ✓'},
     'owner_bank_missing': {

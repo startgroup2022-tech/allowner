@@ -69,7 +69,7 @@ RANGES = {
     33: (2,'IMPLEMENTED UNTESTED','booking_screen.dart, booking_success_screen.dart','/bookings/create.php','ملخص ببيانات الضيف والتواريخ والأشخاص','اختبار حقيقي','يظهر ملخص الحجز كاملًا'),
     34: (2,'IMPLEMENTED UNTESTED','booking_screen.dart PaymentMethod','/bookings/create.php','خيار الدفع الإلكتروني أو في الفندق','اختبار بوابة الدفع الحقيقية','تظهر طرق الدفع وتُختار'),
     35: (2,'PARTIAL','owner_bookings_screen.dart','/user/owner-bookings.php','شاشة حجوزات المالك تعرض تفاصيل الحجز','مزامنة التفاصيل الكاملة','تظهر تفاصيل الحجز في تطبيق المالك'),
-    36: (2,'PARTIAL','owner_bookings_screen.dart','/user/owner-bookings.php','عرض الحجوزات الواردة من الضيف/الوكيل','تأكيد ظهور كل المصادر','تظهر حجوزات الضيف والوكيل للمالك'),
+    36: (2,'IMPLEMENTED UNTESTED','owner_bookings_screen.dart bookingSourceKey + شارة المصدر','/user/owner-bookings.php source/agent_name','يُعرض مصدر الحجز (ضيف/وكيل/مالك) من الحقول الحقيقية، ويُخفى إن لم تُرجع؛ 4 اختبارات','مزامنة تفاصيل الحجز الكاملة','يظهر مصدر كل حجز'),
     37: (2,'IMPLEMENTED UNTESTED','owner_bookings_screen.dart _confirmBooking','owner_service','زر تأكيد الحجز في تطبيق المالك','اختبار حقيقي','يستطيع المالك تأكيد الحجز'),
     38: (2,'IMPLEMENTED UNTESTED','owner_bookings_screen.dart _cancelBooking','owner_service','زر إلغاء الحجز','اختبار حقيقي','يستطيع المالك إلغاء الحجز'),
     39: (2,'VERIFIED PASS','owner_bookings_screen.dart _editBooking, owner_service.editBooking','/user/owner-bookings.php (action=update)','تعديل الحجز من المالك منفّذ: زر تعديل يظهر عند can_edit ويعدّل التواريخ/الضيوف/الاسم/الجوال/الملاحظات','—','يستطيع المالك تعديل الحجز'),
