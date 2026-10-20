@@ -21,6 +21,19 @@ flutter test                    # 58 tests
 dart format lib/ test/          # see "Formatting" below
 ```
 
+**`/opt/flutter` does not exist in every container.** A fresh container has no Flutter at
+all; install **3.47.7 / Dart 3.13.5** (the version this repo is verified against):
+
+```bash
+curl -sL -o /tmp/f.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.47.7-stable.tar.xz
+tar -xf /tmp/f.tar.xz -C /tmp
+export PATH=/tmp/flutter/bin:$PATH PUB_CACHE=/tmp/pubcache
+```
+
+Do **not** use Flutter 3.24.5: its bundled `flutter_localizations` pins `intl 0.19.0`, which
+conflicts with this repo's `intl: ^0.20.2`, and `pub get` fails with
+"version solving failed".
+
 ## Architecture
 
 | Concern | Where |
@@ -72,6 +85,27 @@ dart format lib/ test/          # see "Formatting" below
   against empty needles when matching category/type strings.
 
 Details and owner decisions: `docs/EXECUTION_01_BACKEND_DEPENDENCIES.md`.
+
+## Open findings — do not "fix" without an owner decision
+
+- **Card numbers are posted to the backend.** `booking_screen.dart` sends the raw PAN as
+  `card_number` to `bookings/create.php`. That puts the platform in PCI scope. The fix is a
+  hosted-field/tokenising PSP flow, which is a **payment-gateway decision**, not a code
+  cleanup. Do not add "card storage" or a new payment path unilaterally.
+- **Two contradictory payment models coexist.** `PaymentMethod { online, atHotel,
+  ownerTransfer }` allows the guest to pay the owner directly, while `agent-commission`
+  assumes the platform collects and takes a commission. No rule reconciles them, and the
+  commission effect of `owner_transfer` is undefined. Business decision.
+- **This repo is the Flutter client only.** The PHP backend, database schema and migrations
+  are not here, so server-side authorisation, validation, double-booking prevention and
+  payment-state consistency **cannot be verified from this repository**. Do not claim they
+  are correct.
+- **No subscriptions module** exists in the client. **No email** path exists (in-app
+  notifications only).
+- **No Android device/emulator here**, so booking/payment/RTL behaviour is unverified on
+  hardware; the 58 tests are unit/widget tests.
+
+Full analysis: `docs/ALL_OWNERS_IMPLEMENTATION_GAP_REPORT.md`.
 
 ## Formatting
 
