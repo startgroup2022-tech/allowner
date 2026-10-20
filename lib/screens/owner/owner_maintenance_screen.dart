@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
+import '../../utils/subscription_gate.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
 import '../../services/api_client.dart';
@@ -43,6 +44,16 @@ class _OwnerMaintenanceScreenState
   }
 
   Future<void> _openNewRequestSheet(bool isArabic) async {
+    // المتطلب 123: منع الطلبات قبل تفعيل الاشتراك — نفس بوابة الوحدات.
+    if (!await ensureSubscriptionForOperation(
+      context: context,
+      service: _service,
+      isArabic: isArabic,
+    )) {
+      return;
+    }
+    if (!mounted) return;
+
     List<Map<String, dynamic>> hotels;
     try {
       hotels = await _service.getHotels();

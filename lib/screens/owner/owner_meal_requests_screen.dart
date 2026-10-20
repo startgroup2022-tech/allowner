@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
+import '../../utils/subscription_gate.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
 import '../../utils/service_request_payload.dart';
@@ -61,6 +62,16 @@ class _OwnerMealRequestsScreenState
   /// يستخدم نفس مسار الطلبات المُثبت `/user/owner-requests.php` بنوع `meal`،
   /// فيظهر الطلب في قائمة طلبات الفندق (نوع `meal` مدعوم في hotel/requests.php).
   Future<void> _openNewMealRequest(bool isArabic) async {
+    // المتطلب 123: منع الطلبات قبل تفعيل الاشتراك — نفس بوابة الوحدات.
+    if (!await ensureSubscriptionForOperation(
+      context: context,
+      service: _service,
+      isArabic: isArabic,
+    )) {
+      return;
+    }
+    if (!mounted) return;
+
     List<Map<String, dynamic>> units;
     try {
       units = await _service.getUnits();

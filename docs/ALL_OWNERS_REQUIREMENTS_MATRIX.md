@@ -1383,9 +1383,9 @@
 - **القسم:** الاشتراكات والمحاسبة والمدفوعات — 26 نقطة
 - **التنفيذ:** Execution 04
 - **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** lib/utils/subscription.dart، lib/screens/owner/owner_units_screen.dart
+- **ملفات Flutter:** lib/utils/subscription.dart، lib/utils/subscription_gate.dart (جديد)، lib/screens/owner/owner_units_screen.dart، وشاشات الطلبات الأربع (maintenance/cleaning/meal/extra-bed)
 - **اعتماد الـ API:** /content/settings.php + قيد can_create في owner-units.php
-- **الدليل:** حاجز واجهة غير مُدمِّر: يمنع الإضافة فقط عند تأكيد السيرفر أن الاشتراك غير مُفعَّل؛ حالة «غير معلنة» تمرّ ولا تكسر تدفّقًا عاملًا
+- **الدليل:** بوابة واحدة مشتركة `ensureSubscriptionForOperation` مطبَّقة على إضافة الوحدات **وعلى الطلبات الأربع** (صيانة/نظافة/وجبات/سرير إضافي)، لا على الوحدات فقط. حاجز غير مُدمِّر: يمنع فقط عند تأكيد السيرفر أن الاشتراك غير مُفعَّل؛ حالة «غير معلنة» تمرّ. 8 اختبارات للقرار النقي
 - **المتبقي:** فرض القيد النهائي على السيرفر عند إنشاء الوحدة/الطلب
 - **معيار القبول:** تُمنع إضافة الوحدات والطلبات قبل تفعيل الاشتراك
 
