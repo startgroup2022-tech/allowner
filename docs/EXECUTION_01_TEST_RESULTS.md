@@ -16,7 +16,7 @@
 | 1 | `flutter pub get` | Resolved; dependencies unchanged (`pubspec.yaml` not modified) | 0 |
 | 2 | `dart format --output=none --set-exit-if-changed .` | **Fails** — 52 of 76 files differ | 1 |
 | 3 | `flutter analyze` | **0 errors, 0 warnings**, 81 info | 0 |
-| 4 | `flutter test` | **48 tests, all pass** | 0 |
+| 4 | `flutter test` | **53 tests, all pass** | 0 |
 
 ### 1.1 `dart format` — reported honestly
 
@@ -88,10 +88,10 @@ than baseline, not higher.
 
 ## 2. Automated test suite
 
-Two files, 48 tests, all passing.
+Two files, 53 tests, all passing.
 
 ```
-00:03 +48: All tests passed!
+00:01 +53: All tests passed!
 ```
 
 ### 2.1 `test/models_parsing_test.dart`
@@ -135,6 +135,7 @@ as `true` from `list.php` and as `1` from `detail.php`).
 | `UnitCard` overflowed 43 px at 360 px | `widgets_test` → *لا يوجد overflow على عرض 360px* |
 | Capacity chip rendered `" 2"` | `widgets_test` → `find.text('2')` |
 | A screen string existed in one language only | `widgets_test` → *الترجمة (ar/en)* |
+| Unit amenities and hotel amenities could be confused | `widgets_test` → *مرافق الوحدة مقابل مرافق الفندق المشتركة* (5 tests) |
 
 ---
 
@@ -144,7 +145,7 @@ The mandate requires this distinction to be explicit.
 
 ### 3.1 Isolated automated tests (no network)
 
-`flutter test` — 48 tests. These run with **no backend access**. They exercise
+`flutter test` — 53 tests. These run with **no backend access**. They exercise
 parsing, formatting, layout and localisation against fixture payloads that were
 copied from real responses. They prove the code is robust to the shapes the
 backend produces; they do **not** prove the backend is reachable or that a given
@@ -163,7 +164,7 @@ production, and none should without the owner's consent.
 | `GET /hotels/list.php?featured=1` | 200, 1 hotel (`فيرمونت مكة`, 1500) |
 | `GET /hotels/list.php?city=Makkah` | 200, 3 hotels |
 | `GET /hotels/list.php?min_price=2000` | 200, 1 hotel |
-| `GET /hotels/detail.php?id=4` | 200, `gallery: null`, 11 amenities, `units: []` |
+| `GET /hotels/detail.php?id=4` | 200, `gallery: []`, 11 amenities, `units: []` |
 | `GET /units/browse.php` | 200, units list |
 | `GET /units/browse.php?q=فيرمونت` | 200, 3 units |
 | `GET /units/browse.php?city=Makkah` | 200, 4 units |
@@ -242,7 +243,7 @@ empty states for data the backend does not supply.
 | Metric | Value |
 |---|---|
 | Commands run | `flutter pub get`, `dart format --set-exit-if-changed`, `flutter analyze`, `flutter test` |
-| Automated tests | 48 passing, 0 failing |
+| Automated tests | 53 passing, 0 failing |
 | Analyzer | 0 errors, 0 warnings (baseline: 0 errors, 5 warnings) |
 | Required functional checks | 19 pass, 1 partial, 0 fail |
 | Live endpoints verified | 11 |

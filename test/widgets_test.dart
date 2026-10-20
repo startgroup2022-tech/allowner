@@ -270,6 +270,67 @@ void main() {
     });
   });
 
+  group('مرافق الوحدة مقابل مرافق الفندق المشتركة', () {
+    // الـ API الحالي (`units/detail.php`) لا يعيد أي حقل مرافق. الوحدة يجب أن
+    // تُقرأ بلا مرافق بدل أن تنهار، ومرافق الفندق تُعرض منفصلة عنها.
+    test('غياب حقل المرافق في الوحدة يعطي قائمة فارغة (لا انهيار)', () {
+      final unit = UnitModel.fromJson({
+        'id': 13,
+        'name_ar': 'جناح عائلي',
+        'hotel_id': 2,
+      });
+      expect(unit.facilities, isEmpty);
+    });
+
+    test('يقرأ مرافق الوحدة من `facilities` عند وجودها', () {
+      final unit = UnitModel.fromJson({
+        'id': 13,
+        'name_ar': 'جناح عائلي',
+        'facilities': [
+          {
+            'id': 1,
+            'name_ar': 'واي فاي',
+            'name_en': 'Free WiFi',
+            'icon': 'wifi'
+          },
+        ],
+      });
+      expect(unit.facilities, hasLength(1));
+      expect(unit.facilities.first['name_ar'], 'واي فاي');
+    });
+
+    test('يقبل `amenities` كبديل عن `facilities` (توافق مع شكل الاستجابة)', () {
+      final unit = UnitModel.fromJson({
+        'id': 13,
+        'name_ar': 'جناح عائلي',
+        'amenities': [
+          {'id': 2, 'name_ar': 'تكييف', 'name_en': 'AC', 'icon': 'ac_unit'},
+        ],
+      });
+      expect(unit.facilities, hasLength(1));
+      expect(unit.facilities.first['name_en'], 'AC');
+    });
+
+    test('مرافق الوحدة والفندق المشتركة تُعرض بعنوانين مختلفين', () {
+      // مفاتيح مستقلة حتى لا يختلط ما يخص الوحدة بما هو مشترك في الفندق.
+      final unitTitle = AppStrings.t(true, 'unit_facilities');
+      final sharedTitle = AppStrings.t(true, 'hotel_shared_facilities');
+      expect(unitTitle, isNot(sharedTitle));
+      expect(AppStrings.t(false, 'unit_facilities'),
+          isNot(AppStrings.t(false, 'hotel_shared_facilities')));
+      // ملاحظة الوحدة الفارغة تحيل صراحةً إلى قسم الفندق بدل أن تبدو معطّلة.
+      expect(AppStrings.t(true, 'unit_facilities_empty_note'), isNotEmpty);
+      expect(AppStrings.t(true, 'hotel_shared_facilities_note'), isNotEmpty);
+    });
+
+    test('بطاقة المرفق تعرض الاسم حسب اللغة', () {
+      final ar = AppStrings.t(true, 'unit_facilities');
+      final en = AppStrings.t(false, 'unit_facilities');
+      expect(ar, 'مرافق الوحدة');
+      expect(en, 'Unit facilities');
+    });
+  });
+
   group('الترجمة (ar/en)', () {
     test('كل المفاتيح المستخدمة في الشاشات الجديدة موجودة بالعربي والإنجليزي',
         () {
@@ -300,6 +361,10 @@ void main() {
         'available_units',
         'amenities',
         'about_property',
+        'unit_facilities',
+        'hotel_shared_facilities',
+        'hotel_shared_facilities_note',
+        'unit_facilities_empty_note',
       ];
 
       for (final key in usedKeys) {

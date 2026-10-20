@@ -44,6 +44,9 @@ rendered-screen evidence."* This section states exactly what was and was not don
 
 ## 2. Captured screens
 
+> Re-captured 2026-10-19 from a release web build after the unit-amenity
+> sections were added. All 12 captures below reflect the current `lib/`.
+
 All captures at 390×844 unless noted. Live backend data.
 
 | # | Screen | Locale | File | Overflow | Result |
@@ -56,8 +59,8 @@ All captures at 390×844 unless noted. Live backend data.
 | 6 | Search results | en | `search_en.png` | none | Pass |
 | 7 | Hotel details | ar | `hotel_ar.png` | none | Pass |
 | 8 | Hotel details | en | `hotel_en.png` | none | Pass |
-| 9 | Unit details | ar | `unit_ar.png` | none | Pass |
-| 10 | Unit details | en | `unit_en.png` | none | Pass |
+| 9 | Unit details (incl. amenity sections) | ar | `unit_ar.png` (390×1400) | none | Pass |
+| 10 | Unit details (incl. amenity sections) | en | `unit_en.png` (390×1400) | none | Pass |
 | 11 | Empty state | ar | `empty_ar.png` | none | Pass |
 | 12 | Error state | ar | `error_ar.png` | none | Pass |
 
@@ -180,7 +183,9 @@ Two things to note, both correct behaviour:
   loaded from `units/browse.php?hotel_id=` when the hotel has them. Recorded as
   a backend dependency (`AO-HTL-07`).
 
-### 3.5 Unit details, Arabic — live data (`units/detail.php?id=13`)
+### 3.5 Unit details — live data (`units/detail.php?id=13`)
+
+Arabic:
 
 ```
 4005
@@ -191,15 +196,31 @@ Two things to note, both correct behaviour:
   جناح غرفة وصاله كعبه
 فترة الإتاحة
   2026-10-05 → 2026-10-31
-المرافق
-  لا توجد مرافق مضافة لهذا العقار
+مرافق الوحدة
+  لم تُضف مرافق خاصة لهذه الوحدة — راجع مرافق الفندق المشتركة أدناه
+مرافق الفندق المشتركة
+  متاحة لجميع ضيوف الفندق
+  [ واي فاي ] [ تكييف ] [ مطعم ] [ خدمة الغرف ] [ آلة قهوة ] [ ممنوع التدخين ] [ مناسب للعائلات ]
 1500 ريال /ليلة
 [ احجز الآن ]
 ```
 
-`لا توجد مرافق مضافة` is correct: `units/detail.php` returns no
-`facilities`/`amenities` key at all. The screen states this honestly instead of
-inventing amenities. Recorded as `AO-AMN-06`.
+English (same record, LTR):
+
+```
+Unit facilities
+  No unit-specific facilities were added — see the shared hotel facilities below
+Shared hotel facilities
+  Available to all guests of the hotel
+  [ Free WiFi ] [ Air conditioning ] [ Restaurant ] [ Room service ] [ Coffee machine ] [ Non-smoking property ] [ Family friendly ]
+```
+
+`units/detail.php` returns no amenity key at all, so the unit-specific list is
+correctly empty and the screen says so. The 7 amenities shown come from the
+parent hotel via `hotels/detail.php` (`amenities[]`), and are rendered in a
+**separate, explicitly labelled** section so a guest cannot mistake a hotel-wide
+facility for one belonging to the unit. Nothing is invented and nothing is
+merged. Recorded as `AO-AMN-06` / `AO-UNIT-07` (now Verified).
 
 ### 3.6 Empty state, Arabic
 

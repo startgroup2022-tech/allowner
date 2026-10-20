@@ -70,16 +70,19 @@ Units are the one entity with real server-side text search.
 
 ## 4. Backend gaps that block or limit features
 
-### 4.1 Hotel gallery returns `null`
+### 4.1 Hotel gallery is an empty array
 
 ```
 GET /hotels/detail.php?id=4
-→ { "success": true, "hotel": {...}, "gallery": null, "amenities": [...], "reviews": [...] }
+→ { "success": true, "hotel": {...}, "gallery": [], "amenities": [...], "reviews": [] }
 ```
 
-`gallery` is `null`, not `[]`, and is not populated for this hotel.
+`gallery` is present but always `[]` (verified on hotel ids 1–4). `amenities`
+and `reviews` are **top-level** keys, not nested under `hotel`. `amenities` is
+populated (0/7/11/11 for ids 1/2/3/4); `reviews` is always `[]`.
 
 - **Mobile impact:** the hotel detail gallery falls back to the cover image.
+  `asStringList` handles `[]` and a `null` identically, so either shape is safe.
 - **Requirement:** `AO-HTL-04`.
 - **Needed from backend:** populate `gallery` with image URLs per hotel, or
   confirm the field is deprecated and remove it from the contract.
@@ -171,7 +174,7 @@ against. All are now handled by `lib/utils/safe_parse.dart`.
 | `free_cancellation` | `true` (bool in `list.php`), `1` (int in `detail.php`) | `as bool` throws on the int form |
 | `breakfast_included` | `true` / `1` | same |
 | `is_featured` | `true` / `1` | same |
-| `gallery` | `null` (not `[]`) | `as List` throws |
+| `gallery` | `[]` (never seen non-empty) | raw `as List` is safe today, but `null` would throw |
 | `unit_type_en` | often `null` while `unit_type_ar` is set | blank labels unless fallback exists |
 | `images`, `addons`, `availability` | `[]` on most rows | must not be treated as present |
 | `units` (in hotel detail) | `[]` | must not be treated as present |
@@ -202,13 +205,13 @@ Ordered by impact on the remaining executions.
 
 | # | Request | Blocks |
 |---|---|---|
-| 1 | Unit amenity relation (own or inherited from hotel) | Unit experience completeness — `AO-AMN-06`, `AO-UNIT-07` |
+| 1 | Unit amenity relation (unit-specific vs hotel-shared) | Unit experience completeness — `AO-AMN-06`, `AO-UNIT-07` |
 | 2 | Server-side hotel name search (`q` on `hotels/list.php`) | Search completeness at catalogue scale — `AO-SRCH-02` |
 | 3 | Populate hotel `gallery` | Hotel gallery — `AO-HTL-04` |
 | 4 | Decide whether ratings/reviews are in scope | Rating and review display — `AO-HOME-10`, `AO-HTL-11` |
 | 5 | Password-reset endpoint | Self-service account recovery — `AO-AUTH-08` area |
 | 6 | Normalise numeric and boolean JSON types | Removes a class of client defensive code |
-| 7 | Confirm the Booking Agent role is in mobile scope | Role shell — `AO-AUTH-04` |
+| 7 | ~~Confirm the Booking Agent role is in mobile scope~~ **RESOLVED by owner: in scope; already implemented** | — |
 
 ---
 

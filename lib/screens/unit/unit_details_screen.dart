@@ -33,6 +33,11 @@ class UnitDetailsScreen extends ConsumerStatefulWidget {
 
 class _UnitDetailsScreenState extends ConsumerState<UnitDetailsScreen> {
   final HotelService _hotelService = HotelService();
+
+  /// مرافق الفندق الأب المشتركة. تُجلب منفصلة عن الوحدة لأن الـ API يربط
+  /// المرافق بالفندق فقط (`units/detail.php` لا يعيد أي حقل مرافق). عند تعذّر
+  /// الجلب تبقى فارغة — لا نخترع مرافق ولا نُفشل الشاشة بسببها.
+  List<Map<String, dynamic>> _hotelAmenities = const [];
   final PageController _galleryController = PageController();
 
   late Future<UnitModel> _future;
@@ -43,6 +48,7 @@ class _UnitDetailsScreenState extends ConsumerState<UnitDetailsScreen> {
   void initState() {
     super.initState();
     _future = _hotelService.getUnitDetail(widget.unitId);
+    _future.then(_loadHotelAmenities);
   }
 
   @override
@@ -51,8 +57,26 @@ class _UnitDetailsScreenState extends ConsumerState<UnitDetailsScreen> {
     super.dispose();
   }
 
+  /// يجلب مرافق الفندق الأب بعد وصول الوحدة (نحتاج `hotelId` منها).
+  /// فشل هذا الجلب لا يؤثر على عرض الوحدة نفسها.
+  Future<void> _loadHotelAmenities(UnitModel unit) async {
+    if (unit.hotelId <= 0) return;
+    try {
+      final amenities =
+          await _hotelService.getHotelAmenities(unit.hotelId.toString());
+      if (!mounted) return;
+      setState(() => _hotelAmenities = amenities);
+    } catch (_) {
+      // مرافق الفندق اختيارية: تجاهل الخطأ وأبقِ القسم مخفيًا.
+    }
+  }
+
   void _reload() {
-    setState(() => _future = _hotelService.getUnitDetail(widget.unitId));
+    setState(() {
+      _hotelAmenities = const [];
+      _future = _hotelService.getUnitDetail(widget.unitId);
+    });
+    _future.then(_loadHotelAmenities);
   }
 
   /// ينتقل إلى الحجز: يجلب الفندق الأب أولًا (لأن الحجز يحتاجه)، ويعرض خطأ
@@ -439,11 +463,14 @@ class _UnitDetailsScreenState extends ConsumerState<UnitDetailsScreen> {
     );
   }
 
-  /// مرافق الوحدة. الـ API الحالي لا يوفّر مرافق مرتبطة بالوحدة (فقط بالفندق)،
-  /// لذلك نعرض ما يوفّره الـ API ونوضّح ذلك عند الفراغ بدل عرض بيانات وهمية.
+  /// مرافق الوحدة ثم مرافق الفندق المشتركة، في قسمين واضحين.
+  ///
+  /// الـ API الحالي لا يعيد أي حقل مرافق للوحدة (`units/detail.php`)، لذلك
+  /// قسم الوحدة يشرح الوضع بدل أن يبدو معطّلًا. مرافق الفندق تُعرض كمرافق
+  /// مشتركة موسومة بوضوح حتى لا يظن الضيف أنها خاصة بالوحدة.
   Widget _buildFacilities(BuildContext context, UnitModel unit, bool isArabic) {
     final textTheme = Theme.of(context).textTheme;
-    final facilities = unit.facilities;
+    final unitFacilities = unit.facilities;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -451,26 +478,53 @@ class _UnitDetailsScreenState extends ConsumerState<UnitDetailsScreen> {
         Text(AppStrings.t(isArabic, 'unit_facilities'),
             style: textTheme.titleMedium),
         const SizedBox(height: AppDimens.sm),
-        if (facilities.isEmpty)
+        if (unitFacilities.isEmpty)
           Text(
-            AppStrings.t(isArabic, 'no_amenities'),
+            AppStrings.t(isArabic, 'unit_facilities_empty_note'),
             style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
           )
         else
-          Wrap(
-            spacing: AppDimens.md,
-            runSpacing: AppDimens.md,
-            children: facilities.map((facility) {
-              final amenity = AmenityModel.fromJson(facility);
-              return AmenityTile(
-                label: amenity.name(isArabic),
-                iconKey: amenity.iconKey,
-                nameEn: amenity.nameEn,
-                nameAr: amenity.nameAr,
-              );
-            }).toList(),
+          _amenityWrap(unitFacilities, isArabic),
+        if (_hotelAmenities.isNotEmpty) ...[
+          const SizedBox(height: AppDimens.lg),
+          Row(
+            children: [
+              const Icon(Icons.apartment_rounded,
+                  size: 18, color: AppColors.textSecondary),
+              const SizedBox(width: AppDimens.sm),
+              Expanded(
+                child: Text(
+                  AppStrings.t(isArabic, 'hotel_shared_facilities'),
+                  style: textTheme.titleMedium,
+                ),
+              ),
+            ],
           ),
+          const SizedBox(height: 2),
+          Text(
+            AppStrings.t(isArabic, 'hotel_shared_facilities_note'),
+            style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
+          ),
+          const SizedBox(height: AppDimens.sm),
+          _amenityWrap(_hotelAmenities, isArabic),
+        ],
       ],
+    );
+  }
+
+  Widget _amenityWrap(List<Map<String, dynamic>> items, bool isArabic) {
+    return Wrap(
+      spacing: AppDimens.md,
+      runSpacing: AppDimens.md,
+      children: items.map((item) {
+        final amenity = AmenityModel.fromJson(item);
+        return AmenityTile(
+          label: amenity.name(isArabic),
+          iconKey: amenity.iconKey,
+          nameEn: amenity.nameEn,
+          nameAr: amenity.nameAr,
+        );
+      }).toList(),
     );
   }
 

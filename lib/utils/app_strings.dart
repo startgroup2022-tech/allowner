@@ -133,7 +133,19 @@ class AppStrings {
 
     // ===== تفاصيل الوحدة =====
     'about_unit': {'ar': 'عن الوحدة', 'en': 'About this unit'},
-    'unit_facilities': {'ar': 'المرافق', 'en': 'Facilities'},
+    'unit_facilities': {'ar': 'مرافق الوحدة', 'en': 'Unit facilities'},
+    'hotel_shared_facilities': {
+      'ar': 'مرافق الفندق المشتركة',
+      'en': 'Shared hotel facilities'
+    },
+    'hotel_shared_facilities_note': {
+      'ar': 'متاحة لجميع ضيوف الفندق',
+      'en': 'Available to all guests of the hotel'
+    },
+    'unit_facilities_empty_note': {
+      'ar': 'لم تُضف مرافق خاصة لهذه الوحدة — راجع مرافق الفندق المشتركة أدناه',
+      'en': 'No unit-specific facilities were added — see the shared hotel facilities below'
+    },
     'availability_period': {'ar': 'فترة الإتاحة', 'en': 'Availability period'},
     'no_availability_info': {
       'ar': 'لا توجد فترة إتاحة محددة — تواصل مع الفندق للتأكد',
@@ -323,10 +335,6 @@ class AppStrings {
     'account_type': {'ar': 'نوع الحساب', 'en': 'Account Type'},
     'role_owner': {'ar': 'مالك', 'en': 'Owner'},
     'role_guest': {'ar': 'ضيف', 'en': 'Guest'},
-    'coming_soon_desc': {
-      'ar': 'هذه الميزة قيد التطوير وستكون متوفرة قريباً',
-      'en': 'This feature is under development and will be available soon'
-    },
     'nav_units': {'ar': 'وحداتي', 'en': 'My Units'},
     'nav_revenue': {'ar': 'الإيرادات', 'en': 'Revenue'},
     'quick_links': {'ar': 'روابط سريعة', 'en': 'Quick Links'},

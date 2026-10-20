@@ -104,7 +104,8 @@ String localized(Map<String, dynamic> json, String baseKey, bool isArabic) {
   final suffix = isArabic ? 'ar' : 'en';
   final primary = asStringOrNull(json['${baseKey}_$suffix']);
   if (primary != null) return primary;
-  final other = asStringOrNull(json[isArabic ? '${baseKey}_en' : '${baseKey}_ar']);
+  final other =
+      asStringOrNull(json[isArabic ? '${baseKey}_en' : '${baseKey}_ar']);
   if (other != null) return other;
   return asString(json[baseKey]);
 }

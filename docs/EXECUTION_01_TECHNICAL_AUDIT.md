@@ -185,7 +185,7 @@ interceptor that injects `Authorization: Bearer <token>` from `SharedPreferences
 | `GET /hotels/list.php?featured=1` | 1 real featured hotel (`فيرمونت مكة`) |
 | `GET /hotels/list.php?city=Makkah` | 3 hotels (accepts Arabic or English city) |
 | `GET /hotels/list.php?min_price=2000` | 1 hotel at 3000 |
-| `GET /hotels/detail.php?id=4` | `{success, hotel{}, gallery:null, amenities[], reviews[]}` |
+| `GET /hotels/detail.php?id=4` | `{success, hotel{}, gallery:[], amenities[], reviews[]}` (gallery/amenities/reviews are top-level) |
 | `GET /units/browse.php` | `{success, units[]}`; supports `q`, `city`, `hotel_id`, `owner_only`, `min_price`, `max_price`, `min_capacity`, `sort`, `limit` |
 | `GET /units/browse.php?q=فيرمونت` | 3 units |
 | `GET /units/browse.php?city=Makkah` | 4 units |
@@ -203,7 +203,7 @@ endpoint and row:
 - `free_cancellation` / `breakfast_included` / `is_featured`: `true` in
   `hotels/list.php` but `1` / `0` in `hotels/detail.php`.
 - `unit_type_en`: frequently `null` while `unit_type_ar` is present.
-- `gallery`: `null` on `hotels/detail.php?id=4` (not `[]`).
+- `gallery`: `[]` on `hotels/detail.php?id=4`, and empty for ids 1–4.
 - `addons` / `availability`: present but empty (`[]`) on most units.
 
 Direct casts (`as int`, `as num`, `as List`) therefore threw on real data. All of
@@ -254,7 +254,7 @@ Classification rule applied: a screen is *working and verified* only if it rende
 | Login / Register | `auth/*.dart` | Working, not tested |
 | Content page | `shared/content_page_screen.dart` | Working, not tested |
 | Help & support | `shared/help_support_screen.dart` | Working, not tested |
-| Coming soon | `shared/coming_soon_screen.dart` | **Placeholder — no caller; see §8** |
+| Coming soon | ~~`shared/coming_soon_screen.dart`~~ | **Removed 2026-10-19** — static analysis and a repo-wide search confirmed zero callers (see §8) |
 
 ### 4.2 Unit Owner (24 screens)
 
@@ -297,7 +297,7 @@ working and verified (cast-hardened).
 |---|---|
 | Booking engine completion | Partially implemented — deferred to Execution 02 by direction |
 | Booking Agent shell | Missing — backend has agent endpoints, no mobile shell |
-| Hotel gallery (`gallery` key) | Blocked — `hotels/detail.php` returns `gallery: null` |
+| Hotel gallery (`gallery` key) | Limited — `hotels/detail.php` returns `gallery: []` for all hotels |
 | Unit facilities/amenities | Blocked — `units/detail.php` returns no `facilities`/`amenities` key |
 | Hotel → units list in detail | Blocked — `hotels/detail.php` returns `units: []`; units are fetched separately via `units/browse.php?hotel_id=` |
 
@@ -364,9 +364,14 @@ None of these were committed. Adding a `.gitignore` is recommended (owner
 decision — see §9) because `pubspec.lock` for an application should normally be
 committed, while `build/`, `.dart_tool/` and `local.properties` must not.
 
-`ComingSoonScreen` exists but has **no caller** anywhere in `lib/`. It is dead
-code rather than a shipped placeholder screen. Left in place (removing it is out
-of scope) and recorded as `CLEAN-1`.
+`ComingSoonScreen` had **no caller** anywhere in `lib/`. Navigation in this app
+is entirely imperative (`Navigator.push` with `MaterialPageRoute`); there is no
+`routes:` table and no `pushNamed`, so no string-based route could reach it
+either. `flutter analyze` reported no reference and the repo-wide search found
+none, so the owner's condition for removal (“remove only if static analysis and
+repository-wide search confirm it is unused”) was satisfied. The screen and its
+now-orphaned `coming_soon_desc` string were **removed** in the 2026-10-19 review
+pass. `CLEAN-1` is closed.
 
 ---
 
@@ -376,9 +381,10 @@ of scope) and recorded as `CLEAN-1`.
 |---|---|---|
 | 1 | The original 51-page requirements document is **not in the repository or workspace** | Requirement IDs and page citations cannot be asserted; see the matrix for how this is handled |
 | 2 | The 148-item inventory is **not in the repository or workspace** | The matrix cannot be reconciled line-by-line against it |
-| 3 | No `.gitignore` | Risk of committing build artefacts later |
-| 4 | Booking Agent role has no mobile shell | Scope decision for Execution 02 |
-| 5 | Amenity relations for units are absent server-side | Unit amenity display cannot be completed without a backend change |
+| 3 | ~~No `.gitignore`~~ | **Resolved** — `.gitignore` added; build artefacts no longer untracked noise |
+| 4 | ~~Booking Agent role has no mobile shell~~ | **Resolved by owner** — in mobile scope; already implemented via the owner shell |
+| 5 | Amenity relations for units are absent server-side | **Mitigated** — per the owner decision, unit amenities and shared hotel amenities are shown as two clearly separated sections; live unit data is still empty |
+| 6 | Administrator mobile role | **Resolved by owner** — web-based unless the original document requires mobile admin (document unavailable) |
 
 Per the mandate — *"Do not invent business rules when the requirements are
 unclear"* — items 1 and 2 are reported as blockers on full reconciliation rather

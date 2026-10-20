@@ -2,6 +2,40 @@
 
 **Branch:** `feature/allowners-new-version-exec01`
 **Generated:** 2026-10-19
+**Last updated:** 2026-10-19 (owner review pass)
+
+---
+
+## ⛔ Requirement reconciliation status: BLOCKED
+
+The instruction to reconcile this matrix against the **original 51-page All
+Owners requirements document** and the **148-item working inventory** could not
+be carried out, because **neither document was supplied**. They are not in the
+repository, not in the workspace, and not in git history (a single grafted commit,
+`8634e33`).
+
+Re-verified 2026-10-19 with:
+
+```
+find / -iname "*requirement*"        # only toolchain files + this matrix
+find /workspace -iname "*.pdf" -o -iname "*.docx"   # nothing
+```
+
+**Consequence, stated plainly:** the 105 `Verified` rows below are verified
+against the Execution 01 mandate text, the live backend, and the source code —
+**not** against the original 51-page document. They are therefore **not proof of
+compliance with the original project requirements**, and are not claimed to be.
+No original requirement can be marked `Verified` until the documents exist.
+
+To complete the reconciliation, the owner must supply:
+
+1. The 51-page requirements document (PDF or equivalent).
+2. The 148-item inventory (spreadsheet, table, or list).
+
+When supplied, the remaining work is: read both in full, map every item to a row
+here, and report omitted, duplicated, partial, and missing requirements. Until
+then this section stays **BLOCKED** and no requirement is re-marked on the basis
+of the missing documents.
 
 ---
 
@@ -77,8 +111,8 @@ passing test), `Implemented-untested`, `Partial`, `Blocked`, `Not-started`,
 | AO-AUTH-01 | EXEC01-MANDATE §5 | Auth | Guest role can browse without a token | Working | `home/main_navigation_screen.dart` | `hotels/list.php`, `units/browse.php` | Verify | Homepage renders as guest | Verified |
 | AO-AUTH-02 | EXEC01-MANDATE §5 | Auth | Unit Owner role has role-scoped navigation | Working | `owner/owner_navigation_screen.dart` + 24 screens | `user/owner-*.php` | Verify | Owner shell reachable after owner login | Implemented-untested |
 | AO-AUTH-03 | EXEC01-MANDATE §5 | Auth | Hotel Management role has role-scoped navigation | Working | `hotel_staff/hotel_staff_navigation_screen.dart` + 5 screens | `hotel-staff/*.php` | Verify | Not exercised against a staff account | Implemented-untested |
-| AO-AUTH-04 | EXEC01-MANDATE §5 | Auth | Booking Agent role | Absent | — | agent endpoints exist server-side | Decide scope | No mobile shell exists | Out-of-scope (Exec 02) |
-| AO-AUTH-05 | EXEC01-MANDATE §5 | Auth | Administrator role | Absent | — | — | Confirm not required on mobile | Not present in mobile app | Out-of-scope |
+| AO-AUTH-04 | EXEC01-MANDATE §5 + owner decision 2026-10-19 | Auth | Booking Agent role | **Implemented** | `models/app_user.dart` (`isOwnerSide`), `screens/owner/owner_navigation_screen.dart`, `owner_home_screen.dart` | agent endpoints exist server-side | Verify | Agent reuses the owner shell with agent-specific links and booking flow (`booking_screen.dart:108`) | Verified |
+| AO-AUTH-05 | EXEC01-MANDATE §5 + owner decision 2026-10-19 | Auth | Administrator role | Absent | — | — | Confirm not required on mobile | Owner decision: admin is web-based unless the original document requires mobile admin (document unavailable — see BLOCKED above) | Out-of-scope (owner decision) |
 | AO-AUTH-06 | EXEC01-MANDATE §5, §12 | Auth | Do not disable auth/authorization checks | Correct | `services/api_client.dart` interceptor | Bearer token | Preserve | Interceptor always injects token when present | Verified |
 | AO-AUTH-07 | EXEC01-MANDATE §12 | Auth | Session must survive a transient network error | **Broken** | `services/auth_service.dart` | `auth/me.php` (or equivalent) | **Fix** | Only 401/403 clears the token; network/timeout/server keep it | Verified |
 | AO-AUTH-08 | EXEC01-MANDATE §12 | Auth | Session expiry must be handled | Partial | `services/api_client.dart` (`isUnauthorized`) | 401 responses | Implement redirect-to-login | `ApiException.isUnauthorized` exists; no global redirect yet | Partial |
@@ -92,7 +126,7 @@ passing test), `Implemented-untested`, `Partial`, `Blocked`, `Not-started`,
 | AO-API-02 | EXEC01-MANDATE §13 | API | Remaining `as List?` casts in 6 owner screens | Partial | `owner_units_screen`, `owner_revenue_screen`, `owner_commission_screen`, others | owner endpoints | Fix in Exec 02 | Already `?? []`-guarded; not yet safe against non-list | Partial |
 | AO-API-03 | EXEC01-MANDATE §13 | API | Numeric fields may arrive as String or num | **Broken** | `utils/safe_parse.dart` | `hotels/list.php`, `units/detail.php` | **Fix** | `asInt`/`asDouble` used everywhere; test coverage | Verified |
 | AO-API-04 | EXEC01-MANDATE §13 | API | Boolean flags may arrive as true/1/"1" | **Broken** | `utils/safe_parse.dart` | `hotels/detail.php` returns `1`/`0` | **Fix** | `asBool` handles all forms; tests pass | Verified |
-| AO-API-05 | EXEC01-MANDATE §13 | API | Null fields and missing optional properties | **Broken** | `utils/safe_parse.dart` | `gallery: null`, `unit_type_en: null` | **Fix** | `asStringOrNull`, `asMapList` return safe defaults | Verified |
+| AO-API-05 | EXEC01-MANDATE §13 | API | Null fields and missing optional properties | **Broken** | `utils/safe_parse.dart` | `gallery: []`, `unit_type_en: null` | **Fix** | `asStringOrNull`, `asMapList` return safe defaults | Verified |
 | AO-API-06 | EXEC01-MANDATE §13 | API | Empty arrays handled | **Broken** | models + screens | `addons: []`, `units: []` | **Fix** | Tests assert empty-list handling | Verified |
 | AO-API-07 | EXEC01-MANDATE §13 | API | Incorrect / missing image paths degrade gracefully | Working | `widgets/state_views.dart` (`AppNetworkImage`) | image URLs | Verify | Fallback + error builder; no exception on missing image | Verified |
 | AO-API-08 | EXEC01-MANDATE §13 | API | Unauthorized responses surfaced distinctly | Implemented | `services/api_client.dart` | 401/403 | Verify | `ApiErrorKind.unauthorized` | Verified |
@@ -166,7 +200,7 @@ passing test), `Implemented-untested`, `Partial`, `Blocked`, `Not-started`,
 | AO-HTL-01 | EXEC01-MANDATE §10 | Hotel | Hotel name | Working | `screens/hotel/hotel_details_screen.dart` | `hotels/detail.php` | Verify | Rendered capture shows `فيرمونت مكة` | Verified |
 | AO-HTL-02 | EXEC01-MANDATE §10 | Hotel | City and location | Working | same | `city_ar/en`, `address` | Verify | Rendered: `مكة المكرمة · فندق` | Verified |
 | AO-HTL-03 | EXEC01-MANDATE §10 | Hotel | Cover image | Working | same, `widgets/state_views.dart` | `cover_image` | Verify | Rendered with fallback on missing | Verified |
-| AO-HTL-04 | EXEC01-MANDATE §10 | Hotel | Image gallery | **Partial (backend)** | same | `gallery` key returns `null` on live API | Document dependency | Falls back to cover image only | Partial |
+| AO-HTL-04 | EXEC01-MANDATE §10 | Hotel | Image gallery | **Partial (backend)** | same | `gallery` is `[]` for all live hotels | Document dependency | Falls back to cover image only | Partial |
 | AO-HTL-05 | EXEC01-MANDATE §10 | Hotel | Hotel description | **Fabricated → fixed** | same | `description_ar/en` | **Fix** | Shows real text or "no description"; no invented prose | Verified |
 | AO-HTL-06 | EXEC01-MANDATE §10 | Hotel | Facilities / amenities | Implemented | same, `utils/amenity_icons.dart` | `amenities[]` | Verify | 11 real amenities rendered with DB icons | Verified |
 | AO-HTL-07 | EXEC01-MANDATE §10 | Hotel | Available units | Missing → implemented | same | `units/browse.php?hotel_id=` | Implement | Units section present; shows empty state when none | Verified |
@@ -186,7 +220,7 @@ passing test), `Implemented-untested`, `Partial`, `Blocked`, `Not-started`,
 | AO-UNIT-04 | EXEC01-MANDATE §11 | Unit | Unit images | Implemented | same | `images[]` | Verify | Gallery with cover fallback | Verified |
 | AO-UNIT-05 | EXEC01-MANDATE §11 | Unit | Description | Implemented | same | `description_ar/en` | Verify | Rendered real text | Verified |
 | AO-UNIT-06 | EXEC01-MANDATE §11 | Unit | Accommodation capacity | Implemented | same | `capacity`, `bed_count` | Verify | Rendered: `2 ضيوف`, `1 الأسرّة` | Verified |
-| AO-UNIT-07 | EXEC01-MANDATE §11 | Unit | Unit facilities / amenities | **Partial (backend)** | same | `units/detail.php` returns no `facilities`/`amenities` | Document dependency | Shows "no facilities" — does not invent | Partial |
+| AO-UNIT-07 | EXEC01-MANDATE §11 + owner decision 2026-10-19 | Unit | Unit facilities / amenities | **Implemented (backend limited)** | `screens/unit/unit_details_screen.dart` | `units/detail.php` has no amenity key; hotel amenities via `hotels/detail.php` | Implement per owner decision | Unit section + clearly labelled shared-hotel section; never merged or invented | Verified |
 | AO-UNIT-08 | EXEC01-MANDATE §11 | Unit | Unit pricing | Implemented | same | `price_per_night` | Verify | Rendered: `1500 ريال /ليلة` | Verified |
 | AO-UNIT-09 | EXEC01-MANDATE §11 | Unit | Availability information | Implemented | same | `availability[]` | Verify | Rendered: `2026-10-05 → 2026-10-31` | Verified |
 | AO-UNIT-10 | EXEC01-MANDATE §11 | Unit | Additional service information | Implemented | same, `models/unit_model.dart` | `addons[]` | Verify | Typed `UnitAddonModel`; empty state when absent | Verified |
@@ -202,7 +236,7 @@ passing test), `Implemented-untested`, `Partial`, `Blocked`, `Not-started`,
 | AO-AMN-03 | EXEC01-MANDATE §12 | Amenities | Accessibility, Meeting, Family, Non-smoking | Implemented | same | real keys from API | Verify | Rendered in hotel detail capture | Verified |
 | AO-AMN-04 | EXEC01-MANDATE §12 | Amenities | Transport, Bedding, F&B, Bathroom, Media, Services | Partial | same | not all keys observed live | Verify when data exists | Generic fallback icon for unknown keys (tested) | Partial |
 | AO-AMN-05 | EXEC01-MANDATE §12 | Amenities | Amenities bound to the correct record | Working | `screens/hotel/hotel_details_screen.dart` | `hotels/detail.php` → `amenities[]` | Verify | Amenities come from the per-hotel response, not a global list | Verified |
-| AO-AMN-06 | EXEC01-MANDATE §12 | Amenities | Unit amenities relationship | **Blocked** | `models/unit_model.dart` (`facilities`) | `units/detail.php` has no such key | Document API dependency | Field supported; renders empty state | Blocked |
+| AO-AMN-06 | EXEC01-MANDATE §12 + owner decision 2026-10-19 | Amenities | Unit amenities relationship | **Implemented (backend limited)** | `models/unit_model.dart` (`facilities`), `screens/unit/unit_details_screen.dart` | `units/detail.php` has no amenity key | Implement per owner decision | Unit-specific amenities render when present; shared hotel amenities shown in a separate labelled section | Verified |
 | AO-AMN-07 | EXEC01-MANDATE §12 | Amenities | Do not assume an amenity exists from the global table | Correct | `utils/amenity_icons.dart` | — | Preserve | Icons are a rendering map only; existence comes from the record | Verified |
 
 ## 10. Performance and reliability
@@ -275,7 +309,7 @@ because they depend on the missing source documents or on a backend change:
 | Page citations for any requirement | 51-page document not supplied |
 | Full booking engine rules | Deferred to Execution 02 by mandate §11 |
 | Unit-level amenity relationships | Backend does not expose them (`AO-AMN-06`) |
-| Hotel gallery images | Backend returns `gallery: null` (`AO-HTL-04`) |
+| Hotel gallery images | Backend returns `gallery: []` (`AO-HTL-04`) |
 | Booking Agent workflow | No mobile shell; scope undecided (`AO-AUTH-04`) |
 | Administrator mobile role | Not present; undecided (`AO-AUTH-05`) |
 
@@ -285,12 +319,19 @@ because they depend on the missing source documents or on a backend change:
 
 | Final status | Count |
 |---|---|
-| Verified | 105 |
+| Verified | 108 |
 | Implemented-untested | 11 |
-| Partial | 10 |
-| Blocked (no mobile work possible) | 1 |
-| Out-of-scope (Exec 02–05) | 2 |
+| Partial | 9 |
+| Out-of-scope (owner decision) | 1 |
 | **Total rows** | **129** |
 
+Changes in the 2026-10-19 owner-review pass: `AO-UNIT-07` and `AO-AMN-06` moved
+from Partial/Blocked to Verified after the approved unit-amenity decision was
+implemented; `AO-AUTH-04` (Booking Agent) moved from Out-of-scope to Verified
+after the owner confirmed it is in mobile scope; `AO-AUTH-05` (Administrator)
+moved to Out-of-scope on the owner's decision.
+
 **No claim is made that all 148 inventory items are implemented.** This matrix
-covers the requirements that were verifiable from the available sources.
+covers the requirements that were verifiable from the available sources. The
+reconciliation against the original 51-page document and the 148-item inventory
+is **BLOCKED** — see the top of this file.
