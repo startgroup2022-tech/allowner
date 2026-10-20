@@ -26,8 +26,8 @@
 | الحالة | العدد |
 |---|---|
 | VERIFIED PASS | 19 |
-| IMPLEMENTED UNTESTED | 41 |
-| PARTIAL | 37 |
+| IMPLEMENTED UNTESTED | 42 |
+| PARTIAL | 36 |
 | NOT IMPLEMENTED | 0 |
 | BACKEND BLOCKED | 51 |
 | OWNER DECISION REQUIRED | 0 |
@@ -808,11 +808,11 @@
 
 - **القسم:** المالك والخدمات — 17 نقطة
 - **التنفيذ:** Execution 03
-- **الحالة:** PARTIAL
-- **ملفات Flutter:** owner_notifications_screen.dart
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_notifications_screen.dart body/message
 - **اعتماد الـ API:** /user/notifications.php
-- **الدليل:** عرض محتوى إشعارات الطلبات
-- **المتبقي:** تأكيد التفاصيل
+- **الدليل:** أُضيف عرض نص الإشعار (body_ar/body_en/message) من الحقول الحقيقية
+- **المتبقي:** اختبار حقيقي
 - **معيار القبول:** تظهر تفاصيل إشعار الطلبات
 
 ### 72. إضافة صورة إلى طلب الصيانة في حساب المالك

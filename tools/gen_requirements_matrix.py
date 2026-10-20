@@ -106,7 +106,7 @@ RANGES = {
     68: (3,'PARTIAL','hotel_staff/hotel_prices_screen.dart, owner screens','/hotel/prices.php','عرض أسعار خدمات الفندق للمالك','تأكيد ظهور الأسعار للمالك','يرى المالك أسعار الخدمات'),
     69: (3,'IMPLEMENTED UNTESTED','owner_maintenance_screen.dart price + hotel_note','/user/owner-maintenance.php','أُضيف عرض التكلفة وملاحظة الفندق من الحقول الحقيقية','اختبار حقيقي','يرى المالك تكلفة الصيانة'),
     70: (3,'PARTIAL','owner_cleaning_screen.dart','/user/owner-requests.php','عرض تكلفة النظافة المؤكدة','تأكيد عرض التكلفة','يرى المالك تكلفة النظافة'),
-    71: (3,'PARTIAL','owner_notifications_screen.dart','/user/notifications.php','عرض محتوى إشعارات الطلبات','تأكيد التفاصيل','تظهر تفاصيل إشعار الطلبات'),
+    71: (3,'IMPLEMENTED UNTESTED','owner_notifications_screen.dart body/message','/user/notifications.php','أُضيف عرض نص الإشعار (body_ar/body_en/message) من الحقول الحقيقية','اختبار حقيقي','تظهر تفاصيل إشعار الطلبات'),
     72: (3,'PARTIAL','owner_maintenance_screen.dart','/user/owner-maintenance.php','إضافة صورة لطلب الصيانة','تأكيد رفع الصورة','تُضاف صورة للطلب'),
     73: (3,'IMPLEMENTED UNTESTED','owner_bookings_screen.dart buildBookingAddonLines (دالة نقية)','/user/owner-bookings.php (حقول addons/meal_types/extra_bed_count/extra_bed_price/notes)','تُعرض الإضافات من الحقول الحقيقية فقط مع 7 اختبارات؛ تحتاج الحقول أن يُرجعها الـ API فعليًا','إرجاع حقول الإضافات في owner-bookings.php','تظهر الإضافات في الحجوزات'),
     74: (3,'PARTIAL','owner_staff_screen.dart','/user/owner-staff.php','إدارة صلاحيات موظفي المالك','تأكيد الصلاحيات الكاملة','تُدار الصلاحيات'),

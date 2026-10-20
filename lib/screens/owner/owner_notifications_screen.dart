@@ -101,6 +101,11 @@ class _OwnerNotificationsScreenState extends ConsumerState<OwnerNotificationsScr
                   final n = notifications[index];
                   final isRead = n['is_read'] == 1 || n['is_read'] == true;
                   final title = isArabic ? (n['title_ar'] ?? '') : (n['title_en'] ?? n['title_ar'] ?? '');
+                  // المتطلب 71: محتوى الإشعار (تفاصيل الخدمة/الطلب) من حقول
+                  // الـ API الحقيقية؛ يُخفى إن لم يُرجع السيرفر نصًا.
+                  final body = isArabic
+                      ? (n['body_ar'] ?? n['message_ar'] ?? n['message'] ?? n['body'] ?? '')
+                      : (n['body_en'] ?? n['message_en'] ?? n['message'] ?? n['body'] ?? '');
                   return Container(
                     padding: const EdgeInsets.all(AppDimens.md),
                     decoration: BoxDecoration(
@@ -125,6 +130,10 @@ class _OwnerNotificationsScreenState extends ConsumerState<OwnerNotificationsScr
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(title.toString(), style: textTheme.bodyMedium),
+                              if (body.toString().trim().isNotEmpty) ...[
+                                const SizedBox(height: 2),
+                                Text(body.toString().trim(), style: textTheme.bodySmall),
+                              ],
                               const SizedBox(height: 2),
                               Text((n['created_at'] ?? '').toString(),
                                   style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
