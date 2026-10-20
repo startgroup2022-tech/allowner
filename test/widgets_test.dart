@@ -8,6 +8,7 @@ import 'package:allowners/screens/hotel_staff/hotel_bookings_screen.dart';
 import 'package:allowners/screens/owner/owner_bookings_screen.dart';
 import 'package:allowners/screens/owner/owner_profile_screen.dart';
 import 'package:allowners/screens/booking/booking_screen.dart';
+import 'package:allowners/screens/booking/booking_success_screen.dart';
 import 'package:allowners/screens/bookings/my_bookings_screen.dart';
 import 'package:allowners/screens/shared/app_about_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -1116,6 +1117,94 @@ void main() {
         expect(AppStrings.t(false, key).isNotEmpty, isTrue, reason: key);
         expect(AppStrings.t(true, key) == key, isFalse, reason: key);
       }
+    });
+  });
+  group('صفوف صفحة نجاح الحجز (المتطلبات 33 و46 و146)', () {
+    List<(String, String)> rows({
+      String? city,
+      String? address,
+      String? guestId,
+      String? payment,
+      String? status,
+      double? total,
+    }) =>
+        buildBookingSuccessRows(
+          isArabic: true,
+          hotelName: 'فندق فيرمونت مكه',
+          city: city,
+          address: address,
+          unitName: '4005',
+          bookingRef: 'BK-100',
+          checkIn: DateTime(2026, 11, 1),
+          checkOut: DateTime(2026, 11, 3),
+          nights: 2,
+          guests: 2,
+          guestName: 'سالم',
+          guestPhone: '0500000000',
+          guestIdNumber: guestId,
+          paymentMethod: payment,
+          status: status,
+          total: total,
+        );
+
+    test('الحقول الأساسية تُعرض دائمًا', () {
+      final r = rows();
+      final labels = r.map((e) => e.$1).toList();
+      expect(r.first.$2, 'BK-100');
+      expect(labels.contains(AppStrings.t(true, 'hotel')), isTrue);
+      expect(labels.contains(AppStrings.t(true, 'stay_dates')), isTrue);
+      expect(labels.contains(AppStrings.t(true, 'guests')), isTrue);
+    });
+    test('المتطلب 46: المدينة والعنوان يُعرضان فقط عند وصولهما من الـ API', () {
+      expect(rows().any((e) => e.$1 == AppStrings.t(true, 'address_label')),
+          isFalse);
+      final withData = rows(city: 'مكة المكرمة', address: 'برج الساعة');
+      expect(
+          withData
+              .firstWhere((e) => e.$1 == AppStrings.t(true, 'city_label'))
+              .$2,
+          'مكة المكرمة');
+      expect(
+          withData
+              .firstWhere((e) => e.$1 == AppStrings.t(true, 'address_label'))
+              .$2,
+          'برج الساعة');
+    });
+    test('المتطلب 146: رقم الهوية يُعرض عند إدخاله فقط', () {
+      expect(rows().any((e) => e.$1 == AppStrings.t(true, 'guest_id_number')),
+          isFalse);
+      expect(
+          rows(guestId: '1234567890')
+              .firstWhere((e) => e.$1 == AppStrings.t(true, 'guest_id_number'))
+              .$2,
+          '1234567890');
+    });
+    test('طريقة الدفع والحالة تُترجمان عبر مفاتيحهما', () {
+      final r = rows(payment: 'owner_transfer', status: 'confirmed');
+      expect(
+          r.firstWhere((e) => e.$1 == AppStrings.t(true, 'payment_method_label'))
+              .$2,
+          AppStrings.t(true, 'pay_method_owner_transfer'));
+      expect(
+          r.firstWhere((e) => e.$1 == AppStrings.t(true, 'booking_status_label'))
+              .$2,
+          AppStrings.t(true, 'status_confirmed'));
+    });
+    test('الإجمالي يُعرض بالريال فقط عند وصوله من السيرفر', () {
+      expect(rows().any((e) => e.$1 == AppStrings.t(true, 'total_price')),
+          isFalse);
+      expect(
+          rows(total: 2300)
+              .firstWhere((e) => e.$1 == AppStrings.t(true, 'total_price'))
+              .$2,
+          '2300 ${AppStrings.t(true, 'sar')}');
+    });
+    test('التواريخ بصيغة ثابتة والغياب يظهر شرطة', () {
+      final r = buildBookingSuccessRows(
+          isArabic: true, hotelName: 'فندق', checkIn: null, checkOut: null);
+      final dates = r.firstWhere((e) => e.$1 == AppStrings.t(true, 'stay_dates')).$2;
+      expect(dates.contains('2026'), isFalse);
+      expect(dates.contains('-'), isTrue);
     });
   });
   group('ترتيب صفوف تفاصيل الحجز (المتطلبات 52 و97)', () {
