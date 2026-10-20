@@ -11,6 +11,41 @@ import '../../services/api_client.dart';
 import '../auth/login_screen.dart';
 import '../../utils/safe_parse.dart';
 
+/// المتطلب 97: صفوف تفاصيل الحجز المعروضة للوكيل/الضيف. دالة نقية تُرجع فقط
+/// الصفوف التي تُرجع بياناتها الحقيقية من الـ API (تُخفى الصفوف الفارغة).
+List<(String, String)> buildBookingDetailRows(
+    bool isArabic, Map<String, dynamic> b) {
+  final rows = <(String, String)>[];
+  void add(String key, String? value) {
+    final v = (value ?? '').toString().trim();
+    if (v.isNotEmpty) rows.add((AppStrings.t(isArabic, key), v));
+  }
+
+  add('hotel_name', b['hotel_name']?.toString());
+  add('city', isArabic ? b['city_ar']?.toString() : b['city_en']?.toString());
+  add('unit_name', (isArabic ? b['unit_name_ar'] : b['unit_name_en'])?.toString() ??
+      b['unit_name']?.toString());
+  add('guest_name', b['guest_name']?.toString());
+  add('guest_phone', b['guest_phone']?.toString());
+  add('guest_id_number', b['guest_id_number']?.toString());
+  add('check_in', b['check_in']?.toString());
+  add('check_out', b['check_out']?.toString());
+  final nights = asInt(b['nights'] ?? b['nights_count'], 0);
+  if (nights > 0) rows.add((AppStrings.t(isArabic, 'nights'), nights.toString()));
+  final guests = asInt(b['guests'] ?? b['guests_count'], 0);
+  if (guests > 0) {
+    rows.add((AppStrings.t(isArabic, 'guests'), guests.toString()));
+  }
+  final total = asDouble(b['total']);
+  if (total > 0) {
+    rows.add((
+      AppStrings.t(isArabic, 'total_amount'),
+      '${total.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}'
+    ));
+  }
+  return rows;
+}
+
 class MyBookingsScreen extends ConsumerStatefulWidget {
   const MyBookingsScreen({super.key});
 
@@ -98,6 +133,61 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
       default:
         return AppColors.goldDark;
     }
+  }
+
+  /// المتطلب 97: نافذة تفاصيل الحجز الكاملة للوكيل/الضيف — تُعرض الصفوف التي
+  /// يرجعها الـ API فعلًا فقط (buildBookingDetailRows تتكفّل بالفلترة).
+  void _showBookingDetails(bool isArabic, Map<String, dynamic> b) {
+    final rows = buildBookingDetailRows(isArabic, b);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          left: AppDimens.pagePadding,
+          right: AppDimens.pagePadding,
+          top: AppDimens.pagePadding,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + AppDimens.pagePadding,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(AppStrings.t(isArabic, 'booking_details'),
+                  style: Theme.of(ctx).textTheme.titleMedium),
+              const SizedBox(height: AppDimens.md),
+              if (rows.isEmpty)
+                Text(AppStrings.t(isArabic, 'no_data'),
+                    style: Theme.of(ctx).textTheme.bodySmall
+                        ?.copyWith(color: AppColors.textMuted))
+              else
+                for (final row in rows)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppDimens.sm),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 110,
+                          child: Text(row.$1,
+                              style: Theme.of(ctx).textTheme.bodySmall
+                                  ?.copyWith(color: AppColors.textMuted)),
+                        ),
+                        Expanded(
+                          child: Text(row.$2,
+                              style: Theme.of(ctx).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600)),
+                        ),
+                      ],
+                    ),
+                  ),
+              const SizedBox(height: AppDimens.md),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -370,6 +460,17 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
                           style: TextStyle(color: _statusColor(status), fontSize: 10, fontWeight: FontWeight.w600)),
                     ),
                   ],
+                ),
+                // المتطلب 97: زر عرض تفاصيل الحجز — متاح دائمًا لأن البيانات
+                // موجودة أصلًا في البطاقة ولا يحتاج صلاحية من السيرفر.
+                const SizedBox(height: AppDimens.sm),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton.icon(
+                    onPressed: () => _showBookingDetails(isArabic, b),
+                    icon: const Icon(Icons.receipt_long_outlined, size: 18),
+                    label: Text(AppStrings.t(isArabic, 'view_details')),
+                  ),
                 ),
                 if (canCancel || canEdit) ...[
                   const SizedBox(height: AppDimens.sm),

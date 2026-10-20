@@ -349,6 +349,10 @@ class AppStrings {
       'en': 'Are you sure you want to cancel this booking?'
     },
     'booking_details': {'ar': 'تفاصيل الحجز', 'en': 'Booking Details'},
+    'city': {'ar': 'المدينة', 'en': 'City'},
+    'hotel_name': {'ar': 'الفندق', 'en': 'Hotel'},
+    'unit_name': {'ar': 'الوحدة', 'en': 'Unit'},
+    'view_details': {'ar': 'عرض التفاصيل', 'en': 'View Details'},
     'confirm_booking_dialog_title': {
       'ar': 'تأكيد الحجز',
       'en': 'Confirm Booking'

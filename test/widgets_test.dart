@@ -6,6 +6,7 @@ import 'package:allowners/models/unit_model.dart';
 import 'package:allowners/screens/hotel_staff/hotel_bookings_screen.dart';
 import 'package:allowners/screens/owner/owner_bookings_screen.dart';
 import 'package:allowners/screens/booking/booking_screen.dart';
+import 'package:allowners/screens/bookings/my_bookings_screen.dart';
 import 'package:allowners/services/hotel_service.dart';
 import 'package:allowners/theme/app_colors.dart';
 import 'package:allowners/theme/app_theme.dart';
@@ -822,6 +823,41 @@ void main() {
       expect(bookingSourceKey({}), isNull);
       expect(bookingSourceKey({'source': 'something_else'}), isNull);
       expect(bookingSourceKey({'agent_name': '  '}), isNull);
+    });
+  });
+
+  group('تفاصيل الحجز للوكيل/الضيف (المتطلب 97)', () {
+    test('يبني صفوف التفاصيل من الحقول الحقيقية', () {
+      final rows = buildBookingDetailRows(false, {
+        'hotel_name': 'Hilton',
+        'city_en': 'Makkah',
+        'unit_name_en': 'Suite 4005',
+        'guest_name': 'Ali',
+        'check_in': '2026-11-01',
+        'check_out': '2026-11-03',
+        'nights': 2,
+        'guests': 3,
+        'total': 1500,
+      });
+      final map = {for (final r in rows) r.$1: r.$2};
+      expect(map['Hotel'], 'Hilton');
+      expect(map['City'], 'Makkah');
+      expect(map['Unit'], 'Suite 4005');
+      expect(map['nights'], '2');
+      expect(map['guests'], '3');
+      expect(map['Total'], '1500 SAR');
+    });
+    test('يخفي الصفوف الناقصة ولا يختلق قيمًا', () {
+      final rows = buildBookingDetailRows(true, {'hotel_name': 'فندق'});
+      expect(rows.length, 1);
+      expect(rows.single.$1, 'الفندق');
+    });
+    test('يعمل مع خريطة فارغة', () {
+      expect(buildBookingDetailRows(false, const {}), isEmpty);
+    });
+    test('لا يعرض الإجمالي عندما يكون صفرًا', () {
+      final rows = buildBookingDetailRows(false, {'total': 0});
+      expect(rows, isEmpty);
     });
   });
 }
