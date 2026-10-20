@@ -54,12 +54,22 @@ dart format lib/ test/          # see "Formatting" below
 ## Backend quirks (verified live)
 
 - `hotels/list.php` supports `city`, `featured`, `stars`, `min_price`,
-  `max_price` — but **no text search**. Hotel-name search is client-side.
-- `units/browse.php` **does** support `q`, `city`, `hotel_id`, `owner_only`.
+  `max_price` — but **no text search** and **no category/type filter**
+  (`type`, `category`, `category_id`, `type_id` are all ignored). Hotel-name and
+  category matching are client-side, in `HotelService.filterHotels`.
+- `hotels/list.php?city=` is an **exact, case-insensitive** match on the full
+  city name (`Makkah` and `مكة المكرمة` both work; a short form like `مكة`
+  returns 0). `units/browse.php?city=` is a **partial** match, so `مكة` works
+  there. Prefer passing the value from `cities/list.php` unchanged.
+- `units/browse.php` supports `q`, `city`, `hotel_id`, `owner_only` — but
+  **ignores category/type**. To filter units by category, constrain them to the
+  hotels of that category via `hotel_id`.
 - `hotels/detail.php` returns `gallery: null` (not `[]`) and `units: []`.
 - `units/detail.php` returns no `facilities` or `amenities` key at all.
 - All `auth/forgot*` paths return **404** — there is no password reset.
 - All ratings are `0`; the UI suppresses the rating chip when it is 0.
+- Dart quirk to remember: `'x'.contains('')` is `true`, so guard `contains`
+  against empty needles when matching category/type strings.
 
 Details and owner decisions: `docs/EXECUTION_01_BACKEND_DEPENDENCIES.md`.
 
@@ -74,7 +84,7 @@ produces a large diff that hides the real work. Format only the files you touch.
 ## Branches
 
 Work on `feature/allowners-new-version-exec01` (Execution 01). Never commit
-directly to `main`. Execution 01 is complete at commit `7862e23`.
+directly to `main`. Execution 01 is complete at commit `bfe0a93`.
 
 ## Environment notes
 
