@@ -222,6 +222,17 @@ class _OwnerMaintenanceScreenState extends ConsumerState<OwnerMaintenanceScreen>
                           const SizedBox(height: AppDimens.sm),
                           Text(r['description'].toString(), style: textTheme.bodyMedium),
                         ],
+                        // المتطلب 69: تكلفة الصيانة المؤكدة كما يُرجعها السيرفر.
+                        if ((r['hotel_note'] ?? '').toString().isNotEmpty) ...[
+                          const SizedBox(height: AppDimens.sm),
+                          Text('${AppStrings.t(isArabic, 'hotel_note')}: ${r['hotel_note']}',
+                              style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                        ],
+                        if (r['price'] != null) ...[
+                          const SizedBox(height: AppDimens.sm),
+                          Text('${AppStrings.t(isArabic, 'price')}: ${r['price']} ${AppStrings.t(isArabic, 'sar')}',
+                              style: textTheme.bodySmall?.copyWith(color: AppColors.goldDark, fontWeight: FontWeight.w600)),
+                        ],
                       ],
                     ),
                   );

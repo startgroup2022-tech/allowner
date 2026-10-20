@@ -26,8 +26,8 @@
 | الحالة | العدد |
 |---|---|
 | VERIFIED PASS | 18 |
-| IMPLEMENTED UNTESTED | 39 |
-| PARTIAL | 39 |
+| IMPLEMENTED UNTESTED | 41 |
+| PARTIAL | 37 |
 | NOT IMPLEMENTED | 0 |
 | BACKEND BLOCKED | 52 |
 | OWNER DECISION REQUIRED | 0 |
@@ -489,10 +489,10 @@
 
 - **القسم:** الحجز وتفاصيله — 20 نقطة
 - **التنفيذ:** Execution 02
-- **الحالة:** PARTIAL
-- **ملفات Flutter:** my_bookings_screen.dart (نفس الشاشة تخدم الوكيل)
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** my_bookings_screen.dart _editBooking (اسم/هاتف/عدد أشخاص/ملاحظة)
 - **اعتماد الـ API:** /bookings/manage.php
-- **الدليل:** الإجراء متاح للوكيل عبر نفس الشاشة؛ تحديد can_edit للوكيل سؤال سيرفر
+- **الدليل:** أُضيف تعديل عدد الأشخاص والملاحظة عبر editMyBooking (مدعوم في manage.php)؛ يمكن الوكيل من تعديل بيانات عميله
 - **المتبقي:** تأكيد من السيرفر أن الوكيل يحصل على can_edit
 - **معيار القبول:** يستطيع الوكيل تعديل الحجز
 
@@ -534,9 +534,9 @@
 - **القسم:** الحجز وتفاصيله — 20 نقطة
 - **التنفيذ:** Execution 02
 - **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** booking_success_screen.dart
-- **اعتماد الـ API:** /bookings/create.php
-- **الدليل:** عرض رقم الحجز/الوحدة بعد التأكيد
+- **ملفات Flutter:** booking_success_screen.dart (المدينة/العنوان من API)
+- **اعتماد الـ API:** /bookings/create.php + /hotels/detail.php
+- **الدليل:** أُضيفت المدينة والعنوان من بيانات الفندق الحقيقية كبيانات وصول؛ تُخفى إن لم يرجعها الـ API
 - **المتبقي:** تأكيد بيانات الوصول للوحدة
 - **معيار القبول:** تظهر بيانات الوصول بعد التأكيد
 
@@ -600,9 +600,9 @@
 - **القسم:** الضيف والوجبات والسرير — 12 نقطة
 - **التنفيذ:** Execution 02
 - **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** booking_screen.dart guests
-- **اعتماد الـ API:** /bookings/create.php
-- **الدليل:** عدد الأشخاص في الحجز
+- **ملفات Flutter:** my_bookings_screen.dart _unitNumberLabel + guests، hotel_bookings_screen.dart
+- **اعتماد الـ API:** /bookings/my.php, /hotel/bookings.php
+- **الدليل:** يُعرض رقم/اسم الوحدة ثم عدد الأشخاص أسفله في حجوزات الضيف/الوكيل وحجوزات موظف الفندق
 - **المتبقي:** اختبار حقيقي
 - **معيار القبول:** يظهر عدد الأشخاص
 
@@ -786,11 +786,11 @@
 
 - **القسم:** المالك والخدمات — 17 نقطة
 - **التنفيذ:** Execution 03
-- **الحالة:** PARTIAL
-- **ملفات Flutter:** owner_maintenance_screen.dart
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_maintenance_screen.dart price + hotel_note
 - **اعتماد الـ API:** /user/owner-maintenance.php
-- **الدليل:** عرض تكلفة الصيانة المؤكدة
-- **المتبقي:** تأكيد عرض التكلفة
+- **الدليل:** أُضيف عرض التكلفة وملاحظة الفندق من الحقول الحقيقية
+- **المتبقي:** اختبار حقيقي
 - **معيار القبول:** يرى المالك تكلفة الصيانة
 
 ### 70. عرض تكلفة النظافة المؤكدة للمالك

@@ -187,6 +187,10 @@ class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen> with 
                             style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
                         Text('${b['check_in']} → ${b['check_out']} · ${AppStrings.t(isArabic, 'status_${b['status']}')}',
                             style: textTheme.bodySmall),
+                        // المتطلب 52: عدد الأشخاص أسفل رقم الوحدة لموظف الفندق.
+                        if (asInt(b['guests'], 0) > 0)
+                          Text('${AppStrings.t(isArabic, 'guests')}: ${asInt(b['guests'], 0)}',
+                              style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
                         if (b['can_check_in'] == true || b['can_check_out'] == true) ...[
                           const SizedBox(height: AppDimens.sm),
                           SizedBox(

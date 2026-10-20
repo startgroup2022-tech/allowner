@@ -272,6 +272,15 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
     }
   }
 
+  /// رقم/اسم الوحدة للحجز (المتطلب 52). يُرجع null إن لم يُرجع الـ API أي منهما.
+  String? _unitNumberLabel(bool isArabic, Map<String, dynamic> b) {
+    final number = (b['unit_number'] ?? '').toString().trim();
+    if (number.isNotEmpty) return '${AppStrings.t(isArabic, 'unit_no')} $number';
+    final name = (isArabic ? b['unit_name_ar'] : b['unit_name_en']) ?? b['unit_name'];
+    final text = (name ?? '').toString().trim();
+    return text.isEmpty ? null : text;
+  }
+
   Widget _buildList(List<Map<String, dynamic>> items, bool isArabic) {
     if (items.isEmpty) {
       return ListView(
@@ -338,6 +347,14 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
                           Text(b['hotel_name']?.toString() ?? '', style: Theme.of(context).textTheme.titleSmall),
                           Text(isArabic ? (b['city_ar']?.toString() ?? '') : (b['city_en']?.toString() ?? ''),
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                          // المتطلب 52: رقم الوحدة ثم عدد الأشخاص أسفله (من حقول
+                          // الحجز الحقيقية؛ يُخفى السطر إن لم يرجع الـ API الحقل).
+                          if (_unitNumberLabel(isArabic, b) != null)
+                            Text(_unitNumberLabel(isArabic, b)!,
+                                style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.textMuted)),
+                          if (asInt(b['guests'], 0) > 0)
+                            Text('${AppStrings.t(isArabic, 'guests')}: ${asInt(b['guests'], 0)}',
+                                style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.textMuted)),
                           Text('${b['check_in']} → ${b['check_out']}',
                               style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.textMuted)),
                         ],
