@@ -195,6 +195,40 @@ class OwnerService {
     }
   }
 
+  // ===== بيانات حساب المالك البنكي (المتطلب 118) =====
+  // `/user/owner-bank.php` موجود على السيرفر (يرد 401 بدون توكن). القراءة
+  // متسامحة: نقبل `bank` أو الجذر مباشرة، وأي حقل ناقص يبقى نصًا فارغًا.
+
+  Future<Map<String, dynamic>> getOwnerBank() async {
+    try {
+      final res = await _dio.get('/user/owner-bank.php');
+      final root = asMap(res.data);
+      final nested = root['bank'];
+      return nested is Map ? Map<String, dynamic>.from(nested) : root;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  Future<void> saveOwnerBank({
+    required String bankName,
+    required String accountName,
+    required String accountNumber,
+    String? iban,
+  }) async {
+    try {
+      await _dio.post('/user/owner-bank.php', data: {
+        'action': 'save',
+        'bank_name': bankName,
+        'account_name': accountName,
+        'account_number': accountNumber,
+        if (iban != null && iban.isNotEmpty) 'iban': iban,
+      });
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
   Future<Map<String, dynamic>> getMyCommission() async {
     try {
       final res = await _dio.get('/user/agent-commission.php');

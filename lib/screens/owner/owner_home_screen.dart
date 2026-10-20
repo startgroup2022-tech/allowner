@@ -20,6 +20,7 @@ import 'owner_cleaning_screen.dart';
 import 'owner_extra_bed_screen.dart';
 import 'owner_clients_screen.dart';
 import 'owner_commission_screen.dart';
+import 'owner_bank_screen.dart';
 import '../search/search_screen.dart';
 
 class OwnerHomeScreen extends ConsumerStatefulWidget {
@@ -117,6 +118,13 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
         title: AppStrings.t(isArabic, 'financial_reports'),
         onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const OwnerRevenueScreen())),
+      ),
+      // المتطلب 118: تسجيل/تعديل بيانات الحساب البنكي لاستلام المستحقات.
+      (
+        icon: Icons.account_balance_outlined,
+        title: AppStrings.t(isArabic, 'nav_bank'),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerBankScreen())),
       ),
       (
         icon: Icons.build_outlined,

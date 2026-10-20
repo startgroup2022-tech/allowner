@@ -294,6 +294,17 @@ class AppStrings {
     'owner_bank_account_name': {'ar': 'اسم صاحب الحساب', 'en': 'Account Holder'},
     'owner_bank_account_number': {'ar': 'رقم الحساب', 'en': 'Account Number'},
     'owner_bank_iban': {'ar': 'رقم الآيبان IBAN', 'en': 'IBAN'},
+    'owner_bank_title': {'ar': 'بيانات الحساب البنكي', 'en': 'Bank Account Details'},
+    'owner_bank_help': {
+      'ar': 'هذه البيانات تظهر للضيف عند اختيار «تحويل مباشر لحساب المالك»، وتُستخدم لتحويل مستحقاتك.',
+      'en': 'These details are shown to the guest when they choose a direct transfer to the owner, and are used to pay out your dues.'
+    },
+    'bank_fields_required': {
+      'ar': 'يرجى إدخال اسم البنك واسم صاحب الحساب ورقم الحساب',
+      'en': 'Please enter the bank name, account holder and account number'
+    },
+    'bank_saved': {'ar': 'تم حفظ بيانات الحساب البنكي', 'en': 'Bank account details saved'},
+    'nav_bank': {'ar': 'الحساب البنكي', 'en': 'Bank Account'},
     'booked_by_guest': {'ar': 'حجز من الضيف', 'en': 'Booked by guest'},
     'booked_by_agent': {'ar': 'حجز من وكيل الحجوزات', 'en': 'Booked by agent'},
     'booked_by_owner': {'ar': 'حجز من المالك', 'en': 'Booked by owner'},
