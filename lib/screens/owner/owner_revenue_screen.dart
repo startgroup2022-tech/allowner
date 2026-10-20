@@ -5,6 +5,7 @@ import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
+import '../../utils/revenue_reports.dart';
 import '../../utils/safe_parse.dart';
 
 class OwnerRevenueScreen extends ConsumerStatefulWidget {
@@ -71,9 +72,13 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
               }
 
               final data = snapshot.data ?? {};
-              final totalRevenue = asDouble(data['total_revenue']).toStringAsFixed(0);
+              final grossRevenue = asDouble(data['total_revenue']);
+              final totalRevenue = grossRevenue.toStringAsFixed(0);
               final monthly = asMapList(data['monthly']);
               final byUnit = asMapList(data['by_unit']);
+              final years = RevenueReports.yearTotals(monthly);
+              final expenses = RevenueReports.expenses(data);
+              final net = RevenueReports.netRevenue(grossRevenue, expenses);
 
               return ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -96,7 +101,66 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                       ],
                     ),
                   ),
+                  // المتطلبات 127–129: عرض المصروفات والصافي فقط عند إرجاع
+                  // الـ API لها؛ وإن لم تُرجَع نُبلّغ بغيابها بدل صفر مضلّل.
+                  const SizedBox(height: AppDimens.md),
+                  if (expenses.isEmpty)
+                    Text(
+                      AppStrings.t(isArabic, 'expenses_unavailable'),
+                      style: textTheme.bodySmall
+                          ?.copyWith(color: AppColors.textMuted),
+                    )
+                  else ...[
+                    ...expenses.map((e) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(AppStrings.t(isArabic, e.labelKey),
+                                  style: textTheme.bodyMedium),
+                              Text(
+                                  '- ${e.total.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                                  style: textTheme.bodyMedium?.copyWith(
+                                      color: AppColors.danger,
+                                      fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        )),
+                    const Divider(height: AppDimens.lg),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(AppStrings.t(isArabic, 'net_revenue'),
+                            style: textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w700)),
+                        Text('${net.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                            style: textTheme.bodyMedium?.copyWith(
+                                color: AppColors.goldDark,
+                                fontWeight: FontWeight.w700)),
+                      ],
+                    ),
+                  ],
+
                   const SizedBox(height: AppDimens.xl),
+                  if (years.length > 1) ...[
+                    Text(AppStrings.t(isArabic, 'yearly_totals'),
+                        style: textTheme.titleMedium),
+                    const SizedBox(height: AppDimens.md),
+                    ...years.map((y) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('${y.year}', style: textTheme.bodyMedium),
+                              Text(
+                                  '${y.total.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                                  style: textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        )),
+                    const SizedBox(height: AppDimens.xl),
+                  ],
 
                   Text(AppStrings.t(isArabic, 'revenue_history'), style: textTheme.titleMedium),
                   const SizedBox(height: AppDimens.md),

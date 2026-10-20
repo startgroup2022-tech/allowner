@@ -37,8 +37,8 @@ M = {
  10: (1,'VERIFIED PASS','home_screen.dart _Header userName','/auth/me.php','ترحيب باسم المستخدم المسجّل','—','يظهر اسم المستخدم في الترحيب بعد الدخول'),
  11: (1,'VERIFIED PASS','owner_home_screen.dart','/user/owner-dashboard.php','شاشة المالك ترحيب + اسم','—','يظهر ترحيب خاص بحساب المالك'),
  12: (1,'VERIFIED PASS','home_screen.dart _SearchEntry, app_strings search_city_or_hotel','/units/browse.php','مربع بحث بارز نصّه «ابحث عن مدينة أو فندق أو وحدة»','—','مربع البحث هو العنصر الأبرز ويفتح شاشة البحث'),
- 13: (1,'BACKEND BLOCKED','home_screen.dart _buildCategories','/categories/list.php','التصنيف في قاعدة البيانات اسمه «فنادق»/Hotels','تغيير الاسم إلى «الوحدات الفندقية» في جدول categories','يظهر التصنيف الرئيسي باسم «وحدات فندقية»'),
- 14: (1,'PARTIAL','home_screen.dart _buildCategories','/categories/list.php','قاعدة البيانات تُرجع 4 تصنيفات فقط','إضافة تصنيف «عقارات» الخامس في قاعدة البيانات','تظهر التصنيفات الخمسة كاملة'),
+ 13: (1,'IMPLEMENTED UNTESTED','category_labels.dart (جديد), category_model.displayName, cards.dart CategoryCard','/categories/list.php','التصنيف الرئيسي يظهر «الوحدات الفندقية» بدل «فنادق» عبر تسمية عرض مخصّصة لـ icon_key=hotels؛ الاسم من قاعدة البيانات يبقى مصدر الفلترة ولا يتأثر. 3 اختبارات','مراجعة بصرية على جهاز','يظهر «الوحدات الفندقية» كتصنيف رئيسي'),
+ 14: (1,'BACKEND BLOCKED','category_labels.dart يضيف تسمية «عقارات» عند وجود icon_key=properties','/categories/list.php','قاعدة البيانات تُرجع 4 تصنيفات فقط (فنادق/شقق/منتجعات/شاليهات)؛ الخامس «عقارات» غير موجود. أُضيفت تسميته في الواجهة جاهزةً لكن لا نخترع صفًا في قاعدة البيانات','إضافة صف التصنيف الخامس (عقارات / properties) في قاعدة البيانات','تظهر التصنيفات الخمسة من قاعدة البيانات'),
  15: (1,'VERIFIED PASS','home_screen.dart ListView(scrollDirection: horizontal)','/categories/list.php','شريط التصنيفات أفقي قابل للسحب','—','تُسحب التصنيفات أفقيًا'),
  16: (1,'VERIFIED PASS','app_strings recently_added_units','/units/browse.php?sort=newest','العنوان «أحدث الوحدات المضافة»','—','قسم «أحدث الوحدات» بدل «أحدث الأجنحة»'),
  17: (1,'IMPLEMENTED UNTESTED','home_screen.dart الأقسام كبطاقات مباشرة','—','البطاقات تظهر أسفل الفلاتر','مراجعة بصرية للمساحات البيضاء','تقليل الفراغ وإظهار البطاقات مباشرة'),
@@ -159,6 +159,10 @@ RANGES = {
     118: (4,'IMPLEMENTED UNTESTED','owner_bank_screen.dart + owner_service.getOwnerBank/saveOwnerBank','/user/owner-bank.php (موجود، 401 بدون توكن)','شاشة تسجيل/تعديل بيانات الحساب البنكي للمالك مع تحميل البيانات الحالية والتحقق من الحقول الإلزامية','اختبار حقيقي بحساب مالك','تُحفظ بيانات الحساب البنكي'),
     119: (4,'VERIFIED PASS','booking_screen.dart PaymentMethod.ownerTransfer','/bookings/create.php owner_transfer','خيار «تحويل مباشر لحساب المالك» موجود ويُرسل owner_transfer ضمن الحجز','—','يظهر خيار التحويل المباشر'),
     120: (4,'IMPLEMENTED UNTESTED','booking_screen.dart _OwnerBankPanel + ownerBankRows؛ unit_details_screen.dart يمرّر unit.ownerBank','/units/detail.php owner_bank','تُعرض بيانات حساب المالك الحقيقية عند اختيار التحويل المباشر مع تنبيه واضح إن لم يسجّلها؛ 4 اختبارات','اختبار حقيقي بعد تسجيل المالك لبياناته','يُعرض حساب المالك الصحيح'),
+    126: (4,'IMPLEMENTED UNTESTED','owner_revenue_screen.dart + revenue_reports.yearTotals','/user/owner-revenue.php monthly[]','أُضيف تجميع سنوي من سطور monthly الحقيقية (يظهر عند وجود أكثر من سنة)؛ 5 اختبارات تغطي التجميع والتواريخ غير الصالحة','تأكيد من السيرفر أنه يُرجع أكثر من سنة','تظهر تقارير المبيعات الشهرية والسنوية'),
+    127: (4,'IMPLEMENTED UNTESTED','revenue_reports.netRevenue + owner_revenue_screen صافي الإيراد','/user/owner-revenue.php حقول المصروفات','يُعرض الصافي = الإجمالي − المصروفات المُرجَعة فقط؛ لا خصم لأرقام غير موجودة','إرجاع حقول مصروفات الصيانة/النظافة من السيرفر','يظهر الصافي بعد خصم الصيانة والنظافة'),
+    128: (4,'IMPLEMENTED UNTESTED','revenue_reports.expenses(maintenance_expense)','/user/owner-revenue.php maintenance_expense','عرض مصروفات الصيانة فقط عند إرجاع الـ API للحقل؛ وإلا رسالة صريحة بغيابه','إرجاع maintenance_expense من السيرفر','تظهر مصروفات الصيانة الشهرية والسنوية'),
+    129: (4,'IMPLEMENTED UNTESTED','revenue_reports.expenses(cleaning_expense)','/user/owner-revenue.php cleaning_expense','عرض مصروفات النظافة فقط عند إرجاع الـ API للحقل؛ وإلا رسالة صريحة بغيابه','إرجاع cleaning_expense من السيرفر','تظهر مصروفات النظافة الشهرية والسنوية'),
     # الإشعارات والبريد (144-148)
 }
 

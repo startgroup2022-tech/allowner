@@ -529,7 +529,7 @@ class CategoryCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              category.name(isArabic),
+              category.displayName(isArabic),
               style: Theme.of(context).textTheme.labelSmall,
               maxLines: 2,
               textAlign: TextAlign.center,

@@ -1,3 +1,4 @@
+import '../utils/category_labels.dart';
 import '../utils/safe_parse.dart';
 
 /// تصنيف إقامة من `categories/list.php` (فنادق / شقق فندقية / منتجعات / شاليهات).
@@ -29,9 +30,20 @@ class CategoryModel {
     );
   }
 
+  /// الاسم القادم من قاعدة البيانات — يُستخدم للفلترة على السيرفر/محليًا
+  /// لأنه مطابق لحقل `type_ar`/`type_en` في الفنادق.
   String name(bool isArabic) {
     final preferred = isArabic ? nameAr : nameEn;
     if (preferred.isNotEmpty) return preferred;
     return isArabic ? nameEn : nameAr;
   }
+
+  /// الاسم المعروض في الواجهة (المتطلبان 13 و14). قد يختلف عن [name] بسبب
+  /// التسميات المطلوبة في المستند، لذلك لا يُستخدم للفلترة أبدًا.
+  String displayName(bool isArabic) => CategoryLabels.display(
+        iconKey: iconKey,
+        nameAr: nameAr,
+        nameEn: nameEn,
+        isArabic: isArabic,
+      );
 }

@@ -15,6 +15,8 @@ import 'package:allowners/theme/app_colors.dart';
 import 'package:allowners/theme/app_theme.dart';
 import 'package:allowners/utils/amenity_icons.dart';
 import 'package:allowners/utils/app_strings.dart';
+import 'package:allowners/utils/category_labels.dart';
+import 'package:allowners/utils/revenue_reports.dart';
 import 'package:allowners/utils/service_categories.dart';
 import 'package:allowners/widgets/cards.dart';
 import 'package:allowners/widgets/state_views.dart';
@@ -938,6 +940,104 @@ void main() {
       );
       expect(find.textContaining('everything you need to manage your property'),
           findsOneWidget);
+    });
+  });
+
+  group('تقارير إيرادات المالك (المتطلبات 126–129)', () {
+    test('التجميع السنوي يجمع أشهر السنة نفسها ويرتّب تنازليًا', () {
+      final years = RevenueReports.yearTotals([
+        {'ym': '2026-01', 'total': 100},
+        {'ym': '2026-02', 'total': 50},
+        {'ym': '2025-12', 'total': 30},
+      ]);
+      expect(years.length, 2);
+      expect(years.first.year, 2026);
+      expect(years.first.total, 150);
+      expect(years.last.year, 2025);
+      expect(years.last.total, 30);
+    });
+    test('السطور بتاريخ غير صالح تُتجاهل ولا تُحتسب في سنة خاطئة', () {
+      final years = RevenueReports.yearTotals([
+        {'ym': '', 'total': 999},
+        {'ym': 'abc', 'total': 999},
+        {'ym': '2026-05', 'total': 10},
+      ]);
+      expect(years.length, 1);
+      expect(years.single.year, 2026);
+      expect(years.single.total, 10);
+    });
+    test('المصروفات تظهر فقط عند إرجاع الحقول من الخدمة', () {
+      expect(RevenueReports.expenses({'total_revenue': 500}), isEmpty);
+      final e = RevenueReports.expenses({
+        'maintenance_expense': '200',
+        'cleaning_total': 50,
+      });
+      expect(e.length, 2);
+      expect(e.firstWhere((x) => x.labelKey == 'maintenance_expense').total, 200);
+      expect(e.firstWhere((x) => x.labelKey == 'cleaning_expense').total, 50);
+    });
+    test('صافي الإيراد يخصم المصروفات المُرجَعة فقط', () {
+      expect(RevenueReports.netRevenue(500, const []), 500);
+      final net = RevenueReports.netRevenue(500, [
+        const ExpenseTotal(labelKey: 'maintenance_expense', total: 200),
+        const ExpenseTotal(labelKey: 'cleaning_expense', total: 50),
+      ]);
+      expect(net, 250);
+    });
+    test('yearOf يقبل YYYY و YYYY-MM ويرفض غير الصالح', () {
+      expect(RevenueReports.yearOf('2026-07'), 2026);
+      expect(RevenueReports.yearOf('2026'), 2026);
+      expect(RevenueReports.yearOf('26-07'), isNull);
+      expect(RevenueReports.yearOf(null), isNull);
+    });
+  });
+
+  group('تسميات التصنيفات المعروضة (المتطلبان 13 و14)', () {
+    test('تصنيف الفنادق يظهر «الوحدات الفندقية» بالعربي والإنجليزي', () {
+      expect(
+        CategoryLabels.display(
+            iconKey: 'hotels',
+            nameAr: 'فنادق',
+            nameEn: 'Hotels',
+            isArabic: true),
+        'الوحدات الفندقية',
+      );
+      expect(
+        CategoryLabels.display(
+            iconKey: 'hotels',
+            nameAr: 'فنادق',
+            nameEn: 'Hotels',
+            isArabic: false),
+        'Hotel units',
+      );
+    });
+    test('بقية التصنيفات تبقى باسم قاعدة البيانات', () {
+      expect(
+        CategoryLabels.display(
+            iconKey: 'resorts',
+            nameAr: 'منتجعات',
+            nameEn: 'Resorts',
+            isArabic: true),
+        'منتجعات',
+      );
+      expect(
+        CategoryLabels.display(
+            iconKey: 'chalets',
+            nameAr: 'شاليهات',
+            nameEn: 'Chalets',
+            isArabic: false),
+        'Chalets',
+      );
+    });
+    test('الاسم المُعرَّب يُستخدم للفلترة ولا يتأثر بالتسمية المعروضة', () {
+      final category = CategoryModel.fromJson({
+        'id': 1,
+        'name_ar': 'فنادق',
+        'name_en': 'Hotels',
+        'icon_key': 'hotels',
+      });
+      expect(category.name(true), 'فنادق');
+      expect(category.displayName(true), 'الوحدات الفندقية');
     });
   });
 

@@ -578,6 +578,22 @@ class AppStrings {
       'en': 'Total Revenue This Month'
     },
     'revenue_history': {'ar': 'سجل الإيرادات', 'en': 'Revenue History'},
+    // المتطلبات 126–129: تقارير المبيعات والمصروفات الشهرية والسنوية.
+    'yearly_totals': {'ar': 'الإجمالي السنوي', 'en': 'Yearly totals'},
+    'maintenance_expense': {
+      'ar': 'مصروفات الصيانة',
+      'en': 'Maintenance expenses'
+    },
+    'cleaning_expense': {
+      'ar': 'مصروفات النظافة',
+      'en': 'Cleaning expenses'
+    },
+    'commission': {'ar': 'العمولة', 'en': 'Commission'},
+    'net_revenue': {'ar': 'صافي الإيراد', 'en': 'Net revenue'},
+    'expenses_unavailable': {
+      'ar': 'لا تُرجع الخدمة تفصيل المصروفات بعد',
+      'en': 'The service does not return the expense breakdown yet'
+    },
     'hotel_dashboard': {'ar': 'لوحة الفندق', 'en': 'Hotel Dashboard'},
     'arrivals_today': {'ar': 'وصول اليوم', 'en': 'Arrivals Today'},
     'departures_today': {'ar': 'مغادرة اليوم', 'en': 'Departures Today'},

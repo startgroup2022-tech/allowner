@@ -363,7 +363,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
             (category) => Padding(
               padding: const EdgeInsetsDirectional.only(end: AppDimens.sm),
               child: _SelectableChip(
-                label: category.name(isArabic),
+                label: category.displayName(isArabic),
                 selected: _categoryId == category.id,
                 onTap: () => _selectCategory(category),
               ),
