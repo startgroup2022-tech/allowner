@@ -88,7 +88,7 @@ passing test), `Implemented-untested`, `Partial`, `Blocked`, `Not-started`,
 
 | ID | Source | Module | Description | Existing status | Flutter files | Backend dependency | Required action | Verification | Final status |
 |---|---|---|---|---|---|---|---|---|---|
-| AO-API-01 | EXEC01-MANDATE §13 | API | No unsafe direct casts on API responses | **Broken (30+ sites)** | `services/owner_service.dart`, `hotel_staff_service.dart`, `content_service.dart`, 18 screens | all endpoints | **Fix** | `flutter analyze` clean; 45 tests pass | Verified |
+| AO-API-01 | EXEC01-MANDATE §13 | API | No unsafe direct casts on API responses | **Broken (30+ sites)** | `services/owner_service.dart`, `hotel_staff_service.dart`, `content_service.dart`, 18 screens | all endpoints | **Fix** | `flutter analyze` 0 errors / 0 warnings; 48 tests pass | Verified |
 | AO-API-02 | EXEC01-MANDATE §13 | API | Remaining `as List?` casts in 6 owner screens | Partial | `owner_units_screen`, `owner_revenue_screen`, `owner_commission_screen`, others | owner endpoints | Fix in Exec 02 | Already `?? []`-guarded; not yet safe against non-list | Partial |
 | AO-API-03 | EXEC01-MANDATE §13 | API | Numeric fields may arrive as String or num | **Broken** | `utils/safe_parse.dart` | `hotels/list.php`, `units/detail.php` | **Fix** | `asInt`/`asDouble` used everywhere; test coverage | Verified |
 | AO-API-04 | EXEC01-MANDATE §13 | API | Boolean flags may arrive as true/1/"1" | **Broken** | `utils/safe_parse.dart` | `hotels/detail.php` returns `1`/`0` | **Fix** | `asBool` handles all forms; tests pass | Verified |
@@ -223,7 +223,7 @@ passing test), `Implemented-untested`, `Partial`, `Blocked`, `Not-started`,
 |---|---|---|---|---|---|---|---|---|---|
 | AO-TEST-01 | EXEC01-MANDATE §15 | Testing | `flutter pub get` succeeds | — | `pubspec.yaml` | — | Run | Executed | Verified |
 | AO-TEST-02 | EXEC01-MANDATE §15 | Testing | `flutter analyze` clean of errors/warnings | **5 warnings baseline** | `analysis_options.yaml` | — | Run | 0 errors, 0 warnings | Verified |
-| AO-TEST-03 | EXEC01-MANDATE §15 | Testing | `flutter test` passes | **No test suite existed** | `test/` | — | **Create + run** | 45 tests, all pass | Verified |
+| AO-TEST-03 | EXEC01-MANDATE §15 | Testing | `flutter test` passes | **No test suite existed** | `test/` | — | **Create + run** | 48 tests, all pass | Verified |
 | AO-TEST-04 | EXEC01-MANDATE §15 | Testing | `dart format --set-exit-if-changed` | **Baseline unformatted (52 files)** | `lib/` | — | Report | Repo baseline was never formatted; new files conform | Partial |
 | AO-TEST-05 | EXEC01-MANDATE §15 | Testing | Tests for repaired defects | Missing | `test/models_parsing_test.dart` | — | **Create** | Regression tests for every parsing defect | Verified |
 | AO-TEST-06 | EXEC01-MANDATE §15 | Testing | Separate isolated from live-integration tests | Missing | `test/` | — | **Document** | `EXECUTION_01_TEST_RESULTS.md` §3 | Verified |
