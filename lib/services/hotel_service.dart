@@ -3,6 +3,7 @@ import '../models/hotel_model.dart';
 import '../models/unit_model.dart';
 import '../utils/safe_parse.dart';
 import '../utils/arabic_text.dart';
+import '../utils/booking_payload.dart';
 import 'api_client.dart';
 
 /// كل استدعاءات الـ API الخاصة بالضيوف: الفنادق، الوحدات، المفضلة، الحجوزات.
@@ -338,21 +339,22 @@ class HotelService {
     String? customerPhone,
   }) async {
     try {
-      final res = await _dio.post('/bookings/create.php', data: {
-        'hotel_id': asInt(hotelId),
-        if (unitId != null) 'unit_id': unitId,
-        'check_in': _fmt(checkIn),
-        'check_out': _fmt(checkOut),
-        'guests': guests,
-        'payment_method': paymentMethod,
-        'meal_types': mealTypes,
-        'extra_bed': extraBed,
-        if (addonIds != null && addonIds.isNotEmpty) 'addon_ids': addonIds,
-        if (cardNumber != null) 'card_number': cardNumber,
-        'guest_id_number': guestIdNumber ?? '',
-        if (customerName != null) 'customer_name': customerName,
-        if (customerPhone != null) 'customer_phone': customerPhone,
-      });
+      final res = await _dio.post('/bookings/create.php',
+          data: buildBookingPayload(
+        hotelId: asInt(hotelId),
+        unitId: unitId,
+        checkIn: checkIn,
+        checkOut: checkOut,
+        guests: guests,
+        paymentMethod: paymentMethod,
+        cardNumber: cardNumber,
+        mealTypes: mealTypes,
+        extraBed: extraBed,
+        addonIds: addonIds,
+        guestIdNumber: guestIdNumber,
+        customerName: customerName,
+        customerPhone: customerPhone,
+      ));
       _ensureSuccess(res.data);
       return asMap(res.data is Map ? res.data['booking'] : null);
     } on DioException catch (e) {
@@ -450,12 +452,7 @@ class HotelService {
   /// الزائدة، ويوحّد الألف/الهاء حتى يطابق "مكة" و"مكه" و"Makkah"/"makkah".
   static String? _normalize(String? value) => normalizeArabic(value);
 
-  String _fmt(DateTime d) {
-    final y = d.year.toString().padLeft(4, '0');
-    final m = d.month.toString().padLeft(2, '0');
-    final day = d.day.toString().padLeft(2, '0');
-    return '$y-$m-$day';
-  }
+  String _fmt(DateTime d) => formatBookingDate(d);
 }
 
 /// نتيجة تفصيل الفندق: الفندق + مرافقه المرتبطة فعليًا.

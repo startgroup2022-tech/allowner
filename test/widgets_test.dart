@@ -10,6 +10,7 @@ import 'package:allowners/screens/owner/owner_profile_screen.dart';
 import 'package:allowners/screens/booking/booking_screen.dart';
 import 'package:allowners/screens/booking/booking_success_screen.dart';
 import 'package:allowners/utils/availability.dart';
+import 'package:allowners/utils/booking_payload.dart';
 import 'package:allowners/screens/bookings/my_bookings_screen.dart';
 import 'package:allowners/screens/shared/app_about_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -1206,6 +1207,66 @@ void main() {
       final dates = r.firstWhere((e) => e.$1 == AppStrings.t(true, 'stay_dates')).$2;
       expect(dates.contains('2026'), isFalse);
       expect(dates.contains('-'), isTrue);
+    });
+  });
+  group('جسم طلب إنشاء الحجز — حقول البريد (المتطلبات 144–148)', () {
+    Map<String, dynamic> payload({
+      int? unitId = 12,
+      String? guestId,
+      String? name,
+      String? phone,
+      List<int>? addons,
+      String payment = 'at_hotel',
+    }) =>
+        buildBookingPayload(
+          hotelId: 3,
+          unitId: unitId,
+          checkIn: DateTime(2026, 11, 1),
+          checkOut: DateTime(2026, 11, 3),
+          guests: 2,
+          paymentMethod: payment,
+          guestIdNumber: guestId,
+          customerName: name,
+          customerPhone: phone,
+          addonIds: addons,
+        );
+
+    test('المتطلب 147: تاريخ الدخول يُرسل بصيغة YYYY-MM-DD بلا وقت', () {
+      final p = payload();
+      expect(p['check_in'], '2026-11-01');
+      expect(p['check_out'], '2026-11-03');
+    });
+    test('المتطلب 148: معرّف الوحدة يُرسل ليشتق السيرفر نوعها ورقمها', () {
+      expect(payload()['unit_id'], 12);
+      expect(payload(unitId: null).containsKey('unit_id'), isFalse);
+    });
+    test('المتطلب 146: مفتاح رقم الهوية يُرسل دائمًا حتى لو فارغًا', () {
+      expect(payload().containsKey('guest_id_number'), isTrue);
+      expect(payload()['guest_id_number'], '');
+      expect(payload(guestId: '1234567890')['guest_id_number'], '1234567890');
+    });
+    test('المتطلب 145: اسم العميل وجواله يُرسلان فقط عند وجود قيمة فعلية', () {
+      expect(payload().containsKey('customer_name'), isFalse);
+      expect(payload(name: '   ')['customer_name'], isNot(contains(' ')));
+      final p = payload(name: ' سالم ', phone: ' 0500000000 ');
+      expect(p['customer_name'], 'سالم');
+      expect(p['customer_phone'], '0500000000');
+    });
+    test('الحقول الأساسية تُرسل دائمًا', () {
+      final p = payload();
+      expect(p['hotel_id'], 3);
+      expect(p['guests'], 2);
+      expect(p['payment_method'], 'at_hotel');
+      expect(p['extra_bed'], isFalse);
+      expect(p['meal_types'], isEmpty);
+    });
+    test('لا تُرسل مصفوفة إضافات فارغة', () {
+      expect(payload().containsKey('addon_ids'), isFalse);
+      expect(payload(addons: [5, 7])['addon_ids'], [5, 7]);
+    });
+    test('صيغة التاريخ ثابتة لأي يوم/شهر برقم واحد', () {
+      expect(formatBookingDate(DateTime(2026, 1, 5)), '2026-01-05');
+      expect(formatBookingDate(DateTime(2026, 12, 31)), '2026-12-31');
     });
   });
   group('فحص الإتاحة المحلي قبل الحجز (المتطلب 45)', () {
