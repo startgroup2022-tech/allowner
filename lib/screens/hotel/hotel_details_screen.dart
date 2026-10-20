@@ -190,8 +190,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
       leading: Padding(
         padding: const EdgeInsets.all(8),
         child: _CircleIconButton(
-          icon:
-              isArabic ? Icons.arrow_forward_rounded : Icons.arrow_back_rounded,
+          icon: Icons.arrow_back_rounded,
           onTap: () => Navigator.of(context).pop(),
         ),
       ),

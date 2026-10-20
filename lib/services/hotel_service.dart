@@ -342,20 +342,20 @@ class HotelService {
     try {
       final res = await _dio.post('/bookings/create.php',
           data: buildBookingPayload(
-        hotelId: asInt(hotelId),
-        unitId: unitId,
-        checkIn: checkIn,
-        checkOut: checkOut,
-        guests: guests,
-        paymentMethod: paymentMethod,
-        cardNumber: cardNumber,
-        mealTypes: mealTypes,
-        extraBed: extraBed,
-        addonIds: addonIds,
-        guestIdNumber: guestIdNumber,
-        customerName: customerName,
-        customerPhone: customerPhone,
-      ));
+            hotelId: asInt(hotelId),
+            unitId: unitId,
+            checkIn: checkIn,
+            checkOut: checkOut,
+            guests: guests,
+            paymentMethod: paymentMethod,
+            cardNumber: cardNumber,
+            mealTypes: mealTypes,
+            extraBed: extraBed,
+            addonIds: addonIds,
+            guestIdNumber: guestIdNumber,
+            customerName: customerName,
+            customerPhone: customerPhone,
+          ));
       _ensureSuccess(res.data);
       return asMap(res.data is Map ? res.data['booking'] : null);
     } on DioException catch (e) {
@@ -372,11 +372,11 @@ class HotelService {
     try {
       final res = await _dio.post('/services/request.php',
           data: buildServiceRequestPayload(
-        bookingId: bookingId,
-        roomNumber: roomNumber,
-        serviceType: serviceType,
-        description: description,
-      ));
+            bookingId: bookingId,
+            roomNumber: roomNumber,
+            serviceType: serviceType,
+            description: description,
+          ));
       _ensureSuccess(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
@@ -392,11 +392,11 @@ class HotelService {
     try {
       final res = await _dio.post('/services/meal-request.php',
           data: buildMealRequestPayload(
-        bookingId: bookingId,
-        roomNumber: roomNumber,
-        mealTypes: mealTypes,
-        notes: notes,
-      ));
+            bookingId: bookingId,
+            roomNumber: roomNumber,
+            mealTypes: mealTypes,
+            notes: notes,
+          ));
       _ensureSuccess(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);

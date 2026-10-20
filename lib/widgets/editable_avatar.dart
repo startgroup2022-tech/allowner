@@ -21,7 +21,8 @@ class _EditableAvatarState extends ConsumerState<EditableAvatar> {
   bool _uploading = false;
 
   Future<void> _pick(bool isArabic) async {
-    final isCurrentlySet = widget.avatarUrl != null && widget.avatarUrl!.isNotEmpty;
+    final isCurrentlySet =
+        widget.avatarUrl != null && widget.avatarUrl!.isNotEmpty;
     final choice = await showModalBottomSheet<String>(
       context: context,
       builder: (ctx) => SafeArea(
@@ -39,8 +40,10 @@ class _EditableAvatarState extends ConsumerState<EditableAvatar> {
             ),
             if (isCurrentlySet)
               ListTile(
-                leading: Icon(Icons.delete_outline_rounded, color: AppColors.danger),
-                title: Text(AppStrings.t(isArabic, 'remove_photo'), style: TextStyle(color: AppColors.danger)),
+                leading:
+                    Icon(Icons.delete_outline_rounded, color: AppColors.danger),
+                title: Text(AppStrings.t(isArabic, 'remove_photo'),
+                    style: TextStyle(color: AppColors.danger)),
                 onTap: () => Navigator.pop(ctx, 'remove'),
               ),
           ],
@@ -54,7 +57,9 @@ class _EditableAvatarState extends ConsumerState<EditableAvatar> {
       try {
         await ref.read(sessionProvider.notifier).updateAvatar(remove: true);
       } catch (_) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppStrings.t(isArabic, 'avatar_update_failed'))));
+        if (mounted)
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(AppStrings.t(isArabic, 'avatar_update_failed'))));
       } finally {
         if (mounted) setState(() => _uploading = false);
       }
@@ -71,9 +76,13 @@ class _EditableAvatarState extends ConsumerState<EditableAvatar> {
 
     setState(() => _uploading = true);
     try {
-      await ref.read(sessionProvider.notifier).updateAvatar(filePath: file.path);
+      await ref
+          .read(sessionProvider.notifier)
+          .updateAvatar(filePath: file.path);
     } catch (_) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppStrings.t(isArabic, 'avatar_update_failed'))));
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppStrings.t(isArabic, 'avatar_update_failed'))));
     } finally {
       if (mounted) setState(() => _uploading = false);
     }
@@ -89,9 +98,13 @@ class _EditableAvatarState extends ConsumerState<EditableAvatar> {
           CircleAvatar(
             radius: widget.radius,
             backgroundColor: AppColors.surfaceMuted,
-            backgroundImage: (widget.avatarUrl != null && widget.avatarUrl!.isNotEmpty) ? NetworkImage(widget.avatarUrl!) : null,
+            backgroundImage:
+                (widget.avatarUrl != null && widget.avatarUrl!.isNotEmpty)
+                    ? NetworkImage(widget.avatarUrl!)
+                    : null,
             child: (widget.avatarUrl == null || widget.avatarUrl!.isEmpty)
-                ? Icon(Icons.person_rounded, size: widget.radius, color: AppColors.textMuted)
+                ? Icon(Icons.person_rounded,
+                    size: widget.radius, color: AppColors.textMuted)
                 : null,
           ),
           if (_uploading)
@@ -99,7 +112,11 @@ class _EditableAvatarState extends ConsumerState<EditableAvatar> {
               child: CircleAvatar(
                 radius: widget.radius,
                 backgroundColor: Colors.black38,
-                child: const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
+                child: const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white)),
               ),
             ),
           Positioned(
@@ -107,8 +124,10 @@ class _EditableAvatarState extends ConsumerState<EditableAvatar> {
             right: 0,
             child: Container(
               padding: const EdgeInsets.all(4),
-              decoration: const BoxDecoration(color: AppColors.gold, shape: BoxShape.circle),
-              child: const Icon(Icons.edit, size: 14, color: AppColors.textOnGold),
+              decoration: const BoxDecoration(
+                  color: AppColors.gold, shape: BoxShape.circle),
+              child:
+                  const Icon(Icons.edit, size: 14, color: AppColors.textOnGold),
             ),
           ),
         ],

@@ -11,7 +11,8 @@ class HotelDashboardScreen extends ConsumerStatefulWidget {
   const HotelDashboardScreen({super.key});
 
   @override
-  ConsumerState<HotelDashboardScreen> createState() => _HotelDashboardScreenState();
+  ConsumerState<HotelDashboardScreen> createState() =>
+      _HotelDashboardScreenState();
 }
 
 class _HotelDashboardScreenState extends ConsumerState<HotelDashboardScreen> {
@@ -52,11 +53,16 @@ class _HotelDashboardScreenState extends ConsumerState<HotelDashboardScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 32),
+                    Icon(Icons.error_outline_rounded,
+                        color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
-                    Text(AppStrings.t(isArabic, 'error_loading'), textAlign: TextAlign.center),
+                    Text(AppStrings.t(isArabic, 'error_loading'),
+                        textAlign: TextAlign.center),
                     const SizedBox(height: AppDimens.sm),
-                    Center(child: OutlinedButton(onPressed: _reload, child: Text(AppStrings.t(isArabic, 'retry')))),
+                    Center(
+                        child: OutlinedButton(
+                            onPressed: _reload,
+                            child: Text(AppStrings.t(isArabic, 'retry')))),
                   ],
                 );
               }
@@ -69,10 +75,30 @@ class _HotelDashboardScreenState extends ConsumerState<HotelDashboardScreen> {
                   asInt(pending['maintenance']) +
                   asInt(pending['meal']);
               final cards = <(String, dynamic, IconData, Color)>[
-                (AppStrings.t(isArabic, 'arrivals_today'), data['arrivals_today'] ?? 0, Icons.login_rounded, AppColors.success),
-                (AppStrings.t(isArabic, 'departures_today'), data['departures_today'] ?? 0, Icons.logout_rounded, AppColors.secondary),
-                (AppStrings.t(isArabic, 'in_house_now'), data['in_house'] ?? 0, Icons.event_available_rounded, AppColors.ink),
-                (AppStrings.t(isArabic, 'open_requests'), openRequests, Icons.pending_actions_rounded, AppColors.warning),
+                (
+                  AppStrings.t(isArabic, 'arrivals_today'),
+                  data['arrivals_today'] ?? 0,
+                  Icons.login_rounded,
+                  AppColors.success
+                ),
+                (
+                  AppStrings.t(isArabic, 'departures_today'),
+                  data['departures_today'] ?? 0,
+                  Icons.logout_rounded,
+                  AppColors.secondary
+                ),
+                (
+                  AppStrings.t(isArabic, 'in_house_now'),
+                  data['in_house'] ?? 0,
+                  Icons.event_available_rounded,
+                  AppColors.ink
+                ),
+                (
+                  AppStrings.t(isArabic, 'open_requests'),
+                  openRequests,
+                  Icons.pending_actions_rounded,
+                  AppColors.warning
+                ),
               ];
 
               return ListView(
@@ -82,7 +108,8 @@ class _HotelDashboardScreenState extends ConsumerState<HotelDashboardScreen> {
                   if (hotels.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(bottom: AppDimens.md),
-                      child: Text(hotels.map((h) => h['name']).join(' • '), style: textTheme.titleMedium),
+                      child: Text(hotels.map((h) => h['name']).join(' • '),
+                          style: textTheme.titleMedium),
                     ),
                   GridView.count(
                     crossAxisCount: 2,
@@ -96,7 +123,8 @@ class _HotelDashboardScreenState extends ConsumerState<HotelDashboardScreen> {
                               padding: const EdgeInsets.all(AppDimens.md),
                               decoration: BoxDecoration(
                                 color: AppColors.surface,
-                                borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+                                borderRadius:
+                                    BorderRadius.circular(AppDimens.radiusLg),
                                 border: Border.all(color: AppColors.cardBorder),
                               ),
                               child: Column(
@@ -104,8 +132,11 @@ class _HotelDashboardScreenState extends ConsumerState<HotelDashboardScreen> {
                                 children: [
                                   Icon(c.$3, color: c.$4),
                                   const Spacer(),
-                                  Text('${c.$2}', style: textTheme.headlineSmall),
-                                  Text(c.$1, style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                                  Text('${c.$2}',
+                                      style: textTheme.headlineSmall),
+                                  Text(c.$1,
+                                      style: textTheme.bodySmall?.copyWith(
+                                          color: AppColors.textMuted)),
                                 ],
                               ),
                             ))

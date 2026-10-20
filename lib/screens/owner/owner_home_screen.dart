@@ -261,7 +261,8 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Icon(link.icon, color: AppColors.goldDark, size: 24),
+                            Icon(link.icon,
+                                color: AppColors.goldDark, size: 24),
                             Text(
                               AppStrings.t(isArabic, link.labelKey),
                               style: textTheme.bodySmall

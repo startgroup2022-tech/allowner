@@ -30,8 +30,36 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
   String _monthLabel(String ym, bool isArabic) {
     final parts = ym.split('-');
     if (parts.length != 2) return ym;
-    final monthsAr = ['', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-    final monthsEn = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    final monthsAr = [
+      '',
+      'يناير',
+      'فبراير',
+      'مارس',
+      'أبريل',
+      'مايو',
+      'يونيو',
+      'يوليو',
+      'أغسطس',
+      'سبتمبر',
+      'أكتوبر',
+      'نوفمبر',
+      'ديسمبر'
+    ];
+    final monthsEn = [
+      '',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ];
     final m = int.tryParse(parts[1]) ?? 1;
     return isArabic ? monthsAr[m] : monthsEn[m];
   }
@@ -62,11 +90,16 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 32),
+                    Icon(Icons.error_outline_rounded,
+                        color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
-                    Text(AppStrings.t(isArabic, 'error_loading'), textAlign: TextAlign.center),
+                    Text(AppStrings.t(isArabic, 'error_loading'),
+                        textAlign: TextAlign.center),
                     const SizedBox(height: AppDimens.sm),
-                    Center(child: OutlinedButton(onPressed: _reload, child: Text(AppStrings.t(isArabic, 'retry')))),
+                    Center(
+                        child: OutlinedButton(
+                            onPressed: _reload,
+                            child: Text(AppStrings.t(isArabic, 'retry')))),
                   ],
                 );
               }
@@ -94,10 +127,12 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(AppStrings.t(isArabic, 'total_revenue_month'),
-                            style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
+                            style: textTheme.bodyMedium
+                                ?.copyWith(color: AppColors.textSecondary)),
                         const SizedBox(height: 6),
                         Text('$totalRevenue ${AppStrings.t(isArabic, 'sar')}',
-                            style: textTheme.headlineMedium?.copyWith(color: AppColors.goldDark)),
+                            style: textTheme.headlineMedium
+                                ?.copyWith(color: AppColors.goldDark)),
                       ],
                     ),
                   ),
@@ -133,7 +168,8 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                         Text(AppStrings.t(isArabic, 'net_revenue'),
                             style: textTheme.bodyMedium
                                 ?.copyWith(fontWeight: FontWeight.w700)),
-                        Text('${net.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                        Text(
+                            '${net.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
                             style: textTheme.bodyMedium?.copyWith(
                                 color: AppColors.goldDark,
                                 fontWeight: FontWeight.w700)),
@@ -154,20 +190,24 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                               Text('${y.year}', style: textTheme.bodyMedium),
                               Text(
                                   '${y.total.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
-                                  style: textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.w600)),
+                                  style: textTheme.bodyMedium
+                                      ?.copyWith(fontWeight: FontWeight.w600)),
                             ],
                           ),
                         )),
                     const SizedBox(height: AppDimens.xl),
                   ],
 
-                  Text(AppStrings.t(isArabic, 'revenue_history'), style: textTheme.titleMedium),
+                  Text(AppStrings.t(isArabic, 'revenue_history'),
+                      style: textTheme.titleMedium),
                   const SizedBox(height: AppDimens.md),
                   if (monthly.isEmpty)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: AppDimens.md),
-                      child: Text(AppStrings.t(isArabic, 'no_data'), style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                      padding:
+                          const EdgeInsets.symmetric(vertical: AppDimens.md),
+                      child: Text(AppStrings.t(isArabic, 'no_data'),
+                          style: textTheme.bodySmall
+                              ?.copyWith(color: AppColors.textMuted)),
                     )
                   else
                     ...monthly.map((m) => Padding(
@@ -175,20 +215,27 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(_monthLabel(m['ym'].toString(), isArabic), style: textTheme.bodyMedium),
-                              Text('${asDouble(m['total']).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
-                                  style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                              Text(_monthLabel(m['ym'].toString(), isArabic),
+                                  style: textTheme.bodyMedium),
+                              Text(
+                                  '${asDouble(m['total']).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                                  style: textTheme.bodyMedium
+                                      ?.copyWith(fontWeight: FontWeight.w600)),
                             ],
                           ),
                         )),
 
                   const SizedBox(height: AppDimens.xl),
-                  Text(AppStrings.t(isArabic, 'by_unit'), style: textTheme.titleMedium),
+                  Text(AppStrings.t(isArabic, 'by_unit'),
+                      style: textTheme.titleMedium),
                   const SizedBox(height: AppDimens.md),
                   if (byUnit.isEmpty)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: AppDimens.md),
-                      child: Text(AppStrings.t(isArabic, 'no_data'), style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                      padding:
+                          const EdgeInsets.symmetric(vertical: AppDimens.md),
+                      child: Text(AppStrings.t(isArabic, 'no_data'),
+                          style: textTheme.bodySmall
+                              ?.copyWith(color: AppColors.textMuted)),
                     )
                   else
                     ...byUnit.map((u) => Container(
@@ -196,7 +243,8 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                           padding: const EdgeInsets.all(AppDimens.md),
                           decoration: BoxDecoration(
                             color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                            borderRadius:
+                                BorderRadius.circular(AppDimens.radiusMd),
                             border: Border.all(color: AppColors.cardBorder),
                           ),
                           child: Row(
@@ -204,12 +252,17 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  isArabic ? (u['name_ar'] ?? '') : (u['name_en'] ?? u['name_ar'] ?? ''),
+                                  isArabic
+                                      ? (u['name_ar'] ?? '')
+                                      : (u['name_en'] ?? u['name_ar'] ?? ''),
                                   style: textTheme.bodyMedium,
                                 ),
                               ),
-                              Text('${asDouble(u['revenue']).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
-                                  style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: AppColors.goldDark)),
+                              Text(
+                                  '${asDouble(u['revenue']).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                                  style: textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.goldDark)),
                             ],
                           ),
                         )),

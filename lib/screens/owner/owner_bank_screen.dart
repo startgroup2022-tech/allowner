@@ -48,7 +48,8 @@ class _OwnerBankScreenState extends ConsumerState<OwnerBankScreen> {
     final data = await _service.getOwnerBank();
     // نملأ الحقول بالبيانات الحالية إن وُجدت حتى يعدّلها المالك بدل كتابتها من جديد.
     _bankCtrl.text = (data['bank_name'] ?? '').toString();
-    _accountNameCtrl.text = (data['account_name'] ?? data['holder_name'] ?? '').toString();
+    _accountNameCtrl.text =
+        (data['account_name'] ?? data['holder_name'] ?? '').toString();
     _accountNumberCtrl.text = (data['account_number'] ?? '').toString();
     _ibanCtrl.text = (data['iban'] ?? '').toString();
     return data;
@@ -83,7 +84,8 @@ class _OwnerBankScreenState extends ConsumerState<OwnerBankScreen> {
       _reload();
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message)));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -112,7 +114,8 @@ class _OwnerBankScreenState extends ConsumerState<OwnerBankScreen> {
               return ListView(
                 padding: const EdgeInsets.all(AppDimens.xl),
                 children: [
-                  const Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 32),
+                  const Icon(Icons.error_outline_rounded,
+                      color: AppColors.danger, size: 32),
                   const SizedBox(height: AppDimens.sm),
                   Text(
                     snapshot.error is ApiException
@@ -142,12 +145,14 @@ class _OwnerBankScreenState extends ConsumerState<OwnerBankScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.info_outline_rounded, size: 18, color: AppColors.textMuted),
+                      const Icon(Icons.info_outline_rounded,
+                          size: 18, color: AppColors.textMuted),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           AppStrings.t(isArabic, 'owner_bank_help'),
-                          style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
+                          style: textTheme.bodySmall
+                              ?.copyWith(color: AppColors.textMuted),
                         ),
                       ),
                     ],
@@ -156,18 +161,23 @@ class _OwnerBankScreenState extends ConsumerState<OwnerBankScreen> {
                 const SizedBox(height: AppDimens.lg),
                 TextField(
                   controller: _bankCtrl,
-                  decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'owner_bank_name')),
+                  decoration: InputDecoration(
+                      labelText: AppStrings.t(isArabic, 'owner_bank_name')),
                 ),
                 const SizedBox(height: AppDimens.md),
                 TextField(
                   controller: _accountNameCtrl,
-                  decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'owner_bank_account_name')),
+                  decoration: InputDecoration(
+                      labelText:
+                          AppStrings.t(isArabic, 'owner_bank_account_name')),
                 ),
                 const SizedBox(height: AppDimens.md),
                 TextField(
                   controller: _accountNumberCtrl,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'owner_bank_account_number')),
+                  decoration: InputDecoration(
+                      labelText:
+                          AppStrings.t(isArabic, 'owner_bank_account_number')),
                 ),
                 const SizedBox(height: AppDimens.md),
                 TextField(
@@ -187,7 +197,8 @@ class _OwnerBankScreenState extends ConsumerState<OwnerBankScreen> {
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white),
                           )
                         : Text(AppStrings.t(isArabic, 'save')),
                   ),

@@ -135,8 +135,8 @@ class _OwnerServicePricesScreenState
                                           color: AppColors.textSecondary)),
                                 Text(
                                   _unitLabel(isArabic, p, units),
-                                  style: textTheme.labelSmall?.copyWith(
-                                      color: AppColors.textMuted),
+                                  style: textTheme.labelSmall
+                                      ?.copyWith(color: AppColors.textMuted),
                                 ),
                               ],
                             ),

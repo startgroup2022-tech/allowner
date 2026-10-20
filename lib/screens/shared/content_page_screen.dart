@@ -12,7 +12,8 @@ class ContentPageScreen extends ConsumerStatefulWidget {
   final String contentKey;
   final String titleKey;
 
-  const ContentPageScreen({super.key, required this.contentKey, required this.titleKey});
+  const ContentPageScreen(
+      {super.key, required this.contentKey, required this.titleKey});
 
   @override
   ConsumerState<ContentPageScreen> createState() => _ContentPageScreenState();
@@ -46,13 +47,19 @@ class _ContentPageScreenState extends ConsumerState<ContentPageScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             if (snapshot.hasError) {
-              return Center(child: Text(AppStrings.t(isArabic, 'error_loading')));
+              return Center(
+                  child: Text(AppStrings.t(isArabic, 'error_loading')));
             }
             final data = snapshot.data!;
-            final body = isArabic ? (data['body_ar'] ?? '') : (data['body_en'] ?? '');
+            final body =
+                isArabic ? (data['body_ar'] ?? '') : (data['body_en'] ?? '');
             return SingleChildScrollView(
               padding: const EdgeInsets.all(AppDimens.pagePadding),
-              child: Text(body.toString(), style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.8)),
+              child: Text(body.toString(),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyLarge
+                      ?.copyWith(height: 1.8)),
             );
           },
         ),

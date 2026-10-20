@@ -12,6 +12,7 @@ class ServiceRequestScreen extends ConsumerStatefulWidget {
   final IconData icon;
   final String title;
   final String description;
+
   /// نوع الطلب المرسل للسيرفر: maintenance | housekeeping | cancellation
   final String serviceType;
 
@@ -24,7 +25,8 @@ class ServiceRequestScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ServiceRequestScreen> createState() => _ServiceRequestScreenState();
+  ConsumerState<ServiceRequestScreen> createState() =>
+      _ServiceRequestScreenState();
 }
 
 class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
@@ -40,7 +42,10 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
   void initState() {
     super.initState();
     _bookingsFuture = _service.myBookings().then((list) {
-      final eligible = list.where((b) => ['confirmed', 'checked_in'].contains(b['status']?.toString())).toList();
+      final eligible = list
+          .where((b) =>
+              ['confirmed', 'checked_in'].contains(b['status']?.toString()))
+          .toList();
       if (eligible.isNotEmpty) _selectedBookingId = asInt(eligible.first['id']);
       return eligible;
     });
@@ -64,29 +69,37 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
         bookingId: _selectedBookingId,
         roomNumber: _roomController.text.trim(),
         serviceType: widget.serviceType,
-        description: _detailsController.text.trim().isNotEmpty ? _detailsController.text.trim() : null,
+        description: _detailsController.text.trim().isNotEmpty
+            ? _detailsController.text.trim()
+            : null,
       );
       if (!mounted) return;
       setState(() => _submitting = false);
       await showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppDimens.radiusLg)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDimens.radiusLg)),
           title: Column(
             children: [
               Container(
                 width: 56,
                 height: 56,
-                decoration: BoxDecoration(color: AppColors.success.withOpacity(0.1), shape: BoxShape.circle),
-                child: const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 32),
+                decoration: BoxDecoration(
+                    color: AppColors.success.withOpacity(0.1),
+                    shape: BoxShape.circle),
+                child: const Icon(Icons.check_circle_rounded,
+                    color: AppColors.success, size: 32),
               ),
               const SizedBox(height: AppDimens.md),
               Text(AppStrings.t(isArabic, 'request_submitted_title'),
-                  style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.center),
             ],
           ),
           content: Text(AppStrings.t(isArabic, 'request_submitted_desc'),
-              textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textSecondary)),
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.textSecondary)),
           actionsAlignment: MainAxisAlignment.center,
           actions: [
             SizedBox(
@@ -105,7 +118,8 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _submitting = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message)));
     }
   }
 
@@ -141,10 +155,10 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
               const SizedBox(height: 4),
               Text(
                 widget.description,
-                style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                style: textTheme.bodyMedium
+                    ?.copyWith(color: AppColors.textSecondary),
               ),
               const SizedBox(height: AppDimens.xl),
-
               FutureBuilder<List<Map<String, dynamic>>>(
                 future: _bookingsFuture,
                 builder: (context, snapshot) {
@@ -153,36 +167,43 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(AppStrings.t(isArabic, 'select_booking'), style: textTheme.titleSmall),
+                      Text(AppStrings.t(isArabic, 'select_booking'),
+                          style: textTheme.titleSmall),
                       const SizedBox(height: AppDimens.sm),
                       DropdownButtonFormField<int>(
                         value: _selectedBookingId,
                         items: bookings
                             .map((b) => DropdownMenuItem<int>(
                                   value: asInt(b['id']),
-                                  child: Text('${b['hotel_name'] ?? ''} — #${b['booking_ref'] ?? b['id']}', overflow: TextOverflow.ellipsis),
+                                  child: Text(
+                                      '${b['hotel_name'] ?? ''} — #${b['booking_ref'] ?? b['id']}',
+                                      overflow: TextOverflow.ellipsis),
                                 ))
                             .toList(),
-                        onChanged: (v) => setState(() => _selectedBookingId = v),
+                        onChanged: (v) =>
+                            setState(() => _selectedBookingId = v),
                       ),
                       const SizedBox(height: AppDimens.lg),
                     ],
                   );
                 },
               ),
-              Text(AppStrings.t(isArabic, 'room_number'), style: textTheme.titleSmall),
+              Text(AppStrings.t(isArabic, 'room_number'),
+                  style: textTheme.titleSmall),
               const SizedBox(height: AppDimens.sm),
               TextField(
                 controller: _roomController,
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
                   hintText: AppStrings.t(isArabic, 'room_number'),
-                  errorText: _roomError ? AppStrings.t(isArabic, 'room_number_required') : null,
+                  errorText: _roomError
+                      ? AppStrings.t(isArabic, 'room_number_required')
+                      : null,
                 ),
               ),
               const SizedBox(height: AppDimens.lg),
-
-              Text(AppStrings.t(isArabic, 'request_details'), style: textTheme.titleSmall),
+              Text(AppStrings.t(isArabic, 'request_details'),
+                  style: textTheme.titleSmall),
               const SizedBox(height: AppDimens.sm),
               TextField(
                 controller: _detailsController,
@@ -193,7 +214,6 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
                 ),
               ),
               const SizedBox(height: AppDimens.xl),
-
               SizedBox(
                 width: double.infinity,
                 height: AppDimens.buttonHeight,
@@ -203,7 +223,8 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2.4, color: Colors.white),
                         )
                       : Text(AppStrings.t(isArabic, 'submit_request')),
                 ),

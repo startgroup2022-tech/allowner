@@ -24,6 +24,7 @@ import 'package:allowners/utils/app_strings.dart';
 import 'package:allowners/utils/arabic_text.dart';
 import 'package:allowners/utils/category_labels.dart';
 import 'package:allowners/utils/city_ordering.dart';
+import 'package:allowners/utils/contact_channels.dart';
 import 'package:allowners/utils/booking_totals.dart';
 import 'package:allowners/utils/maintenance_settlement.dart';
 import 'package:allowners/utils/role_menus.dart';
@@ -1249,6 +1250,61 @@ void main() {
       expect(dates.contains('-'), isTrue);
     });
   });
+  group('قنوات التواصل مع الدعم (المتطلب 8)', () {
+    test('رقم واتساب يُبنى بلا + ولا مسافات', () {
+      expect(ContactChannels.whatsappUri('+966 555 634 615'),
+          'https://wa.me/966555634615');
+      expect(ContactChannels.whatsappUri('00966555634615'),
+          'https://wa.me/00966555634615');
+    });
+    test('الرقم الفارغ لا يُنتج رابطًا بدل رابط مكسور', () {
+      expect(ContactChannels.whatsappUri(''), isNull);
+      expect(ContactChannels.whatsappUri(null), isNull);
+      expect(ContactChannels.telUri('  '), isNull);
+    });
+    test('رقم الهاتف يحفظ + ويُفتح كرابط اتصال', () {
+      expect(ContactChannels.telUri('+966555634615'), 'tel:+966555634615');
+    });
+    test('البريد يُبنى مع ترميز الموضوع العربي', () {
+      expect(ContactChannels.mailUri('info@assetsaxis.com'),
+          'mailto:info@assetsaxis.com');
+      expect(
+          ContactChannels.mailUri('info@assetsaxis.com',
+              subject: 'المساعدة والدعم'),
+          'mailto:info@assetsaxis.com?subject=%D8%A7%D9%84%D9%85%D8%B3%D8%A7%D8%B9%D8%AF%D8%A9%20%D9%88%D8%A7%D9%84%D8%AF%D8%B9%D9%85');
+    });
+    test('بريد غير صالح لا يُنتج رابطًا', () {
+      expect(ContactChannels.mailUri('not-an-email'), isNull);
+      expect(ContactChannels.mailUri(''), isNull);
+    });
+  });
+
+  group('انعكاس الأيقونات الاتجاهية في RTL (المتطلبات 8 و17)', () {
+    testWidgets('سهم المتابعة يُقلب تلقائيًا ولا يحتاج قلبًا يدويًا',
+        (tester) async {
+      // Flutter تعكس الأيقونات ذات matchTextDirection في الواجهة العربية،
+      // فالشرط اليدوي `isArabic ? chevron_left : chevron_right` كان يقلبها
+      // مرتين ويعيدها إلى الاتجاه الخطأ. هذا الاختبار يثبّت السلوك الصحيح.
+      await tester.pumpWidget(const MaterialApp(
+        home: Directionality(
+          textDirection: TextDirection.rtl,
+          child: Row(children: [
+            Icon(Icons.chevron_right_rounded, key: Key('chev')),
+            Icon(Icons.arrow_back_rounded, key: Key('arrow')),
+          ]),
+        ),
+      ));
+      for (final key in ['chev', 'arrow']) {
+        final transform = tester.widget<Transform>(find
+            .descendant(
+                of: find.byKey(Key(key)), matching: find.byType(Transform))
+            .first);
+        expect(transform.transform.storage.first, -1.0,
+            reason: 'الأيقونة $key يجب أن تكون معكوسة أفقيًا في RTL');
+      }
+    });
+  });
+
   group('أجسام طلبات الخدمات (المتطلبات 49، 53، 57، 58، 62، 65–67)', () {
     test('المتطلبات 49 و53: طلب الوجبات المستقل يرسل عدة وجبات معًا', () {
       final p = buildMealRequestPayload(

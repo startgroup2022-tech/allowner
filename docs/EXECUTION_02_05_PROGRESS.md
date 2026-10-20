@@ -22,6 +22,21 @@ what has been completed in those executions to date.
 
 | Req | Execution | Title (from the official inventory) | Change | Status |
 |---|---|---|---|---|
+| 8 | 01 | إدخال بيانات الدعم الفعلية في الإعدادات | Contact links (WhatsApp/tel/mail) built by tested pure functions; subject percent-encoded for Arabic | VERIFIED PASS |
+| 13 | 01 | تسمية التصنيف الرئيسي | Category display name from `icon_key`, 3 tests | VERIFIED PASS |
+| 36 | 02 | مصدر الحجز | `bookingSourceKey` test | VERIFIED PASS |
+| 49 | 02 | طلب الوجبات | `buildMealRequestPayload` test | VERIFIED PASS |
+| 53 | 02 | تفاصيل الوجبات | `buildMealRequestPayload` test | VERIFIED PASS |
+| 55 | 02 | إجمالي الإضافات | `computeBookingTotals` test | VERIFIED PASS |
+| 57 | 02 | طلب الصيانة | `buildServiceRequestPayload` test | VERIFIED PASS |
+| 58 | 02 | تفاصيل الصيانة | `buildServiceRequestPayload` test | VERIFIED PASS |
+| 62 | 03 | طلب النظافة من المالك | `buildOwnerRequestPayload` test | VERIFIED PASS |
+| 65 | 03 | إنشاء طلب وجبات من حساب المالك | `buildOwnerMealDescription` test | VERIFIED PASS |
+| 67 | 03 | طلب سرير إضافي من المالك | `buildOwnerRequestPayload` test | VERIFIED PASS |
+| 68 | 03 | أسعار خدمات الفندق للمالك | price-key test | VERIFIED PASS |
+| 73 | 03 | إضافات الوجبات والسرير في حجوزات المالك | `buildBookingAddonLines` test | VERIFIED PASS |
+| 76 | 03 | تصنيفات خدمات الوحدة الخمسة | 6 `ServiceCategories` tests | VERIFIED PASS |
+| 97 | 03 | تفاصيل الحجز للوكيل | `buildBookingDetailRows` test | VERIFIED PASS |
 | 51 | 02 | عرض إجمالي الوجبات بدلاً من حقل الملاحظات | Meals subtotal computed from real unit-addon prices, replacing the note field | VERIFIED PASS |
 | 56 | 02 | تصحيح حساب تكلفة السرير الإضافي | Fixed: extra-bed charge was zeroed whenever any addon was selected | VERIFIED PASS |
 | 42 | 02 | تعديل الحجز من حساب الوكيل | Agent edit sheet now also edits guest count and notes | IMPLEMENTED UNTESTED |
@@ -67,15 +82,36 @@ which account to transfer to. `UnitModel` now parses `owner_bank` from
 explicit notice when the owner has not registered bank details. Four tests cover
 the pure `ownerBankRows` helper.
 
+### 3.5 Directional icons were being flipped twice (reqs 8, 17)
+
+Several screens chose the arrow by hand, `isArabic ? chevron_left :
+chevron_right`. Flutter already mirrors any icon whose `matchTextDirection` is
+true (all `arrow_*` and `chevron_*` icons) in an RTL subtree, so the manual
+flip cancelled the automatic one and the "continue" arrow pointed the way back.
+`Icons.arrow_back_rounded` replaced the manual conditions, and a widget test
+now asserts the icon really is mirrored in an RTL `Directionality` (the
+transform matrix's first element is `-1.0`).
+
 ## 4. Testing
 
 | Command | Result |
 |---|---|
-| `flutter analyze` | 0 errors, 0 warnings, 82 info |
-| `flutter test` | **94 tests, all pass** |
+| `flutter analyze` | 0 errors, 0 warnings |
+| `flutter test` | **193 tests, all pass** |
 
-New tests added this session (12 total): 6 for req 73 (owner booking addons),
-5 for req 56 (extra-bed charge), 1 for the hotel-staff unit search.
+Tests added across the session: 6 for req 73 (owner booking addons), 5 for
+req 56 (extra-bed charge), 1 for the hotel-staff unit search, 8 for the service
+request bodies (reqs 49, 53, 57, 58, 62, 65–67), 5 for the support contact
+links (req 8) and 1 that pins Flutter's automatic RTL mirroring of directional
+icons.
+
+### Run command
+
+```
+flutter analyze && flutter test
+```
+
+Both were run in this session; the tail of the test run is `All tests passed!`.
 
 ## 5. Backend dependencies confirmed this session
 
@@ -106,10 +142,17 @@ blocked.
 
 | Exec | Requirements | VERIFIED | IMPLEMENTED UNTESTED | PARTIAL | BACKEND BLOCKED |
 |---|---|---|---|---|---|
-| 02 | 29 | 4 | 16 | 6 | 3 |
-| 03 | 47 | 2 | 18 | 23 | 4 |
-| 04 | 28 | 1 | 1 | 1 | 25 |
+| 01 | 31 | 20 | 8 | 0 | 3 |
+| 02 | 29 | 15 | 11 | 1 | 2 |
+| 03 | 47 | 17 | 25 | 0 | 5 |
+| 04 | 28 | 1 | 6 | 2 | 19 |
 | 05 | 13 | 0 | 0 | 0 | 13 |
+| **Total** | **148** | **53** | **50** | **3** | **42** |
+
+`IMPLEMENTED UNTESTED` is not a soft "done": it means the code path exists and is
+wired to a live endpoint, but confirming it needs a signed-in session on a real
+device (an owner, hotel or agent account). A GET probe cannot reach past the
+`401`. Those are listed per item in `docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md`.
 
 Execution 04–05 is almost entirely server and site work: a central collection
 account, a per-owner ledger, weekly payouts, subscription billing, split

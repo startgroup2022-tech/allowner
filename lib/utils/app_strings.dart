@@ -309,19 +309,30 @@ class AppStrings {
       'en': 'Owner Account for Transfer'
     },
     'owner_bank_name': {'ar': 'البنك', 'en': 'Bank'},
-    'owner_bank_account_name': {'ar': 'اسم صاحب الحساب', 'en': 'Account Holder'},
+    'owner_bank_account_name': {
+      'ar': 'اسم صاحب الحساب',
+      'en': 'Account Holder'
+    },
     'owner_bank_account_number': {'ar': 'رقم الحساب', 'en': 'Account Number'},
     'owner_bank_iban': {'ar': 'رقم الآيبان IBAN', 'en': 'IBAN'},
-    'owner_bank_title': {'ar': 'بيانات الحساب البنكي', 'en': 'Bank Account Details'},
+    'owner_bank_title': {
+      'ar': 'بيانات الحساب البنكي',
+      'en': 'Bank Account Details'
+    },
     'owner_bank_help': {
-      'ar': 'هذه البيانات تظهر للضيف عند اختيار «تحويل مباشر لحساب المالك»، وتُستخدم لتحويل مستحقاتك.',
-      'en': 'These details are shown to the guest when they choose a direct transfer to the owner, and are used to pay out your dues.'
+      'ar':
+          'هذه البيانات تظهر للضيف عند اختيار «تحويل مباشر لحساب المالك»، وتُستخدم لتحويل مستحقاتك.',
+      'en':
+          'These details are shown to the guest when they choose a direct transfer to the owner, and are used to pay out your dues.'
     },
     'bank_fields_required': {
       'ar': 'يرجى إدخال اسم البنك واسم صاحب الحساب ورقم الحساب',
       'en': 'Please enter the bank name, account holder and account number'
     },
-    'bank_saved': {'ar': 'تم حفظ بيانات الحساب البنكي', 'en': 'Bank account details saved'},
+    'bank_saved': {
+      'ar': 'تم حفظ بيانات الحساب البنكي',
+      'en': 'Bank account details saved'
+    },
     'nav_bank': {'ar': 'الحساب البنكي', 'en': 'Bank Account'},
     'no_service_prices': {
       'ar': 'لم يضبط الفندق أسعار خدمات بعد',
@@ -330,11 +341,16 @@ class AppStrings {
     'booked_by_guest': {'ar': 'حجز من الضيف', 'en': 'Booked by guest'},
     'booked_by_agent': {'ar': 'حجز من وكيل الحجوزات', 'en': 'Booked by agent'},
     'booked_by_owner': {'ar': 'حجز من المالك', 'en': 'Booked by owner'},
-    'attach_image': {'ar': 'إرفاق صورة (اختياري)', 'en': 'Attach Image (optional)'},
+    'attach_image': {
+      'ar': 'إرفاق صورة (اختياري)',
+      'en': 'Attach Image (optional)'
+    },
     'image_attached': {'ar': 'تم إرفاق صورة ✓', 'en': 'Image attached ✓'},
     'owner_bank_missing': {
-      'ar': 'لم يسجّل المالك بيانات حسابه البنكي بعد. يمكنك الحجز والدفع عند الوصول أو التواصل مع الدعم.',
-      'en': 'The owner has not added bank details yet. You can book and pay at the hotel or contact support.'
+      'ar':
+          'لم يسجّل المالك بيانات حسابه البنكي بعد. يمكنك الحجز والدفع عند الوصول أو التواصل مع الدعم.',
+      'en':
+          'The owner has not added bank details yet. You can book and pay at the hotel or contact support.'
     },
     'card_number': {'ar': 'رقم البطاقة', 'en': 'Card Number'},
     'expiry_date': {'ar': 'تاريخ الانتهاء', 'en': 'Expiry Date'},
@@ -421,10 +437,15 @@ class AppStrings {
     'about_us': {'ar': 'عن التطبيق', 'en': 'About Us'},
     // المتطلبات 3 و4 و5: نص الوصف والتعريف مطابق حرفيًا لما ورد في مستند
     // المتطلبات (صفحة «تعريف تطبيق All Owners»).
-    'app_description_title': {'ar': 'تعريف تطبيق All Owners', 'en': 'About the All Owners app'},
+    'app_description_title': {
+      'ar': 'تعريف تطبيق All Owners',
+      'en': 'About the All Owners app'
+    },
     'app_description_intro': {
-      'ar': 'All Owners هي المنصة الموثوقة لملاك الوحدات والعقارات، وتجربة حجز ذكية للضيوف.',
-      'en': 'All Owners is the trusted platform for owners of hotel units and properties, with a smart booking experience for guests.'
+      'ar':
+          'All Owners هي المنصة الموثوقة لملاك الوحدات والعقارات، وتجربة حجز ذكية للضيوف.',
+      'en':
+          'All Owners is the trusted platform for owners of hotel units and properties, with a smart booking experience for guests.'
     },
     'app_description_body': {
       'ar':
@@ -433,12 +454,16 @@ class AppStrings {
           'The platform provides integrated solutions for managing units and properties, bookings, revenues, contracts, maintenance, housekeeping and services, with communication between owners, hotel management and operating companies in one secure and smart platform.\n\nIt also allows guests and booking agents to search for available units, make reservations, complete secure online payments, and manage their stays with ease and confidence.'
     },
     'app_description_closing': {
-      'ar': 'All Owners — كل ما تحتاجه لإدارة ممتلكاتك أو حجز إقامتك، في منصة واحدة.',
-      'en': 'All Owners — everything you need to manage your property or book your stay, in one platform.'
+      'ar':
+          'All Owners — كل ما تحتاجه لإدارة ممتلكاتك أو حجز إقامتك، في منصة واحدة.',
+      'en':
+          'All Owners — everything you need to manage your property or book your stay, in one platform.'
     },
     'app_tagline_full': {
-      'ar': 'المنصة الموثوقة لملاك الوحدات الفندقية والعقارات، وتجربة حجز ذكية للضيوف.',
-      'en': 'The Trusted Platform for Hotel Unit & Property Owners, with a Smart Booking Experience for Guests.'
+      'ar':
+          'المنصة الموثوقة لملاك الوحدات الفندقية والعقارات، وتجربة حجز ذكية للضيوف.',
+      'en':
+          'The Trusted Platform for Hotel Unit & Property Owners, with a Smart Booking Experience for Guests.'
     },
     'logout': {'ar': 'تسجيل الخروج', 'en': 'Logout'},
 
@@ -589,10 +614,7 @@ class AppStrings {
       'ar': 'مصروفات الصيانة',
       'en': 'Maintenance expenses'
     },
-    'cleaning_expense': {
-      'ar': 'مصروفات النظافة',
-      'en': 'Cleaning expenses'
-    },
+    'cleaning_expense': {'ar': 'مصروفات النظافة', 'en': 'Cleaning expenses'},
     'commission': {'ar': 'العمولة', 'en': 'Commission'},
     'net_revenue': {'ar': 'صافي الإيراد', 'en': 'Net revenue'},
     'expenses_unavailable': {
@@ -684,10 +706,22 @@ class AppStrings {
     'mark_done': {'ar': 'تم التنفيذ', 'en': 'Mark Done'},
     'reject_request': {'ar': 'رفض الطلب', 'en': 'Reject Request'},
     'price_optional': {'ar': 'السعر (اختياري)', 'en': 'Price (optional)'},
-    'maintenance_settlement': {'ar': 'طريقة تسوية تكلفة الصيانة', 'en': 'Maintenance settlement'},
-    'settle_unit_balance': {'ar': 'خصم من رصيد الوحدة', 'en': 'Deduct from unit balance'},
-    'settle_whatsapp_link': {'ar': 'إرسال رابط الدفع عبر واتساب', 'en': 'Send payment link via WhatsApp'},
-    'whatsapp_no_number': {'ar': 'لا يوجد رقم هاتف صالح لإرسال رابط الدفع', 'en': 'No valid phone number to send the payment link'},
+    'maintenance_settlement': {
+      'ar': 'طريقة تسوية تكلفة الصيانة',
+      'en': 'Maintenance settlement'
+    },
+    'settle_unit_balance': {
+      'ar': 'خصم من رصيد الوحدة',
+      'en': 'Deduct from unit balance'
+    },
+    'settle_whatsapp_link': {
+      'ar': 'إرسال رابط الدفع عبر واتساب',
+      'en': 'Send payment link via WhatsApp'
+    },
+    'whatsapp_no_number': {
+      'ar': 'لا يوجد رقم هاتف صالح لإرسال رابط الدفع',
+      'en': 'No valid phone number to send the payment link'
+    },
     'note_optional': {'ar': 'ملاحظة (اختياري)', 'en': 'Note (optional)'},
     'reject_reason': {'ar': 'سبب الرفض', 'en': 'Rejection reason'},
     'no_open_requests': {
@@ -871,9 +905,15 @@ class AppStrings {
     'new_meal_request': {'ar': 'طلب وجبات جديد', 'en': 'New meal request'},
     'city_label': {'ar': 'المدينة', 'en': 'City'},
     'address_label': {'ar': 'العنوان', 'en': 'Address'},
-    'search_unit_number': {'ar': 'ابحث برقم الوحدة', 'en': 'Search by unit number'},
+    'search_unit_number': {
+      'ar': 'ابحث برقم الوحدة',
+      'en': 'Search by unit number'
+    },
     'unit_no': {'ar': 'وحدة رقم', 'en': 'Unit'},
-    'no_matching_bookings': {'ar': 'لا توجد حجوزات مطابقة', 'en': 'No matching bookings'},
+    'no_matching_bookings': {
+      'ar': 'لا توجد حجوزات مطابقة',
+      'en': 'No matching bookings'
+    },
     'add_unit_addon': {'ar': 'إضافة خيار', 'en': 'Add option'},
     'addon_type': {'ar': 'النوع', 'en': 'Type'},
     'billed': {'ar': 'يُحسب', 'en': 'Billed'},

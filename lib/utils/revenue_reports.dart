@@ -26,7 +26,11 @@ class RevenueReports {
 
   /// مفاتيح المصروفات المحتملة في استجابة الـ API، مرتّبة بحسب الأولوية.
   static const Map<String, List<String>> expenseKeys = {
-    'maintenance_expense': ['maintenance_expense', 'maintenance_cost', 'maintenance_total'],
+    'maintenance_expense': [
+      'maintenance_expense',
+      'maintenance_cost',
+      'maintenance_total'
+    ],
     'cleaning_expense': ['cleaning_expense', 'cleaning_cost', 'cleaning_total'],
     'commission': ['commission', 'commission_total'],
   };
@@ -61,7 +65,8 @@ class RevenueReports {
     expenseKeys.forEach((labelKey, candidates) {
       for (final key in candidates) {
         if (data.containsKey(key) && data[key] != null) {
-          out.add(ExpenseTotal(labelKey: labelKey, total: _toDouble(data[key])));
+          out.add(
+              ExpenseTotal(labelKey: labelKey, total: _toDouble(data[key])));
           return;
         }
       }

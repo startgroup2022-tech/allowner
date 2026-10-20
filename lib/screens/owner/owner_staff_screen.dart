@@ -45,11 +45,14 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
       await _service.toggleStaffStatus(asInt(staff['id']));
       _reload();
     } on ApiException catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
     }
   }
 
-  Future<void> _openResetPasswordSheet(bool isArabic, Map<String, dynamic> staff) async {
+  Future<void> _openResetPasswordSheet(
+      bool isArabic, Map<String, dynamic> staff) async {
     final pwCtrl = TextEditingController();
     await showModalBottomSheet(
       context: context,
@@ -60,7 +63,8 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
             left: AppDimens.pagePadding,
             right: AppDimens.pagePadding,
             top: AppDimens.pagePadding,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + AppDimens.pagePadding,
+            bottom:
+                MediaQuery.of(ctx).viewInsets.bottom + AppDimens.pagePadding,
           ),
           child: StatefulBuilder(
             builder: (ctx, setSheetState) => SingleChildScrollView(
@@ -68,7 +72,8 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('${AppStrings.t(isArabic, 'reset_password')} — ${staff['full_name']}',
+                  Text(
+                      '${AppStrings.t(isArabic, 'reset_password')} — ${staff['full_name']}',
                       style: Theme.of(ctx).textTheme.titleMedium),
                   const SizedBox(height: AppDimens.md),
                   TextField(
@@ -87,14 +92,17 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
                       onPressed: () async {
                         if (pwCtrl.text.trim().length < 6) return;
                         try {
-                          await _service.resetStaffPassword(asInt(staff['id']), pwCtrl.text.trim());
+                          await _service.resetStaffPassword(
+                              asInt(staff['id']), pwCtrl.text.trim());
                           if (ctx.mounted) Navigator.of(ctx).pop();
                           if (mounted) {
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(SnackBar(content: Text(AppStrings.t(isArabic, 'save'))));
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(AppStrings.t(isArabic, 'save'))));
                           }
                         } on ApiException catch (e) {
-                          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+                          if (mounted)
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(e.message)));
                         }
                       },
                       child: Text(AppStrings.t(isArabic, 'save')),
@@ -125,7 +133,8 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
             left: AppDimens.pagePadding,
             right: AppDimens.pagePadding,
             top: AppDimens.pagePadding,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + AppDimens.pagePadding,
+            bottom:
+                MediaQuery.of(ctx).viewInsets.bottom + AppDimens.pagePadding,
           ),
           child: StatefulBuilder(
             builder: (ctx, setSheetState) => SingleChildScrollView(
@@ -133,20 +142,26 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(AppStrings.t(isArabic, 'add_unit_manager'), style: Theme.of(ctx).textTheme.titleMedium),
+                  Text(AppStrings.t(isArabic, 'add_unit_manager'),
+                      style: Theme.of(ctx).textTheme.titleMedium),
                   const SizedBox(height: AppDimens.md),
-                  TextField(controller: nameCtrl, decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'full_name'))),
+                  TextField(
+                      controller: nameCtrl,
+                      decoration: InputDecoration(
+                          labelText: AppStrings.t(isArabic, 'full_name'))),
                   const SizedBox(height: AppDimens.md),
                   TextField(
                     controller: emailCtrl,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'email')),
+                    decoration: InputDecoration(
+                        labelText: AppStrings.t(isArabic, 'email')),
                   ),
                   const SizedBox(height: AppDimens.md),
                   TextField(
                     controller: phoneCtrl,
                     keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'phone')),
+                    decoration: InputDecoration(
+                        labelText: AppStrings.t(isArabic, 'phone')),
                   ),
                   const SizedBox(height: AppDimens.md),
                   TextField(
@@ -167,12 +182,14 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.lock_outline_rounded, size: 16, color: AppColors.textMuted),
+                        const Icon(Icons.lock_outline_rounded,
+                            size: 16, color: AppColors.textMuted),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
                             AppStrings.t(isArabic, 'staff_permissions_note'),
-                            style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                            style: const TextStyle(
+                                fontSize: 12, color: AppColors.textMuted),
                           ),
                         ),
                       ],
@@ -180,7 +197,9 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
                   ),
                   if (errorText != null) ...[
                     const SizedBox(height: AppDimens.sm),
-                    Text(errorText!, style: const TextStyle(color: AppColors.danger, fontSize: 12)),
+                    Text(errorText!,
+                        style: const TextStyle(
+                            color: AppColors.danger, fontSize: 12)),
                   ],
                   const SizedBox(height: AppDimens.lg),
                   SizedBox(
@@ -191,7 +210,8 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
                         if (nameCtrl.text.trim().isEmpty ||
                             emailCtrl.text.trim().isEmpty ||
                             pwCtrl.text.trim().length < 6) {
-                          setSheetState(() => errorText = AppStrings.t(isArabic, 'password_hint_min6'));
+                          setSheetState(() => errorText =
+                              AppStrings.t(isArabic, 'password_hint_min6'));
                           return;
                         }
                         try {
@@ -234,7 +254,8 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: AppColors.gold,
         onPressed: () => _openAddManagerSheet(isArabic),
-        icon: const Icon(Icons.person_add_alt_1_rounded, color: AppColors.textOnGold),
+        icon: const Icon(Icons.person_add_alt_1_rounded,
+            color: AppColors.textOnGold),
         label: Text(AppStrings.t(isArabic, 'add_unit_manager'),
             style: const TextStyle(color: AppColors.textOnGold)),
       ),
@@ -252,11 +273,16 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 32),
+                    Icon(Icons.error_outline_rounded,
+                        color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
-                    Text(AppStrings.t(isArabic, 'error_loading'), textAlign: TextAlign.center),
+                    Text(AppStrings.t(isArabic, 'error_loading'),
+                        textAlign: TextAlign.center),
                     const SizedBox(height: AppDimens.sm),
-                    Center(child: OutlinedButton(onPressed: _reload, child: Text(AppStrings.t(isArabic, 'retry')))),
+                    Center(
+                        child: OutlinedButton(
+                            onPressed: _reload,
+                            child: Text(AppStrings.t(isArabic, 'retry')))),
                   ],
                 );
               }
@@ -275,14 +301,16 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
                     ),
                     child: Text(
                       AppStrings.t(isArabic, 'staff_desc'),
-                      style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
+                      style: textTheme.bodySmall
+                          ?.copyWith(color: AppColors.textMuted),
                     ),
                   ),
                   const SizedBox(height: AppDimens.md),
                   if (staff.isEmpty)
                     Padding(
                       padding: const EdgeInsets.all(AppDimens.xl),
-                      child: Center(child: Text(AppStrings.t(isArabic, 'no_staff_yet'))),
+                      child: Center(
+                          child: Text(AppStrings.t(isArabic, 'no_staff_yet'))),
                     )
                   else
                     ...staff.map((s) {
@@ -292,7 +320,8 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
                         padding: const EdgeInsets.all(AppDimens.md),
                         decoration: BoxDecoration(
                           color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+                          borderRadius:
+                              BorderRadius.circular(AppDimens.radiusLg),
                           border: Border.all(color: AppColors.cardBorder),
                         ),
                         child: Column(
@@ -301,46 +330,65 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
                             Row(
                               children: [
                                 Expanded(
-                                  child: Text(s['full_name']?.toString() ?? '', style: textTheme.titleSmall),
+                                  child: Text(s['full_name']?.toString() ?? '',
+                                      style: textTheme.titleSmall),
                                 ),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: (isActive ? AppColors.success : AppColors.danger).withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(AppDimens.radiusSm),
+                                    color: (isActive
+                                            ? AppColors.success
+                                            : AppColors.danger)
+                                        .withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(
+                                        AppDimens.radiusSm),
                                   ),
                                   child: Text(
-                                    AppStrings.t(isArabic, isActive ? 'active' : 'suspended'),
+                                    AppStrings.t(isArabic,
+                                        isActive ? 'active' : 'suspended'),
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
-                                      color: isActive ? AppColors.success : AppColors.danger,
+                                      color: isActive
+                                          ? AppColors.success
+                                          : AppColors.danger,
                                     ),
                                   ),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 4),
-                            Text(_roleLabel(isArabic, s['role']?.toString() ?? ''),
-                                style: textTheme.bodySmall?.copyWith(color: AppColors.goldDark)),
+                            Text(
+                                _roleLabel(
+                                    isArabic, s['role']?.toString() ?? ''),
+                                style: textTheme.bodySmall
+                                    ?.copyWith(color: AppColors.goldDark)),
                             if ((s['email'] ?? '').toString().isNotEmpty)
-                              Text(s['email'].toString(), style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                              Text(s['email'].toString(),
+                                  style: textTheme.bodySmall
+                                      ?.copyWith(color: AppColors.textMuted)),
                             if ((s['phone'] ?? '').toString().isNotEmpty)
-                              Text(s['phone'].toString(), style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                              Text(s['phone'].toString(),
+                                  style: textTheme.bodySmall
+                                      ?.copyWith(color: AppColors.textMuted)),
                             const SizedBox(height: AppDimens.sm),
                             Row(
                               children: [
                                 Expanded(
                                   child: OutlinedButton(
                                     onPressed: () => _toggleStatus(s),
-                                    child: Text(AppStrings.t(isArabic, isActive ? 'suspend' : 'activate')),
+                                    child: Text(AppStrings.t(isArabic,
+                                        isActive ? 'suspend' : 'activate')),
                                   ),
                                 ),
                                 const SizedBox(width: AppDimens.sm),
                                 Expanded(
                                   child: OutlinedButton(
-                                    onPressed: () => _openResetPasswordSheet(isArabic, s),
-                                    child: Text(AppStrings.t(isArabic, 'reset_password')),
+                                    onPressed: () =>
+                                        _openResetPasswordSheet(isArabic, s),
+                                    child: Text(AppStrings.t(
+                                        isArabic, 'reset_password')),
                                   ),
                                 ),
                               ],

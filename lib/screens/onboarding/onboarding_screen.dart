@@ -82,7 +82,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             Align(
               alignment: Alignment.topRight,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.pagePadding, vertical: 8),
                 child: TextButton(
                   onPressed: _goToLogin,
                   child: Text(AppStrings.t(isArabic, 'skip')),
@@ -97,39 +98,43 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 itemBuilder: (context, index) {
                   final page = _pages[index];
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppDimens.pagePadding),
                     child: Center(
-                     child: SingleChildScrollView(
-                      child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 160,
-                          height: 160,
-                          decoration: BoxDecoration(
-                            color: page.iconColor.withOpacity(0.07),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(page.icon, size: 70, color: page.iconColor),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 160,
+                              height: 160,
+                              decoration: BoxDecoration(
+                                color: page.iconColor.withOpacity(0.07),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(page.icon,
+                                  size: 70, color: page.iconColor),
+                            ),
+                            const SizedBox(height: AppDimens.xxl),
+                            Text(
+                              AppStrings.t(isArabic, page.titleKey),
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.headlineLarge,
+                            ),
+                            const SizedBox(height: AppDimens.md),
+                            Text(
+                              AppStrings.t(isArabic, page.descKey),
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                      color: AppColors.textSecondary,
+                                      height: 1.6),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: AppDimens.xxl),
-                        Text(
-                          AppStrings.t(isArabic, page.titleKey),
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.headlineLarge,
-                        ),
-                        const SizedBox(height: AppDimens.md),
-                        Text(
-                          AppStrings.t(isArabic, page.descKey),
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyLarge
-                              ?.copyWith(color: AppColors.textSecondary, height: 1.6),
-                        ),
-                      ],
-                    ),
-                    ),
+                      ),
                     ),
                   );
                 },
@@ -145,7 +150,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   width: _currentPage == index ? 24 : 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: _currentPage == index ? AppColors.gold : AppColors.cardBorder,
+                    color: _currentPage == index
+                        ? AppColors.gold
+                        : AppColors.cardBorder,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -153,7 +160,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
             const SizedBox(height: AppDimens.xl),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
               child: SizedBox(
                 width: double.infinity,
                 height: AppDimens.buttonHeight,

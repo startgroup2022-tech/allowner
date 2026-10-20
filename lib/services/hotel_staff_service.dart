@@ -18,9 +18,11 @@ class HotelStaffService {
 
   // ===== حجوزات الفندق: تأكيد دخول/خروج الضيف =====
 
-  Future<List<Map<String, dynamic>>> getBookings({String scope = 'active'}) async {
+  Future<List<Map<String, dynamic>>> getBookings(
+      {String scope = 'active'}) async {
     try {
-      final res = await _dio.get('/hotel/bookings.php', queryParameters: {'scope': scope});
+      final res = await _dio
+          .get('/hotel/bookings.php', queryParameters: {'scope': scope});
       return asMapList(res.data['bookings']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
@@ -29,7 +31,8 @@ class HotelStaffService {
 
   Future<void> checkIn(int bookingId) async {
     try {
-      await _dio.post('/hotel/bookings.php', data: {'booking_id': bookingId, 'action': 'check_in'});
+      await _dio.post('/hotel/bookings.php',
+          data: {'booking_id': bookingId, 'action': 'check_in'});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -37,7 +40,8 @@ class HotelStaffService {
 
   Future<void> checkOut(int bookingId) async {
     try {
-      await _dio.post('/hotel/bookings.php', data: {'booking_id': bookingId, 'action': 'check_out'});
+      await _dio.post('/hotel/bookings.php',
+          data: {'booking_id': bookingId, 'action': 'check_out'});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -46,9 +50,11 @@ class HotelStaffService {
   // ===== طلبات الخدمة: نظافة | صيانة | وجبات | سرير إضافي =====
   // type: cleaning | maintenance | meal | extra_bed
 
-  Future<List<Map<String, dynamic>>> getRequests({required String type, String status = 'open'}) async {
+  Future<List<Map<String, dynamic>>> getRequests(
+      {required String type, String status = 'open'}) async {
     try {
-      final res = await _dio.get('/hotel/requests.php', queryParameters: {'type': type, 'status': status});
+      final res = await _dio.get('/hotel/requests.php',
+          queryParameters: {'type': type, 'status': status});
       return asMapList(res.data['requests']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
@@ -141,7 +147,8 @@ class HotelStaffService {
 
   Future<void> deletePrice(int id) async {
     try {
-      await _dio.post('/hotel/prices.php', data: {'action': 'delete', 'id': id});
+      await _dio
+          .post('/hotel/prices.php', data: {'action': 'delete', 'id': id});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }

@@ -49,7 +49,8 @@ class OwnerService {
 
   Future<void> cancelBooking(int bookingId) async {
     try {
-      await _dio.post('/user/owner-bookings.php', data: {'booking_id': bookingId, 'action': 'cancel'});
+      await _dio.post('/user/owner-bookings.php',
+          data: {'booking_id': bookingId, 'action': 'cancel'});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -58,7 +59,8 @@ class OwnerService {
   /// تأكيد حجز بانتظار المالك — يُبلَّغ الفندق والعميل تلقائياً بإيميل
   Future<void> confirmBooking(int bookingId) async {
     try {
-      await _dio.post('/user/owner-bookings.php', data: {'booking_id': bookingId, 'action': 'confirm'});
+      await _dio.post('/user/owner-bookings.php',
+          data: {'booking_id': bookingId, 'action': 'confirm'});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -98,9 +100,11 @@ class OwnerService {
   // ===== طلبات المالك للفندق: النظافة + السرير الإضافي =====
   // type: cleaning | extra_bed
 
-  Future<List<Map<String, dynamic>>> getOwnerHotelRequests({required String type}) async {
+  Future<List<Map<String, dynamic>>> getOwnerHotelRequests(
+      {required String type}) async {
     try {
-      final res = await _dio.get('/user/owner-requests.php', queryParameters: {'type': type});
+      final res = await _dio
+          .get('/user/owner-requests.php', queryParameters: {'type': type});
       return asMapList(res.data['requests']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
@@ -116,11 +120,11 @@ class OwnerService {
     try {
       await _dio.post('/user/owner-requests.php',
           data: buildOwnerRequestPayload(
-        type: type,
-        hotelId: hotelId,
-        unitId: unitId,
-        description: description,
-      ));
+            type: type,
+            hotelId: hotelId,
+            unitId: unitId,
+            description: description,
+          ));
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -128,7 +132,8 @@ class OwnerService {
 
   Future<void> cancelOwnerHotelRequest(int id) async {
     try {
-      await _dio.post('/user/owner-requests.php', data: {'action': 'cancel', 'id': id});
+      await _dio.post('/user/owner-requests.php',
+          data: {'action': 'cancel', 'id': id});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -156,7 +161,8 @@ class OwnerService {
 
   Future<Map<String, dynamic>> getAgentClientDetail(int id) async {
     try {
-      final res = await _dio.get('/user/agent-clients.php', queryParameters: {'id': id});
+      final res = await _dio
+          .get('/user/agent-clients.php', queryParameters: {'id': id});
       return {
         'client': asMap(res.data['client']),
         'bookings': asMapList(res.data['bookings']),
@@ -191,7 +197,8 @@ class OwnerService {
 
   Future<void> deleteAgentClient(int id) async {
     try {
-      await _dio.post('/user/agent-clients.php', data: {'action': 'delete', 'id': id});
+      await _dio.post('/user/agent-clients.php',
+          data: {'action': 'delete', 'id': id});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -275,9 +282,11 @@ class OwnerService {
     }
   }
 
-  Future<void> updateMealRequestStatus({required int requestId, required String status}) async {
+  Future<void> updateMealRequestStatus(
+      {required int requestId, required String status}) async {
     try {
-      await _dio.post('/user/owner-meals.php', data: {'request_id': requestId, 'status': status});
+      await _dio.post('/user/owner-meals.php',
+          data: {'request_id': requestId, 'status': status});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -333,9 +342,11 @@ class OwnerService {
     }
   }
 
-  Future<void> castVote({required int decisionId, required int optionId}) async {
+  Future<void> castVote(
+      {required int decisionId, required int optionId}) async {
     try {
-      await _dio.post('/decisions/vote.php', data: {'decision_id': decisionId, 'option_id': optionId});
+      await _dio.post('/decisions/vote.php',
+          data: {'decision_id': decisionId, 'option_id': optionId});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -386,7 +397,8 @@ class OwnerService {
 
   Future<List<Map<String, dynamic>>> getPostComments(int postId) async {
     try {
-      final res = await _dio.get('/community/comments.php', queryParameters: {'post_id': postId});
+      final res = await _dio
+          .get('/community/comments.php', queryParameters: {'post_id': postId});
       return asMapList(res.data['comments']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
@@ -395,7 +407,8 @@ class OwnerService {
 
   Future<void> addComment(int postId, String content) async {
     try {
-      await _dio.post('/community/comments.php', data: {'post_id': postId, 'content': content});
+      await _dio.post('/community/comments.php',
+          data: {'post_id': postId, 'content': content});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -420,8 +433,10 @@ class OwnerService {
       await _dio.post('/marketplace/create.php', data: {
         'unit_id': unitId,
         'price': price,
-        if (description != null && description.isNotEmpty) 'description': description,
-        if (contactPhone != null && contactPhone.isNotEmpty) 'contact_phone': contactPhone,
+        if (description != null && description.isNotEmpty)
+          'description': description,
+        if (contactPhone != null && contactPhone.isNotEmpty)
+          'contact_phone': contactPhone,
       });
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
@@ -430,7 +445,10 @@ class OwnerService {
 
   Future<void> expressInterest(int listingId, {String? message}) async {
     try {
-      await _dio.post('/marketplace/interest.php', data: {'listing_id': listingId, if (message != null) 'message': message});
+      await _dio.post('/marketplace/interest.php', data: {
+        'listing_id': listingId,
+        if (message != null) 'message': message
+      });
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -456,14 +474,16 @@ class OwnerService {
 
   Future<List<Map<String, dynamic>>> getThread(int conversationId) async {
     try {
-      final res = await _dio.get('/messages/thread.php', queryParameters: {'conversation_id': conversationId});
+      final res = await _dio.get('/messages/thread.php',
+          queryParameters: {'conversation_id': conversationId});
       return asMapList(res.data['messages']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
   }
 
-  Future<int> sendMessage({int? conversationId, int? recipientId, required String body}) async {
+  Future<int> sendMessage(
+      {int? conversationId, int? recipientId, required String body}) async {
     try {
       final res = await _dio.post('/messages/send.php', data: {
         if (conversationId != null) 'conversation_id': conversationId,
@@ -525,7 +545,8 @@ class OwnerService {
 
   Future<void> toggleStaffStatus(int staffId) async {
     try {
-      await _dio.post('/user/owner-staff.php', data: {'action': 'toggle_status', 'id': staffId});
+      await _dio.post('/user/owner-staff.php',
+          data: {'action': 'toggle_status', 'id': staffId});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -593,9 +614,12 @@ class OwnerService {
         'price_per_night': pricePerNight.toString(),
         if (pricePerWeek != null) 'price_per_week': pricePerWeek.toString(),
         if (pricePerMonth != null) 'price_per_month': pricePerMonth.toString(),
-        if (coverImagePath != null) 'cover_image': await MultipartFile.fromFile(coverImagePath),
+        if (coverImagePath != null)
+          'cover_image': await MultipartFile.fromFile(coverImagePath),
         if (galleryPaths != null)
-          'gallery[]': [for (final p in galleryPaths) await MultipartFile.fromFile(p)],
+          'gallery[]': [
+            for (final p in galleryPaths) await MultipartFile.fromFile(p)
+          ],
         if (addons != null && addons.isNotEmpty) 'addons': jsonEncode(addons),
         if (availabilityPeriods != null && availabilityPeriods.isNotEmpty)
           'avail_from[]': [for (final p in availabilityPeriods) p['from']!],

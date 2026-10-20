@@ -49,15 +49,14 @@ String buildMaintenancePaymentMessage({
   String? currency,
 }) {
   final lines = <String>[
-    isArabic
-        ? 'طلب دفع تكلفة صيانة'
-        : 'Maintenance payment request',
+    isArabic ? 'طلب دفع تكلفة صيانة' : 'Maintenance payment request',
   ];
   if (requestId != null) {
     lines.add(isArabic ? 'رقم الطلب: $requestId' : 'Request #$requestId');
   }
   if (unitName != null && unitName.trim().isNotEmpty) {
-    lines.add(isArabic ? 'الوحدة: ${unitName.trim()}' : 'Unit: ${unitName.trim()}');
+    lines.add(
+        isArabic ? 'الوحدة: ${unitName.trim()}' : 'Unit: ${unitName.trim()}');
   }
   if (amount != null && amount > 0) {
     final value = amount == amount.roundToDouble()

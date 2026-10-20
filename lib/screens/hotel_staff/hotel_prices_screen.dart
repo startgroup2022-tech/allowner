@@ -33,18 +33,25 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
       await _service.deletePrice(id);
       _reload();
     } on ApiException catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
     }
   }
 
-  Future<void> _openPriceSheet(bool isArabic, List<Map<String, dynamic>> hotels, List<Map<String, dynamic>> units,
+  Future<void> _openPriceSheet(bool isArabic, List<Map<String, dynamic>> hotels,
+      List<Map<String, dynamic>> units,
       {Map<String, dynamic>? existing}) async {
-    int? hotelId = existing?['hotel_id'] as int? ?? (hotels.isNotEmpty ? asInt(hotels.first['id']) : null);
+    int? hotelId = existing?['hotel_id'] as int? ??
+        (hotels.isNotEmpty ? asInt(hotels.first['id']) : null);
     int? unitId = existing?['unit_id'] as int?;
     String type = existing?['service_type']?.toString() ?? _types.first;
-    final priceCtrl = TextEditingController(text: existing?['price']?.toString() ?? '');
-    final titleArCtrl = TextEditingController(text: existing?['title_ar']?.toString() ?? '');
-    final titleEnCtrl = TextEditingController(text: existing?['title_en']?.toString() ?? '');
+    final priceCtrl =
+        TextEditingController(text: existing?['price']?.toString() ?? '');
+    final titleArCtrl =
+        TextEditingController(text: existing?['title_ar']?.toString() ?? '');
+    final titleEnCtrl =
+        TextEditingController(text: existing?['title_en']?.toString() ?? '');
 
     await showModalBottomSheet(
       context: context,
@@ -62,33 +69,52 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(AppStrings.t(isArabic, existing != null ? 'edit_price' : 'add_price'), style: Theme.of(ctx).textTheme.titleMedium),
+                Text(
+                    AppStrings.t(isArabic,
+                        existing != null ? 'edit_price' : 'add_price'),
+                    style: Theme.of(ctx).textTheme.titleMedium),
                 const SizedBox(height: AppDimens.md),
                 DropdownButtonFormField<String>(
                   value: type,
-                  decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'service_type')),
-                  items: _types.map((t) => DropdownMenuItem(value: t, child: Text(AppStrings.t(isArabic, 'req_type_$t')))).toList(),
+                  decoration: InputDecoration(
+                      labelText: AppStrings.t(isArabic, 'service_type')),
+                  items: _types
+                      .map((t) => DropdownMenuItem(
+                          value: t,
+                          child: Text(AppStrings.t(isArabic, 'req_type_$t'))))
+                      .toList(),
                   onChanged: (v) => setSheetState(() => type = v ?? type),
                 ),
                 const SizedBox(height: AppDimens.md),
                 if (hotels.length > 1)
                   DropdownButtonFormField<int>(
                     value: hotelId,
-                    decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'select_hotel')),
-                    items: hotels.map((h) => DropdownMenuItem<int>(value: asInt(h['id']), child: Text(h['name']?.toString() ?? ''))).toList(),
+                    decoration: InputDecoration(
+                        labelText: AppStrings.t(isArabic, 'select_hotel')),
+                    items: hotels
+                        .map((h) => DropdownMenuItem<int>(
+                            value: asInt(h['id']),
+                            child: Text(h['name']?.toString() ?? '')))
+                        .toList(),
                     onChanged: (v) => setSheetState(() => hotelId = v),
                   ),
                 const SizedBox(height: AppDimens.md),
                 DropdownButtonFormField<int?>(
                   value: unitId,
-                  decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'unit_optional')),
+                  decoration: InputDecoration(
+                      labelText: AppStrings.t(isArabic, 'unit_optional')),
                   items: [
-                    DropdownMenuItem<int?>(value: null, child: Text(AppStrings.t(isArabic, 'all_units'))),
+                    DropdownMenuItem<int?>(
+                        value: null,
+                        child: Text(AppStrings.t(isArabic, 'all_units'))),
                     ...units
-                        .where((u) => hotelId == null || u['hotel_id'] == hotelId)
+                        .where(
+                            (u) => hotelId == null || u['hotel_id'] == hotelId)
                         .map((u) => DropdownMenuItem<int?>(
                               value: asInt(u['id']),
-                              child: Text(isArabic ? (u['name_ar']?.toString() ?? '') : (u['name_en']?.toString() ?? '')),
+                              child: Text(isArabic
+                                  ? (u['name_ar']?.toString() ?? '')
+                                  : (u['name_en']?.toString() ?? '')),
                             )),
                   ],
                   onChanged: (v) => setSheetState(() => unitId = v),
@@ -97,12 +123,19 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
                 TextField(
                   controller: priceCtrl,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'price')),
+                  decoration: InputDecoration(
+                      labelText: AppStrings.t(isArabic, 'price')),
                 ),
                 const SizedBox(height: AppDimens.md),
-                TextField(controller: titleArCtrl, decoration: const InputDecoration(labelText: 'الاسم (عربي، اختياري)')),
+                TextField(
+                    controller: titleArCtrl,
+                    decoration: const InputDecoration(
+                        labelText: 'الاسم (عربي، اختياري)')),
                 const SizedBox(height: AppDimens.sm),
-                TextField(controller: titleEnCtrl, decoration: const InputDecoration(labelText: 'Name (English, optional)')),
+                TextField(
+                    controller: titleEnCtrl,
+                    decoration: const InputDecoration(
+                        labelText: 'Name (English, optional)')),
                 const SizedBox(height: AppDimens.lg),
                 SizedBox(
                   width: double.infinity,
@@ -117,14 +150,20 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
                           hotelId: hotelId!,
                           unitId: unitId,
                           serviceType: type,
-                          titleAr: titleArCtrl.text.trim().isNotEmpty ? titleArCtrl.text.trim() : null,
-                          titleEn: titleEnCtrl.text.trim().isNotEmpty ? titleEnCtrl.text.trim() : null,
+                          titleAr: titleArCtrl.text.trim().isNotEmpty
+                              ? titleArCtrl.text.trim()
+                              : null,
+                          titleEn: titleEnCtrl.text.trim().isNotEmpty
+                              ? titleEnCtrl.text.trim()
+                              : null,
                           price: price,
                         );
                         if (ctx.mounted) Navigator.of(ctx).pop();
                         _reload();
                       } on ApiException catch (e) {
-                        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+                        if (mounted)
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(SnackBar(content: Text(e.message)));
                       }
                     },
                     child: Text(AppStrings.t(isArabic, 'save_changes')),
@@ -163,7 +202,9 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
                 return ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
-                  children: [Center(child: Text(AppStrings.t(isArabic, 'error_loading')))],
+                  children: [
+                    Center(child: Text(AppStrings.t(isArabic, 'error_loading')))
+                  ],
                 );
               }
               final data = snapshot.data ?? {};
@@ -176,21 +217,31 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
                   if (prices.isEmpty)
                     ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      children: [Padding(padding: const EdgeInsets.all(AppDimens.xl), child: Center(child: Text(AppStrings.t(isArabic, 'no_prices_yet'))))],
+                      children: [
+                        Padding(
+                            padding: const EdgeInsets.all(AppDimens.xl),
+                            child: Center(
+                                child: Text(
+                                    AppStrings.t(isArabic, 'no_prices_yet'))))
+                      ],
                     )
                   else
                     ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(AppDimens.pagePadding, AppDimens.pagePadding, AppDimens.pagePadding, 90),
+                      padding: const EdgeInsets.fromLTRB(AppDimens.pagePadding,
+                          AppDimens.pagePadding, AppDimens.pagePadding, 90),
                       itemCount: prices.length,
-                      separatorBuilder: (context, index) => const SizedBox(height: AppDimens.sm),
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: AppDimens.sm),
                       itemBuilder: (context, index) {
                         final p = prices[index];
-                        final unitName = isArabic ? p['unit_name_ar'] : p['unit_name_en'];
+                        final unitName =
+                            isArabic ? p['unit_name_ar'] : p['unit_name_en'];
                         return Container(
                           padding: const EdgeInsets.all(AppDimens.md),
                           decoration: BoxDecoration(
                             color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+                            borderRadius:
+                                BorderRadius.circular(AppDimens.radiusLg),
                             border: Border.all(color: AppColors.cardBorder),
                           ),
                           child: Row(
@@ -199,22 +250,32 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(isArabic ? p['title_ar']?.toString() ?? '' : p['title_en']?.toString() ?? '', style: textTheme.titleSmall),
+                                    Text(
+                                        isArabic
+                                            ? p['title_ar']?.toString() ?? ''
+                                            : p['title_en']?.toString() ?? '',
+                                        style: textTheme.titleSmall),
                                     Text(
                                       '${AppStrings.t(isArabic, 'req_type_${p['service_type']}')}${unitName != null ? ' · $unitName' : ' · ${AppStrings.t(isArabic, 'all_units')}'}',
-                                      style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
+                                      style: textTheme.bodySmall?.copyWith(
+                                          color: AppColors.textMuted),
                                     ),
                                   ],
                                 ),
                               ),
-                              Text('${p['price']} ${AppStrings.t(isArabic, 'sar')}',
-                                  style: textTheme.titleSmall?.copyWith(color: AppColors.goldDark)),
+                              Text(
+                                  '${p['price']} ${AppStrings.t(isArabic, 'sar')}',
+                                  style: textTheme.titleSmall
+                                      ?.copyWith(color: AppColors.goldDark)),
                               IconButton(
                                 icon: const Icon(Icons.edit_outlined, size: 20),
-                                onPressed: () => _openPriceSheet(isArabic, hotels, units, existing: p),
+                                onPressed: () => _openPriceSheet(
+                                    isArabic, hotels, units,
+                                    existing: p),
                               ),
                               IconButton(
-                                icon: Icon(Icons.delete_outline_rounded, size: 20, color: AppColors.danger),
+                                icon: Icon(Icons.delete_outline_rounded,
+                                    size: 20, color: AppColors.danger),
                                 onPressed: () => _deletePrice(asInt(p['id'])),
                               ),
                             ],

@@ -78,25 +78,30 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       appBar: AppBar(title: Text(AppStrings.t(isArabic, 'create_account'))),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
+          padding:
+              const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: AppDimens.md),
-                Text(AppStrings.t(isArabic, 'full_name'), style: textTheme.titleSmall),
+                Text(AppStrings.t(isArabic, 'full_name'),
+                    style: textTheme.titleSmall),
                 const SizedBox(height: AppDimens.sm),
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(prefixIcon: Icon(Icons.person_outline_rounded)),
+                  decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.person_outline_rounded)),
                   validator: (v) => (v == null || v.trim().isEmpty)
-                      ? (isArabic ? 'هذا الحقل مطلوب' : 'This field is required')
+                      ? (isArabic
+                          ? 'هذا الحقل مطلوب'
+                          : 'This field is required')
                       : null,
                 ),
                 const SizedBox(height: AppDimens.md),
-
-                Text(AppStrings.t(isArabic, 'phone_number'), style: textTheme.titleSmall),
+                Text(AppStrings.t(isArabic, 'phone_number'),
+                    style: textTheme.titleSmall),
                 const SizedBox(height: AppDimens.sm),
                 TextFormField(
                   controller: _phoneController,
@@ -108,45 +113,55 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: AppDimens.md),
-
-                Text(AppStrings.t(isArabic, 'email'), style: textTheme.titleSmall),
+                Text(AppStrings.t(isArabic, 'email'),
+                    style: textTheme.titleSmall),
                 const SizedBox(height: AppDimens.sm),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   textDirection: TextDirection.ltr,
-                  decoration: const InputDecoration(prefixIcon: Icon(Icons.email_outlined)),
+                  decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.email_outlined)),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) {
-                      return isArabic ? 'هذا الحقل مطلوب' : 'This field is required';
+                      return isArabic
+                          ? 'هذا الحقل مطلوب'
+                          : 'This field is required';
                     }
                     if (!v.contains('@')) {
-                      return isArabic ? 'بريد إلكتروني غير صحيح' : 'Invalid email';
+                      return isArabic
+                          ? 'بريد إلكتروني غير صحيح'
+                          : 'Invalid email';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: AppDimens.md),
-
-                Text(AppStrings.t(isArabic, 'password'), style: textTheme.titleSmall),
+                Text(AppStrings.t(isArabic, 'password'),
+                    style: textTheme.titleSmall),
                 const SizedBox(height: AppDimens.sm),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: const InputDecoration(prefixIcon: Icon(Icons.lock_outline_rounded)),
+                  decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.lock_outline_rounded)),
                   validator: (v) {
                     if (v == null || v.isEmpty) {
-                      return isArabic ? 'هذا الحقل مطلوب' : 'This field is required';
+                      return isArabic
+                          ? 'هذا الحقل مطلوب'
+                          : 'This field is required';
                     }
                     if (v.length < 6) {
-                      return isArabic ? 'كلمة المرور 6 أحرف على الأقل' : 'Password must be at least 6 characters';
+                      return isArabic
+                          ? 'كلمة المرور 6 أحرف على الأقل'
+                          : 'Password must be at least 6 characters';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: AppDimens.md),
-
-                Text(AppStrings.t(isArabic, 'account_type'), style: textTheme.titleSmall),
+                Text(AppStrings.t(isArabic, 'account_type'),
+                    style: textTheme.titleSmall),
                 const SizedBox(height: AppDimens.sm),
                 Row(
                   children: [
@@ -155,7 +170,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         icon: Icons.luggage_outlined,
                         label: AppStrings.t(isArabic, 'role_guest'),
                         isSelected: _selectedRole == _SignupRole.guest,
-                        onTap: () => setState(() => _selectedRole = _SignupRole.guest),
+                        onTap: () =>
+                            setState(() => _selectedRole = _SignupRole.guest),
                       ),
                     ),
                     const SizedBox(width: AppDimens.sm),
@@ -164,13 +180,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         icon: Icons.apartment_outlined,
                         label: AppStrings.t(isArabic, 'role_owner'),
                         isSelected: _selectedRole == _SignupRole.owner,
-                        onTap: () => setState(() => _selectedRole = _SignupRole.owner),
+                        onTap: () =>
+                            setState(() => _selectedRole = _SignupRole.owner),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: AppDimens.xl),
-
                 SizedBox(
                   height: AppDimens.buttonHeight,
                   child: ElevatedButton(
@@ -179,18 +195,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ? const SizedBox(
                             width: 22,
                             height: 22,
-                            child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2.4, color: Colors.white),
                           )
                         : Text(AppStrings.t(isArabic, 'create_account')),
                   ),
                 ),
                 const SizedBox(height: AppDimens.lg),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(AppStrings.t(isArabic, 'have_account'),
-                        style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
+                        style: textTheme.bodyMedium
+                            ?.copyWith(color: AppColors.textSecondary)),
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
                       child: Text(AppStrings.t(isArabic, 'login')),
@@ -228,7 +245,8 @@ class _RoleOption extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: AppDimens.md),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.gold.withOpacity(0.12) : AppColors.surface,
+          color:
+              isSelected ? AppColors.gold.withOpacity(0.12) : AppColors.surface,
           borderRadius: BorderRadius.circular(AppDimens.radiusMd),
           border: Border.all(
             color: isSelected ? AppColors.goldDark : AppColors.cardBorder,
@@ -237,14 +255,18 @@ class _RoleOption extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(icon, size: 22, color: isSelected ? AppColors.goldDark : AppColors.textSecondary),
+            Icon(icon,
+                size: 22,
+                color:
+                    isSelected ? AppColors.goldDark : AppColors.textSecondary),
             const SizedBox(height: 6),
             Text(
               label,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
-                color: isSelected ? AppColors.goldDark : AppColors.textSecondary,
+                color:
+                    isSelected ? AppColors.goldDark : AppColors.textSecondary,
               ),
             ),
           ],

@@ -37,7 +37,10 @@ class _MealRequestScreenState extends ConsumerState<MealRequestScreen> {
   void initState() {
     super.initState();
     _bookingsFuture = _service.myBookings().then((list) {
-      final eligible = list.where((b) => ['confirmed', 'checked_in'].contains(b['status']?.toString())).toList();
+      final eligible = list
+          .where((b) =>
+              ['confirmed', 'checked_in'].contains(b['status']?.toString()))
+          .toList();
       if (eligible.isNotEmpty) _selectedBookingId = asInt(eligible.first['id']);
       return eligible;
     });
@@ -51,7 +54,9 @@ class _MealRequestScreenState extends ConsumerState<MealRequestScreen> {
   }
 
   Future<void> _submit(bool isArabic) async {
-    final invalid = _selectedMeals.isEmpty || _selectedBookingId == null || _roomController.text.trim().isEmpty;
+    final invalid = _selectedMeals.isEmpty ||
+        _selectedBookingId == null ||
+        _roomController.text.trim().isEmpty;
     setState(() => _validationError = invalid);
     if (invalid) return;
 
@@ -61,27 +66,37 @@ class _MealRequestScreenState extends ConsumerState<MealRequestScreen> {
         bookingId: _selectedBookingId!,
         roomNumber: _roomController.text.trim(),
         mealTypes: _selectedMeals.toList(),
-        notes: _notesController.text.trim().isNotEmpty ? _notesController.text.trim() : null,
+        notes: _notesController.text.trim().isNotEmpty
+            ? _notesController.text.trim()
+            : null,
       );
       if (!mounted) return;
       setState(() => _submitting = false);
       await showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppDimens.radiusLg)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDimens.radiusLg)),
           title: Column(
             children: [
               Container(
                 width: 56,
                 height: 56,
-                decoration: BoxDecoration(color: AppColors.success.withOpacity(0.1), shape: BoxShape.circle),
-                child: const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 32),
+                decoration: BoxDecoration(
+                    color: AppColors.success.withOpacity(0.1),
+                    shape: BoxShape.circle),
+                child: const Icon(Icons.check_circle_rounded,
+                    color: AppColors.success, size: 32),
               ),
               const SizedBox(height: AppDimens.md),
-              Text(AppStrings.t(isArabic, 'request_submitted_title'), style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
+              Text(AppStrings.t(isArabic, 'request_submitted_title'),
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.center),
             ],
           ),
-          content: Text(AppStrings.t(isArabic, 'request_submitted_desc'), textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textSecondary)),
+          content: Text(AppStrings.t(isArabic, 'request_submitted_desc'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.textSecondary)),
           actionsAlignment: MainAxisAlignment.center,
           actions: [
             SizedBox(
@@ -100,7 +115,8 @@ class _MealRequestScreenState extends ConsumerState<MealRequestScreen> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _submitting = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message)));
     }
   }
 
@@ -124,13 +140,16 @@ class _MealRequestScreenState extends ConsumerState<MealRequestScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             if (snapshot.hasError) {
-              return Center(child: Text(AppStrings.t(isArabic, 'error_loading')));
+              return Center(
+                  child: Text(AppStrings.t(isArabic, 'error_loading')));
             }
             final bookings = snapshot.data ?? [];
             if (bookings.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.all(AppDimens.xl),
-                child: Center(child: Text(AppStrings.t(isArabic, 'no_confirmed_bookings'), textAlign: TextAlign.center)),
+                child: Center(
+                    child: Text(AppStrings.t(isArabic, 'no_confirmed_bookings'),
+                        textAlign: TextAlign.center)),
               );
             }
 
@@ -142,42 +161,56 @@ class _MealRequestScreenState extends ConsumerState<MealRequestScreen> {
                   Container(
                     width: 64,
                     height: 64,
-                    decoration: BoxDecoration(color: AppColors.gold.withOpacity(0.12), borderRadius: BorderRadius.circular(AppDimens.radiusLg)),
-                    child: const Icon(Icons.restaurant_outlined, color: AppColors.goldDark, size: 30),
+                    decoration: BoxDecoration(
+                        color: AppColors.gold.withOpacity(0.12),
+                        borderRadius:
+                            BorderRadius.circular(AppDimens.radiusLg)),
+                    child: const Icon(Icons.restaurant_outlined,
+                        color: AppColors.goldDark, size: 30),
                   ),
                   const SizedBox(height: AppDimens.md),
-                  Text(AppStrings.t(isArabic, 'order_meal'), style: textTheme.headlineSmall),
+                  Text(AppStrings.t(isArabic, 'order_meal'),
+                      style: textTheme.headlineSmall),
                   const SizedBox(height: 4),
-                  Text(AppStrings.t(isArabic, 'order_meal_desc'), style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
+                  Text(AppStrings.t(isArabic, 'order_meal_desc'),
+                      style: textTheme.bodyMedium
+                          ?.copyWith(color: AppColors.textSecondary)),
                   const SizedBox(height: AppDimens.xl),
-
-                  Text(AppStrings.t(isArabic, 'select_booking'), style: textTheme.titleSmall),
+                  Text(AppStrings.t(isArabic, 'select_booking'),
+                      style: textTheme.titleSmall),
                   const SizedBox(height: AppDimens.sm),
                   DropdownButtonFormField<int>(
                     value: _selectedBookingId,
                     items: bookings
                         .map((b) => DropdownMenuItem<int>(
                               value: asInt(b['id']),
-                              child: Text('${b['hotel_name'] ?? ''} — #${b['booking_ref'] ?? b['id']}', overflow: TextOverflow.ellipsis),
+                              child: Text(
+                                  '${b['hotel_name'] ?? ''} — #${b['booking_ref'] ?? b['id']}',
+                                  overflow: TextOverflow.ellipsis),
                             ))
                         .toList(),
                     onChanged: (v) => setState(() => _selectedBookingId = v),
                   ),
                   const SizedBox(height: AppDimens.lg),
-
-                  Text(AppStrings.t(isArabic, 'room_number'), style: textTheme.titleSmall),
+                  Text(AppStrings.t(isArabic, 'room_number'),
+                      style: textTheme.titleSmall),
                   const SizedBox(height: AppDimens.sm),
                   TextField(
                     controller: _roomController,
                     decoration: InputDecoration(
                       hintText: AppStrings.t(isArabic, 'room_number'),
-                      errorText: (_validationError && _roomController.text.trim().isEmpty) ? AppStrings.t(isArabic, 'room_number_required') : null,
+                      errorText: (_validationError &&
+                              _roomController.text.trim().isEmpty)
+                          ? AppStrings.t(isArabic, 'room_number_required')
+                          : null,
                     ),
                   ),
                   const SizedBox(height: AppDimens.lg),
-
-                  Text(AppStrings.t(isArabic, 'meal_type'), style: textTheme.titleSmall),
-                  Text(AppStrings.t(isArabic, 'meal_multi_select_hint'), style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                  Text(AppStrings.t(isArabic, 'meal_type'),
+                      style: textTheme.titleSmall),
+                  Text(AppStrings.t(isArabic, 'meal_multi_select_hint'),
+                      style: textTheme.bodySmall
+                          ?.copyWith(color: AppColors.textMuted)),
                   const SizedBox(height: AppDimens.sm),
                   Row(
                     children: [
@@ -204,26 +237,33 @@ class _MealRequestScreenState extends ConsumerState<MealRequestScreen> {
                   if (_validationError && _selectedMeals.isEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 6),
-                      child: Text(AppStrings.t(isArabic, 'meal_type_required'), style: const TextStyle(color: AppColors.danger, fontSize: 12)),
+                      child: Text(AppStrings.t(isArabic, 'meal_type_required'),
+                          style: const TextStyle(
+                              color: AppColors.danger, fontSize: 12)),
                     ),
                   const SizedBox(height: AppDimens.lg),
-
-                  Text(AppStrings.t(isArabic, 'notes'), style: textTheme.titleSmall),
+                  Text(AppStrings.t(isArabic, 'notes'),
+                      style: textTheme.titleSmall),
                   const SizedBox(height: AppDimens.sm),
                   TextField(
                     controller: _notesController,
                     maxLines: 4,
-                    decoration: InputDecoration(hintText: AppStrings.t(isArabic, 'notes_hint'), alignLabelWithHint: true),
+                    decoration: InputDecoration(
+                        hintText: AppStrings.t(isArabic, 'notes_hint'),
+                        alignLabelWithHint: true),
                   ),
                   const SizedBox(height: AppDimens.xl),
-
                   SizedBox(
                     width: double.infinity,
                     height: AppDimens.buttonHeight,
                     child: ElevatedButton(
                       onPressed: _submitting ? null : () => _submit(isArabic),
                       child: _submitting
-                          ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white))
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2.4, color: Colors.white))
                           : Text(AppStrings.t(isArabic, 'submit_request')),
                     ),
                   ),
@@ -243,7 +283,11 @@ class _MealOption extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _MealOption({required this.icon, required this.label, required this.isSelected, required this.onTap});
+  const _MealOption(
+      {required this.icon,
+      required this.label,
+      required this.isSelected,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -253,15 +297,27 @@ class _MealOption extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: AppDimens.md),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.gold.withOpacity(0.12) : AppColors.surface,
+          color:
+              isSelected ? AppColors.gold.withOpacity(0.12) : AppColors.surface,
           borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-          border: Border.all(color: isSelected ? AppColors.goldDark : AppColors.cardBorder, width: isSelected ? 1.5 : 1),
+          border: Border.all(
+              color: isSelected ? AppColors.goldDark : AppColors.cardBorder,
+              width: isSelected ? 1.5 : 1),
         ),
         child: Column(
           children: [
-            Icon(icon, size: 22, color: isSelected ? AppColors.goldDark : AppColors.textSecondary),
+            Icon(icon,
+                size: 22,
+                color:
+                    isSelected ? AppColors.goldDark : AppColors.textSecondary),
             const SizedBox(height: 6),
-            Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: isSelected ? AppColors.goldDark : AppColors.textSecondary)),
+            Text(label,
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: isSelected
+                        ? AppColors.goldDark
+                        : AppColors.textSecondary)),
           ],
         ),
       ),

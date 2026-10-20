@@ -6,6 +6,7 @@ import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/content_service.dart';
+import '../../utils/contact_channels.dart';
 
 class HelpSupportScreen extends ConsumerStatefulWidget {
   const HelpSupportScreen({super.key});
@@ -24,14 +25,14 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
     _future = _service.getSettings();
   }
 
-  Future<void> _launch(String url) async {
+  /// يفتح رابطًا مبنيًا من بيانات الإعدادات الحقيقية؛ الرابط الفارغ لا يُفتح.
+  Future<void> _launchUri(String? url) async {
+    if (url == null) return;
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
-
-  String _digitsOnly(String s) => s.replaceAll(RegExp(r'[^0-9+]'), '');
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +62,8 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
               padding: const EdgeInsets.all(AppDimens.pagePadding),
               children: [
                 Text(AppStrings.t(isArabic, 'help_support_intro'),
-                    style: textTheme.bodyMedium?.copyWith(color: AppColors.textMuted)),
+                    style: textTheme.bodyMedium
+                        ?.copyWith(color: AppColors.textMuted)),
                 const SizedBox(height: AppDimens.lg),
                 if (whatsapp.isNotEmpty)
                   _ContactTile(
@@ -69,7 +71,8 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
                     color: AppColors.success,
                     title: AppStrings.t(isArabic, 'contact_whatsapp'),
                     subtitle: whatsapp,
-                    onTap: () => _launch('https://wa.me/${_digitsOnly(whatsapp).replaceAll('+', '')}'),
+                    onTap: () =>
+                        _launchUri(ContactChannels.whatsappUri(whatsapp)),
                   ),
                 if (phone.isNotEmpty)
                   _ContactTile(
@@ -77,7 +80,7 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
                     color: AppColors.secondary,
                     title: AppStrings.t(isArabic, 'contact_call'),
                     subtitle: phone,
-                    onTap: () => _launch('tel:${_digitsOnly(phone)}'),
+                    onTap: () => _launchUri(ContactChannels.telUri(phone)),
                   ),
                 if (email.isNotEmpty)
                   _ContactTile(
@@ -85,12 +88,16 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
                     color: AppColors.goldDark,
                     title: AppStrings.t(isArabic, 'contact_email'),
                     subtitle: email,
-                    onTap: () => _launch('mailto:$email'),
+                    onTap: () => _launchUri(ContactChannels.mailUri(
+                      email,
+                      subject: AppStrings.t(isArabic, 'help_support'),
+                    )),
                   ),
                 if (phone.isEmpty && email.isEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: AppDimens.xl),
-                    child: Center(child: Text(AppStrings.t(isArabic, 'error_loading'))),
+                    child: Center(
+                        child: Text(AppStrings.t(isArabic, 'error_loading'))),
                   ),
               ],
             );
@@ -108,7 +115,13 @@ class _ContactTile extends StatelessWidget {
   final String subtitle;
   final VoidCallback onTap;
 
-  const _ContactTile({required this.icon, required this.color, required this.title, required this.subtitle, required this.onTap});
+  const _ContactTile({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +133,9 @@ class _ContactTile extends StatelessWidget {
         border: Border.all(color: AppColors.cardBorder),
       ),
       child: ListTile(
-        leading: CircleAvatar(backgroundColor: color.withOpacity(0.1), child: Icon(icon, color: color)),
+        leading: CircleAvatar(
+            backgroundColor: color.withOpacity(0.1),
+            child: Icon(icon, color: color)),
         title: Text(title, style: Theme.of(context).textTheme.titleSmall),
         subtitle: Text(subtitle, textDirection: TextDirection.ltr),
         trailing: const Icon(Icons.chevron_right_rounded),

@@ -42,7 +42,8 @@ List<(String, String)> buildBookingSuccessRows({
     // المتطلب 46: بيانات وصول الضيف للوحدة — من بيانات الفندق الحقيقية فقط،
     // وتُخفى كليًا إن لم تُرجع.
     if ((city ?? '').trim().isNotEmpty) (t('city_label'), city!.trim()),
-    if ((address ?? '').trim().isNotEmpty) (t('address_label'), address!.trim()),
+    if ((address ?? '').trim().isNotEmpty)
+      (t('address_label'), address!.trim()),
     if ((unitName ?? '').trim().isNotEmpty) (t('unit_label'), unitName!.trim()),
     (
       t('stay_dates'),
@@ -107,7 +108,8 @@ class BookingSuccessScreen extends ConsumerWidget {
     final isArabic = ref.watch(localeProvider).languageCode == 'ar';
     final textTheme = Theme.of(context).textTheme;
     final role = ref.watch(sessionProvider).user?.role;
-    final ownerSide = role == 'booking_agent' || role == 'owner' || role == 'unit_manager';
+    final ownerSide =
+        role == 'booking_agent' || role == 'owner' || role == 'unit_manager';
 
     final rows = buildBookingSuccessRows(
       isArabic: isArabic,
@@ -139,19 +141,27 @@ class BookingSuccessScreen extends ConsumerWidget {
               Container(
                 width: 96,
                 height: 96,
-                decoration: BoxDecoration(color: AppColors.success.withOpacity(0.1), shape: BoxShape.circle),
-                child: const Icon(Icons.check_rounded, color: AppColors.success, size: 52),
+                decoration: BoxDecoration(
+                    color: AppColors.success.withOpacity(0.1),
+                    shape: BoxShape.circle),
+                child: const Icon(Icons.check_rounded,
+                    color: AppColors.success, size: 52),
               ),
               const SizedBox(height: AppDimens.lg),
-              Text(AppStrings.t(isArabic, 'booking_success'), textAlign: TextAlign.center, style: textTheme.headlineMedium),
+              Text(AppStrings.t(isArabic, 'booking_success'),
+                  textAlign: TextAlign.center, style: textTheme.headlineMedium),
               const SizedBox(height: AppDimens.sm),
               Text(AppStrings.t(isArabic, 'booking_success_desc'),
-                  textAlign: TextAlign.center, style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
+                  textAlign: TextAlign.center,
+                  style: textTheme.bodyMedium
+                      ?.copyWith(color: AppColors.textSecondary)),
               const SizedBox(height: AppDimens.lg),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(AppDimens.md),
-                decoration: BoxDecoration(color: AppColors.surfaceMuted, borderRadius: BorderRadius.circular(AppDimens.radiusMd)),
+                decoration: BoxDecoration(
+                    color: AppColors.surfaceMuted,
+                    borderRadius: BorderRadius.circular(AppDimens.radiusMd)),
                 child: Column(
                   children: [
                     for (int i = 0; i < rows.length; i++) ...[
@@ -165,7 +175,8 @@ class BookingSuccessScreen extends ConsumerWidget {
                             child: Text(
                               rows[i].$2,
                               textAlign: TextAlign.end,
-                              style: textTheme.titleSmall?.copyWith(color: i == 0 ? AppColors.goldDark : null),
+                              style: textTheme.titleSmall?.copyWith(
+                                  color: i == 0 ? AppColors.goldDark : null),
                             ),
                           ),
                         ],
@@ -183,11 +194,15 @@ class BookingSuccessScreen extends ConsumerWidget {
                     // نفتح الرئيسية ثم نعرض حجوزاتي / حجوزات الوكيل
                     final nav = Navigator.of(context);
                     nav.pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (_) => ownerSide ? const OwnerNavigationScreen() : const MainNavigationScreen(initialIndex: 2)),
+                      MaterialPageRoute(
+                          builder: (_) => ownerSide
+                              ? const OwnerNavigationScreen()
+                              : const MainNavigationScreen(initialIndex: 2)),
                       (route) => false,
                     );
                     if (ownerSide) {
-                      nav.push(MaterialPageRoute(builder: (_) => const OwnerBookingsScreen()));
+                      nav.push(MaterialPageRoute(
+                          builder: (_) => const OwnerBookingsScreen()));
                     }
                   },
                   child: Text(AppStrings.t(isArabic, 'view_booking_details')),
@@ -200,7 +215,10 @@ class BookingSuccessScreen extends ConsumerWidget {
                 child: OutlinedButton(
                   onPressed: () {
                     Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (_) => ownerSide ? const OwnerNavigationScreen() : const MainNavigationScreen()),
+                      MaterialPageRoute(
+                          builder: (_) => ownerSide
+                              ? const OwnerNavigationScreen()
+                              : const MainNavigationScreen()),
                       (route) => false,
                     );
                   },

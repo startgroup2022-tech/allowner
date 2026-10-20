@@ -16,10 +16,12 @@ class HotelRequestsScreen extends ConsumerStatefulWidget {
   const HotelRequestsScreen({super.key});
 
   @override
-  ConsumerState<HotelRequestsScreen> createState() => _HotelRequestsScreenState();
+  ConsumerState<HotelRequestsScreen> createState() =>
+      _HotelRequestsScreenState();
 }
 
-class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with SingleTickerProviderStateMixin {
+class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
+    with SingleTickerProviderStateMixin {
   final _service = HotelStaffService();
   late TabController _tab;
   final _types = const ['cleaning', 'maintenance', 'meal', 'extra_bed'];
@@ -43,12 +45,15 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
     super.dispose();
   }
 
-  void _reload() => setState(() => _future = _service.getRequests(type: _types[_tab.index]));
+  void _reload() =>
+      setState(() => _future = _service.getRequests(type: _types[_tab.index]));
 
-  Future<void> _act(bool isArabic, Map<String, dynamic> r, String action) async {
+  Future<void> _act(
+      bool isArabic, Map<String, dynamic> r, String action) async {
     final needsNote = action == 'reject';
     final noteCtrl = TextEditingController();
-    final priceCtrl = TextEditingController(text: r['price'] != null ? r['price'].toString() : '');
+    final priceCtrl = TextEditingController(
+        text: r['price'] != null ? r['price'].toString() : '');
     // المتطلب 92: صورة اختيارية تُرفق بطلب الصيانة من إدارة الفندق.
     final canAttachImage = (r['type'] ?? '') == 'maintenance';
     File? imageFile;
@@ -60,7 +65,13 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(AppStrings.t(isArabic, action == 'confirm' ? 'confirm_request' : action == 'done' ? 'mark_done' : 'reject_request')),
+        title: Text(AppStrings.t(
+            isArabic,
+            action == 'confirm'
+                ? 'confirm_request'
+                : action == 'done'
+                    ? 'mark_done'
+                    : 'reject_request')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -68,13 +79,16 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
               TextField(
                 controller: priceCtrl,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'price_optional')),
+                decoration: InputDecoration(
+                    labelText: AppStrings.t(isArabic, 'price_optional')),
               ),
             const SizedBox(height: AppDimens.sm),
             TextField(
               controller: noteCtrl,
               maxLines: 2,
-              decoration: InputDecoration(labelText: AppStrings.t(isArabic, needsNote ? 'reject_reason' : 'note_optional')),
+              decoration: InputDecoration(
+                  labelText: AppStrings.t(
+                      isArabic, needsNote ? 'reject_reason' : 'note_optional')),
             ),
             if (isMaintenanceConfirm) ...[
               const SizedBox(height: AppDimens.sm),
@@ -92,7 +106,8 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
                       value: MaintenanceSettlement.unitBalance,
                       groupValue: settlement,
                       onChanged: (v) => setSettleState(() => settlement = v!),
-                      title: Text(AppStrings.t(isArabic, 'settle_unit_balance')),
+                      title:
+                          Text(AppStrings.t(isArabic, 'settle_unit_balance')),
                     ),
                     RadioListTile<MaintenanceSettlement>(
                       dense: true,
@@ -100,7 +115,8 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
                       value: MaintenanceSettlement.whatsappLink,
                       groupValue: settlement,
                       onChanged: (v) => setSettleState(() => settlement = v!),
-                      title: Text(AppStrings.t(isArabic, 'settle_whatsapp_link')),
+                      title:
+                          Text(AppStrings.t(isArabic, 'settle_whatsapp_link')),
                     ),
                   ],
                 ),
@@ -114,11 +130,13 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
                   children: [
                     OutlinedButton.icon(
                       onPressed: () async {
-                        final picked = await ImagePicker()
-                            .pickImage(source: ImageSource.gallery, imageQuality: 85);
-                        if (picked != null) setDlgState(() => imageFile = File(picked.path));
+                        final picked = await ImagePicker().pickImage(
+                            source: ImageSource.gallery, imageQuality: 85);
+                        if (picked != null)
+                          setDlgState(() => imageFile = File(picked.path));
                       },
-                      icon: const Icon(Icons.add_photo_alternate_outlined, size: 18),
+                      icon: const Icon(Icons.add_photo_alternate_outlined,
+                          size: 18),
                       label: Text(imageFile == null
                           ? AppStrings.t(isArabic, 'attach_image')
                           : AppStrings.t(isArabic, 'image_attached')),
@@ -127,8 +145,10 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
                       Padding(
                         padding: const EdgeInsets.only(top: AppDimens.sm),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-                          child: Image.file(imageFile!, height: 100, fit: BoxFit.cover),
+                          borderRadius:
+                              BorderRadius.circular(AppDimens.radiusMd),
+                          child: Image.file(imageFile!,
+                              height: 100, fit: BoxFit.cover),
                         ),
                       ),
                   ],
@@ -138,7 +158,9 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppStrings.t(isArabic, 'cancel'))),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(AppStrings.t(isArabic, 'cancel'))),
           TextButton(
             onPressed: () {
               if (needsNote && noteCtrl.text.trim().isEmpty) return;
@@ -151,8 +173,9 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
     );
     if (confirmed != true) return;
 
-    final parsedPrice =
-        priceCtrl.text.trim().isNotEmpty ? double.tryParse(priceCtrl.text.trim()) : null;
+    final parsedPrice = priceCtrl.text.trim().isNotEmpty
+        ? double.tryParse(priceCtrl.text.trim())
+        : null;
 
     setState(() => _busyId = asInt(r['id']));
     try {
@@ -168,10 +191,13 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
       if (!mounted) return;
       // عند اختيار رابط واتساب نفتح المحادثة فعلًا برسالة تحمل رقم الطلب
       // والوحدة والمبلغ. لا رقم مزيف ولا رسالة فارغة (المتطلبات 391–394).
-      if (isMaintenanceConfirm && settlement == MaintenanceSettlement.whatsappLink) {
-        final unitName = (isArabic ? r['unit_name_ar'] : r['unit_name_en'])?.toString();
+      if (isMaintenanceConfirm &&
+          settlement == MaintenanceSettlement.whatsappLink) {
+        final unitName =
+            (isArabic ? r['unit_name_ar'] : r['unit_name_en'])?.toString();
         final uri = buildWhatsAppPaymentUri(
-          phone: (r['requester_phone'] ?? r['owner_phone'] ?? r['guest_phone'])?.toString(),
+          phone: (r['requester_phone'] ?? r['owner_phone'] ?? r['guest_phone'])
+              ?.toString(),
           isArabic: isArabic,
           requestId: asInt(r['id']),
           unitName: unitName,
@@ -179,7 +205,8 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
         );
         if (uri == null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppStrings.t(isArabic, 'whatsapp_no_number'))),
+            SnackBar(
+                content: Text(AppStrings.t(isArabic, 'whatsapp_no_number'))),
           );
         } else {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -187,7 +214,9 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
       }
       _reload();
     } on ApiException catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
     } finally {
       if (mounted) setState(() => _busyId = null);
     }
@@ -206,7 +235,8 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
     }
   }
 
-  String _typeLabel(bool isArabic, String type) => AppStrings.t(isArabic, 'req_type_$type');
+  String _typeLabel(bool isArabic, String type) =>
+      AppStrings.t(isArabic, 'req_type_$type');
 
   @override
   Widget build(BuildContext context) {
@@ -238,24 +268,34 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
                 return ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
-                  children: [Center(child: Text(AppStrings.t(isArabic, 'error_loading')))],
+                  children: [
+                    Center(child: Text(AppStrings.t(isArabic, 'error_loading')))
+                  ],
                 );
               }
               final rows = snapshot.data ?? [];
               if (rows.isEmpty) {
                 return ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  children: [Padding(padding: const EdgeInsets.all(AppDimens.xl), child: Center(child: Text(AppStrings.t(isArabic, 'no_open_requests'))))],
+                  children: [
+                    Padding(
+                        padding: const EdgeInsets.all(AppDimens.xl),
+                        child: Center(
+                            child: Text(
+                                AppStrings.t(isArabic, 'no_open_requests'))))
+                  ],
                 );
               }
               return ListView.separated(
                 padding: const EdgeInsets.all(AppDimens.pagePadding),
                 itemCount: rows.length,
-                separatorBuilder: (context, index) => const SizedBox(height: AppDimens.md),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: AppDimens.md),
                 itemBuilder: (context, index) {
                   final r = rows[index];
                   final status = r['status']?.toString() ?? 'pending';
-                  final unitName = isArabic ? r['unit_name_ar'] : r['unit_name_en'];
+                  final unitName =
+                      isArabic ? r['unit_name_ar'] : r['unit_name_en'];
                   final busy = _busyId == r['id'];
                   return Container(
                     padding: const EdgeInsets.all(AppDimens.md),
@@ -270,29 +310,43 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
                         Row(
                           children: [
                             Expanded(
-                              child: Text('${r['hotel_name'] ?? ''}${unitName != null ? ' — $unitName' : ''}', style: textTheme.titleSmall),
+                              child: Text(
+                                  '${r['hotel_name'] ?? ''}${unitName != null ? ' — $unitName' : ''}',
+                                  style: textTheme.titleSmall),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
                                 color: _statusColor(status).withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(AppDimens.radiusSm),
+                                borderRadius:
+                                    BorderRadius.circular(AppDimens.radiusSm),
                               ),
-                              child: Text(AppStrings.t(isArabic, 'status_$status'),
-                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: _statusColor(status))),
+                              child: Text(
+                                  AppStrings.t(isArabic, 'status_$status'),
+                                  style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: _statusColor(status))),
                             ),
                           ],
                         ),
                         if ((r['requester_name'] ?? '').toString().isNotEmpty)
-                          Text(r['requester_name'].toString(), style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                          Text(r['requester_name'].toString(),
+                              style: textTheme.bodySmall
+                                  ?.copyWith(color: AppColors.textMuted)),
                         if ((r['description'] ?? '').toString().isNotEmpty) ...[
                           const SizedBox(height: 4),
-                          Text(r['description'].toString(), style: textTheme.bodyMedium),
+                          Text(r['description'].toString(),
+                              style: textTheme.bodyMedium),
                         ],
                         if (r['price'] != null) ...[
                           const SizedBox(height: 4),
-                          Text('${AppStrings.t(isArabic, 'price')}: ${r['price']} ${AppStrings.t(isArabic, 'sar')}',
-                              style: textTheme.bodySmall?.copyWith(color: AppColors.goldDark, fontWeight: FontWeight.w600)),
+                          Text(
+                              '${AppStrings.t(isArabic, 'price')}: ${r['price']} ${AppStrings.t(isArabic, 'sar')}',
+                              style: textTheme.bodySmall?.copyWith(
+                                  color: AppColors.goldDark,
+                                  fontWeight: FontWeight.w600)),
                         ],
                         if (status == 'pending' || status == 'confirmed') ...[
                           const SizedBox(height: AppDimens.sm),
@@ -301,26 +355,41 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
                               if (status == 'pending')
                                 Expanded(
                                   child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.secondary),
-                                    onPressed: busy ? null : () => _act(isArabic, r, 'confirm'),
-                                    child: Text(AppStrings.t(isArabic, 'confirm_request')),
+                                    style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppColors.secondary),
+                                    onPressed: busy
+                                        ? null
+                                        : () => _act(isArabic, r, 'confirm'),
+                                    child: Text(AppStrings.t(
+                                        isArabic, 'confirm_request')),
                                   ),
                                 ),
-                              if (status == 'pending') const SizedBox(width: AppDimens.sm),
+                              if (status == 'pending')
+                                const SizedBox(width: AppDimens.sm),
                               Expanded(
                                 child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
-                                  onPressed: busy ? null : () => _act(isArabic, r, 'done'),
-                                  child: Text(AppStrings.t(isArabic, 'mark_done')),
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.success),
+                                  onPressed: busy
+                                      ? null
+                                      : () => _act(isArabic, r, 'done'),
+                                  child:
+                                      Text(AppStrings.t(isArabic, 'mark_done')),
                                 ),
                               ),
                               if (status == 'pending') ...[
                                 const SizedBox(width: AppDimens.sm),
                                 Expanded(
                                   child: OutlinedButton(
-                                    style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger, side: const BorderSide(color: AppColors.danger)),
-                                    onPressed: busy ? null : () => _act(isArabic, r, 'reject'),
-                                    child: Text(AppStrings.t(isArabic, 'reject_request')),
+                                    style: OutlinedButton.styleFrom(
+                                        foregroundColor: AppColors.danger,
+                                        side: const BorderSide(
+                                            color: AppColors.danger)),
+                                    onPressed: busy
+                                        ? null
+                                        : () => _act(isArabic, r, 'reject'),
+                                    child: Text(AppStrings.t(
+                                        isArabic, 'reject_request')),
                                   ),
                                 ),
                               ],

@@ -152,11 +152,7 @@ class _UnitDetailsScreenState extends ConsumerState<UnitDetailsScreen> {
                     alignment: AlignmentDirectional.centerStart,
                     child: IconButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      icon: Icon(
-                        isArabic
-                            ? Icons.arrow_forward_rounded
-                            : Icons.arrow_back_rounded,
-                      ),
+                      icon: const Icon(Icons.arrow_back_rounded),
                     ),
                   ),
                   Expanded(
@@ -198,9 +194,7 @@ class _UnitDetailsScreenState extends ConsumerState<UnitDetailsScreen> {
               leading: Padding(
                 padding: const EdgeInsets.all(8),
                 child: _CircleIconButton(
-                  icon: isArabic
-                      ? Icons.arrow_forward_rounded
-                      : Icons.arrow_back_rounded,
+                  icon: Icons.arrow_back_rounded,
                   onTap: () => Navigator.of(context).pop(),
                 ),
               ),

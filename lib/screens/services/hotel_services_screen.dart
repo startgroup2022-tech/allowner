@@ -21,22 +21,22 @@ class HotelServicesScreen extends ConsumerWidget {
         title: AppStrings.t(isArabic, 'maintenance'),
         desc: AppStrings.t(isArabic, 'maintenance_desc'),
         builder: (BuildContext context) => ServiceRequestScreen(
-          icon: Icons.build_outlined,
-          title: AppStrings.t(isArabic, 'maintenance'),
-          description: AppStrings.t(isArabic, 'maintenance_desc'),
-          serviceType: 'maintenance',
-        ),
+              icon: Icons.build_outlined,
+              title: AppStrings.t(isArabic, 'maintenance'),
+              description: AppStrings.t(isArabic, 'maintenance_desc'),
+              serviceType: 'maintenance',
+            ),
       ),
       (
         icon: Icons.cleaning_services_outlined,
         title: AppStrings.t(isArabic, 'housekeeping'),
         desc: AppStrings.t(isArabic, 'housekeeping_desc'),
         builder: (BuildContext context) => ServiceRequestScreen(
-          icon: Icons.cleaning_services_outlined,
-          title: AppStrings.t(isArabic, 'housekeeping'),
-          description: AppStrings.t(isArabic, 'housekeeping_desc'),
-          serviceType: 'housekeeping',
-        ),
+              icon: Icons.cleaning_services_outlined,
+              title: AppStrings.t(isArabic, 'housekeeping'),
+              description: AppStrings.t(isArabic, 'housekeeping_desc'),
+              serviceType: 'housekeeping',
+            ),
       ),
       (
         icon: Icons.restaurant_outlined,
@@ -49,11 +49,11 @@ class HotelServicesScreen extends ConsumerWidget {
         title: AppStrings.t(isArabic, 'cancellation_request'),
         desc: AppStrings.t(isArabic, 'cancellation_request_desc'),
         builder: (BuildContext context) => ServiceRequestScreen(
-          icon: Icons.event_busy_outlined,
-          title: AppStrings.t(isArabic, 'cancellation_request'),
-          description: AppStrings.t(isArabic, 'cancellation_request_desc'),
-          serviceType: 'cancellation',
-        ),
+              icon: Icons.event_busy_outlined,
+              title: AppStrings.t(isArabic, 'cancellation_request'),
+              description: AppStrings.t(isArabic, 'cancellation_request_desc'),
+              serviceType: 'cancellation',
+            ),
       ),
     ];
 
@@ -68,7 +68,8 @@ class HotelServicesScreen extends ConsumerWidget {
         child: ListView.separated(
           padding: const EdgeInsets.all(AppDimens.pagePadding),
           itemCount: services.length,
-          separatorBuilder: (context, index) => const SizedBox(height: AppDimens.md),
+          separatorBuilder: (context, index) =>
+              const SizedBox(height: AppDimens.md),
           itemBuilder: (context, index) {
             final service = services[index];
             return InkWell(
@@ -94,7 +95,8 @@ class HotelServicesScreen extends ConsumerWidget {
                         color: AppColors.gold.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(AppDimens.radiusMd),
                       ),
-                      child: Icon(service.icon, color: AppColors.goldDark, size: 24),
+                      child: Icon(service.icon,
+                          color: AppColors.goldDark, size: 24),
                     ),
                     const SizedBox(width: AppDimens.md),
                     Expanded(
@@ -105,13 +107,14 @@ class HotelServicesScreen extends ConsumerWidget {
                           const SizedBox(height: 2),
                           Text(
                             service.desc,
-                            style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
+                            style: textTheme.bodySmall
+                                ?.copyWith(color: AppColors.textMuted),
                           ),
                         ],
                       ),
                     ),
                     Icon(
-                      isArabic ? Icons.chevron_left_rounded : Icons.chevron_right_rounded,
+                      Icons.chevron_right_rounded,
                       color: AppColors.textMuted,
                     ),
                   ],

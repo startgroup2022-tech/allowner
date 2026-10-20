@@ -15,7 +15,8 @@ class OwnerNavigationScreen extends ConsumerStatefulWidget {
   const OwnerNavigationScreen({super.key});
 
   @override
-  ConsumerState<OwnerNavigationScreen> createState() => _OwnerNavigationScreenState();
+  ConsumerState<OwnerNavigationScreen> createState() =>
+      _OwnerNavigationScreenState();
 }
 
 class _OwnerNavigationScreenState extends ConsumerState<OwnerNavigationScreen> {
@@ -51,12 +52,16 @@ class _OwnerNavigationScreenState extends ConsumerState<OwnerNavigationScreen> {
           BottomNavigationBarItem(
             icon: const Icon(Icons.apartment_outlined),
             activeIcon: const Icon(Icons.apartment_rounded),
-            label: isAgent ? AppStrings.t(isArabic, 'my_bookings') : AppStrings.t(isArabic, 'nav_units'),
+            label: isAgent
+                ? AppStrings.t(isArabic, 'my_bookings')
+                : AppStrings.t(isArabic, 'nav_units'),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.account_balance_wallet_outlined),
             activeIcon: const Icon(Icons.account_balance_wallet_rounded),
-            label: isAgent ? AppStrings.t(isArabic, 'my_commission') : AppStrings.t(isArabic, 'nav_revenue'),
+            label: isAgent
+                ? AppStrings.t(isArabic, 'my_commission')
+                : AppStrings.t(isArabic, 'nav_revenue'),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.notifications_outlined),

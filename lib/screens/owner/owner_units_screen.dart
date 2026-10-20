@@ -27,14 +27,16 @@ class _OwnerUnitsScreenState extends ConsumerState<OwnerUnitsScreen> {
 
   void _reload() => setState(() => _future = _service.getUnitsFull());
 
-  Future<void> _openAddUnit(bool isArabic, List<Map<String, dynamic>> hotels) async {
+  Future<void> _openAddUnit(
+      bool isArabic, List<Map<String, dynamic>> hotels) async {
     final added = await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (_) => OwnerAddUnitScreen(hotels: hotels)),
     );
     if (added == true) {
       _reload();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppStrings.t(isArabic, 'unit_added_success'))));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppStrings.t(isArabic, 'unit_added_success'))));
       }
     }
   }
@@ -79,12 +81,15 @@ class _OwnerUnitsScreenState extends ConsumerState<OwnerUnitsScreen> {
                       padding: const EdgeInsets.all(AppDimens.xl),
                       child: Column(
                         children: [
-                          Text(AppStrings.t(isArabic, 'no_units'), textAlign: TextAlign.center),
+                          Text(AppStrings.t(isArabic, 'no_units'),
+                              textAlign: TextAlign.center),
                           if (canCreate) ...[
                             const SizedBox(height: AppDimens.md),
                             if (hotels.isEmpty)
                               Text(AppStrings.t(isArabic, 'no_hotel_linked'),
-                                  textAlign: TextAlign.center, style: const TextStyle(color: AppColors.warning))
+                                  textAlign: TextAlign.center,
+                                  style:
+                                      const TextStyle(color: AppColors.warning))
                             else
                               ElevatedButton.icon(
                                 onPressed: () => _openAddUnit(isArabic, hotels),
@@ -101,17 +106,24 @@ class _OwnerUnitsScreenState extends ConsumerState<OwnerUnitsScreen> {
               return ListView.separated(
                 padding: const EdgeInsets.all(AppDimens.pagePadding),
                 itemCount: units.length,
-                separatorBuilder: (context, index) => const SizedBox(height: AppDimens.md),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: AppDimens.md),
                 itemBuilder: (context, index) {
                   final unit = units[index];
-                  final active = unit['is_active'] == 1 || unit['is_active'] == true;
-                  final name = isArabic ? (unit['name_ar'] ?? '') : (unit['name_en'] ?? unit['name_ar'] ?? '');
+                  final active =
+                      unit['is_active'] == 1 || unit['is_active'] == true;
+                  final name = isArabic
+                      ? (unit['name_ar'] ?? '')
+                      : (unit['name_en'] ?? unit['name_ar'] ?? '');
                   final hotel = unit['hotel_name'] ?? '';
-                  final price = (unit['price_per_night'] is num) ? (unit['price_per_night'] as num).toStringAsFixed(0) : '0';
+                  final price = (unit['price_per_night'] is num)
+                      ? (unit['price_per_night'] as num).toStringAsFixed(0)
+                      : '0';
                   final images = asStringList(unit['images']);
-                  final coverImage = (unit['cover_image'] as String?)?.isNotEmpty == true
-                      ? unit['cover_image'] as String
-                      : (images.isNotEmpty ? images.first : null);
+                  final coverImage =
+                      (unit['cover_image'] as String?)?.isNotEmpty == true
+                          ? unit['cover_image'] as String
+                          : (images.isNotEmpty ? images.first : null);
 
                   return Container(
                     decoration: BoxDecoration(
@@ -124,8 +136,12 @@ class _OwnerUnitsScreenState extends ConsumerState<OwnerUnitsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (coverImage != null)
-                          Image.network(coverImage, height: 130, width: double.infinity, fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Container(height: 130, color: AppColors.surfaceMuted)),
+                          Image.network(coverImage,
+                              height: 130,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                  height: 130, color: AppColors.surfaceMuted)),
                         Padding(
                           padding: const EdgeInsets.all(AppDimens.md),
                           child: Column(
@@ -133,34 +149,51 @@ class _OwnerUnitsScreenState extends ConsumerState<OwnerUnitsScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Expanded(child: Text(name, style: textTheme.titleSmall)),
+                                  Expanded(
+                                      child: Text(name,
+                                          style: textTheme.titleSmall)),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: (active ? AppColors.success : AppColors.textMuted).withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(AppDimens.radiusSm),
+                                      color: (active
+                                              ? AppColors.success
+                                              : AppColors.textMuted)
+                                          .withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(
+                                          AppDimens.radiusSm),
                                     ),
                                     child: Text(
-                                      AppStrings.t(isArabic, active ? 'occupied' : 'vacant'),
+                                      AppStrings.t(isArabic,
+                                          active ? 'occupied' : 'vacant'),
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
-                                        color: active ? AppColors.success : AppColors.textMuted,
+                                        color: active
+                                            ? AppColors.success
+                                            : AppColors.textMuted,
                                       ),
                                     ),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 4),
-                              Text(hotel.toString(), style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                              Text(hotel.toString(),
+                                  style: textTheme.bodySmall
+                                      ?.copyWith(color: AppColors.textMuted)),
                               const Divider(height: AppDimens.lg),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(AppStrings.t(isArabic, 'monthly_revenue'),
-                                      style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
-                                  Text('$price ${AppStrings.t(isArabic, 'sar')}',
-                                      style: textTheme.titleSmall?.copyWith(color: AppColors.goldDark)),
+                                  Text(
+                                      AppStrings.t(isArabic, 'monthly_revenue'),
+                                      style: textTheme.bodySmall?.copyWith(
+                                          color: AppColors.textSecondary)),
+                                  Text(
+                                      '$price ${AppStrings.t(isArabic, 'sar')}',
+                                      style: textTheme.titleSmall?.copyWith(
+                                          color: AppColors.goldDark)),
                                 ],
                               ),
                             ],
@@ -189,7 +222,8 @@ class _OwnerUnitsScreenState extends ConsumerState<OwnerUnitsScreen> {
             backgroundColor: AppColors.gold,
             onPressed: () => _openAddUnit(isArabic, hotels),
             icon: const Icon(Icons.add, color: AppColors.textOnGold),
-            label: Text(AppStrings.t(isArabic, 'add_unit'), style: const TextStyle(color: AppColors.textOnGold)),
+            label: Text(AppStrings.t(isArabic, 'add_unit'),
+                style: const TextStyle(color: AppColors.textOnGold)),
           );
         },
       ),
@@ -210,9 +244,11 @@ class _ErrorBox extends StatelessWidget {
         children: [
           Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 32),
           const SizedBox(height: AppDimens.sm),
-          Text(AppStrings.t(isArabic, 'error_loading'), textAlign: TextAlign.center),
+          Text(AppStrings.t(isArabic, 'error_loading'),
+              textAlign: TextAlign.center),
           const SizedBox(height: AppDimens.sm),
-          OutlinedButton(onPressed: onRetry, child: Text(AppStrings.t(isArabic, 'retry'))),
+          OutlinedButton(
+              onPressed: onRetry, child: Text(AppStrings.t(isArabic, 'retry'))),
         ],
       ),
     );

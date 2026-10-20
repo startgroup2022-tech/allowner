@@ -12,8 +12,7 @@
 /// - لا نخترع أي قيمة: كل حقل يأتي من مُدخل حقيقي أو يُحذف.
 library;
 
-String formatBookingDate(DateTime d) =>
-    '${d.year.toString().padLeft(4, '0')}-'
+String formatBookingDate(DateTime d) => '${d.year.toString().padLeft(4, '0')}-'
     '${d.month.toString().padLeft(2, '0')}-'
     '${d.day.toString().padLeft(2, '0')}';
 

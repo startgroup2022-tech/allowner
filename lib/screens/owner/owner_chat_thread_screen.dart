@@ -12,10 +12,12 @@ class OwnerChatThreadScreen extends ConsumerStatefulWidget {
   final int conversationId;
   final String otherName;
 
-  const OwnerChatThreadScreen({super.key, required this.conversationId, required this.otherName});
+  const OwnerChatThreadScreen(
+      {super.key, required this.conversationId, required this.otherName});
 
   @override
-  ConsumerState<OwnerChatThreadScreen> createState() => _OwnerChatThreadScreenState();
+  ConsumerState<OwnerChatThreadScreen> createState() =>
+      _OwnerChatThreadScreenState();
 }
 
 class _OwnerChatThreadScreenState extends ConsumerState<OwnerChatThreadScreen> {
@@ -34,7 +36,8 @@ class _OwnerChatThreadScreenState extends ConsumerState<OwnerChatThreadScreen> {
   void _reload() {
     setState(() => _future = _service.getThread(widget.conversationId));
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollCtrl.hasClients) _scrollCtrl.jumpTo(_scrollCtrl.position.maxScrollExtent);
+      if (_scrollCtrl.hasClients)
+        _scrollCtrl.jumpTo(_scrollCtrl.position.maxScrollExtent);
     });
   }
 
@@ -43,11 +46,14 @@ class _OwnerChatThreadScreenState extends ConsumerState<OwnerChatThreadScreen> {
     if (text.isEmpty) return;
     setState(() => _sending = true);
     try {
-      await _service.sendMessage(conversationId: widget.conversationId, body: text);
+      await _service.sendMessage(
+          conversationId: widget.conversationId, body: text);
       _msgCtrl.clear();
       _reload();
     } on ApiException catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
     } finally {
       if (mounted) setState(() => _sending = false);
     }
@@ -78,10 +84,12 @@ class _OwnerChatThreadScreenState extends ConsumerState<OwnerChatThreadScreen> {
                   }
                   final messages = snapshot.data ?? [];
                   if (messages.isEmpty) {
-                    return Center(child: Text(AppStrings.t(isArabic, 'no_data')));
+                    return Center(
+                        child: Text(AppStrings.t(isArabic, 'no_data')));
                   }
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (_scrollCtrl.hasClients) _scrollCtrl.jumpTo(_scrollCtrl.position.maxScrollExtent);
+                    if (_scrollCtrl.hasClients)
+                      _scrollCtrl.jumpTo(_scrollCtrl.position.maxScrollExtent);
                   });
                   return ListView.builder(
                     controller: _scrollCtrl,
@@ -89,18 +97,28 @@ class _OwnerChatThreadScreenState extends ConsumerState<OwnerChatThreadScreen> {
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
                       final m = messages[index];
-                      final isMine = m['sender_id'].toString() == myId.toString();
+                      final isMine =
+                          m['sender_id'].toString() == myId.toString();
                       return Align(
-                        alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
+                        alignment: isMine
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
                         child: Container(
                           margin: const EdgeInsets.only(bottom: AppDimens.sm),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                          constraints: BoxConstraints(
+                              maxWidth:
+                                  MediaQuery.of(context).size.width * 0.7),
                           decoration: BoxDecoration(
-                            color: isMine ? AppColors.gold.withOpacity(0.18) : AppColors.surfaceMuted,
-                            borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                            color: isMine
+                                ? AppColors.gold.withOpacity(0.18)
+                                : AppColors.surfaceMuted,
+                            borderRadius:
+                                BorderRadius.circular(AppDimens.radiusMd),
                           ),
-                          child: Text(m['body'].toString(), style: textTheme.bodyMedium),
+                          child: Text(m['body'].toString(),
+                              style: textTheme.bodyMedium),
                         ),
                       );
                     },
@@ -110,20 +128,27 @@ class _OwnerChatThreadScreenState extends ConsumerState<OwnerChatThreadScreen> {
             ),
             Container(
               padding: const EdgeInsets.all(AppDimens.sm),
-              decoration: const BoxDecoration(color: AppColors.surface, border: Border(top: BorderSide(color: AppColors.cardBorder))),
+              decoration: const BoxDecoration(
+                  color: AppColors.surface,
+                  border: Border(top: BorderSide(color: AppColors.cardBorder))),
               child: Row(
                 children: [
                   Expanded(
                     child: TextField(
                       controller: _msgCtrl,
-                      decoration: InputDecoration(hintText: AppStrings.t(isArabic, 'type_message')),
+                      decoration: InputDecoration(
+                          hintText: AppStrings.t(isArabic, 'type_message')),
                       onSubmitted: (_) => _send(isArabic),
                     ),
                   ),
                   IconButton(
                     icon: _sending
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Icon(Icons.send_rounded, color: AppColors.goldDark),
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.send_rounded,
+                            color: AppColors.goldDark),
                     onPressed: _sending ? null : () => _send(isArabic),
                   ),
                 ],

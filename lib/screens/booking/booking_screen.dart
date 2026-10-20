@@ -25,13 +25,16 @@ enum PaymentMethod { online, atHotel, ownerTransfer }
 /// الإجمالي. تُحتسب الآن متى اختار الضيف السرير الإضافي وكان للفندق سعر
 /// (السعر 0 يعني «مجاني» فيبقى صفرًا).
 double computeExtraBedCharge({required bool extraBed, double? extraBedPrice}) =>
-    extraBed && extraBedPrice != null && extraBedPrice > 0 ? extraBedPrice : 0.0;
+    extraBed && extraBedPrice != null && extraBedPrice > 0
+        ? extraBedPrice
+        : 0.0;
 
 /// إجمالي سطر الإضافة الواحدة (المتطلبان 31 و48). دالة نقية لأن السعر قد يكون
 /// لليلة أو لكل إقامة أو لكل شخص/ليلة حسب `price_unit` القادم من الـ API.
 /// كانت تقرأ `billing` فقط بينما السيرفر يرسل `price_unit`، فكان المضاعف يسقط
 /// دائمًا على الافتراضي ويُخطئ في الإجمالي.
-double addonLineTotal(UnitAddonModel addon, {required int nights, required int guests}) {
+double addonLineTotal(UnitAddonModel addon,
+    {required int nights, required int guests}) {
   final n = nights < 1 ? 1 : nights;
   switch (addon.billing) {
     case 'per_stay':
@@ -49,8 +52,10 @@ List<(String, String)> ownerBankRows(Map<String, dynamic>? bank) {
   final data = bank ?? const <String, dynamic>{};
   return <(String, String)>[
     ('owner_bank_name', (data['bank_name'] ?? '').toString()),
-    ('owner_bank_account_name',
-        (data['account_name'] ?? data['holder_name'] ?? '').toString()),
+    (
+      'owner_bank_account_name',
+      (data['account_name'] ?? data['holder_name'] ?? '').toString()
+    ),
     ('owner_bank_account_number', (data['account_number'] ?? '').toString()),
     ('owner_bank_iban', (data['iban'] ?? '').toString()),
   ].where((r) => r.$2.trim().isNotEmpty).toList();
@@ -93,7 +98,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   int _guests = 2;
   DateTime _checkIn = DateTime.now().add(const Duration(days: 1));
   DateTime _checkOut = DateTime.now().add(const Duration(days: 3));
-  final Set<String> _selectedLegacyMeals = {}; // للحجز العام: يسمح باختيار أكثر من وجبة
+  final Set<String> _selectedLegacyMeals =
+      {}; // للحجز العام: يسمح باختيار أكثر من وجبة
   bool _extraBed = false;
   final _cardNumberController = TextEditingController();
   final _expiryController = TextEditingController();
@@ -110,12 +116,14 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   // إضافات الوحدة الحقيقية (سرير/وجبات/أخرى) يلي حددها المالك — لو في وحدة محددة
   List<UnitAddonModel> _unitAddons = [];
   bool _loadingAddons = false;
-  final Set<int> _selectedMealAddonIds = {}; // فاضية = بدون وجبات — يسمح باختيار أكثر من وجبة معاً (فطور + غداء مثلاً)
+  final Set<int> _selectedMealAddonIds =
+      {}; // فاضية = بدون وجبات — يسمح باختيار أكثر من وجبة معاً (فطور + غداء مثلاً)
   final Set<int> _selectedOtherAddonIds = {};
 
   int get _nights => _checkOut.difference(_checkIn).inDays.clamp(1, 365);
 
-  double get _basePricePerNight => widget.unitPricePerNight ?? widget.hotel.pricePerNight;
+  double get _basePricePerNight =>
+      widget.unitPricePerNight ?? widget.hotel.pricePerNight;
 
   List<UnitAddonModel> get _mealAddons =>
       _unitAddons.where((a) => a.category == 'meal_plan').toList()
@@ -199,7 +207,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   Future<void> _pickDate({required bool isCheckIn}) async {
     final initial = isCheckIn ? _checkIn : _checkOut;
-    final firstDate = isCheckIn ? DateTime.now() : _checkIn.add(const Duration(days: 1));
+    final firstDate =
+        isCheckIn ? DateTime.now() : _checkIn.add(const Duration(days: 1));
     final picked = await showDatePicker(
       context: context,
       initialDate: initial.isBefore(firstDate) ? firstDate : initial,
@@ -264,41 +273,73 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             left: AppDimens.pagePadding,
             right: AppDimens.pagePadding,
             top: AppDimens.pagePadding,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + AppDimens.pagePadding,
+            bottom:
+                MediaQuery.of(ctx).viewInsets.bottom + AppDimens.pagePadding,
           ),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(AppStrings.t(isArabic, 'booking_details'), style: textTheme.titleLarge),
+                Text(AppStrings.t(isArabic, 'booking_details'),
+                    style: textTheme.titleLarge),
                 const SizedBox(height: AppDimens.md),
-                _ReviewRow(icon: Icons.hotel_outlined, text: widget.unitName ?? widget.hotel.name),
+                _ReviewRow(
+                    icon: Icons.hotel_outlined,
+                    text: widget.unitName ?? widget.hotel.name),
                 _ReviewRow(
                   icon: Icons.event_outlined,
-                  text: '${_formatDate(_checkIn, isArabic)} — ${_formatDate(_checkOut, isArabic)}  ·  '
+                  text:
+                      '${_formatDate(_checkIn, isArabic)} — ${_formatDate(_checkOut, isArabic)}  ·  '
                       '$_nights ${AppStrings.t(isArabic, _nights == 1 ? 'night' : 'nights')}',
                 ),
-                _ReviewRow(icon: Icons.people_outline, text: '$_guests ${AppStrings.t(isArabic, 'guests')}'),
+                _ReviewRow(
+                    icon: Icons.people_outline,
+                    text: '$_guests ${AppStrings.t(isArabic, 'guests')}'),
                 if (_isAgent && _customerNameController.text.trim().isNotEmpty)
-                  _ReviewRow(icon: Icons.person_outline, text: _customerNameController.text.trim()),
+                  _ReviewRow(
+                      icon: Icons.person_outline,
+                      text: _customerNameController.text.trim()),
                 if (_guestIdNumberController.text.trim().isNotEmpty)
-                  _ReviewRow(icon: Icons.badge_outlined, text: _guestIdNumberController.text.trim()),
+                  _ReviewRow(
+                      icon: Icons.badge_outlined,
+                      text: _guestIdNumberController.text.trim()),
                 if (_extraBed)
-                  _ReviewRow(icon: Icons.bed_outlined, text: AppStrings.t(isArabic, 'add_extra_bed')),
+                  _ReviewRow(
+                      icon: Icons.bed_outlined,
+                      text: AppStrings.t(isArabic, 'add_extra_bed')),
                 const SizedBox(height: AppDimens.lg),
-                Text(AppStrings.t(isArabic, 'price_details'), style: textTheme.titleMedium),
+                Text(AppStrings.t(isArabic, 'price_details'),
+                    style: textTheme.titleMedium),
                 const SizedBox(height: AppDimens.sm),
-                _PriceRow(label: AppStrings.t(isArabic, 'room_price'), value: roomPrice, isArabic: isArabic),
+                _PriceRow(
+                    label: AppStrings.t(isArabic, 'room_price'),
+                    value: roomPrice,
+                    isArabic: isArabic),
                 if (addonsTotal > 0)
-                  _PriceRow(label: AppStrings.t(isArabic, 'unit_addons_title'), value: addonsTotal, isArabic: isArabic),
+                  _PriceRow(
+                      label: AppStrings.t(isArabic, 'unit_addons_title'),
+                      value: addonsTotal,
+                      isArabic: isArabic),
                 if (extraBedCharge > 0)
-                  _PriceRow(label: AppStrings.t(isArabic, 'add_extra_bed'), value: extraBedCharge, isArabic: isArabic),
-                _PriceRow(label: AppStrings.t(isArabic, 'taxes_fees'), value: taxes, isArabic: isArabic),
+                  _PriceRow(
+                      label: AppStrings.t(isArabic, 'add_extra_bed'),
+                      value: extraBedCharge,
+                      isArabic: isArabic),
+                _PriceRow(
+                    label: AppStrings.t(isArabic, 'taxes_fees'),
+                    value: taxes,
+                    isArabic: isArabic),
                 const Divider(height: 24),
-                _PriceRow(label: AppStrings.t(isArabic, 'total_price'), value: total, isArabic: isArabic, isTotal: true),
+                _PriceRow(
+                    label: AppStrings.t(isArabic, 'total_price'),
+                    value: total,
+                    isArabic: isArabic,
+                    isTotal: true),
                 const SizedBox(height: AppDimens.md),
-                _ReviewRow(icon: Icons.payments_outlined, text: AppStrings.t(isArabic, paymentLabel)),
+                _ReviewRow(
+                    icon: Icons.payments_outlined,
+                    text: AppStrings.t(isArabic, paymentLabel)),
                 const SizedBox(height: AppDimens.xl),
                 SizedBox(
                   width: double.infinity,
@@ -323,9 +364,13 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
     if (!ref.read(sessionProvider).isLoggedIn) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(isArabic ? 'الرجاء تسجيل الدخول أولاً لإتمام الحجز' : 'Please log in first to complete booking')),
+        SnackBar(
+            content: Text(isArabic
+                ? 'الرجاء تسجيل الدخول أولاً لإتمام الحجز'
+                : 'Please log in first to complete booking')),
       );
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LoginScreen()));
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => const LoginScreen()));
       return;
     }
 
@@ -333,7 +378,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       final digits = _cardNumberController.text.replaceAll(RegExp(r'\D'), '');
       if (digits.length < 12) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(isArabic ? 'رقم البطاقة غير صحيح' : 'Invalid card number')),
+          SnackBar(
+              content: Text(
+                  isArabic ? 'رقم البطاقة غير صحيح' : 'Invalid card number')),
         );
         return;
       }
@@ -341,14 +388,19 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
     if (_guestIdNumberController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.t(isArabic, 'guest_id_number_required'))),
+        SnackBar(
+            content: Text(AppStrings.t(isArabic, 'guest_id_number_required'))),
       );
       return;
     }
 
-    if (_isAgent && (_customerNameController.text.trim().isEmpty || _customerPhoneController.text.trim().isEmpty)) {
+    if (_isAgent &&
+        (_customerNameController.text.trim().isEmpty ||
+            _customerPhoneController.text.trim().isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.t(isArabic, 'customer_name_phone_required'))),
+        SnackBar(
+            content:
+                Text(AppStrings.t(isArabic, 'customer_name_phone_required'))),
       );
       return;
     }
@@ -393,8 +445,12 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             nights: asInt(booking['nights'], _nights),
             guests: _guests,
             unitName: widget.unitName,
-            guestName: _isAgent ? _customerNameController.text.trim() : ref.read(sessionProvider).user?.fullName,
-            guestPhone: _isAgent ? _customerPhoneController.text.trim() : ref.read(sessionProvider).user?.phone,
+            guestName: _isAgent
+                ? _customerNameController.text.trim()
+                : ref.read(sessionProvider).user?.fullName,
+            guestPhone: _isAgent
+                ? _customerPhoneController.text.trim()
+                : ref.read(sessionProvider).user?.phone,
             guestIdNumber: _guestIdNumberController.text.trim(),
             status: booking['status']?.toString(),
             paymentMethod: booking['payment_method']?.toString(),
@@ -403,7 +459,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -411,13 +468,36 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   String _formatDate(DateTime d, bool isArabic) {
     const monthsAr = [
-      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
+      'يناير',
+      'فبراير',
+      'مارس',
+      'أبريل',
+      'مايو',
+      'يونيو',
+      'يوليو',
+      'أغسطس',
+      'سبتمبر',
+      'أكتوبر',
+      'نوفمبر',
+      'ديسمبر',
     ];
     const monthsEn = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
-    return isArabic ? '${d.day} ${monthsAr[d.month - 1]}' : '${monthsEn[d.month - 1]} ${d.day}';
+    return isArabic
+        ? '${d.day} ${monthsAr[d.month - 1]}'
+        : '${monthsEn[d.month - 1]} ${d.day}';
   }
 
   @override
@@ -459,10 +539,12 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                         CachedNetworkImage(
                           imageUrl: widget.unitImageUrl ?? hotel.imageUrl,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => Container(color: AppColors.surfaceMuted),
+                          placeholder: (context, url) =>
+                              Container(color: AppColors.surfaceMuted),
                           errorWidget: (context, url, error) => Container(
                             color: AppColors.surfaceMuted,
-                            child: const Icon(Icons.image_outlined, size: 40, color: AppColors.textMuted),
+                            child: const Icon(Icons.image_outlined,
+                                size: 40, color: AppColors.textMuted),
                           ),
                         ),
                         Container(
@@ -470,7 +552,10 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [Colors.black.withOpacity(0.05), Colors.black.withOpacity(0.75)],
+                              colors: [
+                                Colors.black.withOpacity(0.05),
+                                Colors.black.withOpacity(0.75)
+                              ],
                               stops: const [0.4, 1.0],
                             ),
                           ),
@@ -484,16 +569,23 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                             children: [
                               Text(
                                 widget.unitName ?? hotel.name,
-                                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800),
                               ),
                               const SizedBox(height: 2),
                               Row(
                                 children: [
-                                  const Icon(Icons.location_on_outlined, color: Colors.white70, size: 14),
+                                  const Icon(Icons.location_on_outlined,
+                                      color: Colors.white70, size: 14),
                                   const SizedBox(width: 4),
                                   Text(
-                                    widget.unitName != null ? hotel.name : hotel.city(isArabic),
-                                    style: const TextStyle(color: Colors.white70, fontSize: 13),
+                                    widget.unitName != null
+                                        ? hotel.name
+                                        : hotel.city(isArabic),
+                                    style: const TextStyle(
+                                        color: Colors.white70, fontSize: 13),
                                   ),
                                 ],
                               ),
@@ -510,398 +602,501 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                    Text(AppStrings.t(isArabic, 'your_stay'), style: textTheme.titleMedium),
-                    const SizedBox(height: AppDimens.sm),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: InkWell(
-                            onTap: () => _pickDate(isCheckIn: true),
-                            borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-                            child: _InfoBox(
-                              icon: Icons.calendar_today_outlined,
-                              label: AppStrings.t(isArabic, 'check_in'),
-                              value: _formatDate(_checkIn, isArabic),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: AppDimens.sm),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () => _pickDate(isCheckIn: false),
-                            borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-                            child: _InfoBox(
-                              icon: Icons.calendar_today_outlined,
-                              label: AppStrings.t(isArabic, 'check_out'),
-                              value: _formatDate(_checkOut, isArabic),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    // المتطلب 45: تحذير محلي إن كانت التواريخ خارج فترات الإتاحة
-                    // المُعلنة للوحدة. لا يُمنع الحجز — الفحص النهائي على السيرفر.
-                    if (_availabilityWarningKey != null) ...[
-                      const SizedBox(height: AppDimens.sm),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(AppDimens.sm),
-                        decoration: BoxDecoration(
-                          color: AppColors.warning.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(AppDimens.radiusSm),
-                          border: Border.all(color: AppColors.warning.withOpacity(0.4)),
-                        ),
-                        child: Row(
+                        Text(AppStrings.t(isArabic, 'your_stay'),
+                            style: textTheme.titleMedium),
+                        const SizedBox(height: AppDimens.sm),
+                        Row(
                           children: [
-                            const Icon(Icons.info_outline_rounded,
-                                size: 18, color: AppColors.warning),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () => _pickDate(isCheckIn: true),
+                                borderRadius:
+                                    BorderRadius.circular(AppDimens.radiusMd),
+                                child: _InfoBox(
+                                  icon: Icons.calendar_today_outlined,
+                                  label: AppStrings.t(isArabic, 'check_in'),
+                                  value: _formatDate(_checkIn, isArabic),
+                                ),
+                              ),
+                            ),
                             const SizedBox(width: AppDimens.sm),
                             Expanded(
-                              child: Text(
-                                AppStrings.t(isArabic, _availabilityWarningKey!),
-                                style: textTheme.bodySmall,
+                              child: InkWell(
+                                onTap: () => _pickDate(isCheckIn: false),
+                                borderRadius:
+                                    BorderRadius.circular(AppDimens.radiusMd),
+                                child: _InfoBox(
+                                  icon: Icons.calendar_today_outlined,
+                                  label: AppStrings.t(isArabic, 'check_out'),
+                                  value: _formatDate(_checkOut, isArabic),
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                    const SizedBox(height: AppDimens.md),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _StepperBox(
-                            label: AppStrings.t(isArabic, 'guests'),
-                            value: _guests,
-                            onMinus: () => setState(() => _guests = _guests > 1 ? _guests - 1 : 1),
-                            onPlus: () => setState(() => _guests++),
-                          ),
-                        ),
-                        const SizedBox(width: AppDimens.sm),
-                        Expanded(
-                          child: _InfoBox(
-                            icon: Icons.nightlight_outlined,
-                            label: AppStrings.t(isArabic, 'nights'),
-                            value: '$_nights',
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppDimens.md),
-                    TextField(
-                      controller: _guestIdNumberController,
-                      decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'guest_id_number')),
-                    ),
-                    if (_isAgent) ...[
-                      if (_agentClients.isNotEmpty) ...[
-                        const SizedBox(height: AppDimens.md),
-                        DropdownButtonFormField<int?>(
-                          value: _selectedClientId,
-                          decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'saved_client')),
-                          items: [
-                            DropdownMenuItem<int?>(value: null, child: Text(AppStrings.t(isArabic, 'new_client'))),
-                            ..._agentClients.map((c) => DropdownMenuItem<int?>(
-                                  value: asInt(c['id']),
-                                  child: Text('${c['full_name']} — ${c['phone']}', overflow: TextOverflow.ellipsis),
-                                )),
-                          ],
-                          onChanged: (v) => setState(() {
-                            _selectedClientId = v;
-                            final c = _agentClients.where((x) => x['id'] == v).toList();
-                            if (c.isNotEmpty) {
-                              _customerNameController.text = c.first['full_name']?.toString() ?? '';
-                              _customerPhoneController.text = c.first['phone']?.toString() ?? '';
-                              if ((c.first['id_number'] ?? '').toString().isNotEmpty) {
-                                _guestIdNumberController.text = c.first['id_number'].toString();
-                              }
-                            }
-                          }),
-                        ),
-                      ],
-                      const SizedBox(height: AppDimens.md),
-                      TextField(
-                        controller: _customerNameController,
-                        decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'customer_name')),
-                      ),
-                      const SizedBox(height: AppDimens.md),
-                      TextField(
-                        controller: _customerPhoneController,
-                        keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'customer_phone')),
-                      ),
-                    ],
-                    const SizedBox(height: AppDimens.lg),
-
-                    if (widget.unitId != null) ...[
-                      // إضافات الوحدة الحقيقية يلي حددها المالك (وجبات: فطور/غداء/عشاء + سرير إضافي + إضافات أخرى)
-                      if (_loadingAddons)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: AppDimens.md),
-                          child: Center(child: CircularProgressIndicator()),
-                        )
-                      else ...[
-                        if (_mealAddons.isNotEmpty) ...[
-                          Text(AppStrings.t(isArabic, 'meal_type'), style: textTheme.titleMedium),
-                          Text(AppStrings.t(isArabic, 'meal_multi_select_hint'),
-                              style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                        // المتطلب 45: تحذير محلي إن كانت التواريخ خارج فترات الإتاحة
+                        // المُعلنة للوحدة. لا يُمنع الحجز — الفحص النهائي على السيرفر.
+                        if (_availabilityWarningKey != null) ...[
                           const SizedBox(height: AppDimens.sm),
-                          _MealOptionTile(
-                            label: AppStrings.t(isArabic, 'meal_option_none'),
-                            priceLabel: AppStrings.t(isArabic, 'free'),
-                            selected: _selectedMealAddonIds.isEmpty,
-                            onTap: () => setState(() => _selectedMealAddonIds.clear()),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(AppDimens.sm),
+                            decoration: BoxDecoration(
+                              color: AppColors.warning.withOpacity(0.1),
+                              borderRadius:
+                                  BorderRadius.circular(AppDimens.radiusSm),
+                              border: Border.all(
+                                  color: AppColors.warning.withOpacity(0.4)),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.info_outline_rounded,
+                                    size: 18, color: AppColors.warning),
+                                const SizedBox(width: AppDimens.sm),
+                                Expanded(
+                                  child: Text(
+                                    AppStrings.t(
+                                        isArabic, _availabilityWarningKey!),
+                                    style: textTheme.bodySmall,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          ..._mealAddons.map((m) {
-                            final id = m.id;
-                            final selected = _selectedMealAddonIds.contains(id);
-                            return _MealOptionTile(
-                              label: m.name(isArabic),
-                              priceLabel: '+${_addonLineTotal(m).toStringAsFixed(0)} ${AppStrings.t(isArabic, "sar")}',
-                              selected: selected,
-                              onTap: () => setState(() {
-                                if (selected) {
-                                  _selectedMealAddonIds.remove(id);
-                                } else {
-                                  _selectedMealAddonIds.add(id);
+                        ],
+                        const SizedBox(height: AppDimens.md),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _StepperBox(
+                                label: AppStrings.t(isArabic, 'guests'),
+                                value: _guests,
+                                onMinus: () => setState(() =>
+                                    _guests = _guests > 1 ? _guests - 1 : 1),
+                                onPlus: () => setState(() => _guests++),
+                              ),
+                            ),
+                            const SizedBox(width: AppDimens.sm),
+                            Expanded(
+                              child: _InfoBox(
+                                icon: Icons.nightlight_outlined,
+                                label: AppStrings.t(isArabic, 'nights'),
+                                value: '$_nights',
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppDimens.md),
+                        TextField(
+                          controller: _guestIdNumberController,
+                          decoration: InputDecoration(
+                              labelText:
+                                  AppStrings.t(isArabic, 'guest_id_number')),
+                        ),
+                        if (_isAgent) ...[
+                          if (_agentClients.isNotEmpty) ...[
+                            const SizedBox(height: AppDimens.md),
+                            DropdownButtonFormField<int?>(
+                              value: _selectedClientId,
+                              decoration: InputDecoration(
+                                  labelText:
+                                      AppStrings.t(isArabic, 'saved_client')),
+                              items: [
+                                DropdownMenuItem<int?>(
+                                    value: null,
+                                    child: Text(
+                                        AppStrings.t(isArabic, 'new_client'))),
+                                ..._agentClients
+                                    .map((c) => DropdownMenuItem<int?>(
+                                          value: asInt(c['id']),
+                                          child: Text(
+                                              '${c['full_name']} — ${c['phone']}',
+                                              overflow: TextOverflow.ellipsis),
+                                        )),
+                              ],
+                              onChanged: (v) => setState(() {
+                                _selectedClientId = v;
+                                final c = _agentClients
+                                    .where((x) => x['id'] == v)
+                                    .toList();
+                                if (c.isNotEmpty) {
+                                  _customerNameController.text =
+                                      c.first['full_name']?.toString() ?? '';
+                                  _customerPhoneController.text =
+                                      c.first['phone']?.toString() ?? '';
+                                  if ((c.first['id_number'] ?? '')
+                                      .toString()
+                                      .isNotEmpty) {
+                                    _guestIdNumberController.text =
+                                        c.first['id_number'].toString();
+                                  }
                                 }
                               }),
-                            );
-                          }),
-                          // المتطلب 51: إظهار قيمة إجمالي الوجبات المختارة (بأسعار الإضافات
-                          // الحقيقية من الـ API) بدل الاكتفاء بملاحظة نصية.
-                          if (_selectedMealAddonIds.isNotEmpty)
-                            Container(
-                              margin: const EdgeInsets.only(top: AppDimens.sm),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: AppDimens.md, vertical: AppDimens.sm),
-                              decoration: BoxDecoration(
-                                color: AppColors.gold.withOpacity(0.08),
-                                borderRadius: BorderRadius.circular(AppDimens.radiusSm),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(AppStrings.t(isArabic, 'meals_total'),
-                                      style: textTheme.bodyMedium
-                                          ?.copyWith(fontWeight: FontWeight.w600)),
-                                  Text(
-                                    '${_mealsSubtotal.toStringAsFixed(0)} ${AppStrings.t(isArabic, "sar")}',
-                                    style: textTheme.bodyMedium?.copyWith(
-                                        color: AppColors.goldDark,
-                                        fontWeight: FontWeight.w700),
-                                  ),
-                                ],
-                              ),
                             ),
-                          const SizedBox(height: AppDimens.lg),
+                          ],
+                          const SizedBox(height: AppDimens.md),
+                          TextField(
+                            controller: _customerNameController,
+                            decoration: InputDecoration(
+                                labelText:
+                                    AppStrings.t(isArabic, 'customer_name')),
+                          ),
+                          const SizedBox(height: AppDimens.md),
+                          TextField(
+                            controller: _customerPhoneController,
+                            keyboardType: TextInputType.phone,
+                            decoration: InputDecoration(
+                                labelText:
+                                    AppStrings.t(isArabic, 'customer_phone')),
+                          ),
                         ],
-                        if (_otherAddons.isNotEmpty) ...[
-                          Text(AppStrings.t(isArabic, 'unit_addons_title'), style: textTheme.titleMedium),
+                        const SizedBox(height: AppDimens.lg),
+
+                        if (widget.unitId != null) ...[
+                          // إضافات الوحدة الحقيقية يلي حددها المالك (وجبات: فطور/غداء/عشاء + سرير إضافي + إضافات أخرى)
+                          if (_loadingAddons)
+                            const Padding(
+                              padding:
+                                  EdgeInsets.symmetric(vertical: AppDimens.md),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                          else ...[
+                            if (_mealAddons.isNotEmpty) ...[
+                              Text(AppStrings.t(isArabic, 'meal_type'),
+                                  style: textTheme.titleMedium),
+                              Text(
+                                  AppStrings.t(
+                                      isArabic, 'meal_multi_select_hint'),
+                                  style: textTheme.bodySmall
+                                      ?.copyWith(color: AppColors.textMuted)),
+                              const SizedBox(height: AppDimens.sm),
+                              _MealOptionTile(
+                                label:
+                                    AppStrings.t(isArabic, 'meal_option_none'),
+                                priceLabel: AppStrings.t(isArabic, 'free'),
+                                selected: _selectedMealAddonIds.isEmpty,
+                                onTap: () => setState(
+                                    () => _selectedMealAddonIds.clear()),
+                              ),
+                              ..._mealAddons.map((m) {
+                                final id = m.id;
+                                final selected =
+                                    _selectedMealAddonIds.contains(id);
+                                return _MealOptionTile(
+                                  label: m.name(isArabic),
+                                  priceLabel:
+                                      '+${_addonLineTotal(m).toStringAsFixed(0)} ${AppStrings.t(isArabic, "sar")}',
+                                  selected: selected,
+                                  onTap: () => setState(() {
+                                    if (selected) {
+                                      _selectedMealAddonIds.remove(id);
+                                    } else {
+                                      _selectedMealAddonIds.add(id);
+                                    }
+                                  }),
+                                );
+                              }),
+                              // المتطلب 51: إظهار قيمة إجمالي الوجبات المختارة (بأسعار الإضافات
+                              // الحقيقية من الـ API) بدل الاكتفاء بملاحظة نصية.
+                              if (_selectedMealAddonIds.isNotEmpty)
+                                Container(
+                                  margin:
+                                      const EdgeInsets.only(top: AppDimens.sm),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: AppDimens.md,
+                                      vertical: AppDimens.sm),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.gold.withOpacity(0.08),
+                                    borderRadius: BorderRadius.circular(
+                                        AppDimens.radiusSm),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                          AppStrings.t(isArabic, 'meals_total'),
+                                          style: textTheme.bodyMedium?.copyWith(
+                                              fontWeight: FontWeight.w600)),
+                                      Text(
+                                        '${_mealsSubtotal.toStringAsFixed(0)} ${AppStrings.t(isArabic, "sar")}',
+                                        style: textTheme.bodyMedium?.copyWith(
+                                            color: AppColors.goldDark,
+                                            fontWeight: FontWeight.w700),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              const SizedBox(height: AppDimens.lg),
+                            ],
+                            if (_otherAddons.isNotEmpty) ...[
+                              Text(AppStrings.t(isArabic, 'unit_addons_title'),
+                                  style: textTheme.titleMedium),
+                              const SizedBox(height: AppDimens.sm),
+                              ..._otherAddons.map((a) {
+                                final id = a.id;
+                                final selected =
+                                    _selectedOtherAddonIds.contains(id);
+                                return Container(
+                                  margin: const EdgeInsets.only(
+                                      bottom: AppDimens.sm),
+                                  padding: const EdgeInsets.all(AppDimens.md),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surface,
+                                    borderRadius: BorderRadius.circular(
+                                        AppDimens.radiusLg),
+                                    border:
+                                        Border.all(color: AppColors.cardBorder),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${a.category == 'extra_bed' ? '🛏️ ' : '✨ '}${a.name(isArabic)}',
+                                              style: textTheme.bodyMedium
+                                                  ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.w600),
+                                            ),
+                                            Text(
+                                              '+${_addonLineTotal(a).toStringAsFixed(0)} ${AppStrings.t(isArabic, "sar")}',
+                                              style: textTheme.bodySmall
+                                                  ?.copyWith(
+                                                      color:
+                                                          AppColors.textMuted),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Switch(
+                                        value: selected,
+                                        activeColor: AppColors.gold,
+                                        onChanged: (v) => setState(() {
+                                          if (v) {
+                                            _selectedOtherAddonIds.add(id);
+                                          } else {
+                                            _selectedOtherAddonIds.remove(id);
+                                          }
+                                        }),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                              const SizedBox(height: AppDimens.md),
+                            ],
+                            if (_mealAddons.isEmpty && _otherAddons.isEmpty)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(bottom: AppDimens.md),
+                                child: Text(
+                                  AppStrings.t(isArabic, 'no_addons_yet'),
+                                  style: textTheme.bodySmall
+                                      ?.copyWith(color: AppColors.textMuted),
+                                ),
+                              ),
+                          ],
+                        ] else ...[
+                          // مافي وحدة محددة (حجز على مستوى الفندق العام) — النظام القديم كتوافق
+                          Text(AppStrings.t(isArabic, 'meal_type'),
+                              style: textTheme.titleMedium),
                           const SizedBox(height: AppDimens.sm),
-                          ..._otherAddons.map((a) {
-                            final id = a.id;
-                            final selected = _selectedOtherAddonIds.contains(id);
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: AppDimens.sm),
+                          Wrap(
+                            spacing: AppDimens.sm,
+                            runSpacing: AppDimens.sm,
+                            children: ['breakfast', 'lunch', 'dinner'].map((m) {
+                              final selected = _selectedLegacyMeals.contains(m);
+                              return FilterChip(
+                                label: Text(
+                                    AppStrings.t(isArabic, 'meal_option_$m')),
+                                selected: selected,
+                                onSelected: (v) => setState(() {
+                                  if (v) {
+                                    _selectedLegacyMeals.add(m);
+                                  } else {
+                                    _selectedLegacyMeals.remove(m);
+                                  }
+                                }),
+                                selectedColor: AppColors.gold.withOpacity(0.2),
+                                labelStyle: TextStyle(
+                                    color: selected
+                                        ? AppColors.goldDark
+                                        : AppColors.textMuted,
+                                    fontWeight: selected
+                                        ? FontWeight.w700
+                                        : FontWeight.w400),
+                              );
+                            }).toList(),
+                          ),
+                          if (_selectedLegacyMeals.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: AppDimens.sm),
+                              child: Text(
+                                  AppStrings.t(isArabic, 'meal_option_none'),
+                                  style: textTheme.bodySmall
+                                      ?.copyWith(color: AppColors.textMuted)),
+                            ),
+
+                          if (widget.hotel.extraBedPrice != null) ...[
+                            const SizedBox(height: AppDimens.lg),
+                            Container(
                               padding: const EdgeInsets.all(AppDimens.md),
                               decoration: BoxDecoration(
                                 color: AppColors.surface,
-                                borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+                                borderRadius:
+                                    BorderRadius.circular(AppDimens.radiusLg),
                                 border: Border.all(color: AppColors.cardBorder),
                               ),
                               child: Row(
                                 children: [
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          '${a.category == 'extra_bed' ? '🛏️ ' : '✨ '}${a.name(isArabic)}',
-                                          style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-                                        ),
+                                            AppStrings.t(
+                                                isArabic, 'add_extra_bed'),
+                                            style: textTheme.bodyMedium
+                                                ?.copyWith(
+                                                    fontWeight:
+                                                        FontWeight.w600)),
                                         Text(
-                                          '+${_addonLineTotal(a).toStringAsFixed(0)} ${AppStrings.t(isArabic, "sar")}',
-                                          style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
+                                          widget.hotel.extraBedPrice == 0
+                                              ? AppStrings.t(isArabic, 'free')
+                                              : '+${widget.hotel.extraBedPrice!.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')} (${AppStrings.t(isArabic, 'one_time_fee')})',
+                                          style: textTheme.bodySmall?.copyWith(
+                                              color: AppColors.textMuted),
                                         ),
                                       ],
                                     ),
                                   ),
                                   Switch(
-                                    value: selected,
+                                    value: _extraBed,
                                     activeColor: AppColors.gold,
-                                    onChanged: (v) => setState(() {
-                                      if (v) {
-                                        _selectedOtherAddonIds.add(id);
-                                      } else {
-                                        _selectedOtherAddonIds.remove(id);
-                                      }
-                                    }),
+                                    onChanged: (v) =>
+                                        setState(() => _extraBed = v),
                                   ),
                                 ],
                               ),
-                            );
-                          }),
-                          const SizedBox(height: AppDimens.md),
+                            ),
+                          ],
                         ],
-                        if (_mealAddons.isEmpty && _otherAddons.isEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: AppDimens.md),
-                            child: Text(
-                              AppStrings.t(isArabic, 'no_addons_yet'),
-                              style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
+                        const SizedBox(height: AppDimens.lg),
+
+                        Text(AppStrings.t(isArabic, 'payment_method'),
+                            style: textTheme.titleMedium),
+                        const SizedBox(height: AppDimens.sm),
+                        _PaymentOption(
+                          icon: Icons.credit_card_rounded,
+                          label: AppStrings.t(isArabic, 'pay_online'),
+                          selected: _paymentMethod == PaymentMethod.online,
+                          onTap: () => setState(
+                              () => _paymentMethod = PaymentMethod.online),
+                        ),
+                        const SizedBox(height: AppDimens.sm),
+                        _PaymentOption(
+                          icon: Icons.storefront_outlined,
+                          label: AppStrings.t(isArabic, 'pay_at_hotel'),
+                          selected: _paymentMethod == PaymentMethod.atHotel,
+                          onTap: () => setState(
+                              () => _paymentMethod = PaymentMethod.atHotel),
+                        ),
+                        if (widget.unitId != null) ...[
+                          const SizedBox(height: AppDimens.sm),
+                          _PaymentOption(
+                            icon: Icons.account_balance_outlined,
+                            label: AppStrings.t(isArabic, 'pay_owner_transfer'),
+                            selected:
+                                _paymentMethod == PaymentMethod.ownerTransfer,
+                            onTap: () => setState(() =>
+                                _paymentMethod = PaymentMethod.ownerTransfer),
+                          ),
+                        ],
+
+                        if (_paymentMethod == PaymentMethod.ownerTransfer) ...[
+                          const SizedBox(height: AppDimens.md),
+                          _OwnerBankPanel(
+                              bank: widget.ownerBank, isArabic: isArabic),
+                        ],
+
+                        if (_paymentMethod == PaymentMethod.online) ...[
+                          const SizedBox(height: AppDimens.md),
+                          TextField(
+                            controller: _cardNumberController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              hintText: AppStrings.t(isArabic, 'card_number'),
+                              prefixIcon:
+                                  const Icon(Icons.credit_card_outlined),
                             ),
                           ),
-                      ],
-                    ] else ...[
-                      // مافي وحدة محددة (حجز على مستوى الفندق العام) — النظام القديم كتوافق
-                      Text(AppStrings.t(isArabic, 'meal_type'), style: textTheme.titleMedium),
-                      const SizedBox(height: AppDimens.sm),
-                      Wrap(
-                        spacing: AppDimens.sm,
-                        runSpacing: AppDimens.sm,
-                        children: ['breakfast', 'lunch', 'dinner'].map((m) {
-                          final selected = _selectedLegacyMeals.contains(m);
-                          return FilterChip(
-                            label: Text(AppStrings.t(isArabic, 'meal_option_$m')),
-                            selected: selected,
-                            onSelected: (v) => setState(() {
-                              if (v) {
-                                _selectedLegacyMeals.add(m);
-                              } else {
-                                _selectedLegacyMeals.remove(m);
-                              }
-                            }),
-                            selectedColor: AppColors.gold.withOpacity(0.2),
-                            labelStyle: TextStyle(color: selected ? AppColors.goldDark : AppColors.textMuted, fontWeight: selected ? FontWeight.w700 : FontWeight.w400),
-                          );
-                        }).toList(),
-                      ),
-                      if (_selectedLegacyMeals.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: AppDimens.sm),
-                          child: Text(AppStrings.t(isArabic, 'meal_option_none'), style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
-                        ),
-
-                      if (widget.hotel.extraBedPrice != null) ...[
-                        const SizedBox(height: AppDimens.lg),
-                        Container(
-                          padding: const EdgeInsets.all(AppDimens.md),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-                            border: Border.all(color: AppColors.cardBorder),
-                          ),
-                          child: Row(
+                          const SizedBox(height: AppDimens.sm),
+                          Row(
                             children: [
                               Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(AppStrings.t(isArabic, 'add_extra_bed'), style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
-                                    Text(
-                                      widget.hotel.extraBedPrice == 0
-                                          ? AppStrings.t(isArabic, 'free')
-                                          : '+${widget.hotel.extraBedPrice!.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')} (${AppStrings.t(isArabic, 'one_time_fee')})',
-                                      style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
-                                    ),
-                                  ],
+                                child: TextField(
+                                  controller: _expiryController,
+                                  decoration: InputDecoration(
+                                      hintText: AppStrings.t(
+                                          isArabic, 'expiry_date')),
                                 ),
                               ),
-                              Switch(
-                                value: _extraBed,
-                                activeColor: AppColors.gold,
-                                onChanged: (v) => setState(() => _extraBed = v),
+                              const SizedBox(width: AppDimens.sm),
+                              Expanded(
+                                child: TextField(
+                                  controller: _cvvController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                      hintText: AppStrings.t(isArabic, 'cvv')),
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ],
-                    const SizedBox(height: AppDimens.lg),
-
-                    Text(AppStrings.t(isArabic, 'payment_method'), style: textTheme.titleMedium),
-                    const SizedBox(height: AppDimens.sm),
-                    _PaymentOption(
-                      icon: Icons.credit_card_rounded,
-                      label: AppStrings.t(isArabic, 'pay_online'),
-                      selected: _paymentMethod == PaymentMethod.online,
-                      onTap: () => setState(() => _paymentMethod = PaymentMethod.online),
-                    ),
-                    const SizedBox(height: AppDimens.sm),
-                    _PaymentOption(
-                      icon: Icons.storefront_outlined,
-                      label: AppStrings.t(isArabic, 'pay_at_hotel'),
-                      selected: _paymentMethod == PaymentMethod.atHotel,
-                      onTap: () => setState(() => _paymentMethod = PaymentMethod.atHotel),
-                    ),
-                    if (widget.unitId != null) ...[
-                      const SizedBox(height: AppDimens.sm),
-                      _PaymentOption(
-                        icon: Icons.account_balance_outlined,
-                        label: AppStrings.t(isArabic, 'pay_owner_transfer'),
-                        selected: _paymentMethod == PaymentMethod.ownerTransfer,
-                        onTap: () => setState(() => _paymentMethod = PaymentMethod.ownerTransfer),
-                      ),
-                    ],
-
-                    if (_paymentMethod == PaymentMethod.ownerTransfer) ...[
-                      const SizedBox(height: AppDimens.md),
-                      _OwnerBankPanel(bank: widget.ownerBank, isArabic: isArabic),
-                    ],
-
-                    if (_paymentMethod == PaymentMethod.online) ...[
-                      const SizedBox(height: AppDimens.md),
-                      TextField(
-                        controller: _cardNumberController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          hintText: AppStrings.t(isArabic, 'card_number'),
-                          prefixIcon: const Icon(Icons.credit_card_outlined),
-                        ),
-                      ),
-                      const SizedBox(height: AppDimens.sm),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _expiryController,
-                              decoration: InputDecoration(hintText: AppStrings.t(isArabic, 'expiry_date')),
-                            ),
-                          ),
-                          const SizedBox(width: AppDimens.sm),
-                          Expanded(
-                            child: TextField(
-                              controller: _cvvController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(hintText: AppStrings.t(isArabic, 'cvv')),
-                            ),
+                          const SizedBox(height: AppDimens.sm),
+                          TextField(
+                            controller: _cardNameController,
+                            decoration: InputDecoration(
+                                hintText:
+                                    AppStrings.t(isArabic, 'cardholder_name')),
                           ),
                         ],
-                      ),
-                      const SizedBox(height: AppDimens.sm),
-                      TextField(
-                        controller: _cardNameController,
-                        decoration: InputDecoration(hintText: AppStrings.t(isArabic, 'cardholder_name')),
-                      ),
-                    ],
-                    const SizedBox(height: AppDimens.lg),
+                        const SizedBox(height: AppDimens.lg),
 
-                    Text(AppStrings.t(isArabic, 'price_details'), style: textTheme.titleMedium),
-                    const SizedBox(height: AppDimens.sm),
-                    _PriceRow(label: AppStrings.t(isArabic, 'room_price'), value: roomPrice, isArabic: isArabic),
-                    if (addonsTotal > 0)
-                      _PriceRow(label: AppStrings.t(isArabic, 'unit_addons_title'), value: addonsTotal, isArabic: isArabic),
-                    if (extraBedCharge > 0)
-                      _PriceRow(label: AppStrings.t(isArabic, 'add_extra_bed'), value: extraBedCharge, isArabic: isArabic),
-                    _PriceRow(label: AppStrings.t(isArabic, 'taxes_fees'), value: taxes, isArabic: isArabic),
-                    const Divider(height: 24),
-                    _PriceRow(
-                      label: AppStrings.t(isArabic, 'total_price'),
-                      value: total,
-                      isArabic: isArabic,
-                      isTotal: true,
-                    ),
-                    const SizedBox(height: AppDimens.xl),
+                        Text(AppStrings.t(isArabic, 'price_details'),
+                            style: textTheme.titleMedium),
+                        const SizedBox(height: AppDimens.sm),
+                        _PriceRow(
+                            label: AppStrings.t(isArabic, 'room_price'),
+                            value: roomPrice,
+                            isArabic: isArabic),
+                        if (addonsTotal > 0)
+                          _PriceRow(
+                              label:
+                                  AppStrings.t(isArabic, 'unit_addons_title'),
+                              value: addonsTotal,
+                              isArabic: isArabic),
+                        if (extraBedCharge > 0)
+                          _PriceRow(
+                              label: AppStrings.t(isArabic, 'add_extra_bed'),
+                              value: extraBedCharge,
+                              isArabic: isArabic),
+                        _PriceRow(
+                            label: AppStrings.t(isArabic, 'taxes_fees'),
+                            value: taxes,
+                            isArabic: isArabic),
+                        const Divider(height: 24),
+                        _PriceRow(
+                          label: AppStrings.t(isArabic, 'total_price'),
+                          value: total,
+                          isArabic: isArabic,
+                          isTotal: true,
+                        ),
+                        const SizedBox(height: AppDimens.xl),
                       ],
                     ),
                   ),
@@ -911,19 +1106,22 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
           ),
           Container(
             padding: const EdgeInsets.all(AppDimens.pagePadding),
-            decoration: BoxDecoration(color: AppColors.surface, boxShadow: AppColors.cardShadow),
+            decoration: BoxDecoration(
+                color: AppColors.surface, boxShadow: AppColors.cardShadow),
             child: SafeArea(
               top: false,
               child: SizedBox(
                 width: double.infinity,
                 height: AppDimens.buttonHeight,
                 child: ElevatedButton(
-                  onPressed: _isSubmitting ? null : () => _openDetailsReview(isArabic),
+                  onPressed:
+                      _isSubmitting ? null : () => _openDetailsReview(isArabic),
                   child: _isSubmitting
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2.4, color: Colors.white),
                         )
                       : Text(AppStrings.t(isArabic, 'booking_details')),
                 ),
@@ -951,7 +1149,8 @@ class _ReviewRow extends StatelessWidget {
         children: [
           Icon(icon, size: 16, color: AppColors.textSecondary),
           const SizedBox(width: AppDimens.sm),
-          Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium)),
+          Expanded(
+              child: Text(text, style: Theme.of(context).textTheme.bodyMedium)),
         ],
       ),
     );
@@ -963,7 +1162,8 @@ class _InfoBox extends StatelessWidget {
   final String label;
   final String value;
 
-  const _InfoBox({required this.icon, required this.label, required this.value});
+  const _InfoBox(
+      {required this.icon, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -981,7 +1181,11 @@ class _InfoBox extends StatelessWidget {
             children: [
               Icon(icon, size: 14, color: AppColors.textMuted),
               const SizedBox(width: 4),
-              Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.textMuted)),
+              Text(label,
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelSmall
+                      ?.copyWith(color: AppColors.textMuted)),
             ],
           ),
           const SizedBox(height: 4),
@@ -998,19 +1202,25 @@ class _StepperBox extends StatelessWidget {
   final VoidCallback onMinus;
   final VoidCallback onPlus;
 
-  const _StepperBox({required this.label, required this.value, required this.onMinus, required this.onPlus});
+  const _StepperBox(
+      {required this.label,
+      required this.value,
+      required this.onMinus,
+      required this.onPlus});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppDimens.sm, vertical: 6),
+      padding:
+          const EdgeInsets.symmetric(horizontal: AppDimens.sm, vertical: 6),
       decoration: BoxDecoration(
         color: AppColors.surfaceMuted,
         borderRadius: BorderRadius.circular(AppDimens.radiusMd),
       ),
       child: Row(
         children: [
-          Expanded(child: Text(label, style: Theme.of(context).textTheme.bodySmall)),
+          Expanded(
+              child: Text(label, style: Theme.of(context).textTheme.bodySmall)),
           IconButton(
             onPressed: onMinus,
             icon: const Icon(Icons.remove_circle_outline_rounded, size: 20),
@@ -1036,7 +1246,11 @@ class _PaymentOption extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  const _PaymentOption({required this.icon, required this.label, required this.selected, required this.onTap});
+  const _PaymentOption(
+      {required this.icon,
+      required this.label,
+      required this.selected,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -1048,15 +1262,21 @@ class _PaymentOption extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? AppColors.ink.withOpacity(0.04) : AppColors.surface,
           borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-          border: Border.all(color: selected ? AppColors.ink : AppColors.cardBorder, width: selected ? 1.5 : 1),
+          border: Border.all(
+              color: selected ? AppColors.ink : AppColors.cardBorder,
+              width: selected ? 1.5 : 1),
         ),
         child: Row(
           children: [
             Icon(icon, color: selected ? AppColors.ink : AppColors.textMuted),
             const SizedBox(width: AppDimens.sm),
-            Expanded(child: Text(label, style: Theme.of(context).textTheme.bodyMedium)),
+            Expanded(
+                child:
+                    Text(label, style: Theme.of(context).textTheme.bodyMedium)),
             Icon(
-              selected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
+              selected
+                  ? Icons.radio_button_checked_rounded
+                  : Icons.radio_button_off_rounded,
               color: selected ? AppColors.ink : AppColors.textMuted,
               size: 20,
             ),
@@ -1073,13 +1293,20 @@ class _PriceRow extends StatelessWidget {
   final bool isArabic;
   final bool isTotal;
 
-  const _PriceRow({required this.label, required this.value, required this.isArabic, this.isTotal = false});
+  const _PriceRow(
+      {required this.label,
+      required this.value,
+      required this.isArabic,
+      this.isTotal = false});
 
   @override
   Widget build(BuildContext context) {
     final style = isTotal
         ? Theme.of(context).textTheme.titleMedium
-        : Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary);
+        : Theme.of(context)
+            .textTheme
+            .bodyMedium
+            ?.copyWith(color: AppColors.textSecondary);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -1087,7 +1314,8 @@ class _PriceRow extends StatelessWidget {
         children: [
           Text(label, style: style),
           Text('${value.toInt()} ${AppStrings.t(isArabic, "sar")}',
-              style: isTotal ? style?.copyWith(color: AppColors.goldDark) : style),
+              style:
+                  isTotal ? style?.copyWith(color: AppColors.goldDark) : style),
         ],
       ),
     );
@@ -1100,7 +1328,11 @@ class _MealOptionTile extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  const _MealOptionTile({required this.label, required this.priceLabel, required this.selected, required this.onTap});
+  const _MealOptionTile(
+      {required this.label,
+      required this.priceLabel,
+      required this.selected,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -1111,27 +1343,35 @@ class _MealOptionTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: AppDimens.sm),
         padding: const EdgeInsets.all(AppDimens.md),
         decoration: BoxDecoration(
-          color: selected ? AppColors.gold.withOpacity(0.08) : AppColors.surface,
+          color:
+              selected ? AppColors.gold.withOpacity(0.08) : AppColors.surface,
           borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-          border: Border.all(color: selected ? AppColors.gold : AppColors.cardBorder, width: selected ? 1.5 : 1),
+          border: Border.all(
+              color: selected ? AppColors.gold : AppColors.cardBorder,
+              width: selected ? 1.5 : 1),
         ),
         child: Row(
           children: [
             Icon(
-              selected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
+              selected
+                  ? Icons.radio_button_checked_rounded
+                  : Icons.radio_button_off_rounded,
               color: selected ? AppColors.goldDark : AppColors.textMuted,
               size: 20,
             ),
             const SizedBox(width: AppDimens.sm),
-            Expanded(child: Text(label, style: Theme.of(context).textTheme.bodyMedium)),
-            Text(priceLabel, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.goldDark, fontWeight: FontWeight.w600)),
+            Expanded(
+                child:
+                    Text(label, style: Theme.of(context).textTheme.bodyMedium)),
+            Text(priceLabel,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.goldDark, fontWeight: FontWeight.w600)),
           ],
         ),
       ),
     );
   }
 }
-
 
 /// لوحة حساب المالك للتحويل المباشر (المتطلب 120). تعرض البيانات الحقيقية من
 /// `owner_bank` في `units/detail.php`، وإن لم يسجّلها المالك تعرض تنبيهًا واضحًا
@@ -1155,11 +1395,13 @@ class _OwnerBankPanel extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(Icons.info_outline_rounded, size: 18, color: AppColors.textMuted),
+            const Icon(Icons.info_outline_rounded,
+                size: 18, color: AppColors.textMuted),
             const SizedBox(width: 8),
             Expanded(
               child: Text(AppStrings.t(isArabic, 'owner_bank_missing'),
-                  style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                  style: textTheme.bodySmall
+                      ?.copyWith(color: AppColors.textMuted)),
             ),
           ],
         ),
@@ -1178,9 +1420,11 @@ class _OwnerBankPanel extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.account_balance_outlined, size: 18, color: AppColors.goldDark),
+              const Icon(Icons.account_balance_outlined,
+                  size: 18, color: AppColors.goldDark),
               const SizedBox(width: 8),
-              Text(AppStrings.t(isArabic, 'owner_account_title'), style: textTheme.titleSmall),
+              Text(AppStrings.t(isArabic, 'owner_account_title'),
+                  style: textTheme.titleSmall),
             ],
           ),
           const SizedBox(height: AppDimens.sm),
@@ -1189,8 +1433,13 @@ class _OwnerBankPanel extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 4),
               child: Row(
                 children: [
-                  Expanded(child: Text(AppStrings.t(isArabic, row.$1), style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted))),
-                  Text(row.$2, style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                  Expanded(
+                      child: Text(AppStrings.t(isArabic, row.$1),
+                          style: textTheme.bodySmall
+                              ?.copyWith(color: AppColors.textMuted))),
+                  Text(row.$2,
+                      style: textTheme.bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.w600)),
                 ],
               ),
             ),

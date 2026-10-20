@@ -26,10 +26,12 @@ class HotelBookingsScreen extends ConsumerStatefulWidget {
   const HotelBookingsScreen({super.key});
 
   @override
-  ConsumerState<HotelBookingsScreen> createState() => _HotelBookingsScreenState();
+  ConsumerState<HotelBookingsScreen> createState() =>
+      _HotelBookingsScreenState();
 }
 
-class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen> with SingleTickerProviderStateMixin {
+class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen>
+    with SingleTickerProviderStateMixin {
   final _service = HotelStaffService();
   late TabController _tab;
   late Future<List<Map<String, dynamic>>> _future;
@@ -65,7 +67,8 @@ class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen> with 
     super.dispose();
   }
 
-  void _reload() => setState(() => _future = _service.getBookings(scope: _scope));
+  void _reload() =>
+      setState(() => _future = _service.getBookings(scope: _scope));
 
   Future<void> _checkIn(bool isArabic, int id) async {
     setState(() => _busyId = id);
@@ -73,7 +76,9 @@ class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen> with 
       await _service.checkIn(id);
       _reload();
     } on ApiException catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
     } finally {
       if (mounted) setState(() => _busyId = null);
     }
@@ -85,7 +90,9 @@ class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen> with 
       await _service.checkOut(id);
       _reload();
     } on ApiException catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
     } finally {
       if (mounted) setState(() => _busyId = null);
     }
@@ -114,8 +121,8 @@ class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen> with 
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  AppDimens.pagePadding, AppDimens.md, AppDimens.pagePadding, 0),
+              padding: const EdgeInsets.fromLTRB(AppDimens.pagePadding,
+                  AppDimens.md, AppDimens.pagePadding, 0),
               child: TextField(
                 controller: _unitQueryController,
                 textInputAction: TextInputAction.search,
@@ -137,82 +144,107 @@ class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen> with 
                 child: FutureBuilder<List<Map<String, dynamic>>>(
                   future: _future,
                   builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError) {
-                return ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(AppDimens.xl),
-                  children: [Center(child: Text(AppStrings.t(isArabic, 'error_loading')))],
-                );
-              }
-              final rows = filterBookingsByUnit(snapshot.data ?? const [], _unitQuery);
-              if (rows.isEmpty) {
-                return ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(AppDimens.xl),
-                      child: Center(
-                        child: Text(
-                          AppStrings.t(isArabic, _unitQuery.isEmpty ? 'no_bookings' : 'no_matching_bookings'),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              }
-              return ListView.separated(
-                padding: const EdgeInsets.all(AppDimens.pagePadding),
-                itemCount: rows.length,
-                separatorBuilder: (context, index) => const SizedBox(height: AppDimens.md),
-                itemBuilder: (context, index) {
-                  final b = rows[index];
-                  final unitName = isArabic ? b['unit_name_ar'] : b['unit_name_en'];
-                  final busy = _busyId == b['id'];
-                  return Container(
-                    padding: const EdgeInsets.all(AppDimens.md),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-                      border: Border.all(color: AppColors.cardBorder),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('${b['guest_name'] ?? ''}', style: textTheme.titleSmall),
-                        Text(
-                            '${b['hotel_name'] ?? ''}${unitName != null ? ' — $unitName' : ''}${(b['unit_number'] ?? '').toString().isNotEmpty ? ' · ${AppStrings.t(isArabic, 'unit_no')} ${b['unit_number']}' : ''}',
-                            style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
-                        Text('${b['check_in']} → ${b['check_out']} · ${AppStrings.t(isArabic, 'status_${b['status']}')}',
-                            style: textTheme.bodySmall),
-                        // المتطلب 52: عدد الأشخاص أسفل رقم الوحدة لموظف الفندق.
-                        if (asInt(b['guests'], 0) > 0)
-                          Text('${AppStrings.t(isArabic, 'guests')}: ${asInt(b['guests'], 0)}',
-                              style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
-                        if (b['can_check_in'] == true || b['can_check_out'] == true) ...[
-                          const SizedBox(height: AppDimens.sm),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: b['can_check_in'] == true ? AppColors.success : AppColors.secondary,
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      return ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.all(AppDimens.xl),
+                        children: [
+                          Center(
+                              child:
+                                  Text(AppStrings.t(isArabic, 'error_loading')))
+                        ],
+                      );
+                    }
+                    final rows = filterBookingsByUnit(
+                        snapshot.data ?? const [], _unitQuery);
+                    if (rows.isEmpty) {
+                      return ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(AppDimens.xl),
+                            child: Center(
+                              child: Text(
+                                AppStrings.t(
+                                    isArabic,
+                                    _unitQuery.isEmpty
+                                        ? 'no_bookings'
+                                        : 'no_matching_bookings'),
                               ),
-                              onPressed: busy
-                                  ? null
-                                  : () => b['can_check_in'] == true
-                                      ? _checkIn(isArabic, asInt(b['id']))
-                                      : _checkOut(isArabic, asInt(b['id'])),
-                              child: Text(AppStrings.t(isArabic, b['can_check_in'] == true ? 'confirm_check_in' : 'confirm_check_out')),
                             ),
                           ),
                         ],
-                      ],
-                    ),
-                  );
-                },
-              );
+                      );
+                    }
+                    return ListView.separated(
+                      padding: const EdgeInsets.all(AppDimens.pagePadding),
+                      itemCount: rows.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: AppDimens.md),
+                      itemBuilder: (context, index) {
+                        final b = rows[index];
+                        final unitName =
+                            isArabic ? b['unit_name_ar'] : b['unit_name_en'];
+                        final busy = _busyId == b['id'];
+                        return Container(
+                          padding: const EdgeInsets.all(AppDimens.md),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius:
+                                BorderRadius.circular(AppDimens.radiusLg),
+                            border: Border.all(color: AppColors.cardBorder),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('${b['guest_name'] ?? ''}',
+                                  style: textTheme.titleSmall),
+                              Text(
+                                  '${b['hotel_name'] ?? ''}${unitName != null ? ' — $unitName' : ''}${(b['unit_number'] ?? '').toString().isNotEmpty ? ' · ${AppStrings.t(isArabic, 'unit_no')} ${b['unit_number']}' : ''}',
+                                  style: textTheme.bodySmall
+                                      ?.copyWith(color: AppColors.textMuted)),
+                              Text(
+                                  '${b['check_in']} → ${b['check_out']} · ${AppStrings.t(isArabic, 'status_${b['status']}')}',
+                                  style: textTheme.bodySmall),
+                              // المتطلب 52: عدد الأشخاص أسفل رقم الوحدة لموظف الفندق.
+                              if (asInt(b['guests'], 0) > 0)
+                                Text(
+                                    '${AppStrings.t(isArabic, 'guests')}: ${asInt(b['guests'], 0)}',
+                                    style: textTheme.bodySmall
+                                        ?.copyWith(color: AppColors.textMuted)),
+                              if (b['can_check_in'] == true ||
+                                  b['can_check_out'] == true) ...[
+                                const SizedBox(height: AppDimens.sm),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: b['can_check_in'] == true
+                                          ? AppColors.success
+                                          : AppColors.secondary,
+                                    ),
+                                    onPressed: busy
+                                        ? null
+                                        : () => b['can_check_in'] == true
+                                            ? _checkIn(isArabic, asInt(b['id']))
+                                            : _checkOut(
+                                                isArabic, asInt(b['id'])),
+                                    child: Text(AppStrings.t(
+                                        isArabic,
+                                        b['can_check_in'] == true
+                                            ? 'confirm_check_in'
+                                            : 'confirm_check_out')),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        );
+                      },
+                    );
                   },
                 ),
               ),

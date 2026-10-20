@@ -30,12 +30,18 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
 
   void _reload() => setState(() => _future = _service.getAgentClients());
 
-  Future<void> _openEditor(bool isArabic, {Map<String, dynamic>? existing}) async {
-    final nameCtrl = TextEditingController(text: existing?['full_name']?.toString() ?? '');
-    final phoneCtrl = TextEditingController(text: existing?['phone']?.toString() ?? '');
-    final emailCtrl = TextEditingController(text: existing?['email']?.toString() ?? '');
-    final idCtrl = TextEditingController(text: existing?['id_number']?.toString() ?? '');
-    final notesCtrl = TextEditingController(text: existing?['notes']?.toString() ?? '');
+  Future<void> _openEditor(bool isArabic,
+      {Map<String, dynamic>? existing}) async {
+    final nameCtrl =
+        TextEditingController(text: existing?['full_name']?.toString() ?? '');
+    final phoneCtrl =
+        TextEditingController(text: existing?['phone']?.toString() ?? '');
+    final emailCtrl =
+        TextEditingController(text: existing?['email']?.toString() ?? '');
+    final idCtrl =
+        TextEditingController(text: existing?['id_number']?.toString() ?? '');
+    final notesCtrl =
+        TextEditingController(text: existing?['notes']?.toString() ?? '');
     String? error;
     bool saving = false;
 
@@ -55,33 +61,48 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(AppStrings.t(isArabic, existing == null ? 'add_client' : 'edit_client'), style: Theme.of(ctx).textTheme.titleMedium),
+                Text(
+                    AppStrings.t(isArabic,
+                        existing == null ? 'add_client' : 'edit_client'),
+                    style: Theme.of(ctx).textTheme.titleMedium),
                 const SizedBox(height: AppDimens.md),
-                TextField(controller: nameCtrl, decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'customer_name'))),
+                TextField(
+                    controller: nameCtrl,
+                    decoration: InputDecoration(
+                        labelText: AppStrings.t(isArabic, 'customer_name'))),
                 const SizedBox(height: AppDimens.md),
                 TextField(
                   controller: phoneCtrl,
                   keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'customer_phone')),
+                  decoration: InputDecoration(
+                      labelText: AppStrings.t(isArabic, 'customer_phone')),
                 ),
                 const SizedBox(height: AppDimens.md),
                 TextField(
                   controller: emailCtrl,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'client_email_optional')),
+                  decoration: InputDecoration(
+                      labelText:
+                          AppStrings.t(isArabic, 'client_email_optional')),
                 ),
                 const SizedBox(height: AppDimens.md),
-                TextField(controller: idCtrl, decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'guest_id_number'))),
+                TextField(
+                    controller: idCtrl,
+                    decoration: InputDecoration(
+                        labelText: AppStrings.t(isArabic, 'guest_id_number'))),
                 const SizedBox(height: AppDimens.md),
                 TextField(
                   controller: notesCtrl,
                   maxLines: 2,
-                  decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'notes')),
+                  decoration: InputDecoration(
+                      labelText: AppStrings.t(isArabic, 'notes')),
                 ),
                 if (error != null)
                   Padding(
                     padding: const EdgeInsets.only(top: AppDimens.sm),
-                    child: Text(error!, style: const TextStyle(color: AppColors.danger, fontSize: 12)),
+                    child: Text(error!,
+                        style: const TextStyle(
+                            color: AppColors.danger, fontSize: 12)),
                   ),
                 const SizedBox(height: AppDimens.lg),
                 SizedBox(
@@ -91,8 +112,10 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
                     onPressed: saving
                         ? null
                         : () async {
-                            if (nameCtrl.text.trim().isEmpty || phoneCtrl.text.trim().length < 7) {
-                              setSheet(() => error = AppStrings.t(isArabic, 'customer_name_phone_required'));
+                            if (nameCtrl.text.trim().isEmpty ||
+                                phoneCtrl.text.trim().length < 7) {
+                              setSheet(() => error = AppStrings.t(
+                                  isArabic, 'customer_name_phone_required'));
                               return;
                             }
                             setSheet(() {
@@ -104,9 +127,15 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
                                 id: existing?['id'] as int?,
                                 fullName: nameCtrl.text.trim(),
                                 phone: phoneCtrl.text.trim(),
-                                email: emailCtrl.text.trim().isNotEmpty ? emailCtrl.text.trim() : null,
-                                idNumber: idCtrl.text.trim().isNotEmpty ? idCtrl.text.trim() : null,
-                                notes: notesCtrl.text.trim().isNotEmpty ? notesCtrl.text.trim() : null,
+                                email: emailCtrl.text.trim().isNotEmpty
+                                    ? emailCtrl.text.trim()
+                                    : null,
+                                idNumber: idCtrl.text.trim().isNotEmpty
+                                    ? idCtrl.text.trim()
+                                    : null,
+                                notes: notesCtrl.text.trim().isNotEmpty
+                                    ? notesCtrl.text.trim()
+                                    : null,
                               );
                               if (ctx.mounted) Navigator.of(ctx).pop();
                               _reload();
@@ -134,10 +163,13 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
       builder: (ctx) => AlertDialog(
         title: Text(AppStrings.t(isArabic, 'confirm_delete_client')),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppStrings.t(isArabic, 'cancel'))),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(AppStrings.t(isArabic, 'cancel'))),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text(AppStrings.t(isArabic, 'confirm'), style: const TextStyle(color: AppColors.danger)),
+            child: Text(AppStrings.t(isArabic, 'confirm'),
+                style: const TextStyle(color: AppColors.danger)),
           ),
         ],
       ),
@@ -147,7 +179,9 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
       await _service.deleteAgentClient(id);
       _reload();
     } on ApiException catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
     }
   }
 
@@ -166,7 +200,8 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.gold,
         onPressed: () => _openEditor(isArabic),
-        child: const Icon(Icons.person_add_alt_1_rounded, color: AppColors.textOnGold),
+        child: const Icon(Icons.person_add_alt_1_rounded,
+            color: AppColors.textOnGold),
       ),
       body: SafeArea(
         child: RefreshIndicator(
@@ -182,11 +217,16 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 32),
+                    Icon(Icons.error_outline_rounded,
+                        color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
-                    Text(AppStrings.t(isArabic, 'error_loading'), textAlign: TextAlign.center),
+                    Text(AppStrings.t(isArabic, 'error_loading'),
+                        textAlign: TextAlign.center),
                     const SizedBox(height: AppDimens.sm),
-                    Center(child: OutlinedButton(onPressed: _reload, child: Text(AppStrings.t(isArabic, 'retry')))),
+                    Center(
+                        child: OutlinedButton(
+                            onPressed: _reload,
+                            child: Text(AppStrings.t(isArabic, 'retry')))),
                   ],
                 );
               }
@@ -197,22 +237,28 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(AppDimens.xl),
-                      child: Center(child: Text(AppStrings.t(isArabic, 'no_clients_yet'), textAlign: TextAlign.center)),
+                      child: Center(
+                          child: Text(AppStrings.t(isArabic, 'no_clients_yet'),
+                              textAlign: TextAlign.center)),
                     ),
                   ],
                 );
               }
               return ListView.separated(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(AppDimens.pagePadding, AppDimens.pagePadding, AppDimens.pagePadding, 90),
+                padding: const EdgeInsets.fromLTRB(AppDimens.pagePadding,
+                    AppDimens.pagePadding, AppDimens.pagePadding, 90),
                 itemCount: clients.length,
-                separatorBuilder: (context, index) => const SizedBox(height: AppDimens.md),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: AppDimens.md),
                 itemBuilder: (context, index) {
                   final c = clients[index];
                   return InkWell(
                     borderRadius: BorderRadius.circular(AppDimens.radiusLg),
                     onTap: () => Navigator.of(context)
-                        .push(MaterialPageRoute(builder: (_) => _ClientDetailScreen(clientId: asInt(c['id']))))
+                        .push(MaterialPageRoute(
+                            builder: (_) =>
+                                _ClientDetailScreen(clientId: asInt(c['id']))))
                         .then((_) => _reload()),
                     child: Container(
                       padding: const EdgeInsets.all(AppDimens.md),
@@ -225,37 +271,55 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
                         children: [
                           CircleAvatar(
                             backgroundColor: AppColors.gold.withOpacity(0.15),
-                            child: const Icon(Icons.person_rounded, color: AppColors.goldDark),
+                            child: const Icon(Icons.person_rounded,
+                                color: AppColors.goldDark),
                           ),
                           const SizedBox(width: AppDimens.md),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(c['full_name']?.toString() ?? '', style: textTheme.titleSmall),
+                                Text(c['full_name']?.toString() ?? '',
+                                    style: textTheme.titleSmall),
                                 Text(c['phone']?.toString() ?? '',
                                     textDirection: TextDirection.ltr,
-                                    style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                                    style: textTheme.bodySmall
+                                        ?.copyWith(color: AppColors.textMuted)),
                                 const SizedBox(height: 4),
                                 Text(
                                   '${asInt(c['bookings_count'])} ${AppStrings.t(isArabic, 'bookings_word')} · ${asDouble(c['total_spent']).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
-                                  style: textTheme.bodySmall?.copyWith(color: AppColors.goldDark, fontWeight: FontWeight.w600),
+                                  style: textTheme.bodySmall?.copyWith(
+                                      color: AppColors.goldDark,
+                                      fontWeight: FontWeight.w600),
                                 ),
                               ],
                             ),
                           ),
                           PopupMenuButton<String>(
                             onSelected: (v) {
-                              if (v == 'edit') _openEditor(isArabic, existing: c);
-                              if (v == 'delete') _delete(isArabic, asInt(c['id']));
+                              if (v == 'edit')
+                                _openEditor(isArabic, existing: c);
+                              if (v == 'delete')
+                                _delete(isArabic, asInt(c['id']));
                               if (v == 'book') {
-                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SearchScreen(initialQuery: '')));
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (_) =>
+                                        const SearchScreen(initialQuery: '')));
                               }
                             },
                             itemBuilder: (_) => [
-                              PopupMenuItem(value: 'book', child: Text(AppStrings.t(isArabic, 'book_for_client'))),
-                              PopupMenuItem(value: 'edit', child: Text(AppStrings.t(isArabic, 'edit_client'))),
-                              PopupMenuItem(value: 'delete', child: Text(AppStrings.t(isArabic, 'delete'))),
+                              PopupMenuItem(
+                                  value: 'book',
+                                  child: Text(AppStrings.t(
+                                      isArabic, 'book_for_client'))),
+                              PopupMenuItem(
+                                  value: 'edit',
+                                  child: Text(
+                                      AppStrings.t(isArabic, 'edit_client'))),
+                              PopupMenuItem(
+                                  value: 'delete',
+                                  child:
+                                      Text(AppStrings.t(isArabic, 'delete'))),
                             ],
                           ),
                         ],
@@ -278,7 +342,8 @@ class _ClientDetailScreen extends ConsumerStatefulWidget {
   const _ClientDetailScreen({required this.clientId});
 
   @override
-  ConsumerState<_ClientDetailScreen> createState() => _ClientDetailScreenState();
+  ConsumerState<_ClientDetailScreen> createState() =>
+      _ClientDetailScreenState();
 }
 
 class _ClientDetailScreenState extends ConsumerState<_ClientDetailScreen> {
@@ -310,34 +375,48 @@ class _ClientDetailScreenState extends ConsumerState<_ClientDetailScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(backgroundColor: AppColors.surface, elevation: 0, title: Text(AppStrings.t(isArabic, 'client_details'))),
+      appBar: AppBar(
+          backgroundColor: AppColors.surface,
+          elevation: 0,
+          title: Text(AppStrings.t(isArabic, 'client_details'))),
       body: SafeArea(
         child: FutureBuilder<Map<String, dynamic>>(
           future: _future,
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
-            if (snapshot.hasError) return Center(child: Text(AppStrings.t(isArabic, 'error_loading')));
+            if (snapshot.connectionState == ConnectionState.waiting)
+              return const Center(child: CircularProgressIndicator());
+            if (snapshot.hasError)
+              return Center(
+                  child: Text(AppStrings.t(isArabic, 'error_loading')));
             final client = snapshot.data!['client'] as Map<String, dynamic>;
             final bookings = asMapList(snapshot.data!['bookings']);
 
             return ListView(
               padding: const EdgeInsets.all(AppDimens.pagePadding),
               children: [
-                Text(client['full_name']?.toString() ?? '', style: textTheme.headlineSmall),
-                Text(client['phone']?.toString() ?? '', textDirection: TextDirection.ltr, style: textTheme.bodyMedium),
-                if ((client['email'] ?? '').toString().isNotEmpty) Text(client['email'].toString(), style: textTheme.bodySmall),
+                Text(client['full_name']?.toString() ?? '',
+                    style: textTheme.headlineSmall),
+                Text(client['phone']?.toString() ?? '',
+                    textDirection: TextDirection.ltr,
+                    style: textTheme.bodyMedium),
+                if ((client['email'] ?? '').toString().isNotEmpty)
+                  Text(client['email'].toString(), style: textTheme.bodySmall),
                 if ((client['notes'] ?? '').toString().isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: Text(client['notes'].toString(), style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                    child: Text(client['notes'].toString(),
+                        style: textTheme.bodySmall
+                            ?.copyWith(color: AppColors.textMuted)),
                   ),
                 const SizedBox(height: AppDimens.lg),
-                Text(AppStrings.t(isArabic, 'client_bookings'), style: textTheme.titleMedium),
+                Text(AppStrings.t(isArabic, 'client_bookings'),
+                    style: textTheme.titleMedium),
                 const SizedBox(height: AppDimens.sm),
                 if (bookings.isEmpty)
                   Padding(
                     padding: const EdgeInsets.all(AppDimens.lg),
-                    child: Center(child: Text(AppStrings.t(isArabic, 'no_bookings'))),
+                    child: Center(
+                        child: Text(AppStrings.t(isArabic, 'no_bookings'))),
                   ),
                 ...bookings.map((b) {
                   final status = (b['status'] ?? 'pending').toString();
@@ -354,27 +433,42 @@ class _ClientDetailScreenState extends ConsumerState<_ClientDetailScreen> {
                       children: [
                         Row(
                           children: [
-                            Expanded(child: Text('#${b['booking_ref']} · ${b['hotel_name'] ?? ''}', style: textTheme.titleSmall)),
+                            Expanded(
+                                child: Text(
+                                    '#${b['booking_ref']} · ${b['hotel_name'] ?? ''}',
+                                    style: textTheme.titleSmall)),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
                                 color: _statusColor(status).withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(AppDimens.radiusSm),
+                                borderRadius:
+                                    BorderRadius.circular(AppDimens.radiusSm),
                               ),
-                              child: Text(AppStrings.t(isArabic, 'status_$status'),
-                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: _statusColor(status))),
+                              child: Text(
+                                  AppStrings.t(isArabic, 'status_$status'),
+                                  style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: _statusColor(status))),
                             ),
                           ],
                         ),
                         const SizedBox(height: 4),
-                        Text('${b['check_in']} → ${b['check_out']} (${asInt(b['nights'])} ${AppStrings.t(isArabic, 'nights')})', style: textTheme.bodySmall),
+                        Text(
+                            '${b['check_in']} → ${b['check_out']} (${asInt(b['nights'])} ${AppStrings.t(isArabic, 'nights')})',
+                            style: textTheme.bodySmall),
                         const SizedBox(height: 4),
-                        Text('${AppStrings.t(isArabic, 'total')}: ${asDouble(b['total']).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
-                            style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
+                        Text(
+                            '${AppStrings.t(isArabic, 'total')}: ${asDouble(b['total']).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                            style: textTheme.bodySmall
+                                ?.copyWith(fontWeight: FontWeight.w600)),
                         if (b['commission_amount'] != null)
                           Text(
                             '${AppStrings.t(isArabic, 'my_commission')}: ${asDouble(b['commission_amount']).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')} (${AppStrings.t(isArabic, b['commission_status'] == 'paid' ? 'commission_paid' : 'commission_unpaid')})',
-                            style: textTheme.bodySmall?.copyWith(color: AppColors.goldDark, fontWeight: FontWeight.w600),
+                            style: textTheme.bodySmall?.copyWith(
+                                color: AppColors.goldDark,
+                                fontWeight: FontWeight.w600),
                           ),
                       ],
                     ),
