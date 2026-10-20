@@ -318,7 +318,7 @@ class _ClientDetailScreenState extends ConsumerState<_ClientDetailScreen> {
             if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
             if (snapshot.hasError) return Center(child: Text(AppStrings.t(isArabic, 'error_loading')));
             final client = snapshot.data!['client'] as Map<String, dynamic>;
-            final bookings = (snapshot.data!['bookings'] as List).cast<Map<String, dynamic>>();
+            final bookings = asMapList(snapshot.data!['bookings']);
 
             return ListView(
               padding: const EdgeInsets.all(AppDimens.pagePadding),

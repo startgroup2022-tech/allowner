@@ -84,7 +84,7 @@ class _OwnerCommissionScreenState extends ConsumerState<OwnerCommissionScreen> {
               }
 
               final data = snapshot.data ?? {};
-              final items = (data['items'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+              final items = asMapList(data['items']);
               final commissionType = data['commission_type']?.toString() ?? 'percentage';
               final rateLabel = commissionType == 'fixed'
                   ? '${asDouble(data['commission_fixed']).toStringAsFixed(0)} ${AppStrings.t(isArabic, "sar")} / ${isArabic ? "لكل حجز" : "per booking"}'

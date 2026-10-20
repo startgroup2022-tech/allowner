@@ -227,7 +227,7 @@ class _OwnerDecisionsScreenState extends ConsumerState<OwnerDecisionsScreen> {
                   final d = decisions[index];
                   final isOpen = d['status'] == 'open';
                   final myVote = asIntOrNull(d['my_vote']);
-                  final options = (d['options'] as List).cast<Map<String, dynamic>>();
+                  final options = asMapList(d['options']);
                   final total = (d['total_votes'] as num?)?.toInt() ?? 0;
 
                   return Container(

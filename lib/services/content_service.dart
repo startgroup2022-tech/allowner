@@ -8,7 +8,7 @@ class ContentService {
   Future<Map<String, dynamic>> getContent(String key) async {
     try {
       final res = await _dio.get('/content/get.php', queryParameters: {'key': key});
-      return (res.data['content'] as Map).cast<String, dynamic>();
+      return asMap(res.data['content']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }

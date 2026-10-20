@@ -236,7 +236,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
                 );
               }
 
-              final bookings = (snapshot.data?['bookings'] as List?)?.cast<Map<String, dynamic>>() ?? const [];
+              final bookings = asMapList(snapshot.data?['bookings']);
               if (bookings.isEmpty) {
                 return ListView(
                   physics: const AlwaysScrollableScrollPhysics(),

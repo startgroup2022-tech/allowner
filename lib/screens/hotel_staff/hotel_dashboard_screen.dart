@@ -5,6 +5,7 @@ import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/hotel_staff_service.dart';
+import '../../utils/safe_parse.dart';
 
 class HotelDashboardScreen extends ConsumerStatefulWidget {
   const HotelDashboardScreen({super.key});
@@ -61,12 +62,12 @@ class _HotelDashboardScreenState extends ConsumerState<HotelDashboardScreen> {
               }
 
               final data = snapshot.data ?? {};
-              final hotels = (data['hotels'] as List?) ?? [];
-              final pending = (data['pending'] as Map?) ?? {};
-              final openRequests = ((pending['cleaning'] ?? 0) as num) +
-                  ((pending['extra_bed'] ?? 0) as num) +
-                  ((pending['maintenance'] ?? 0) as num) +
-                  ((pending['meal'] ?? 0) as num);
+              final hotels = asMapList(data['hotels']);
+              final pending = asMap(data['pending']);
+              final openRequests = asInt(pending['cleaning']) +
+                  asInt(pending['extra_bed']) +
+                  asInt(pending['maintenance']) +
+                  asInt(pending['meal']);
               final cards = <(String, dynamic, IconData, Color)>[
                 (AppStrings.t(isArabic, 'arrivals_today'), data['arrivals_today'] ?? 0, Icons.login_rounded, AppColors.success),
                 (AppStrings.t(isArabic, 'departures_today'), data['departures_today'] ?? 0, Icons.logout_rounded, AppColors.secondary),

@@ -5,6 +5,7 @@ import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
+import '../../utils/safe_parse.dart';
 import 'owner_add_unit_screen.dart';
 
 class OwnerUnitsScreen extends ConsumerStatefulWidget {
@@ -66,8 +67,8 @@ class _OwnerUnitsScreenState extends ConsumerState<OwnerUnitsScreen> {
                 );
               }
               final data = snapshot.data ?? {};
-              final units = (data['units'] as List?)?.cast<Map<String, dynamic>>() ?? [];
-              final hotels = (data['hotels'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+              final units = asMapList(data['units']);
+              final hotels = asMapList(data['hotels']);
               final canCreate = data['can_create'] == true;
 
               if (units.isEmpty) {
@@ -107,7 +108,7 @@ class _OwnerUnitsScreenState extends ConsumerState<OwnerUnitsScreen> {
                   final name = isArabic ? (unit['name_ar'] ?? '') : (unit['name_en'] ?? unit['name_ar'] ?? '');
                   final hotel = unit['hotel_name'] ?? '';
                   final price = (unit['price_per_night'] is num) ? (unit['price_per_night'] as num).toStringAsFixed(0) : '0';
-                  final images = (unit['images'] as List?)?.cast<String>() ?? const <String>[];
+                  final images = asStringList(unit['images']);
                   final coverImage = (unit['cover_image'] as String?)?.isNotEmpty == true
                       ? unit['cover_image'] as String
                       : (images.isNotEmpty ? images.first : null);
@@ -180,8 +181,8 @@ class _OwnerUnitsScreenState extends ConsumerState<OwnerUnitsScreen> {
           if (!snapshot.hasData) return const SizedBox.shrink();
           final data = snapshot.data!;
           final canCreate = data['can_create'] == true;
-          final hotels = (data['hotels'] as List?)?.cast<Map<String, dynamic>>() ?? [];
-          final units = (data['units'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+          final hotels = asMapList(data['hotels']);
+          final units = asMapList(data['units']);
           // الزر العائم يظهر بس لو فيه صلاحية إضافة ولو القائمة مش فاضية أصلاً (لو فاضية، الزر موجود جوا الصفحة نفسها)
           if (!canCreate || units.isEmpty) return const SizedBox.shrink();
           return FloatingActionButton.extended(

@@ -71,9 +71,9 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
               }
 
               final data = snapshot.data ?? {};
-              final totalRevenue = (data['total_revenue'] is num) ? (data['total_revenue'] as num).toStringAsFixed(0) : '0';
-              final monthly = (data['monthly'] as List?)?.cast<Map<String, dynamic>>() ?? const [];
-              final byUnit = (data['by_unit'] as List?)?.cast<Map<String, dynamic>>() ?? const [];
+              final totalRevenue = asDouble(data['total_revenue']).toStringAsFixed(0);
+              final monthly = asMapList(data['monthly']);
+              final byUnit = asMapList(data['by_unit']);
 
               return ListView(
                 physics: const AlwaysScrollableScrollPhysics(),

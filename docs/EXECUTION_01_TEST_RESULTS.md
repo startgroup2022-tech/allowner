@@ -319,3 +319,63 @@ was run. No result here is carried over from before the reset.
   asserted only for overflow-freedom via the existing widget harness.
 - **Item 27** (homepage section order / bottom navigation) — awaiting owner
   decision; deliberately not changed.
+
+---
+
+## 9. Addendum — city search repair + extra-bed surface (2026-10-21)
+
+Executed after the "complete all remaining executions" instruction. Environment was
+reset again; Flutter 3.47.7 was reinstalled and `flutter pub get` re-run before any
+command below (the `pub` cache had been wiped).
+
+| # | Command | Result | Exit |
+|---|---|---|---|
+| 1 | `flutter pub get` | Resolved | 0 |
+| 2 | `flutter analyze` | **0 errors, 0 warnings**, 77 info | 0 |
+| 3 | `flutter test` | **72 tests, all pass** | 0 |
+
+### 9.1 Defect repaired — city search returned no units (matrix item 26)
+
+Live evidence against the production API (read-only):
+
+| Query | Before | After |
+|---|---|---|
+| `units/browse.php?q=مكة` | **0 units** | — |
+| `searchUnits("مكة")` (new) | — | **4 units** (ids 13, 12, 9, 5 — all in مكة المكرمة) |
+
+Root cause: `units/browse.php?q=` matches **names only**. The seeded Makkah units are
+named `4005`, `غرفة سيتي12345`, `جناح غرفه وصاله مطل كعبه` … and the hotels are
+`فندق فيرمونت مكه` / `فندق العنوان` — note `مكه` (no hamza) vs the query `مكة`, so even
+name matching misses. `searchUnits` now unions the server's `q` result with a local
+filter of the full list over name/hotel/city/type using the same normalisation as
+`filterHotels` (`ة→ه`, `أ→ا`, …). Verified live: 4 real units returned.
+
+### 9.2 New tests (67 → 72)
+
+| Test | Asserts |
+|---|---|
+| city-name search matches a unit's city | `filterUnits([unit in مكة], query: 'مكة')` → the unit |
+| hotel-name search matches its units | `filterUnits(..., query: 'العنوان')` → 1 |
+| hamza/taa-marbuta normalisation | `مكه` and `مكة` both match `مكة المكرمة` |
+| no-match returns empty, does not throw | `query: 'طوكيو'` → `[]` |
+| blank query returns all units | `null` and `'   '` → all |
+
+### 9.3 Other changes
+
+| File | Change |
+|---|---|
+| `lib/services/hotel_service.dart` | New `searchUnits` + pure `filterUnits`. |
+| `lib/screens/search/search_screen.dart` | Units tab uses `searchUnits`. |
+| `lib/screens/home/home_screen.dart` | Owner-units section gains a DB-driven city chip row (item 23); dead `_buildFeaturedHotels` removed. |
+| `lib/screens/owner/owner_extra_bed_screen.dart` | New screen (item 67) posting `type=extra_bed`. |
+| `lib/screens/owner/owner_home_screen.dart` | "Add extra bed" card now opens that screen (was wrongly opening maintenance — a non-functional button). |
+| `lib/utils/app_strings.dart` | `all_cities` + extra-bed strings (ar/en). |
+
+### 9.4 Still not verified
+
+- **No Android device/emulator** in this container — no on-hardware or screenshot QA.
+- **Owner/agent/hotel-staff screens** need an authenticated session; the production
+  backend was probed read-only (public endpoints) but not logged into, so those screens
+  are asserted by code inspection and unit tests only.
+- **Payment/PAN handling** and **double-booking** remain backend-blocked (see
+  `docs/EXECUTION_01_BACKEND_DEPENDENCIES.md`).

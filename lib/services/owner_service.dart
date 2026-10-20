@@ -156,7 +156,7 @@ class OwnerService {
     try {
       final res = await _dio.get('/user/agent-clients.php', queryParameters: {'id': id});
       return {
-        'client': (res.data['client'] as Map).cast<String, dynamic>(),
+        'client': asMap(res.data['client']),
         'bookings': asMapList(res.data['bookings']),
       };
     } on DioException catch (e) {

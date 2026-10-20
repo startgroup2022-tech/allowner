@@ -167,9 +167,9 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
                 );
               }
               final data = snapshot.data ?? {};
-              final prices = (data['prices'] as List?)?.cast<Map<String, dynamic>>() ?? [];
-              final hotels = (data['hotels'] as List?)?.cast<Map<String, dynamic>>() ?? [];
-              final units = (data['units'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+              final prices = asMapList(data['prices']);
+              final hotels = asMapList(data['hotels']);
+              final units = asMapList(data['units']);
 
               return Stack(
                 children: [
