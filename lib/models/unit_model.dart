@@ -39,6 +39,11 @@ class UnitModel {
   /// القائمة الفارغة بوضوح ولا تخترع مرافق.
   final List<Map<String, dynamic>> facilities;
 
+  /// بيانات الحساب البنكي لمالك الوحدة — من `owner_bank` في `units/detail.php`.
+  /// تُستخدم لعرض حساب المالك الصحيح عند اختيار «التحويل إلى المالك» (المتطلب 120).
+  /// قد تكون null إن لم يُسجّل المالك بياناته بعد.
+  final Map<String, dynamic>? ownerBank;
+
   const UnitModel({
     required this.id,
     required this.hotelId,
@@ -62,6 +67,7 @@ class UnitModel {
     this.addons = const [],
     this.availability = const [],
     this.facilities = const [],
+    this.ownerBank,
   });
 
   /// يبني الموديل من أي من شكلَي الاستجابة (قائمة أو تفصيل).
@@ -95,6 +101,9 @@ class UnitModel {
           .map(UnitAvailabilityModel.fromJson)
           .toList(),
       facilities: asMapList(json['facilities'] ?? json['amenities']),
+      ownerBank: json['owner_bank'] is Map
+          ? Map<String, dynamic>.from(json['owner_bank'] as Map)
+          : null,
     );
   }
 

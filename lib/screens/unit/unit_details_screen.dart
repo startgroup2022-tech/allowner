@@ -112,6 +112,7 @@ class _UnitDetailsScreenState extends ConsumerState<UnitDetailsScreen> {
             unitImageUrl: unit.coverImage.isNotEmpty
                 ? unit.coverImage
                 : (unit.images.isNotEmpty ? unit.images.first : null),
+            ownerBank: unit.ownerBank,
           ),
         ),
       );

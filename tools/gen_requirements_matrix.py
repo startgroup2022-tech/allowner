@@ -156,6 +156,9 @@ RANGES = {
     116:(5,'BACKEND BLOCKED','—','الموقع','تحديث العبارة التعريفية على الموقع','تنفيذ في الموقع','تُحدَّث العبارة'),
     117:(5,'BACKEND BLOCKED','—','الموقع','توحيد تفاصيل الحجوزات بين الموقع والتطبيق','تنفيذ في الموقع','تتوحّد التفاصيل'),
     # الاشتراكات والمحاسبة (118-143)
+    118: (4,'PARTIAL','unit_model.dart ownerBank (قراءة owner_bank)','/units/detail.php owner_bank','حقل owner_bank يُقرأ في الموديل؛ إدخال بيانات المالك البنكية من التطبيق ما زال ناقصًا','شاشة إدخال/تحديث بيانات المالك البنكية','يُسجّل المالك بياناته البنكية'),
+    119: (4,'VERIFIED PASS','booking_screen.dart PaymentMethod.ownerTransfer','/bookings/create.php owner_transfer','خيار «تحويل مباشر لحساب المالك» موجود ويُرسل owner_transfer ضمن الحجز','—','يظهر خيار التحويل المباشر'),
+    120: (4,'IMPLEMENTED UNTESTED','booking_screen.dart _OwnerBankPanel + ownerBankRows؛ unit_details_screen.dart يمرّر unit.ownerBank','/units/detail.php owner_bank','تُعرض بيانات حساب المالك الحقيقية عند اختيار التحويل المباشر مع تنبيه واضح إن لم يسجّلها؛ 4 اختبارات','اختبار حقيقي بعد تسجيل المالك لبياناته','يُعرض حساب المالك الصحيح'),
     # الإشعارات والبريد (144-148)
 }
 

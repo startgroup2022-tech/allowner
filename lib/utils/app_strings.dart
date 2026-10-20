@@ -286,6 +286,18 @@ class AppStrings {
       'ar': 'تحويل مباشر لحساب المالك',
       'en': 'Direct Transfer to Owner'
     },
+    'owner_account_title': {
+      'ar': 'حساب المالك للتحويل',
+      'en': 'Owner Account for Transfer'
+    },
+    'owner_bank_name': {'ar': 'البنك', 'en': 'Bank'},
+    'owner_bank_account_name': {'ar': 'اسم صاحب الحساب', 'en': 'Account Holder'},
+    'owner_bank_account_number': {'ar': 'رقم الحساب', 'en': 'Account Number'},
+    'owner_bank_iban': {'ar': 'رقم الآيبان IBAN', 'en': 'IBAN'},
+    'owner_bank_missing': {
+      'ar': 'لم يسجّل المالك بيانات حسابه البنكي بعد. يمكنك الحجز والدفع عند الوصول أو التواصل مع الدعم.',
+      'en': 'The owner has not added bank details yet. You can book and pay at the hotel or contact support.'
+    },
     'card_number': {'ar': 'رقم البطاقة', 'en': 'Card Number'},
     'expiry_date': {'ar': 'تاريخ الانتهاء', 'en': 'Expiry Date'},
     'cvv': {'ar': 'رمز الأمان CVV', 'en': 'CVV'},

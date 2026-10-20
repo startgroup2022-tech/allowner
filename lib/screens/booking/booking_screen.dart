@@ -25,13 +25,37 @@ enum PaymentMethod { online, atHotel, ownerTransfer }
 double computeExtraBedCharge({required bool extraBed, double? extraBedPrice}) =>
     extraBed && extraBedPrice != null && extraBedPrice > 0 ? extraBedPrice : 0.0;
 
+/// صفوف حساب المالك القابلة للعرض (المتطلب 120). دالة نقية تُرجع فقط الحقول
+/// التي أعادها السيرفر فعلًا (المفتاح ثم القيمة) — بلا حقول فارغة أو وهمية.
+List<(String, String)> ownerBankRows(Map<String, dynamic>? bank) {
+  final data = bank ?? const <String, dynamic>{};
+  return <(String, String)>[
+    ('owner_bank_name', (data['bank_name'] ?? '').toString()),
+    ('owner_bank_account_name',
+        (data['account_name'] ?? data['holder_name'] ?? '').toString()),
+    ('owner_bank_account_number', (data['account_number'] ?? '').toString()),
+    ('owner_bank_iban', (data['iban'] ?? '').toString()),
+  ].where((r) => r.$2.trim().isNotEmpty).toList();
+}
+
 class BookingScreen extends ConsumerStatefulWidget {
   final HotelModel hotel;
   final int? unitId;
   final String? unitName;
   final double? unitPricePerNight;
   final String? unitImageUrl;
-  const BookingScreen({super.key, required this.hotel, this.unitId, this.unitName, this.unitPricePerNight, this.unitImageUrl});
+
+  /// حساب المالك البنكي للوحدة (المتطلب 120) — يُعرض عند اختيار التحويل المباشر.
+  final Map<String, dynamic>? ownerBank;
+  const BookingScreen({
+    super.key,
+    required this.hotel,
+    this.unitId,
+    this.unitName,
+    this.unitPricePerNight,
+    this.unitImageUrl,
+    this.ownerBank,
+  });
 
   @override
   ConsumerState<BookingScreen> createState() => _BookingScreenState();
@@ -753,6 +777,11 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                       ),
                     ],
 
+                    if (_paymentMethod == PaymentMethod.ownerTransfer) ...[
+                      const SizedBox(height: AppDimens.md),
+                      _OwnerBankPanel(bank: widget.ownerBank, isArabic: isArabic),
+                    ],
+
                     if (_paymentMethod == PaymentMethod.online) ...[
                       const SizedBox(height: AppDimens.md),
                       TextField(
@@ -1031,6 +1060,74 @@ class _MealOptionTile extends StatelessWidget {
             Text(priceLabel, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.goldDark, fontWeight: FontWeight.w600)),
           ],
         ),
+      ),
+    );
+  }
+}
+
+
+/// لوحة حساب المالك للتحويل المباشر (المتطلب 120). تعرض البيانات الحقيقية من
+/// `owner_bank` في `units/detail.php`، وإن لم يسجّلها المالك تعرض تنبيهًا واضحًا
+/// بدل إظهار حقول فارغة.
+class _OwnerBankPanel extends StatelessWidget {
+  final Map<String, dynamic>? bank;
+  final bool isArabic;
+  const _OwnerBankPanel({required this.bank, required this.isArabic});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final rows = ownerBankRows(bank);
+
+    if (rows.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(AppDimens.md),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceMuted,
+          borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.info_outline_rounded, size: 18, color: AppColors.textMuted),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(AppStrings.t(isArabic, 'owner_bank_missing'),
+                  style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(AppDimens.md),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.account_balance_outlined, size: 18, color: AppColors.goldDark),
+              const SizedBox(width: 8),
+              Text(AppStrings.t(isArabic, 'owner_account_title'), style: textTheme.titleSmall),
+            ],
+          ),
+          const SizedBox(height: AppDimens.sm),
+          for (final row in rows)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                children: [
+                  Expanded(child: Text(AppStrings.t(isArabic, row.$1), style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted))),
+                  Text(row.$2, style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }

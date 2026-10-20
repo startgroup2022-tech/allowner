@@ -779,4 +779,32 @@ void main() {
       expect(computeExtraBedCharge(extraBed: true, extraBedPrice: null), 0);
     });
   });
+
+  group('حساب المالك للتحويل المباشر (المتطلب 120)', () {
+    test('يعرض كل الحقول التي أعادها السيرفر', () {
+      final rows = ownerBankRows({
+        'bank_name': 'الراجحي',
+        'account_name': 'محمد علي',
+        'account_number': '1234567890',
+        'iban': 'SA0380000000608010167519',
+      });
+      expect(rows.length, 4);
+      expect(rows.first.$2, 'الراجحي');
+      expect(rows.last.$1, 'owner_bank_iban');
+    });
+    test('يتجاهل الحقول الفارغة ولا يخترع قيمًا', () {
+      final rows = ownerBankRows({'bank_name': 'الأهلي', 'iban': '   '});
+      expect(rows.length, 1);
+      expect(rows.single.$1, 'owner_bank_name');
+    });
+    test('يعمل مع null وmap فارغ', () {
+      expect(ownerBankRows(null), isEmpty);
+      expect(ownerBankRows(const {}), isEmpty);
+    });
+    test('يقبل holder_name كبديل عن account_name', () {
+      final rows = ownerBankRows({'holder_name': 'سعد'});
+      expect(rows.single.$1, 'owner_bank_account_name');
+      expect(rows.single.$2, 'سعد');
+    });
+  });
 }
