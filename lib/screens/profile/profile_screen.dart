@@ -7,7 +7,7 @@ import '../../utils/locale_provider.dart';
 import '../../utils/session_provider.dart';
 import '../../widgets/editable_avatar.dart';
 import '../shared/help_support_screen.dart';
-import '../shared/content_page_screen.dart';
+import '../shared/app_about_screen.dart';
 import '../owner/owner_notifications_screen.dart';
 import '../auth/login_screen.dart';
 import '../home/main_navigation_screen.dart';
@@ -85,11 +85,12 @@ class ProfileScreen extends ConsumerWidget {
                   label: AppStrings.t(isArabic, 'help_support'),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HelpSupportScreen())),
                 ),
+                // المتطلبات 3-5: تعريف التطبيق بالنص المعتمد من المستند.
                 _MenuItem(
                   icon: Icons.info_outline_rounded,
                   label: AppStrings.t(isArabic, 'about_us'),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const ContentPageScreen(contentKey: 'about_us', titleKey: 'about_us'),
+                    builder: (_) => const AppAboutScreen(),
                   )),
                 ),
               ]),

@@ -7,6 +7,7 @@ import '../../utils/locale_provider.dart';
 import '../../utils/session_provider.dart';
 import '../../widgets/editable_avatar.dart';
 import '../shared/help_support_screen.dart';
+import '../shared/app_about_screen.dart';
 import '../home/main_navigation_screen.dart';
 import 'owner_bookings_screen.dart';
 import 'owner_maintenance_screen.dart';
@@ -203,6 +204,14 @@ class OwnerProfileScreen extends ConsumerWidget {
                   icon: Icons.help_outline_rounded,
                   label: AppStrings.t(isArabic, 'help_support'),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HelpSupportScreen())),
+                ),
+                // المتطلبات 3-5: تعريف التطبيق — متاح لكل الأدوار.
+                _MenuItem(
+                  icon: Icons.info_outline_rounded,
+                  label: AppStrings.t(isArabic, 'about_us'),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const AppAboutScreen(),
+                  )),
                 ),
                 _MenuItem(
                   icon: Icons.language_rounded,

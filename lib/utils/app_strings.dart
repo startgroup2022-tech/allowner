@@ -401,6 +401,27 @@ class AppStrings {
     'contact_call': {'ar': 'اتصال', 'en': 'Call'},
     'contact_email': {'ar': 'البريد الإلكتروني', 'en': 'Email'},
     'about_us': {'ar': 'عن التطبيق', 'en': 'About Us'},
+    // المتطلبات 3 و4 و5: نص الوصف والتعريف مطابق حرفيًا لما ورد في مستند
+    // المتطلبات (صفحة «تعريف تطبيق All Owners»).
+    'app_description_title': {'ar': 'تعريف تطبيق All Owners', 'en': 'About the All Owners app'},
+    'app_description_intro': {
+      'ar': 'All Owners هي المنصة الموثوقة لملاك الوحدات والعقارات، وتجربة حجز ذكية للضيوف.',
+      'en': 'All Owners is the trusted platform for owners of hotel units and properties, with a smart booking experience for guests.'
+    },
+    'app_description_body': {
+      'ar':
+          'توفر المنصة حلولًا متكاملة لإدارة الوحدات والعقارات، والحجوزات، والإيرادات، والعقود، والصيانة والنظافة والخدمات، مع إمكانية التواصل بين الملاك وإدارات الفنادق وشركات التشغيل في منصة واحدة آمنة وذكية.\n\nكما تتيح للضيوف ووكلاء الحجز البحث عن الوحدات المتاحة، وإجراء الحجوزات، والدفع الإلكتروني، وإدارة الإقامة بكل سهولة وأمان.',
+      'en':
+          'The platform provides integrated solutions for managing units and properties, bookings, revenues, contracts, maintenance, housekeeping and services, with communication between owners, hotel management and operating companies in one secure and smart platform.\n\nIt also allows guests and booking agents to search for available units, make reservations, complete secure online payments, and manage their stays with ease and confidence.'
+    },
+    'app_description_closing': {
+      'ar': 'All Owners — كل ما تحتاجه لإدارة ممتلكاتك أو حجز إقامتك، في منصة واحدة.',
+      'en': 'All Owners — everything you need to manage your property or book your stay, in one platform.'
+    },
+    'app_tagline_full': {
+      'ar': 'المنصة الموثوقة لملاك الوحدات الفندقية والعقارات، وتجربة حجز ذكية للضيوف.',
+      'en': 'The Trusted Platform for Hotel Unit & Property Owners, with a Smart Booking Experience for Guests.'
+    },
     'logout': {'ar': 'تسجيل الخروج', 'en': 'Logout'},
 
     // ===== Navigation =====

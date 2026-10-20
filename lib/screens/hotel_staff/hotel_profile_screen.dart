@@ -7,6 +7,7 @@ import '../../utils/locale_provider.dart';
 import '../../utils/session_provider.dart';
 import '../../widgets/editable_avatar.dart';
 import '../shared/help_support_screen.dart';
+import '../shared/app_about_screen.dart';
 import '../home/main_navigation_screen.dart';
 
 class HotelProfileScreen extends ConsumerWidget {
@@ -37,6 +38,13 @@ class HotelProfileScreen extends ConsumerWidget {
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HelpSupportScreen())),
               icon: const Icon(Icons.help_outline_rounded),
               label: Text(AppStrings.t(isArabic, 'help_support')),
+            ),
+            const SizedBox(height: AppDimens.md),
+            OutlinedButton.icon(
+              // المتطلبات 3-5: تعريف التطبيق — متاح أيضًا لإدارة الفندق.
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AppAboutScreen())),
+              icon: const Icon(Icons.info_outline_rounded),
+              label: Text(AppStrings.t(isArabic, 'about_us')),
             ),
             const SizedBox(height: AppDimens.md),
             OutlinedButton.icon(

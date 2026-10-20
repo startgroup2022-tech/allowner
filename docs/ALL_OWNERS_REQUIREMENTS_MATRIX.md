@@ -26,8 +26,8 @@
 | الحالة | العدد |
 |---|---|
 | VERIFIED PASS | 22 |
-| IMPLEMENTED UNTESTED | 70 |
-| PARTIAL | 7 |
+| IMPLEMENTED UNTESTED | 73 |
+| PARTIAL | 4 |
 | NOT IMPLEMENTED | 0 |
 | BACKEND BLOCKED | 49 |
 | OWNER DECISION REQUIRED | 0 |
@@ -60,22 +60,22 @@
 
 - **القسم:** الهوية والمحتوى والدعم — 9 نقطة
 - **التنفيذ:** Execution 01
-- **الحالة:** PARTIAL
-- **ملفات Flutter:** app_strings onboard_desc_1, content_page_screen
-- **اعتماد الـ API:** /content/get.php
-- **الدليل:** وصف عربي موجود داخل التطبيق
-- **المتبقي:** مطابقة نص الوصف مع نص المستند النهائي
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** app_about_screen.dart, app_strings app_description_intro/body/closing
+- **اعتماد الـ API:** —
+- **الدليل:** نص الوصف العربي منقول حرفيًا من مستند المتطلبات (صفحة «تعريف تطبيق All Owners») ويُعرض في شاشة التعريف المتاحة من ملف كل دور
+- **المتبقي:** —
 - **معيار القبول:** يطابق الوصف العربي نص المستند المعتمد
 
 ### 4. الوصف الإنجليزي للتطبيق
 
 - **القسم:** الهوية والمحتوى والدعم — 9 نقطة
 - **التنفيذ:** Execution 01
-- **الحالة:** PARTIAL
-- **ملفات Flutter:** app_strings onboard_desc_1
-- **اعتماد الـ API:** /content/get.php
-- **الدليل:** وصف إنجليزي موجود
-- **المتبقي:** مطابقة النص الإنجليزي المعتمد
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** app_about_screen.dart, app_strings app_description_intro/body/closing
+- **اعتماد الـ API:** —
+- **الدليل:** نص الوصف الإنجليزي منقول حرفيًا من مستند المتطلبات
+- **المتبقي:** —
 - **معيار القبول:** يطابق الوصف الإنجليزي نص المستند
 
 ### 5. العبارة التعريفية العربية والإنجليزية
@@ -83,7 +83,7 @@
 - **القسم:** الهوية والمحتوى والدعم — 9 نقطة
 - **التنفيذ:** Execution 01
 - **الحالة:** VERIFIED PASS
-- **ملفات Flutter:** app_strings app_tagline, splash_screen.dart
+- **ملفات Flutter:** app_strings app_tagline, app_tagline_full, splash_screen.dart, app_about_screen.dart
 - **اعتماد الـ API:** —
 - **الدليل:** العبارة صارت «المنصة الموثوقة لملاك الوحدات والعقارات» ويقرأها شاشة البداية من AppStrings؛ اختبار يؤكد النص الدقيق
 - **المتبقي:** —
@@ -104,11 +104,11 @@
 
 - **القسم:** الهوية والمحتوى والدعم — 9 نقطة
 - **التنفيذ:** Execution 01
-- **الحالة:** PARTIAL
-- **ملفات Flutter:** home_screen.dart _Header AppLogo(width:68)
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** home_screen.dart _Header AppLogo(width:80)
 - **اعتماد الـ API:** —
-- **الدليل:** الحجم الحالي 68؛ المستند يطلب +15–20%
-- **المتبقي:** قياس الحجم المعتمد من المالك
+- **الدليل:** كُبّر شعار AO في منطقة الترحيب من 68 إلى 80 (+17.6%) ضمن المدى المطلوب 15–20% دون تغيير الشعار
+- **المتبقي:** تأكيد بصري من المالك على الحجم
 - **معيار القبول:** حجم الشعار مطابق للمقترح (أكبر 15–20%)
 
 ### 8. إضافة بيانات المساعدة والدعم

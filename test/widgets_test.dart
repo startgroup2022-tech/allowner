@@ -7,6 +7,9 @@ import 'package:allowners/screens/hotel_staff/hotel_bookings_screen.dart';
 import 'package:allowners/screens/owner/owner_bookings_screen.dart';
 import 'package:allowners/screens/booking/booking_screen.dart';
 import 'package:allowners/screens/bookings/my_bookings_screen.dart';
+import 'package:allowners/screens/shared/app_about_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:allowners/services/hotel_service.dart';
 import 'package:allowners/theme/app_colors.dart';
 import 'package:allowners/theme/app_theme.dart';
@@ -891,6 +894,60 @@ void main() {
       final legacy = UnitAddonModel.fromJson({'price': 100, 'billing': 'per_stay'});
       expect(legacy.billing, 'per_stay');
       expect(addonLineTotal(legacy, nights: 9, guests: 9), 100);
+    });
+  });
+
+  group('تعريف التطبيق من المستند (المتطلبات 3-5)', () {
+    test('العبارة الكاملة تطابق نص المستند', () {
+      expect(AppStrings.t(true, 'app_tagline_full'),
+          'المنصة الموثوقة لملاك الوحدات الفندقية والعقارات، وتجربة حجز ذكية للضيوف.');
+      expect(AppStrings.t(false, 'app_tagline_full'),
+          contains('Hotel Unit & Property Owners'));
+    });
+    test('نص التعريف العربي والإنجليزي غير فارغ ومختلف عن المفتاح', () {
+      for (final k in ['app_description_title', 'app_description_intro',
+                       'app_description_body', 'app_description_closing']) {
+        expect(AppStrings.t(true, k), isNotEmpty, reason: '$k ar');
+        expect(AppStrings.t(false, k), isNotEmpty, reason: '$k en');
+        expect(AppStrings.t(true, k), isNot(equals(k)), reason: '$k ar');
+      }
+    });
+    testWidgets('شاشة التعريف تعرض النص المعتمد بالعربية', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      await tester.pumpWidget(ProviderScope(child: wrap(const AppAboutScreen())));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('المنصة الموثوقة لملاك الوحدات الفندقية'),
+          findsOneWidget);
+      expect(find.textContaining('كل ما تحتاجه لإدارة ممتلكاتك'), findsOneWidget);
+    });
+    testWidgets('شاشة التعريف تعرض النص الإنجليزي المعتمد', (tester) async {
+      SharedPreferences.setMockInitialValues({'app_locale': 'en'});
+      await tester.pumpWidget(ProviderScope(
+        child: wrap(const AppAboutScreen(), isArabic: false),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Trusted Platform for Hotel Unit'),
+          findsOneWidget);
+      expect(find.textContaining('All Owners is the trusted platform'),
+          findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.textContaining('everything you need to manage your property'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.textContaining('everything you need to manage your property'),
+          findsOneWidget);
+    });
+  });
+
+  group('أسعار خدمات الفندق للمالك (المتطلب 68)', () {
+    test('مفاتيح الأسعار موجودة بالعربي والإنجليزي', () {
+      for (final k in ['service_prices', 'no_service_prices',
+                       'req_type_cleaning', 'req_type_maintenance',
+                       'req_type_meal', 'req_type_extra_bed']) {
+        expect(AppStrings.t(true, k), isNotEmpty, reason: '$k ar');
+        expect(AppStrings.t(false, k), isNotEmpty, reason: '$k en');
+      }
     });
   });
 }

@@ -577,7 +577,9 @@ class _Header extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const AppLogo(width: 68),
+          // المتطلب 7: تكبير شعار AO في منطقة الترحيب 15–20% (68 → 80)
+          // مع الحفاظ على نفس الشعار دون تغيير.
+          const AppLogo(width: 80),
           const SizedBox(width: AppDimens.sm),
           Expanded(
             child: Column(
