@@ -569,27 +569,101 @@ void main() {
     });
   });
 
+  group('تصفية الوحدات (searchUnits/filterUnits) — المتطلب 26', () {
+    UnitModel u({
+      required int id,
+      required String name,
+      String hotel = '',
+      String? cityAr,
+      String? cityEn,
+      String? typeAr,
+    }) =>
+        UnitModel.fromJson({
+          'id': id,
+          'hotel_id': 1,
+          'hotel_name': hotel,
+          'name_ar': name,
+          'name_en': name,
+          'city_ar': cityAr,
+          'city_en': cityEn,
+          'unit_type_ar': typeAr,
+          'capacity': 2,
+          'bed_count': 1,
+          'price_per_night': 100,
+        });
+
+    test('البحث باسم المدينة يطابق وحداتها (كان الـ API يرجع صفرًا)', () {
+      final units = [
+        u(
+            id: 1,
+            name: '4005',
+            hotel: 'فندق فيرمونت مكه',
+            cityAr: 'مكة المكرمة'),
+        u(id: 2, name: 'شاليه البحر', hotel: 'منتجع جدة', cityAr: 'جدة'),
+      ];
+      final result = HotelService.filterUnits(units, query: 'مكة');
+      expect(result, hasLength(1));
+      expect(result.first.id, 1);
+    });
+
+    test('البحث باسم الفندق يطابق وحداته', () {
+      final units = [
+        u(id: 1, name: 'A', hotel: 'فندق فيرمونت مكه', cityAr: 'مكة المكرمة'),
+        u(id: 2, name: 'B', hotel: 'فندق العنوان', cityAr: 'مكة المكرمة'),
+      ];
+      expect(HotelService.filterUnits(units, query: 'العنوان'), hasLength(1));
+    });
+
+    test('تطبيع ة→ه و أ→ا يجعل البحث متسامحًا مع الهمزات', () {
+      final units = [u(id: 1, name: 'جناح', cityAr: 'مكة المكرمة')];
+      expect(HotelService.filterUnits(units, query: 'مكه'), hasLength(1));
+      expect(HotelService.filterUnits(units, query: 'مكة'), hasLength(1));
+    });
+
+    test('البحث بلا نتائج يرجع قائمة فارغة (لا يرمي)', () {
+      final units = [u(id: 1, name: 'جناح', cityAr: 'مكة المكرمة')];
+      expect(HotelService.filterUnits(units, query: 'طوكيو'), isEmpty);
+    });
+
+    test('بلا نص بحث ترجع كل الوحدات', () {
+      final units = [u(id: 1, name: 'أ'), u(id: 2, name: 'ب')];
+      expect(HotelService.filterUnits(units), hasLength(2));
+      expect(HotelService.filterUnits(units, query: '   '), hasLength(2));
+    });
+  });
+
   group('متطلبات المستند الأصلي (الجولة الثانية)', () {
     test('العبارة التعريفية تطابق نص المستند لا النص القديم', () {
-      expect(AppStrings.t(true, 'app_tagline'), 'المنصة الموثوقة لملاك الوحدات والعقارات');
-      expect(AppStrings.t(false, 'app_tagline'), 'The Trusted Platform for Property Owners');
+      expect(AppStrings.t(true, 'app_tagline'),
+          'المنصة الموثوقة لملاك الوحدات والعقارات');
+      expect(AppStrings.t(false, 'app_tagline'),
+          'The Trusted Platform for Property Owners');
       expect(AppStrings.t(true, 'app_tagline'), isNot(contains('فندقك')));
     });
 
     test('مفاتيح المتطلبات المضافة موجودة بالعربي والإنجليزي', () {
-      const keys = ['app_tagline', 'my_bookings', 'booking_details', 'add_extra_bed', 'housekeeping'];
+      const keys = [
+        'app_tagline',
+        'my_bookings',
+        'booking_details',
+        'add_extra_bed',
+        'housekeeping'
+      ];
       for (final k in keys) {
         expect(AppStrings.t(true, k), isNotEmpty, reason: '$k ar');
         expect(AppStrings.t(false, k), isNotEmpty, reason: '$k en');
-        expect(AppStrings.t(true, k), isNot(equals(k)), reason: '$k ar غير مترجم');
-        expect(AppStrings.t(false, k), isNot(equals(k)), reason: '$k en غير مترجم');
+        expect(AppStrings.t(true, k), isNot(equals(k)),
+            reason: '$k ar غير مترجم');
+        expect(AppStrings.t(false, k), isNot(equals(k)),
+            reason: '$k en غير مترجم');
       }
     });
 
     test('تسمية الوكيل الثانية هي «حجوزاتي» لا «وحداتي»', () {
       expect(AppStrings.t(true, 'my_bookings'), 'حجوزاتي');
       expect(AppStrings.t(true, 'nav_units'), 'وحداتي');
-      expect(AppStrings.t(true, 'my_bookings'), isNot(equals(AppStrings.t(true, 'nav_units'))));
+      expect(AppStrings.t(true, 'my_bookings'),
+          isNot(equals(AppStrings.t(true, 'nav_units'))));
     });
   });
 }

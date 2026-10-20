@@ -49,6 +49,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   late Future<List<UnitModel>> _recentUnitsFuture;
   late Future<List<OwnerHotelSummary>> _ownerHotelsFuture;
 
+  /// المدينة المختارة لقسم «فنادق بوحدات ملاك» (المتطلب 23).
+  /// `null` = كل المدن.
+  String? _ownerCity;
+
   @override
   void initState() {
     super.initState();
@@ -72,10 +76,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     List<HotelModel> hotels = const [];
     return Future.wait([
       _hotelService
-          .browseUnits(ownerOnly: true, sort: 'newest', limit: 40)
+          .browseUnits(
+            ownerOnly: true,
+            city: _ownerCity,
+            sort: 'newest',
+            limit: 40,
+          )
           .then((value) => units = value),
-      _hotelService.listHotels().then((value) => hotels = value),
+      _hotelService
+          .listHotels(city: _ownerCity)
+          .then((value) => hotels = value),
     ]).then((_) => OwnerHotelSummary.build(units, hotels));
+  }
+
+  /// اختيار مدينة قسم وحدات الملاك (المتطلب 23) — يعيد التحميل مُفلترًا.
+  void _selectOwnerCity(String? city) {
+    if (_ownerCity == city) return;
+    setState(() {
+      _ownerCity = city;
+      _ownerHotelsFuture = _loadOwnerHotels();
+    });
   }
 
   Future<void> _refresh() async {
@@ -171,11 +191,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ),
               ),
-              // ترتيب الأقسام الحالي. المصدران يتعارضان حول ترتيب الوجهات مقابل
-              // التصنيفات (المتطلب 27) — يُحسم بقرار المالك، انظر مصفوفة المتطلبات.
-              ..._buildCategories(isArabic, textTheme),
+              // ترتيب الأقسام المعتمد من المالك (يحسم المتطلب 27):
+              // البحث → الوجهات → الأنواع → فنادق بوحدات ملاك → أحدث الوحدات.
+              // الفنادق المميزة لم تُطلب كقسم مستقل في المستند الأصلي، فتُعرض
+              // فقط كبديل داخل قسم «فنادق بوحدات ملاك» عند عدم وجود وحدات ملاك.
               ..._buildDestinations(isArabic, textTheme),
-              ..._buildFeaturedHotels(isArabic, textTheme),
+              ..._buildCategories(isArabic, textTheme),
               ..._buildOwnerUnits(isArabic, textTheme),
               ..._buildRecentUnits(isArabic, textTheme),
               const SliverToBoxAdapter(child: SizedBox(height: AppDimens.xxl)),
@@ -316,81 +337,61 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ];
   }
 
-  // ===== الفنادق المميزة (featured=1) =====
-  List<Widget> _buildFeaturedHotels(bool isArabic, TextTheme textTheme) {
-    return [
-      SliverToBoxAdapter(
-        child: _SectionHeader(
-          title: AppStrings.t(isArabic, 'featured_hotels'),
-          isArabic: isArabic,
-          onSeeAll: () => _openSearch(tab: 0),
-        ),
-      ),
-      SliverToBoxAdapter(
-        child: FutureBuilder<List<HotelModel>>(
-          future: _featuredHotelsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const LoadingView(height: 140);
-            }
-            if (snapshot.hasError) {
-              return ErrorView(
-                compact: true,
-                isArabic: isArabic,
-                message: _errorMessage(snapshot.error),
-                onRetry: () => setState(() {
-                  _featuredHotelsFuture = _hotelService.featuredHotels();
-                }),
-              );
-            }
-            final hotels = snapshot.data ?? const <HotelModel>[];
-            if (hotels.isEmpty) {
-              return EmptyView(
-                compact: true,
-                icon: Icons.hotel_outlined,
-                message: AppStrings.t(isArabic, 'no_results'),
-              );
-            }
-            return SizedBox(
-              height: 220,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: AppDimens.pagePadding),
-                itemCount: hotels.length,
-                itemBuilder: (context, index) {
-                  final hotel = hotels[index];
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      left: isArabic ? 0 : AppDimens.md,
-                      right: isArabic ? AppDimens.md : 0,
-                    ),
-                    child: _FeaturedHotelCard(
-                      hotel: hotel,
-                      isArabic: isArabic,
-                      onTap: () => _openHotel(hotel),
-                    ),
-                  );
-                },
-              ),
-            );
-          },
-        ),
-      ),
-      const SliverToBoxAdapter(child: SizedBox(height: AppDimens.md)),
-    ];
-  }
-
   // ===== فنادق بوحدات ملاك (من وحدات المالك + بيانات الفنادق) =====
   List<Widget> _buildOwnerUnits(bool isArabic, TextTheme textTheme) {
     return [
       SliverToBoxAdapter(
-        child: _SectionHeader(
-          title: AppStrings.t(isArabic, 'hotels_with_owner_units'),
-          isArabic: isArabic,
-          onSeeAll: () => _openSearch(tab: 0),
+        child: FutureBuilder<List<OwnerHotelSummary>>(
+          future: _ownerHotelsFuture,
+          builder: (context, snapshot) {
+            // عند غياب وحدات الملاك نعرض الفنادق المميزة، ويطابق العنوان المحتوى.
+            final useFeatured =
+                snapshot.connectionState == ConnectionState.done &&
+                    !snapshot.hasError &&
+                    (snapshot.data ?? const <OwnerHotelSummary>[]).isEmpty;
+            return _SectionHeader(
+              title: AppStrings.t(isArabic,
+                  useFeatured ? 'featured_hotels' : 'hotels_with_owner_units'),
+              isArabic: isArabic,
+              onSeeAll: () => _openSearch(tab: 0),
+            );
+          },
         ),
       ),
+      const SliverToBoxAdapter(child: SizedBox(height: AppDimens.sm)),
+      // اختيار المدينة لوحدات الملاك (المتطلب 23): «يظهر له وحدات الملاك في
+      // المدينة المختارة». المدن من `cities/list.php` — لا قائمة ثابتة.
+      SliverToBoxAdapter(
+        child: SizedBox(
+          height: 40,
+          child: FutureBuilder<List<CityModel>>(
+            future: _citiesFuture,
+            builder: (context, snapshot) {
+              final cities = snapshot.data ?? const <CityModel>[];
+              if (cities.isEmpty) return const SizedBox.shrink();
+              return ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.pagePadding),
+                children: [
+                  _OwnerCityChip(
+                    label: AppStrings.t(isArabic, 'all_cities'),
+                    selected: _ownerCity == null,
+                    onTap: () => _selectOwnerCity(null),
+                  ),
+                  for (final city in cities)
+                    _OwnerCityChip(
+                      label: city.name(isArabic),
+                      selected: _ownerCity == city.name(isArabic),
+                      onTap: () => _selectOwnerCity(city.name(isArabic)),
+                    ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+      const SliverToBoxAdapter(child: SizedBox(height: AppDimens.sm)),
       SliverToBoxAdapter(
         child: SizedBox(
           height: 238,
@@ -411,11 +412,45 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 );
               }
               final summaries = snapshot.data ?? const <OwnerHotelSummary>[];
+              // لا توجد وحدات ملاك: نعرض الفنادق المميزة بدلًا من فراغ كامل.
               if (summaries.isEmpty) {
-                return EmptyView(
-                  compact: true,
-                  icon: Icons.villa_outlined,
-                  message: AppStrings.t(isArabic, 'no_units'),
+                return FutureBuilder<List<HotelModel>>(
+                  future: _featuredHotelsFuture,
+                  builder: (context, featuredSnapshot) {
+                    final hotels =
+                        featuredSnapshot.data ?? const <HotelModel>[];
+                    if (featuredSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const LoadingView(height: 238);
+                    }
+                    if (hotels.isEmpty) {
+                      return EmptyView(
+                        compact: true,
+                        icon: Icons.villa_outlined,
+                        message: AppStrings.t(isArabic, 'no_units'),
+                      );
+                    }
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: AppDimens.pagePadding),
+                      itemCount: hotels.length,
+                      itemBuilder: (context, index) {
+                        final hotel = hotels[index];
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            left: isArabic ? 0 : AppDimens.md,
+                            right: isArabic ? AppDimens.md : 0,
+                          ),
+                          child: HotelCard(
+                            hotel: hotel,
+                            isArabic: isArabic,
+                            onTap: () => _openHotel(hotel),
+                          ),
+                        );
+                      },
+                    );
+                  },
                 );
               }
               return ListView.builder(
@@ -676,100 +711,26 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-/// بطاقة فندق مميز عمودية للشريط الأفقي بالصفحة الرئيسية.
-class _FeaturedHotelCard extends StatelessWidget {
-  final HotelModel hotel;
-  final bool isArabic;
+/// شريحة اختيار مدينة لقسم «فنادق بوحدات ملاك» (المتطلب 23).
+class _OwnerCityChip extends StatelessWidget {
+  final String label;
+  final bool selected;
   final VoidCallback onTap;
 
-  const _FeaturedHotelCard({
-    required this.hotel,
-    required this.isArabic,
+  const _OwnerCityChip({
+    required this.label,
+    required this.selected,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Semantics(
-      button: true,
-      label: hotel.name,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-        child: Container(
-          width: 240,
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-            border: Border.all(color: AppColors.cardBorder),
-            boxShadow: AppColors.cardShadow,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Stack(
-                children: [
-                  AppNetworkImage(
-                    url: hotel.imageUrl,
-                    height: 118,
-                    width: double.infinity,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(AppDimens.radiusLg),
-                    ),
-                  ),
-                  if (hotel.isFeatured)
-                    Positioned(
-                      top: 8,
-                      right: isArabic ? null : 8,
-                      left: isArabic ? 8 : null,
-                      child: AppBadge(
-                        text: AppStrings.t(isArabic, 'featured_hotels'),
-                        color: AppColors.goldDark,
-                        icon: Icons.star_rounded,
-                      ),
-                    ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.all(AppDimens.sm),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      hotel.name,
-                      style: textTheme.titleSmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Row(
-                      children: [
-                        const Icon(Icons.location_on_outlined,
-                            size: 12, color: AppColors.textMuted),
-                        const SizedBox(width: 2),
-                        Expanded(
-                          child: Text(
-                            hotel.city(isArabic),
-                            style: textTheme.bodySmall
-                                ?.copyWith(color: AppColors.textMuted),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    PriceText(
-                      amount: hotel.pricePerNight,
-                      isArabic: isArabic,
-                      fontSize: 14,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(end: AppDimens.sm),
+      child: ChoiceChip(
+        label: Text(label),
+        selected: selected,
+        onSelected: (_) => onTap(),
       ),
     );
   }

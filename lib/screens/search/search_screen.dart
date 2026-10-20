@@ -136,8 +136,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
             )
             .then((value) => hotels = value),
         _hotelService
-            .browseUnits(
-              search: query,
+            .searchUnits(
+              query: query,
               city: _city,
               minPrice: _minPrice,
               maxPrice: _maxPrice,

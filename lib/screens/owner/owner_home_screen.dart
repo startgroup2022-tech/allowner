@@ -17,6 +17,7 @@ import 'owner_marketplace_screen.dart';
 import 'owner_messages_screen.dart';
 import 'owner_meal_requests_screen.dart';
 import 'owner_cleaning_screen.dart';
+import 'owner_extra_bed_screen.dart';
 import 'owner_clients_screen.dart';
 import 'owner_commission_screen.dart';
 import '../search/search_screen.dart';
@@ -41,7 +42,8 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
   bool get _isAgent => ref.read(sessionProvider).user?.role == 'booking_agent';
 
   // الوكيل يشوف أرقامه هو (حجوزاته وعمولاته)، والمالك يشوف أرقام وحداته
-  Future<Map<String, dynamic>> _loadStats() => _isAgent ? _service.getMyCommission() : _service.getDashboard();
+  Future<Map<String, dynamic>> _loadStats() =>
+      _isAgent ? _service.getMyCommission() : _service.getDashboard();
 
   void _reload() => setState(() => _future = _loadStats());
 
@@ -55,43 +57,51 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
       (
         icon: Icons.people_alt_outlined,
         title: AppStrings.t(isArabic, 'my_clients'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerClientsScreen())),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerClientsScreen())),
       ),
       (
         icon: Icons.add_business_outlined,
         title: AppStrings.t(isArabic, 'book_new_stay'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SearchScreen(initialQuery: ''))),
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => const SearchScreen(initialQuery: ''))),
       ),
       (
         icon: Icons.calendar_month_outlined,
         title: AppStrings.t(isArabic, 'owner_bookings'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerBookingsScreen())),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerBookingsScreen())),
       ),
       (
         icon: Icons.payments_outlined,
         title: AppStrings.t(isArabic, 'my_commission'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerCommissionScreen())),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerCommissionScreen())),
       ),
       (
         icon: Icons.chat_bubble_outline_rounded,
         title: AppStrings.t(isArabic, 'messages'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerMessagesScreen())),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerMessagesScreen())),
       ),
       // الطلبات التي طلب المالك إضافتها لقائمة الوكيل: الوجبات والنظافة والسرير.
       (
         icon: Icons.restaurant_outlined,
         title: AppStrings.t(isArabic, 'meal_requests'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerMealRequestsScreen())),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerMealRequestsScreen())),
       ),
       (
         icon: Icons.cleaning_services_outlined,
         title: AppStrings.t(isArabic, 'housekeeping'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerCleaningScreen())),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerCleaningScreen())),
       ),
       (
         icon: Icons.bed_outlined,
         title: AppStrings.t(isArabic, 'add_extra_bed'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerMaintenanceScreen())),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerExtraBedScreen())),
       ),
     ];
 
@@ -99,52 +109,62 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
       (
         icon: Icons.calendar_month_outlined,
         title: AppStrings.t(isArabic, 'owner_bookings'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerBookingsScreen())),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerBookingsScreen())),
       ),
       (
         icon: Icons.bar_chart_outlined,
         title: AppStrings.t(isArabic, 'financial_reports'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerRevenueScreen())),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerRevenueScreen())),
       ),
       (
         icon: Icons.build_outlined,
         title: AppStrings.t(isArabic, 'maintenance_requests'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerMaintenanceScreen())),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerMaintenanceScreen())),
       ),
       (
         icon: Icons.cleaning_services_outlined,
         title: AppStrings.t(isArabic, 'housekeeping'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerCleaningScreen())),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerCleaningScreen())),
       ),
       (
         icon: Icons.restaurant_outlined,
         title: AppStrings.t(isArabic, 'meal_requests'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerMealRequestsScreen())),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerMealRequestsScreen())),
       ),
       (
         icon: Icons.folder_outlined,
         title: AppStrings.t(isArabic, 'contracts_docs'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerDocumentsScreen())),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerDocumentsScreen())),
       ),
       (
         icon: Icons.how_to_vote_outlined,
         title: AppStrings.t(isArabic, 'voting_decisions'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerDecisionsScreen())),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerDecisionsScreen())),
       ),
       (
         icon: Icons.groups_outlined,
         title: AppStrings.t(isArabic, 'owners_community'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerCommunityScreen())),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerCommunityScreen())),
       ),
       (
         icon: Icons.storefront_outlined,
         title: AppStrings.t(isArabic, 'units_marketplace'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerMarketplaceScreen())),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerMarketplaceScreen())),
       ),
       (
         icon: Icons.chat_bubble_outline_rounded,
         title: AppStrings.t(isArabic, 'messages'),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerMessagesScreen())),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OwnerMessagesScreen())),
       ),
     ];
 
@@ -160,10 +180,10 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(AppStrings.t(isArabic, 'hello'),
-                    style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
+                    style: textTheme.bodyMedium
+                        ?.copyWith(color: AppColors.textSecondary)),
                 Text(user?.fullName ?? '', style: textTheme.headlineMedium),
                 const SizedBox(height: AppDimens.lg),
-
                 FutureBuilder<Map<String, dynamic>>(
                   future: _future,
                   builder: (context, snapshot) {
@@ -178,7 +198,8 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
                     }
                     final stats = snapshot.data ?? {};
                     if (user?.role == 'booking_agent') {
-                      String sar(dynamic v) => '${asDouble(v).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}';
+                      String sar(dynamic v) =>
+                          '${asDouble(v).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}';
                       return Column(
                         children: [
                           Row(
@@ -186,15 +207,18 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
                               Expanded(
                                 child: _MetricCard(
                                   icon: Icons.calendar_month_rounded,
-                                  label: AppStrings.t(isArabic, 'owner_bookings'),
-                                  value: asInt(stats['total_bookings']).toString(),
+                                  label:
+                                      AppStrings.t(isArabic, 'owner_bookings'),
+                                  value:
+                                      asInt(stats['total_bookings']).toString(),
                                 ),
                               ),
                               const SizedBox(width: AppDimens.md),
                               Expanded(
                                 child: _MetricCard(
                                   icon: Icons.account_balance_wallet_rounded,
-                                  label: AppStrings.t(isArabic, 'total_commission'),
+                                  label: AppStrings.t(
+                                      isArabic, 'total_commission'),
                                   value: sar(stats['total_commission']),
                                 ),
                               ),
@@ -206,7 +230,8 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
                               Expanded(
                                 child: _MetricCard(
                                   icon: Icons.check_circle_outline_rounded,
-                                  label: AppStrings.t(isArabic, 'commission_paid'),
+                                  label:
+                                      AppStrings.t(isArabic, 'commission_paid'),
                                   value: sar(stats['paid']),
                                 ),
                               ),
@@ -214,7 +239,8 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
                               Expanded(
                                 child: _MetricCard(
                                   icon: Icons.hourglass_top_rounded,
-                                  label: AppStrings.t(isArabic, 'commission_remaining'),
+                                  label: AppStrings.t(
+                                      isArabic, 'commission_remaining'),
                                   value: sar(stats['unpaid']),
                                 ),
                               ),
@@ -224,7 +250,9 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
                       );
                     }
                     final units = (stats['units_count'] ?? 0).toString();
-                    final revenue = (stats['revenue'] is num) ? (stats['revenue'] as num).toStringAsFixed(0) : '0';
+                    final revenue = (stats['revenue'] is num)
+                        ? (stats['revenue'] as num).toStringAsFixed(0)
+                        : '0';
                     final pending = (stats['pending_bookings'] ?? 0).toString();
 
                     return Column(
@@ -243,7 +271,8 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
                               child: _MetricCard(
                                 icon: Icons.account_balance_wallet_rounded,
                                 label: AppStrings.t(isArabic, 'nav_revenue'),
-                                value: '$revenue ${AppStrings.t(isArabic, 'sar')}',
+                                value:
+                                    '$revenue ${AppStrings.t(isArabic, 'sar')}',
                               ),
                             ),
                           ],
@@ -254,7 +283,8 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
                             Expanded(
                               child: _MetricCard(
                                 icon: Icons.hourglass_top_rounded,
-                                label: AppStrings.t(isArabic, 'pending_bookings'),
+                                label:
+                                    AppStrings.t(isArabic, 'pending_bookings'),
                                 value: pending,
                               ),
                             ),
@@ -263,7 +293,8 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
                               child: _MetricCard(
                                 icon: Icons.calendar_month_rounded,
                                 label: AppStrings.t(isArabic, 'owner_bookings'),
-                                value: (stats['bookings_count'] ?? 0).toString(),
+                                value:
+                                    (stats['bookings_count'] ?? 0).toString(),
                               ),
                             ),
                           ],
@@ -273,8 +304,8 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
                   },
                 ),
                 const SizedBox(height: AppDimens.xl),
-
-                Text(AppStrings.t(isArabic, 'quick_links'), style: textTheme.titleMedium),
+                Text(AppStrings.t(isArabic, 'quick_links'),
+                    style: textTheme.titleMedium),
                 const SizedBox(height: AppDimens.md),
                 GridView.count(
                   crossAxisCount: 2,
@@ -283,7 +314,9 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
                   mainAxisSpacing: AppDimens.md,
                   crossAxisSpacing: AppDimens.md,
                   childAspectRatio: 1.5,
-                  children: (user?.role == 'booking_agent' ? agentLinks : ownerLinks).map((link) {
+                  children:
+                      (user?.role == 'booking_agent' ? agentLinks : ownerLinks)
+                          .map((link) {
                     return InkWell(
                       borderRadius: BorderRadius.circular(AppDimens.radiusLg),
                       onTap: link.onTap,
@@ -291,17 +324,20 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
                         padding: const EdgeInsets.all(AppDimens.md),
                         decoration: BoxDecoration(
                           color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+                          borderRadius:
+                              BorderRadius.circular(AppDimens.radiusLg),
                           border: Border.all(color: AppColors.cardBorder),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Icon(link.icon, color: AppColors.goldDark, size: 24),
+                            Icon(link.icon,
+                                color: AppColors.goldDark, size: 24),
                             Text(
                               link.title,
-                              style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+                              style: textTheme.bodySmall
+                                  ?.copyWith(fontWeight: FontWeight.w600),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -325,7 +361,8 @@ class _MetricCard extends StatelessWidget {
   final String label;
   final String value;
 
-  const _MetricCard({required this.icon, required this.label, required this.value});
+  const _MetricCard(
+      {required this.icon, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -340,9 +377,15 @@ class _MetricCard extends StatelessWidget {
         children: [
           Icon(icon, color: AppColors.goldDark, size: 22),
           const SizedBox(height: AppDimens.sm),
-          Text(value, style: Theme.of(context).textTheme.titleMedium, overflow: TextOverflow.ellipsis),
+          Text(value,
+              style: Theme.of(context).textTheme.titleMedium,
+              overflow: TextOverflow.ellipsis),
           const SizedBox(height: 2),
-          Text(label, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+          Text(label,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: AppColors.textMuted)),
         ],
       ),
     );
@@ -362,9 +405,11 @@ class _ErrorRetry extends StatelessWidget {
         children: [
           Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 32),
           const SizedBox(height: AppDimens.sm),
-          Text(AppStrings.t(isArabic, 'error_loading'), textAlign: TextAlign.center),
+          Text(AppStrings.t(isArabic, 'error_loading'),
+              textAlign: TextAlign.center),
           const SizedBox(height: AppDimens.sm),
-          OutlinedButton(onPressed: onRetry, child: Text(AppStrings.t(isArabic, 'retry'))),
+          OutlinedButton(
+              onPressed: onRetry, child: Text(AppStrings.t(isArabic, 'retry'))),
         ],
       ),
     );

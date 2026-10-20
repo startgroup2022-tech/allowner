@@ -61,6 +61,82 @@ class HotelService {
     }
   }
 
+  /// بحث الوحدات — يجمع نتائج السيرفر النصية (`q`) مع تصفية محلية على
+  /// الاسم/الفندق/المدينة/النوع.
+  ///
+  /// السبب: `q` في `units/browse.php` يطابق **الأسماء فقط**، فالبحث باسم مدينة
+  /// (مثل «مكة») يرجع صفرًا رغم وجود وحدات فيها (المتطلب 26). لذلك ندمج
+  /// نتائج السيرفر مع تصفية محلية بنفس منطق [filterHotels]، بلا طلب مكرر
+  /// وبلا `as List` غير آمن.
+  Future<List<UnitModel>> searchUnits({
+    String? query,
+    String? city,
+    double? minPrice,
+    double? maxPrice,
+    int? minCapacity,
+    String sort = 'newest',
+    int limit = 60,
+  }) async {
+    final q = query?.trim();
+    if (q == null || q.isEmpty) {
+      return browseUnits(
+        city: city,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+        minCapacity: minCapacity,
+        sort: sort,
+        limit: limit,
+      );
+    }
+    final results = await Future.wait([
+      // مطابقة الأسماء على السيرفر (تشمل وحدات قد تتجاوز حد التصفح المحلي).
+      browseUnits(
+        search: q,
+        city: city,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+        minCapacity: minCapacity,
+        sort: sort,
+        limit: limit,
+      ),
+      // القائمة الكاملة للتصفية المحلية على المدينة/الفندق/النوع.
+      browseUnits(
+        city: city,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+        minCapacity: minCapacity,
+        sort: sort,
+        limit: limit,
+      ),
+    ]);
+    final merged = <int, UnitModel>{};
+    for (final unit in results[0]) {
+      merged[unit.id] = unit;
+    }
+    for (final unit in filterUnits(results[1], query: q)) {
+      merged[unit.id] = unit;
+    }
+    return merged.values.toList();
+  }
+
+  /// تصفية الوحدات نصيًا محليًا (دالة نقية قابلة للاختبار بلا شبكة).
+  static List<UnitModel> filterUnits(List<UnitModel> units, {String? query}) {
+    final normalizedQuery = _normalize(query);
+    if (normalizedQuery == null) return units;
+    return units.where((u) {
+      final haystack = [
+        u.nameAr,
+        u.nameEn,
+        u.hotelName,
+        u.cityAr,
+        u.cityEn,
+        u.unitTypeAr,
+        u.unitTypeEn,
+      ].map((v) => _normalize(v) ?? '').join(' ');
+      return haystack.contains(normalizedQuery);
+    }).toList();
+  }
+
   /// قائمة الفنادق. يدعم السيرفر: `city`، `featured`، `stars`، `min_price`،
   /// `max_price`.
   ///
