@@ -104,17 +104,22 @@ Summary:
 
 | Status | Count | Meaning |
 |---|---|---|
-| VERIFIED PASS | 11 | Code present + wired to a live endpoint + verified |
-| IMPLEMENTED UNTESTED | 34 | Code complete and wired; not yet exercised on a device |
-| PARTIAL | 45 | Surface exists; verification/integration incomplete |
-| NOT IMPLEMENTED | 5 | No application surface exists yet |
+| VERIFIED PASS | 14 | Code present + wired to a live endpoint + verified |
+| IMPLEMENTED UNTESTED | 35 | Code complete and wired; not yet exercised on a device |
+| PARTIAL | 44 | Surface exists; verification/integration incomplete |
+| NOT IMPLEMENTED | 2 | No application surface exists yet |
 | BACKEND BLOCKED | 52 | Needs a PHP/database/site change outside the app |
 | OWNER DECISION REQUIRED | 1 | Item 27 — see §4 |
 | | **148** | |
 
-**Do not read this as "148 done".** 11 are verified; the rest are explicitly
+**Do not read this as "148 done".** 14 are verified; the rest are explicitly
 open, partial, or blocked. Nothing is marked complete merely because a widget
 renders.
+
+This count is a **snapshot at commit `6371b6a`**. A parallel Execution 01 session
+pushed commits `1b6a50c` and `ea5567e` (items 5, 32, 40–43, 98, 100–107) which
+were merged by rebase; those status changes are reflected here. The matrix header
+in `docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md` is authoritative and regenerable.
 
 ---
 

@@ -292,9 +292,9 @@ was run. No result here is carried over from before the reset.
 | 2 | `dart format --output=none --set-exit-if-changed <6 changed files>` | Clean — 0 changed | 0 |
 | 3 | `dart format --output=none --set-exit-if-changed .` | **Fails** — 50 of 75 files differ; reproduced at `HEAD` with changes stashed, so pre-existing | 1 |
 | 4 | `flutter analyze` | **0 errors, 0 warnings**, 80 info | 0 |
-| 5 | `flutter test` | **64 tests, all pass** | 0 |
+| 5 | `flutter test` | **67 tests, all pass** | 0 |
 
-### 8.1 New tests added (58 → 64)
+### 8.1 New tests added (58 → 67; 6 by this session, 3 by a parallel Execution 01 session)
 
 | File | Tests | What is asserted |
 |---|---|---|
@@ -314,7 +314,7 @@ was run. No result here is carried over from before the reset.
 ### 8.3 What is still not verified
 
 - **Device/emulator integration testing** — not run; no emulator is available in
-  this environment. All 64 tests are isolated widget/unit tests.
+  this environment. All 67 tests are isolated widget/unit tests.
 - **Visual screenshot QA on a device** — not run for the new card; layout is
   asserted only for overflow-freedom via the existing widget harness.
 - **Item 27** (homepage section order / bottom navigation) — awaiting owner
