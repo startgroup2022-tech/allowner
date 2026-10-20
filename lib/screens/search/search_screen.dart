@@ -123,26 +123,47 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     final query = _searchController.text.trim();
 
     try {
-      final hotels = await _hotelService.searchHotels(
-        query: query,
-        city: _city,
-        categoryName: _categoryName,
-      );
-      final units = await _hotelService.browseUnits(
-        search: query,
-        city: _city,
-        minPrice: _minPrice,
-        maxPrice: _maxPrice,
-        minCapacity: _minCapacity,
-        sort: _sort,
-        limit: 60,
-      );
+      // الطلبان مستقلان — نُنفّذهما بالتوازي بدل التسلسل لنصف زمن الانتظار.
+      // نُسند النتائج داخل `then` لتجنّب `as List` غير الآمن.
+      late final List<HotelModel> hotels;
+      late final List<UnitModel> units;
+      await Future.wait([
+        _hotelService
+            .searchHotels(
+              query: query,
+              city: _city,
+              categoryName: _categoryName,
+            )
+            .then((value) => hotels = value),
+        _hotelService
+            .browseUnits(
+              search: query,
+              city: _city,
+              minPrice: _minPrice,
+              maxPrice: _maxPrice,
+              minCapacity: _minCapacity,
+              sort: _sort,
+              limit: 60,
+            )
+            .then((value) => units = value),
+      ]);
+
+      // `units/browse.php` لا يدعم تصفية بالتصنيف (يتجاهل category/type)،
+      // والتصنيف يصف نوع المنشأة لا نوع الغرفة. لذلك عند اختيار تصنيف نُقيّد
+      // الوحدات بفنادق ذلك التصنيف عبر `hotel_id` — تصفية ببيانات حقيقية.
+      var filteredUnits = units;
+      if (_categoryName != null) {
+        final allowedHotelIds =
+            hotels.map((h) => asIntOrNull(h.id)).whereType<int>().toSet();
+        filteredUnits =
+            units.where((u) => allowedHotelIds.contains(u.hotelId)).toList();
+      }
 
       // تجاهل نتيجة طلب قديم
       if (!mounted || requestId != _requestId) return;
       setState(() {
         _hotels = hotels;
-        _units = units;
+        _units = filteredUnits;
         _isLoading = false;
       });
     } catch (e) {

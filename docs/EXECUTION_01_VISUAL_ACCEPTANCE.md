@@ -247,8 +247,13 @@ Visual QA was not cosmetic here — it caught real layout bugs.
 | V-3 | Capacity/bed chips rendered as a single glued string (`" 2"`) | Widget test asserting `find.text('2')` | Chip label separated with an explicit `SizedBox(width: 2)` instead of a leading space |
 
 All three were **real rendering defects that a user would have seen**, and all
-three were found by automated tests rather than by eye. After the fixes, all 48
+three were found by automated tests rather than by eye. After the fixes, all 58
 tests pass and no capture shows an overflow stripe.
+
+The 2026-10-20 code-review pass added three further logic defects (category
+matching, unit category filtering, destination localization). They are layout-neutral
+and do not invalidate the captures above, but they are recorded in
+`EXECUTION_01_TECHNICAL_AUDIT.md` §11.
 
 ---
 
@@ -256,7 +261,7 @@ tests pass and no capture shows an overflow stripe.
 
 | Check | Result | Evidence |
 |---|---|---|
-| Text overflow | None | 0.00% yellow on all 12 captures; 48 tests pass |
+| Text overflow | None | 0.00% yellow on all 12 captures; 58 tests pass |
 | RTL alignment correct | Pass | AR captures render right-aligned; explicit `Directionality` at root |
 | LTR alignment correct | Pass | EN captures render left-aligned |
 | Typography consistent | Pass | Single `TextTheme`; no per-screen font overrides |

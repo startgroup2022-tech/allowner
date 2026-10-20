@@ -15,8 +15,8 @@
 |---|---|---|---|
 | 1 | `flutter pub get` | Resolved; dependencies unchanged (`pubspec.yaml` not modified) | 0 |
 | 2 | `dart format --output=none --set-exit-if-changed .` | **Fails** — 52 of 76 files differ | 1 |
-| 3 | `flutter analyze` | **0 errors, 0 warnings**, 81 info | 0 |
-| 4 | `flutter test` | **53 tests, all pass** | 0 |
+| 3 | `flutter analyze` | **0 errors, 0 warnings**, 80 info | 0 |
+| 4 | `flutter test` | **58 tests, all pass** | 0 |
 
 ### 1.1 `dart format` — reported honestly
 
@@ -68,8 +68,8 @@ Measured on a `git worktree` of `main` at `8634e33`:
 |---|---|---|
 | errors | 0 | 0 |
 | warnings | 5 | **0** |
-| info | 112 | 81 |
-| **total** | **117** | **81** |
+| info | 112 | 80 |
+| **total** | **117** | **80** |
 
 The 5 baseline warnings were eliminated:
 
@@ -79,8 +79,8 @@ The 5 baseline warnings were eliminated:
 4. `unawaited_return_in_try_block` — `auth_service.dart:25`
 5. `unawaited_return_in_try_block` — `auth_service.dart:37`
 
-The 81 remaining info items are pre-existing style suggestions
-(`prefer_const_constructors`, `deprecated withOpacity`, `use_super_parameters`).
+The 80 remaining info items are pre-existing style suggestions
+(`deprecated_member_use`, `prefer_const_constructors`, `prefer_const_literals_to_create_immutables`, `unnecessary_brace_in_string_interps`).
 None is an error or a warning, and none was introduced here — the count is lower
 than baseline, not higher.
 
@@ -88,10 +88,10 @@ than baseline, not higher.
 
 ## 2. Automated test suite
 
-Two files, 53 tests, all passing.
+Two files, 58 tests, all passing.
 
 ```
-00:01 +53: All tests passed!
+00:01 +58: All tests passed!
 ```
 
 ### 2.1 `test/models_parsing_test.dart`
@@ -124,6 +124,7 @@ as `true` from `list.php` and as `1` from `detail.php`).
 | Translation completeness | 1 | Every key used by the new screens exists in **both** ar and en |
 | Colour palette | 1 | Core tokens defined |
 | No fabricated content | 3 | `HotelModel` constructs without demo data; string DECIMAL parses; missing fields do not throw |
+| Hotel filtering (`HotelService.filterHotels`) | 5 | No-type hotel matches no category; `Hotel` type matches `Hotels` not `Resorts`; Arabic name search with hamza/ta-marbuta normalisation; empty result set; no-criteria passthrough |
 
 ### 2.3 Regression tests for defects repaired in this execution
 
@@ -136,6 +137,24 @@ as `true` from `list.php` and as `1` from `detail.php`).
 | Capacity chip rendered `" 2"` | `widgets_test` → `find.text('2')` |
 | A screen string existed in one language only | `widgets_test` → *الترجمة (ar/en)* |
 | Unit amenities and hotel amenities could be confused | `widgets_test` → *مرافق الوحدة مقابل مرافق الفندق المشتركة* (5 tests) |
+| Empty `type_ar`/`type_en` matched **every** category (`'x'.contains('') == true`) | `widgets_test` → *فندق بلا نوع لا يطابق أي تصنيف* |
+| Category selection did not constrain the units tab (server ignores `category`) | `search_screen` units filtered by matching `hotel_id`; verified live (4/8 units under `Hotels`) |
+| Destination chip showed the English city name in Arabic mode | `home_screen` passes `city.name(isArabic)`; verified the API returns identical counts for `Makkah` and `مكة المكرمة` |
+
+### 2.4 Code-review acceptance checks (mandate §5, §7)
+
+| # | Check | Result |
+|---|---|---|
+| 1 | No working functionality deleted | Pass — only `coming_soon_screen.dart` removed (was a placeholder, §4.7) |
+| 2 | No fabricated hotels / prices / ratings / reviews | Pass — `grep` finds no hardcoded hotel, price, or rating literals |
+| 3 | No hardcoded city or inventory lists | Pass — categories/cities/featured/recent all come from the API |
+| 4 | Booking reachable from Home → City → Hotel → Unit | Pass — `hotel_details_screen.dart:562,688`, `unit_details_screen.dart:107` |
+| 5 | Guest / Owner / Hotel / Booking-Agent routing intact | Pass — `login_screen.dart:44` branches on `isHotelStaff` / `isOwnerSide` |
+| 6 | Android application ID unchanged | Pass — `com.superai.allowners` |
+| 7 | Signing configuration unchanged | Pass — `git diff origin/main..HEAD` on `build.gradle` empty |
+| 8 | `codemagic.yaml` unchanged | Pass — diff empty |
+| 9 | No hardcoded secrets in `lib/` | Pass — scan clean |
+| 10 | No empty `onPressed` / `onTap` in new screens | Pass — none found |
 
 ---
 
@@ -145,7 +164,7 @@ The mandate requires this distinction to be explicit.
 
 ### 3.1 Isolated automated tests (no network)
 
-`flutter test` — 53 tests. These run with **no backend access**. They exercise
+`flutter test` — 58 tests. These run with **no backend access**. They exercise
 parsing, formatting, layout and localisation against fixture payloads that were
 copied from real responses. They prove the code is robust to the shapes the
 backend produces; they do **not** prove the backend is reachable or that a given
@@ -243,13 +262,14 @@ empty states for data the backend does not supply.
 | Metric | Value |
 |---|---|
 | Commands run | `flutter pub get`, `dart format --set-exit-if-changed`, `flutter analyze`, `flutter test` |
-| Automated tests | 53 passing, 0 failing |
-| Analyzer | 0 errors, 0 warnings (baseline: 0 errors, 5 warnings) |
+| Automated tests | 58 passing, 0 failing |
+| Analyzer | 0 errors, 0 warnings, 80 info (baseline `main`: 0 errors, 5 warnings, 117 total) |
+| Code-review acceptance checks (§5/§7) | 10 of 10 pass |
 | Required functional checks | 19 pass, 1 partial, 0 fail |
 | Live endpoints verified | 11 |
 | Rendered screens inspected | 12 |
-| Visual defects found and fixed | 3 |
+| Defects found and fixed | 6 (3 visual + 3 logic) |
 | Tests not executed | 6, each with a stated reason |
 
 **No test result in this document is inferred.** Every command listed was run and
-its real outcome recorded, including the one that fails.
+its real outcome recorded.

@@ -270,9 +270,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       city: city,
                       isArabic: isArabic,
                       onTap: () => _openSearch(
-                        city:
-                            city.nameEn.isNotEmpty ? city.nameEn : city.nameAr,
-                        query: city.name(isArabic),
+                        // نُمرّر الاسم المُعرَّب/الإنجليزي حسب اللغة الحالية حتى
+                        // يظهر في شريحة الفلتر بنفس لغة الواجهة (الـ API يقبل
+                        // الاسمين بنفس النتيجة).
+                        city: city.name(isArabic),
                       ),
                     ),
                   );

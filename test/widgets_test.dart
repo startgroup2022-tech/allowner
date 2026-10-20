@@ -2,6 +2,7 @@ import 'package:allowners/models/category_model.dart';
 import 'package:allowners/models/city_model.dart';
 import 'package:allowners/models/hotel_model.dart';
 import 'package:allowners/models/unit_model.dart';
+import 'package:allowners/services/hotel_service.dart';
 import 'package:allowners/theme/app_colors.dart';
 import 'package:allowners/theme/app_theme.dart';
 import 'package:allowners/utils/amenity_icons.dart';
@@ -439,6 +440,74 @@ void main() {
       expect(hotel.galleryUrls, isEmpty);
       expect(hotel.pricePerNight, 0);
       expect(hotel.name, isEmpty);
+    });
+  });
+
+  group('تصفية الفنادق (searchHotels) — تصحيح عيوب حقيقية', () {
+    HotelModel h({
+      required String name,
+      String? typeAr,
+      String? typeEn,
+      String? cityAr,
+      String? cityEn,
+    }) =>
+        HotelModel.fromJson({
+          'id': name,
+          'name': name,
+          'type_ar': typeAr,
+          'type_en': typeEn,
+          'city_ar': cityAr,
+          'city_en': cityEn,
+        });
+
+    test('فندق بلا نوع لا يطابق أي تصنيف (كان يطابق الكل بسبب contains(""))',
+        () {
+      final noType = h(name: 'بلا نوع');
+      for (final cat in ['Hotels', 'Resorts', 'Apartments', 'Chalets']) {
+        expect(
+          HotelService.filterHotels([noType], categoryName: cat),
+          isEmpty,
+          reason: 'الفندق بلا نوع يجب ألا يظهر تحت "$cat"',
+        );
+      }
+    });
+
+    test('فندق من نوع فندق يطابق تصنيف Hotels ولا يطابق Resorts', () {
+      final hotel = h(name: 'فيرمونت', typeAr: 'فندق', typeEn: 'Hotel');
+      expect(
+        HotelService.filterHotels([hotel], categoryName: 'Hotels'),
+        hasLength(1),
+      );
+      expect(
+        HotelService.filterHotels([hotel], categoryName: 'Resorts'),
+        isEmpty,
+      );
+    });
+
+    test('البحث بالاسم العربي يطابق (بعد تطبيع الهمزات والتاء المربوطة)', () {
+      final hotel = h(name: 'فندق فيرمونت مكة', cityAr: 'مكة المكرمة');
+      expect(
+        HotelService.filterHotels([hotel], query: 'فيرمونت'),
+        hasLength(1),
+      );
+      expect(
+        HotelService.filterHotels([hotel], query: 'مكه'),
+        hasLength(1),
+        reason: 'تطبيع ة→ه و أ→ا يجعل البحث متسامحًا',
+      );
+    });
+
+    test('البحث بلا نتائج يرجع قائمة فارغة (لا يرمي)', () {
+      final hotel = h(name: 'فندق العنوان', cityAr: 'مكة المكرمة');
+      expect(
+        HotelService.filterHotels([hotel], query: 'شرم الشيخ'),
+        isEmpty,
+      );
+    });
+
+    test('بلا معايير ترجع كل الفنادق', () {
+      final list = [h(name: 'أ'), h(name: 'ب', typeAr: 'فندق')];
+      expect(HotelService.filterHotels(list), hasLength(2));
     });
   });
 }

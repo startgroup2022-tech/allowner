@@ -2,7 +2,7 @@
 
 **Branch:** `feature/allowners-new-version-exec01`
 **Generated:** 2026-10-19
-**Last updated:** 2026-10-19 (owner review pass)
+**Last updated:** 2026-10-20 (code-review pass: 3 additional logic defects fixed)
 
 ---
 
@@ -180,7 +180,7 @@ passing test), `Implemented-untested`, `Partial`, `Blocked`, `Not-started`,
 | AO-HOME-03 | EXEC01-MANDATE §8.B | Homepage | Prominent search entry | Partial | `home/home_screen.dart` (`_SearchEntry`) | — | Redesign | Rendered capture; navigates to search | Verified |
 | AO-HOME-04 | EXEC01-MANDATE §8.C | Homepage | Accommodation categories from DB | **Hardcoded → fixed** | `home/home_screen.dart`, `services/catalog_service.dart` | `categories/list.php` | **Fix** | 4 real categories rendered (فنادق/شقق فندقية/منتجعات/شاليهات) | Verified |
 | AO-HOME-05 | EXEC01-MANDATE §8.D | Homepage | Featured destinations from DB | **Hardcoded → fixed** | `home/home_screen.dart` | `cities/list.php` | **Fix** | 5 real cities rendered (جدة/مكة المكرمة/المدينة المنورة/الخبر/الدمام) | Verified |
-| AO-HOME-06 | EXEC01-MANDATE §8.D | Homepage | Destination card opens filtered results | Missing | `home/home_screen.dart` → `search_screen.dart` | `hotels/list.php?city=`, `units/browse.php?city=` | Implement | Tapping a city passes the city filter | Implemented-untested |
+| AO-HOME-06 | EXEC01-MANDATE §8.D | Homepage | Destination card opens filtered results | Missing → implemented | `home/home_screen.dart` → `search_screen.dart` | `hotels/list.php?city=`, `units/browse.php?city=` | Implement | Tapping a city passes a city filter using the **localized** name (chip matches UI language); API returns identical counts for `Makkah`/`مكة المكرمة` | Verified |
 | AO-HOME-07 | EXEC01-MANDATE §8.D | Homepage | Do not invent inventory for a destination | Correct | `home/home_screen.dart` | — | Preserve | No hardcoded hotel list anywhere (`grep` clean) | Verified |
 | AO-HOME-08 | EXEC01-MANDATE §8.E | Homepage | Featured hotels from backend | Missing → implemented | `home/home_screen.dart`, `services/hotel_service.dart` | `hotels/list.php?featured=1` | **Implement** | 1 real featured hotel rendered (`فيرمونت مكة`) | Verified |
 | AO-HOME-09 | EXEC01-MANDATE §8.E | Homepage | Hotel card shows name/image/city/price | Partial | `widgets/cards.dart` | — | Implement | Widget test + rendered capture | Verified |
@@ -194,14 +194,14 @@ passing test), `Implemented-untested`, `Partial`, `Blocked`, `Not-started`,
 |---|---|---|---|---|---|---|---|---|---|
 | AO-SRCH-01 | EXEC01-MANDATE §9.1 | Search | Search by city | **Broken (no city filter wired)** | `services/hotel_service.dart`, `screens/search/search_screen.dart` | `units/browse.php?city=`, `hotels/list.php?city=` | **Fix** | `city=Makkah` → 3 hotels, 4 units on live backend | Verified |
 | AO-SRCH-02 | EXEC01-MANDATE §9.2 | Search | Search by hotel name | Partial | `services/hotel_service.dart` | `units/browse.php?q=` (server-side); **`hotels/list.php` has no `q`** | Fix | `q=فيرمونت` → 3 units; hotel names matched client-side (no server support — documented) | Verified |
-| AO-SRCH-03 | EXEC01-MANDATE §9.3 | Search | Filter by accommodation category | Partial | `screens/search/search_screen.dart` | `categories/list.php` | Preserve + verify | Category chips from DB | Implemented-untested |
+| AO-SRCH-03 | EXEC01-MANDATE §9.3 | Search | Filter by accommodation category | Partial → fixed | `screens/search/search_screen.dart`, `services/hotel_service.dart` | `categories/list.php` | **Fix** | Category chips from DB; empty-type hotels no longer match every category; units tab now constrained to hotels of that category (server ignores `category`) | Verified |
 | AO-SRCH-04 | EXEC01-MANDATE §9.4 | Search | Display relevant hotels | **Missing → implemented** | `screens/search/search_screen.dart` | `hotels/list.php` | **Implement** | Hotels tab renders (baseline had units only, no hotels tab) | Verified |
 | AO-SRCH-05 | EXEC01-MANDATE §9.5 | Search | Display relevant units | Implemented | `screens/search/search_screen.dart` | `units/browse.php` | Verify | Units tab renders 12 real units | Verified |
 | AO-SRCH-06 | EXEC01-MANDATE §9.6 | Search | Navigate hotel → its units | Missing → implemented | `screens/hotel/hotel_details_screen.dart` | `units/browse.php?hotel_id=` | Implement | Unit list on hotel detail | Verified |
 | AO-SRCH-07 | EXEC01-MANDATE §9.7 | Search | Preserve selected criteria | **Broken → fixed** | `screens/search/search_screen.dart` | — | **Fix** | State kept in `State`; `initialTab` honoured | Verified |
 | AO-SRCH-08 | EXEC01-MANDATE §9.8 | Search | Handle empty results | Partial | `widgets/state_views.dart` | — | Redesign | `EmptyView` rendered in captured empty-state screenshot (baseline had a bare text string) | Verified |
 | AO-SRCH-09 | EXEC01-MANDATE §9.9 | Search | Handle network errors | Partial | `widgets/state_views.dart` | — | Redesign | `ErrorView` + retry (baseline had a raw `e.toString()` dump) | Verified |
-| AO-SRCH-10 | EXEC01-MANDATE §9.10 | Search | Avoid duplicate API requests | **Broken → fixed** | `screens/search/search_screen.dart` | — | **Fix** | 450 ms debounce, single in-flight future (baseline fired on every keystroke) | Verified |
+| AO-SRCH-10 | EXEC01-MANDATE §9.10 | Search | Avoid duplicate API requests | **Broken → fixed** | `screens/search/search_screen.dart` | — | **Fix** | 450 ms debounce, single in-flight future, hotels+units fetched in parallel via `Future.wait` (baseline fired on every keystroke, sequentially) | Verified |
 | AO-SRCH-11 | EXEC01-MANDATE §9.11 | Search | Loading indicators | Missing → implemented | `widgets/state_views.dart` | — | Implement | `LoadingView` on every async section | Verified |
 | AO-SRCH-12 | EXEC01-MANDATE §9.12 | Search | Refresh results correctly | Implemented | `screens/search/search_screen.dart` | — | Verify | `RefreshIndicator` wired | Implemented-untested |
 | AO-SRCH-13 | EXEC01-MANDATE §9 | Search | Do not add unsupported filters with fake behaviour | Correct | `screens/search/filters_sheet.dart` | `min_price`/`max_price`/`min_capacity` only | Preserve | Filters map only to real params | Verified |
@@ -333,8 +333,8 @@ because they depend on the missing source documents or on a backend change:
 
 | Final status | Count |
 |---|---|
-| Verified | 108 |
-| Implemented-untested | 11 |
+| Verified | 110 |
+| Implemented-untested | 9 |
 | Partial | 9 |
 | Out-of-scope (owner decision) | 1 |
 | **Total rows** | **129** |
@@ -344,6 +344,10 @@ from Partial/Blocked to Verified after the approved unit-amenity decision was
 implemented; `AO-AUTH-04` (Booking Agent) moved from Out-of-scope to Verified
 after the owner confirmed it is in mobile scope; `AO-AUTH-05` (Administrator)
 moved to Out-of-scope on the owner's decision.
+
+Changes in the 2026-10-20 code-review pass: `AO-HOME-06` and `AO-SRCH-03` moved
+from Implemented-untested to Verified after the destination localization fix and
+the category-filter fix were confirmed against the live backend.
 
 **No claim is made that all 148 inventory items are implemented.** This matrix
 covers the requirements that were verifiable from the available sources. The

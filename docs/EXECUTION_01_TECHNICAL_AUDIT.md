@@ -399,7 +399,7 @@ backend contract and three role shells. Its principal real defect was **unsafe
 JSON parsing against a backend that legitimately mixes numbers, strings, booleans
 and nulls** — which surfaced to users as blank or crashing screens rather than as
 honest error states. That defect is fixed across services, models and screens in
-this execution, verified by 45 automated tests and by rendered evidence against
+this execution, verified by 58 automated tests and by rendered evidence against
 the live backend.
 
 The homepage, search, hotel-detail and unit-detail experiences were redesigned
@@ -409,3 +409,67 @@ backend-driven data.
 
 Remaining work is enumerated in `ALL_OWNERS_REQUIREMENTS_MATRIX.md` and in the
 final acceptance report.
+
+---
+
+## 11. Code review and acceptance corrections
+
+A second review pass was run after the first submission, against the live backend
+and the mandate's §5/§7 rules. It found and fixed three additional logic defects
+that the first pass missed. All three were confirmed against real API responses
+before and after the fix.
+
+### 11.1 Defect — empty `type_ar`/`type_en` matched every category
+
+`HotelService.searchHotels` tested category membership with
+`normalizedCategory.contains(typeAr)`. In Dart, `'hotels'.contains('')` is `true`,
+so any hotel whose `type_ar`/`type_en` was `null` or empty matched **every**
+category filter. A hotel with no type would appear under *Hotels*, *Resorts*,
+*Apartments* and *Chalets* alike.
+
+Fixed by requiring the type string to be non-empty before any `contains` test
+(`hotel_service.dart`). The filter logic was also extracted into a pure static
+method, `HotelService.filterHotels`, so it can be tested without a network or a
+mock. Five regression tests cover it. Live check: `Hotels` → 4 hotels;
+`Apartments`/`Resorts`/`Chalets` → 0; a hotel with no type → 0 under all four.
+
+### 11.2 Defect — category selection did not constrain the units tab
+
+The backend ignores `category`, `category_id`, `type` and `type_id` on
+`units/browse.php` (all four return the same 8 units). The search screen therefore
+showed the *same* units regardless of the selected category, while the hotels tab
+was correctly filtered — a silent inconsistency.
+
+Fixed by filtering the units client-side to the set of hotels that survived the
+category filter, matched on `unit.hotelId ∈ {hotel.id}`. This uses real
+relationship data rather than an invented rule. Live check: with `Hotels`
+selected, the units tab drops from 8 to the 4 units whose `hotel_id` is a hotel of
+that type.
+
+### 11.3 Defect — destination chip showed the English city name in Arabic mode
+
+The featured-destination card passed `city: nameEn` unconditionally, so tapping
+*مكة المكرمة* in Arabic mode produced an active-filter chip reading *Makkah* — a
+mixed-language UI. It also passed a redundant `query: nameAr` alongside the city,
+which risked filtering out hotels whose `city_ar` spelling differed from the
+cities table.
+
+Fixed to pass `city: city.name(isArabic)` and drop the redundant query. The API
+accepts both the Arabic and English city names with identical results (verified:
+`Makkah` → 3, `مكة المكرمة` → 3), so the localized name is safe to send and the
+chip now matches the interface language.
+
+### 11.4 Defect — search made two sequential network calls
+
+`SearchScreen._loadResults` awaited the hotel search and then the unit search, so
+the two independent round-trips ran in series. The homepage already used
+`Future.wait` for its parallel sections. Fixed to issue both calls in parallel;
+the total wait is now the slower of the two rather than their sum.
+
+### 11.5 Acceptance checks re-run
+
+The ten code-review checks in §2.4 of `EXECUTION_01_TEST_RESULTS.md` were run
+against the corrected tree: no working functionality removed, no fabricated data,
+no hardcoded inventory, booking reachable from all four entry points, all role
+routes intact, application ID and signing untouched, `codemagic.yaml` untouched,
+no secrets, no dead buttons.

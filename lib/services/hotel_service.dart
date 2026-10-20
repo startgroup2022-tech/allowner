@@ -108,6 +108,22 @@ class HotelService {
     String? categoryName,
   }) async {
     final hotels = await listHotels(city: city);
+    return filterHotels(
+      hotels,
+      query: query,
+      categoryName: categoryName,
+    );
+  }
+
+  /// تصفية الفنادق نصيًا محليًا (دالة نقية قابلة للاختبار بلا شبكة).
+  ///
+  /// `hotels/list.php` لا يدعم بحثًا نصيًا ولا تصنيفًا على السيرفر، لذلك
+  /// نُرشّح هنا على الاسم والمدينة والنوع (عربي + إنجليزي).
+  static List<HotelModel> filterHotels(
+    List<HotelModel> hotels, {
+    String? query,
+    String? categoryName,
+  }) {
     final normalizedQuery = _normalize(query);
     final normalizedCategory = _normalize(categoryName);
 
@@ -115,11 +131,13 @@ class HotelService {
       final typeAr = _normalize(h.typeAr) ?? '';
       final typeEn = _normalize(h.typeEn) ?? '';
 
+      // ملاحظة: `'x'.contains('')` ترجع true، لذلك لا نسمح للنوع الفارغ
+      // بمطابقة أي تصنيف — وإلا ظهر كل فندق بلا نوع تحت كل تصنيف.
       final matchesCategory = normalizedCategory == null ||
-          typeAr.contains(normalizedCategory) ||
-          typeEn.contains(normalizedCategory) ||
-          normalizedCategory.contains(typeAr) ||
-          normalizedCategory.contains(typeEn);
+          (typeAr.isNotEmpty && typeAr.contains(normalizedCategory)) ||
+          (typeEn.isNotEmpty && typeEn.contains(normalizedCategory)) ||
+          (typeAr.isNotEmpty && normalizedCategory.contains(typeAr)) ||
+          (typeEn.isNotEmpty && normalizedCategory.contains(typeEn));
 
       if (!matchesCategory) return false;
       if (normalizedQuery == null) return true;

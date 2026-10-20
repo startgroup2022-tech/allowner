@@ -16,8 +16,8 @@ Arabic-first (RTL) with full English (LTR) support. Builds via Codemagic.
 ```bash
 export PATH=/opt/flutter/bin:$PATH
 flutter pub get
-flutter analyze                 # baseline: 0 errors, 0 warnings, 81 info
-flutter test                    # 48 tests
+flutter analyze                 # baseline: 0 errors, 0 warnings, 80 info
+flutter test                    # 58 tests
 dart format lib/ test/          # see "Formatting" below
 ```
 
