@@ -55,6 +55,12 @@ class BookingSuccessScreen extends ConsumerWidget {
     final rows = <(String, String)>[
       (AppStrings.t(isArabic, 'booking_reference'), bookingRef ?? '-'),
       (AppStrings.t(isArabic, 'hotel'), hotel.name),
+      // المتطلب 46: بيانات وصول الضيف للوحدة — تُعرض من بيانات الفندق الحقيقية
+      // القادمة من الـ API، وتُخفى كليًا إن لم تكن متاحة (لا بيانات مُختلقة).
+      if (hotel.city(isArabic).isNotEmpty)
+        (AppStrings.t(isArabic, 'city_label'), hotel.city(isArabic)),
+      if ((hotel.address ?? '').trim().isNotEmpty)
+        (AppStrings.t(isArabic, 'address_label'), hotel.address!.trim()),
       if (unitName != null && unitName!.isNotEmpty) (AppStrings.t(isArabic, 'unit_label'), unitName!),
       (AppStrings.t(isArabic, 'stay_dates'), '${_d(checkIn)}  →  ${_d(checkOut)}${nights != null ? '  (${nights} ${AppStrings.t(isArabic, 'nights')})' : ''}'),
       if (guests != null) (AppStrings.t(isArabic, 'guests'), '$guests'),

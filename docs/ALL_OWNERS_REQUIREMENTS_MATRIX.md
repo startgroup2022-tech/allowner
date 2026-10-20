@@ -26,8 +26,8 @@
 | الحالة | العدد |
 |---|---|
 | VERIFIED PASS | 18 |
-| IMPLEMENTED UNTESTED | 37 |
-| PARTIAL | 41 |
+| IMPLEMENTED UNTESTED | 39 |
+| PARTIAL | 39 |
 | NOT IMPLEMENTED | 0 |
 | BACKEND BLOCKED | 52 |
 | OWNER DECISION REQUIRED | 0 |
@@ -742,11 +742,11 @@
 
 - **القسم:** المالك والخدمات — 17 نقطة
 - **التنفيذ:** Execution 03
-- **الحالة:** PARTIAL
-- **ملفات Flutter:** owner_meal_requests_screen.dart
-- **اعتماد الـ API:** /user/owner-meals.php
-- **الدليل:** طلبات الوجبات من حساب المالك
-- **المتبقي:** تغطية كامل الإجراءات
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_meal_requests_screen.dart _openNewMealRequest (FAB)
+- **اعتماد الـ API:** /user/owner-requests.php (type=meal)
+- **الدليل:** أُضيف إنشاء طلب وجبات من حساب المالك يرسله لإدارة الفندق عبر مسار owner-requests المُثبت؛ يحتاج اختبارًا حقيقيًا بجهاز
+- **المتبقي:** اختبار حقيقي بجهاز
 - **معيار القبول:** ينشئ المالك طلب وجبات
 
 ### 66. تمرير طلب وجبات الضيف أو الوكيل من المالك للفندق
@@ -830,11 +830,11 @@
 
 - **القسم:** المالك والخدمات — 17 نقطة
 - **التنفيذ:** Execution 03
-- **الحالة:** PARTIAL
-- **ملفات Flutter:** owner_bookings_screen.dart
-- **اعتماد الـ API:** /user/owner-bookings.php
-- **الدليل:** إظهار إضافات الوجبات/السرير في حجوزات المالك
-- **المتبقي:** تأكيد العرض
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_bookings_screen.dart buildBookingAddonLines (دالة نقية)
+- **اعتماد الـ API:** /user/owner-bookings.php (حقول addons/meal_types/extra_bed_count/extra_bed_price/notes)
+- **الدليل:** تُعرض الإضافات من الحقول الحقيقية فقط مع 7 اختبارات؛ تحتاج الحقول أن يُرجعها الـ API فعليًا
+- **المتبقي:** إرجاع حقول الإضافات في owner-bookings.php
 - **معيار القبول:** تظهر الإضافات في الحجوزات
 
 ### 74. إدارة صلاحيات موظفي المالك كاملة

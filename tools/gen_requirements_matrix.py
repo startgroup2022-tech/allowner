@@ -100,7 +100,7 @@ RANGES = {
     62: (3,'IMPLEMENTED UNTESTED','owner_cleaning_screen.dart','/user/owner-requests.php','إنشاء طلب نظافة من التطبيق','اختبار حقيقي','يُنشئ المالك طلب نظافة'),
     63: (3,'BACKEND BLOCKED','—','لوحة المالك','إنشاء طلب نظافة من لوحة المالك يحتاج تعديل الموقع','تنفيذ الواجهة على الموقع','يُنشأ الطلب من اللوحة'),
     64: (3,'BACKEND BLOCKED','—','/user/owner-requests.php','إرسال الطلب من المالك للفندق يحتاج ربط سيرفر','تنفيذ الإرسال','يصل الطلب للفندق'),
-    65: (3,'PARTIAL','owner_meal_requests_screen.dart','/user/owner-meals.php','طلبات الوجبات من حساب المالك','تغطية كامل الإجراءات','ينشئ المالك طلب وجبات'),
+    65: (3,'IMPLEMENTED UNTESTED','owner_meal_requests_screen.dart _openNewMealRequest (FAB)','/user/owner-requests.php (type=meal)','أُضيف إنشاء طلب وجبات من حساب المالك يرسله لإدارة الفندق عبر مسار owner-requests المُثبت؛ يحتاج اختبارًا حقيقيًا بجهاز','اختبار حقيقي بجهاز','ينشئ المالك طلب وجبات'),
     66: (3,'BACKEND BLOCKED','—','/user/owner-meals.php','تمرير طلب الضيف/الوكيل للفندق يحتاج ربط سيرفر','تنفيذ التمرير','يُمرّر الطلب للفندق'),
     67: (3,'IMPLEMENTED UNTESTED','owner_extra_bed_screen.dart (جديد), owner_home_screen.dart ربط البطاقة','/user/owner-requests.php (type=extra_bed)','شاشة طلب سرير إضافي جديدة ترسل type=extra_bed عبر نفس مسار النظافة/الصيانة؛ كان الزر يفتح شاشة الصيانة بالخطأ (زر غير فعّال فعلياً) وصُحّح','اختبار حقيقي بجهاز','ينشئ المالك طلب سرير'),
     68: (3,'PARTIAL','hotel_staff/hotel_prices_screen.dart, owner screens','/hotel/prices.php','عرض أسعار خدمات الفندق للمالك','تأكيد ظهور الأسعار للمالك','يرى المالك أسعار الخدمات'),
@@ -108,7 +108,7 @@ RANGES = {
     70: (3,'PARTIAL','owner_cleaning_screen.dart','/user/owner-requests.php','عرض تكلفة النظافة المؤكدة','تأكيد عرض التكلفة','يرى المالك تكلفة النظافة'),
     71: (3,'PARTIAL','owner_notifications_screen.dart','/user/notifications.php','عرض محتوى إشعارات الطلبات','تأكيد التفاصيل','تظهر تفاصيل إشعار الطلبات'),
     72: (3,'PARTIAL','owner_maintenance_screen.dart','/user/owner-maintenance.php','إضافة صورة لطلب الصيانة','تأكيد رفع الصورة','تُضاف صورة للطلب'),
-    73: (3,'PARTIAL','owner_bookings_screen.dart','/user/owner-bookings.php','إظهار إضافات الوجبات/السرير في حجوزات المالك','تأكيد العرض','تظهر الإضافات في الحجوزات'),
+    73: (3,'IMPLEMENTED UNTESTED','owner_bookings_screen.dart buildBookingAddonLines (دالة نقية)','/user/owner-bookings.php (حقول addons/meal_types/extra_bed_count/extra_bed_price/notes)','تُعرض الإضافات من الحقول الحقيقية فقط مع 7 اختبارات؛ تحتاج الحقول أن يُرجعها الـ API فعليًا','إرجاع حقول الإضافات في owner-bookings.php','تظهر الإضافات في الحجوزات'),
     74: (3,'PARTIAL','owner_staff_screen.dart','/user/owner-staff.php','إدارة صلاحيات موظفي المالك','تأكيد الصلاحيات الكاملة','تُدار الصلاحيات'),
     75: (3,'IMPLEMENTED UNTESTED','splash_screen.dart, owner_navigation_screen.dart','—','توجيه موظف المالك لواجهته','اختبار حقيقي','يُوجّه الموظف لواجهته الصحيحة'),
     # إدارة الفندق (77-92)

@@ -182,11 +182,15 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
     final isAgentBooking = (b['agent_id'] != null);
     final nameCtrl = TextEditingController(text: (b['guest_name'] ?? '').toString());
     final phoneCtrl = TextEditingController(text: (b['guest_phone'] ?? '').toString());
+    final notesCtrl = TextEditingController(text: (b['notes'] ?? '').toString());
+    // المتطلب 42: الوكيل يعدّل بيانات عميله (الاسم/الهاتف/عدد الأشخاص/ملاحظة).
+    int guests = asInt(b['guests'], 1);
 
     final saved = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      builder: (ctx) => Padding(
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => Padding(
         padding: EdgeInsets.only(
           left: AppDimens.pagePadding,
           right: AppDimens.pagePadding,
@@ -206,6 +210,27 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
                 TextField(controller: phoneCtrl, decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'customer_phone'))),
                 const SizedBox(height: AppDimens.md),
               ],
+              Row(
+                children: [
+                  Expanded(child: Text(AppStrings.t(isArabic, 'guests'), style: Theme.of(ctx).textTheme.bodyMedium)),
+                  IconButton(
+                    onPressed: guests > 1 ? () => setSheetState(() => guests--) : null,
+                    icon: const Icon(Icons.remove_circle_outline),
+                  ),
+                  Text('$guests', style: Theme.of(ctx).textTheme.titleMedium),
+                  IconButton(
+                    onPressed: () => setSheetState(() => guests++),
+                    icon: const Icon(Icons.add_circle_outline),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppDimens.sm),
+              TextField(
+                controller: notesCtrl,
+                maxLines: 2,
+                decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'notes')),
+              ),
+              const SizedBox(height: AppDimens.md),
               Text(
                 isArabic ? 'لتعديل التواريخ تواصل مع الفندق مباشرة، أو أرسل ملاحظة هنا.' : 'To change dates, contact the hotel directly, or add a note here.',
                 style: Theme.of(ctx).textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
@@ -223,6 +248,7 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
           ),
         ),
       ),
+      ),
     );
 
     if (saved != true) return;
@@ -232,6 +258,8 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
         bookingId: asInt(b['id']),
         guestName: nameCtrl.text.trim().isNotEmpty ? nameCtrl.text.trim() : null,
         guestPhone: phoneCtrl.text.trim().isNotEmpty ? phoneCtrl.text.trim() : null,
+        guests: guests,
+        notes: notesCtrl.text.trim().isNotEmpty ? notesCtrl.text.trim() : null,
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppStrings.t(isArabic, 'booking_updated'))));
