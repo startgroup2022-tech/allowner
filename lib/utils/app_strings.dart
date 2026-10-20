@@ -772,6 +772,10 @@ class AppStrings {
       'ar': 'الإضافات (سرير إضافي / خطط وجبات)',
       'en': 'Add-ons (extra bed / meal plans)'
     },
+    'meals_total': {'ar': 'إجمالي الوجبات', 'en': 'Meals total'},
+    'search_unit_number': {'ar': 'ابحث برقم الوحدة', 'en': 'Search by unit number'},
+    'unit_no': {'ar': 'وحدة رقم', 'en': 'Unit'},
+    'no_matching_bookings': {'ar': 'لا توجد حجوزات مطابقة', 'en': 'No matching bookings'},
     'add_unit_addon': {'ar': 'إضافة خيار', 'en': 'Add option'},
     'addon_type': {'ar': 'النوع', 'en': 'Type'},
     'billed': {'ar': 'يُحسب', 'en': 'Billed'},

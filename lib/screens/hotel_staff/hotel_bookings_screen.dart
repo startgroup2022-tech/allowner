@@ -8,6 +8,20 @@ import '../../services/hotel_staff_service.dart';
 import '../../services/api_client.dart';
 import '../../utils/safe_parse.dart';
 
+/// المتطلب 81: ترشيح حجوزات الفندق برقم الوحدة أو اسمها (عربي/إنجليزي).
+/// دالة نقية كي تكون قابلة للاختبار المستقل.
+List<Map<String, dynamic>> filterBookingsByUnit(
+    List<Map<String, dynamic>> bookings, String query) {
+  final q = query.trim().toLowerCase();
+  if (q.isEmpty) return bookings;
+  return bookings.where((b) {
+    final unitNo = (b['unit_number'] ?? '').toString().toLowerCase();
+    final unitAr = (b['unit_name_ar'] ?? '').toString().toLowerCase();
+    final unitEn = (b['unit_name_en'] ?? '').toString().toLowerCase();
+    return unitNo.contains(q) || unitAr.contains(q) || unitEn.contains(q);
+  }).toList();
+}
+
 class HotelBookingsScreen extends ConsumerStatefulWidget {
   const HotelBookingsScreen({super.key});
 
@@ -22,9 +36,17 @@ class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen> with 
   String _scope = 'active';
   int? _busyId;
 
+  /// المتطلب 81: بحث موظف الفندق برقم الوحدة لتسريع تأكيد check-in / check-out.
+  final _unitQueryController = TextEditingController();
+  String _unitQuery = '';
+
   @override
   void initState() {
     super.initState();
+    _unitQueryController.addListener(() {
+      final v = _unitQueryController.text.trim();
+      if (v != _unitQuery) setState(() => _unitQuery = v);
+    });
     _tab = TabController(length: 2, vsync: this);
     _tab.addListener(() {
       if (_tab.indexIsChanging) return;
@@ -39,6 +61,7 @@ class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen> with 
   @override
   void dispose() {
     _tab.dispose();
+    _unitQueryController.dispose();
     super.dispose();
   }
 
@@ -88,11 +111,32 @@ class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen> with 
         ),
       ),
       body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async => _reload(),
-          child: FutureBuilder<List<Map<String, dynamic>>>(
-            future: _future,
-            builder: (context, snapshot) {
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  AppDimens.pagePadding, AppDimens.md, AppDimens.pagePadding, 0),
+              child: TextField(
+                controller: _unitQueryController,
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  hintText: AppStrings.t(isArabic, 'search_unit_number'),
+                  suffixIcon: _unitQuery.isEmpty
+                      ? null
+                      : IconButton(
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: () => _unitQueryController.clear(),
+                        ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () async => _reload(),
+                child: FutureBuilder<List<Map<String, dynamic>>>(
+                  future: _future,
+                  builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
@@ -103,11 +147,20 @@ class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen> with 
                   children: [Center(child: Text(AppStrings.t(isArabic, 'error_loading')))],
                 );
               }
-              final rows = snapshot.data ?? [];
+              final rows = filterBookingsByUnit(snapshot.data ?? const [], _unitQuery);
               if (rows.isEmpty) {
                 return ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  children: [Padding(padding: const EdgeInsets.all(AppDimens.xl), child: Center(child: Text(AppStrings.t(isArabic, 'no_bookings'))))],
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(AppDimens.xl),
+                      child: Center(
+                        child: Text(
+                          AppStrings.t(isArabic, _unitQuery.isEmpty ? 'no_bookings' : 'no_matching_bookings'),
+                        ),
+                      ),
+                    ),
+                  ],
                 );
               }
               return ListView.separated(
@@ -129,7 +182,8 @@ class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen> with 
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('${b['guest_name'] ?? ''}', style: textTheme.titleSmall),
-                        Text('${b['hotel_name'] ?? ''}${unitName != null ? ' — $unitName' : ''}',
+                        Text(
+                            '${b['hotel_name'] ?? ''}${unitName != null ? ' — $unitName' : ''}${(b['unit_number'] ?? '').toString().isNotEmpty ? ' · ${AppStrings.t(isArabic, 'unit_no')} ${b['unit_number']}' : ''}',
                             style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
                         Text('${b['check_in']} → ${b['check_out']} · ${AppStrings.t(isArabic, 'status_${b['status']}')}',
                             style: textTheme.bodySmall),
@@ -155,8 +209,11 @@ class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen> with 
                   );
                 },
               );
-            },
-          ),
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

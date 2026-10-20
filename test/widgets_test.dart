@@ -3,6 +3,7 @@ import 'package:allowners/models/city_model.dart';
 import 'package:allowners/models/hotel_model.dart';
 import 'package:allowners/models/owner_hotel_summary.dart';
 import 'package:allowners/models/unit_model.dart';
+import 'package:allowners/screens/hotel_staff/hotel_bookings_screen.dart';
 import 'package:allowners/services/hotel_service.dart';
 import 'package:allowners/theme/app_colors.dart';
 import 'package:allowners/theme/app_theme.dart';
@@ -664,6 +665,44 @@ void main() {
       expect(AppStrings.t(true, 'nav_units'), 'وحداتي');
       expect(AppStrings.t(true, 'my_bookings'),
           isNot(equals(AppStrings.t(true, 'nav_units'))));
+    });
+  });
+
+  group('بحث موظف الفندق برقم الوحدة (المتطلب 81)', () {
+    final bookings = <Map<String, dynamic>>[
+      {'id': 1, 'unit_number': '4005', 'unit_name_ar': 'جناح مطل كعبة', 'unit_name_en': 'Kaaba View Suite'},
+      {'id': 2, 'unit_number': '1201', 'unit_name_ar': 'غرفة سيتي', 'unit_name_en': 'City Room'},
+      {'id': 3, 'unit_number': null, 'unit_name_ar': 'شقة مفروشة', 'unit_name_en': 'Furnished Flat'},
+    ];
+
+    test('مطابقة برقم الوحدة', () {
+      final r = filterBookingsByUnit(bookings, '4005');
+      expect(r.length, 1);
+      expect(r.first['id'], 1);
+    });
+
+    test('مطابقة جزئية برقم الوحدة', () {
+      final r = filterBookingsByUnit(bookings, '12');
+      expect(r.map((b) => b['id']), contains(2));
+    });
+
+    test('مطابقة باسم الوحدة عربي وإنجليزي', () {
+      expect(filterBookingsByUnit(bookings, 'سيتي').single['id'], 2);
+      expect(filterBookingsByUnit(bookings, 'Kaaba').single['id'], 1);
+    });
+
+    test('رقم وحدة فارغ أو null لا يرمي استثناء', () {
+      expect(filterBookingsByUnit(bookings, 'flat').single['id'], 3);
+      expect(filterBookingsByUnit(bookings, 'شقة').single['id'], 3);
+    });
+
+    test('استعلام فارغ يعيد كل الحجوزات', () {
+      expect(filterBookingsByUnit(bookings, '').length, 3);
+      expect(filterBookingsByUnit(bookings, '   ').length, 3);
+    });
+
+    test('لا نتائج عند عدم التطابق', () {
+      expect(filterBookingsByUnit(bookings, 'zzz'), isEmpty);
     });
   });
 }

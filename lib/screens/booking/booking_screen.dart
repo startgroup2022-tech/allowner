@@ -89,6 +89,16 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     }
   }
 
+  /// إجمالي الوجبات المختارة فقط (المتطلب 51) — يُعرض أسفل قائمة الوجبات.
+  double get _mealsSubtotal {
+    double sum = 0;
+    for (final id in _selectedMealAddonIds) {
+      final meal = _unitAddons.where((a) => a.id == id).firstOrNull;
+      if (meal != null) sum += _addonLineTotal(meal);
+    }
+    return sum;
+  }
+
   double get _addonsTotal {
     double sum = 0;
     for (final id in _selectedMealAddonIds) {
@@ -558,6 +568,32 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                               }),
                             );
                           }),
+                          // المتطلب 51: إظهار قيمة إجمالي الوجبات المختارة (بأسعار الإضافات
+                          // الحقيقية من الـ API) بدل الاكتفاء بملاحظة نصية.
+                          if (_selectedMealAddonIds.isNotEmpty)
+                            Container(
+                              margin: const EdgeInsets.only(top: AppDimens.sm),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: AppDimens.md, vertical: AppDimens.sm),
+                              decoration: BoxDecoration(
+                                color: AppColors.gold.withOpacity(0.08),
+                                borderRadius: BorderRadius.circular(AppDimens.radiusSm),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(AppStrings.t(isArabic, 'meals_total'),
+                                      style: textTheme.bodyMedium
+                                          ?.copyWith(fontWeight: FontWeight.w600)),
+                                  Text(
+                                    '${_mealsSubtotal.toStringAsFixed(0)} ${AppStrings.t(isArabic, "sar")}',
+                                    style: textTheme.bodyMedium?.copyWith(
+                                        color: AppColors.goldDark,
+                                        fontWeight: FontWeight.w700),
+                                  ),
+                                ],
+                              ),
+                            ),
                           const SizedBox(height: AppDimens.lg),
                         ],
                         if (_otherAddons.isNotEmpty) ...[
