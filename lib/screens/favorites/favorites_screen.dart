@@ -70,6 +70,13 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
     final isArabic = ref.watch(localeProvider).languageCode == 'ar';
     final isLoggedIn = ref.watch(sessionProvider).isLoggedIn;
 
+    // استعادة الجلسة غير متزامنة وتنتهي غالبًا بعد `initState`، لذا نُعيد تحميل
+    // المفضلة عند اكتمال تسجيل الدخول بدل بقائها فارغة.
+    ref.listen<bool>(sessionProvider.select((s) => s.isLoggedIn),
+        (previous, next) {
+      if (next && previous != true) _loadFavorites();
+    });
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(title: Text(AppStrings.t(isArabic, 'favorites'))),

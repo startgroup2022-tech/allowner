@@ -220,12 +220,17 @@ class _OwnerCommissionScreenState extends ConsumerState<OwnerCommissionScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    '${isArabic ? "قيمة الحجز" : "Booking total"}: ${money(r['booking_total'], isArabic)}',
-                                    style: textTheme.bodySmall,
+                                  Expanded(
+                                    child: Text(
+                                      '${isArabic ? "قيمة الحجز" : "Booking total"}: ${money(r['booking_total'], isArabic)}',
+                                      style: textTheme.bodySmall,
+                                    ),
                                   ),
+                                  const SizedBox(width: AppDimens.sm),
                                   Text(
                                     money(r['amount'], isArabic),
+                                    softWrap: false,
+                                    overflow: TextOverflow.visible,
                                     style: textTheme.titleSmall?.copyWith(
                                         color: AppColors.goldDark,
                                         fontWeight: FontWeight.w700),

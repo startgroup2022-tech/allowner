@@ -1071,6 +1071,16 @@ class AppStrings {
       'en':
           'Subscription payment goes through the hosted checkout page once the admin enables it.'
     },
+    'subscription_checkout_ready': {
+      'ar': 'سيُفتح رابط الدفع المستضاف لإتمام تفعيل الاشتراك.',
+      'en': 'The hosted checkout page will open to complete activation.'
+    },
+    'subscription_checkout_not_declared': {
+      'ar':
+          'الرسم معلن لكن رابط الدفع المستضاف لم يُعلن بعد من الإدارة، لذا الزر معطّل.',
+      'en':
+          'The fee is published but the hosted checkout link is not declared yet, so the button stays disabled.'
+    },
 
     // ===== محفظة المالك والمستحقات (132–143) =====
     'wallet_title': {'ar': 'المحفظة', 'en': 'Wallet'},

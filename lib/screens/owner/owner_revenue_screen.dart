@@ -151,10 +151,14 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(AppStrings.t(isArabic, e.labelKey),
-                                  style: textTheme.bodyMedium),
+                              Expanded(
+                                child: Text(AppStrings.t(isArabic, e.labelKey),
+                                    style: textTheme.bodyMedium),
+                              ),
                               Text(
                                   '- ${e.total.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                                  softWrap: false,
+                                  overflow: TextOverflow.visible,
                                   style: textTheme.bodyMedium?.copyWith(
                                       color: AppColors.danger,
                                       fontWeight: FontWeight.w600)),
@@ -165,11 +169,15 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(AppStrings.t(isArabic, 'net_revenue'),
-                            style: textTheme.bodyMedium
-                                ?.copyWith(fontWeight: FontWeight.w700)),
+                        Expanded(
+                          child: Text(AppStrings.t(isArabic, 'net_revenue'),
+                              style: textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w700)),
+                        ),
                         Text(
                             '${net.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                            softWrap: false,
+                            overflow: TextOverflow.visible,
                             style: textTheme.bodyMedium?.copyWith(
                                 color: AppColors.goldDark,
                                 fontWeight: FontWeight.w700)),
@@ -187,9 +195,14 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('${y.year}', style: textTheme.bodyMedium),
+                              Expanded(
+                                child: Text('${y.year}',
+                                    style: textTheme.bodyMedium),
+                              ),
                               Text(
                                   '${y.total.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                                  softWrap: false,
+                                  overflow: TextOverflow.visible,
                                   style: textTheme.bodyMedium
                                       ?.copyWith(fontWeight: FontWeight.w600)),
                             ],
@@ -215,10 +228,15 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(_monthLabel(m['ym'].toString(), isArabic),
-                                  style: textTheme.bodyMedium),
+                              Expanded(
+                                child: Text(
+                                    _monthLabel(m['ym'].toString(), isArabic),
+                                    style: textTheme.bodyMedium),
+                              ),
                               Text(
                                   '${asDouble(m['total']).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                                  softWrap: false,
+                                  overflow: TextOverflow.visible,
                                   style: textTheme.bodyMedium
                                       ?.copyWith(fontWeight: FontWeight.w600)),
                             ],

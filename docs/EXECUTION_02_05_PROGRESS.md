@@ -157,12 +157,61 @@ owner could still raise maintenance, cleaning, meal and extra-bed requests. The
 gate is now a shared helper applied to all five entry points, and still blocks
 only when the server explicitly confirms the subscription is inactive.
 
+### 3.10 Guest screens never loaded data after async session restore (reqs 18, 19, 20, 45, 46)
+
+`MyBookingsScreen` and `FavoritesScreen` fetched their data once in `initState`
+and guarded on `ref.read(sessionProvider).isLoggedIn`. `SessionNotifier` restores
+the token asynchronously (`_restore()` runs after construction), so on a normal
+cold start the screen mounts while the session is still `isLoading`, the guard
+sees "not logged in", and the list stays empty forever — the user has to leave
+and re-enter the tab. Both screens now `ref.listen` on `sessionProvider` and
+reload when login completes. Covered by `test/guest_screens_render_test.dart`,
+which sets the session *after* the first pump, exactly as the real restore does.
+
+### 3.11 `Image.network("")` threw on every image-less record (reqs 77, 84)
+
+The community and marketplace cards tested `image_url != null`, but the API sends
+an empty string, not null, for records with no image. `Image.network("")` then
+raised `NetworkImageLoadException` for each card. Both now route through the
+shared `AppNetworkImage`, which already returns a placeholder for a blank URL.
+
+### 3.12 Numeric-string fields rendered as zero (reqs 61, 74, 35)
+
+`stats['revenue']`, `unit['price_per_night']` and `b['total']` were read with
+`is num ? ... : '0'`. PDO returns `DECIMAL` columns as strings, so revenue and
+totals silently displayed `0` on the owner dashboard, unit list and booking
+cards. Replaced with the existing `asDouble` helper, which parses numeric
+strings. Asserted by the new dashboard test (`12000` must appear).
+
+### 3.13 Marketplace grid overflowed at 360px (req 79)
+
+The 2-column grid at `childAspectRatio: 0.72` was too short for the card content
+at 360px, overflowing by 58px. Switched to `SliverGridDelegateWithMaxCrossAxisExtent`
+(220px) with `childAspectRatio: 0.58`, which keeps a stable cell width on narrow
+phones and adds columns on tablets instead of stretching cells.
+
+### 3.14 Hotel dashboard card overflow at 360px (reqs 29–33)
+
+The dashboard grid cell clipped its label by 2.1px at 360px. Cell height raised
+and the label made overflow-safe. Covered by
+`test/hotel_staff_screens_render_test.dart`.
+
+### 3.15 Owner booking cards hid the meal addons (req 73)
+
+`buildBookingAddonLines` parsed `meal_types` — a `List<String>` such as
+`['breakfast']` — with `asMapList`, which expects a list of maps. Every meal
+selection was therefore dropped from the summary. Added a shape-tolerant
+extractor that accepts a string list, a list of maps (`{'type':..}` /
+`{'name':..}`) and a single string. Regression tests added in
+`test/widgets_test.dart`.
+
+
 ## 4. Testing
 
 | Command | Result |
 |---|---|
 | `flutter analyze` | 0 errors, 0 warnings |
-| `flutter test` | **267 unit/widget tests pass, 0 failing** (17 live tests skip) |
+| `flutter test` | **331 unit/widget tests pass, 0 failing** (17 live tests skip) |
 | `flutter test test/integration/live_backend_test.dart --dart-define=RUN_LIVE_TESTS=true` | **17 tests, all pass** against `all-owner.online` |
 | `flutter build apk --release` | **succeeds** — 69.4 MB, `com.superai.allowners`, versionCode 20 |
 
@@ -179,6 +228,9 @@ Test groups that guard this session's work, by `--plain-name`:
 | `انعكاس الأيقونات الاتجاهية في RTL` (reqs 8, 17) | 1 |
 | `تقارير إيرادات المالك` (reqs 126–129) | 5 |
 | `ترتيب الوجهات الرئيسية` (req 18) | 5 |
+| `حجوزاتي` / `المفضلة` / `الملف الشخصي` (reqs 4, 6, 18–20, 27, 28, 45, 46) | 8 |
+| `الشاشات المساندة` — owner dashboard, documents, community, decisions, marketplace, messages, staff, service prices (reqs 61, 75, 77–80, 84, 86) | 24 |
+| `شاشات موظفي الفندق` (reqs 29–33, 57, 58, 62) | 8 |
 
 ### Run command
 
@@ -189,7 +241,7 @@ commit:
 flutter pub get
 dart format --output=none --set-exit-if-changed .
 flutter analyze          # 0 errors, 0 warnings
-flutter test             # 267 passing, 0 failing
+flutter test             # 331 passing, 0 failing
 ```
 
 A second gate exercises the real backend and is **not** part of the default run

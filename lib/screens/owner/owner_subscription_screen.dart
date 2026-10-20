@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../utils/subscription.dart';
+import '../../utils/payment_security.dart';
 import '../../utils/safe_parse.dart';
+import '../../utils/session_provider.dart';
 import '../../services/owner_service.dart';
 import '../../services/api_client.dart';
 import '../../widgets/state_views.dart';
@@ -80,7 +83,8 @@ class _OwnerSubscriptionScreenState
                 );
               }
 
-              final state = SubscriptionState.fromMap(asMap(snapshot.data));
+              final settings = asMap(snapshot.data);
+              final state = SubscriptionState.fromMap(settings);
               final statusKey = subscriptionStatusKey(state);
 
               return ListView(
@@ -93,7 +97,7 @@ class _OwnerSubscriptionScreenState
                   const SizedBox(height: AppDimens.lg),
                   _terms(isArabic, textTheme),
                   const SizedBox(height: AppDimens.xl),
-                  _payButton(isArabic, state),
+                  _payButton(isArabic, state, settings),
                 ],
               );
             },
@@ -214,25 +218,32 @@ class _OwnerSubscriptionScreenState
     );
   }
 
-  Widget _payButton(bool isArabic, SubscriptionState state) {
-    final canPay = canPaySubscription(state);
+  /// المتطلب 124: يُفعَّل زر الدفع فقط عندما تُعلن الإدارة **معًا** رسمًا
+  /// معروفًا ورابط صفحة دفع مستضافة صالحًا (https). أي نقص يُبقي الزر معطّلًا
+  /// مع سبب صريح — لا زر يوهم بالدفع ولا مبلغ مُخترع.
+  Widget _payButton(
+      bool isArabic, SubscriptionState state, Map<String, dynamic> settings) {
+    final checkout = resolveSubscriptionCheckout(settings);
+    final feeKnown = canPaySubscription(state);
+    final canPay = feeKnown && checkout != null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(
           height: AppDimens.buttonHeight,
-          // الدفع الإلكتروني يحتاج صفحة دفع مستضافة (انظر payment_security).
-          // لا زر يعمل بلا مزوّد: يبقى معطّلًا مع سبب صريح.
           child: ElevatedButton(
-            onPressed: null,
+            onPressed: canPay ? () => _openCheckout(isArabic, checkout) : null,
             child: Text(AppStrings.t(isArabic, 'activate_subscription')),
           ),
         ),
         const SizedBox(height: AppDimens.sm),
         Text(
           canPay
-              ? AppStrings.t(isArabic, 'subscription_payment_pending')
-              : AppStrings.t(isArabic, 'subscription_fee_unknown'),
+              ? AppStrings.t(isArabic, 'subscription_checkout_ready')
+              : (feeKnown
+                  ? AppStrings.t(isArabic, 'subscription_checkout_not_declared')
+                  : AppStrings.t(isArabic, 'subscription_fee_unknown')),
           textAlign: TextAlign.center,
           style: Theme.of(context)
               .textTheme
@@ -241,5 +252,27 @@ class _OwnerSubscriptionScreenState
         ),
       ],
     );
+  }
+
+  /// يفتح صفحة الدفع المستضافة عند المزوّد ويُمرّر معرّف المالك فقط.
+  Future<void> _openCheckout(
+      bool isArabic, HostedCheckoutConfig checkout) async {
+    final ownerId = ref.read(sessionProvider).user?.id;
+    if (ownerId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppStrings.t(isArabic, 'session_expired'))));
+      }
+      return;
+    }
+    final uri = buildSubscriptionCheckoutUri(checkout, ownerId: ownerId);
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppStrings.t(isArabic, 'error_loading'))));
+      }
+    }
   }
 }

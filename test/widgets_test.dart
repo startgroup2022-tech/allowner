@@ -814,6 +814,24 @@ void main() {
           lines.single, contains(AppStrings.t(true, 'meal_option_breakfast')));
     });
 
+    test('meal_types كقائمة نصوص (شكل التطبيق نفسه) تُعرض', () {
+      // العيب المُصلح: كان يُقرأ بـ asMapList فيُسقط كل نص، فلا تظهر أي وجبة
+      // رغم أن التطبيق هو من يرسل `meal_types: ['breakfast']`.
+      final lines = buildBookingAddonLines(true, const {
+        'meal_types': ['breakfast', 'dinner'],
+      });
+      expect(
+          lines.single, contains(AppStrings.t(true, 'meal_option_breakfast')));
+      expect(lines.single, contains(AppStrings.t(true, 'meal_option_dinner')));
+    });
+
+    test('meal_types كنص مفرد أو null لا يرمي استثناء', () {
+      expect(buildBookingAddonLines(true, const {'meal_types': null}), isEmpty);
+      final single =
+          buildBookingAddonLines(true, const {'meal_types': 'lunch'});
+      expect(single.single, contains(AppStrings.t(true, 'meal_option_lunch')));
+    });
+
     test('السرير الإضافي يعرض الكمية والسعر', () {
       final lines = buildBookingAddonLines(true, const {
         'extra_bed_count': 2,

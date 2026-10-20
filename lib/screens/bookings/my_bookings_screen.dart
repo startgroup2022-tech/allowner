@@ -210,6 +210,13 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
     final isArabic = ref.watch(localeProvider).languageCode == 'ar';
     final isLoggedIn = ref.watch(sessionProvider).isLoggedIn;
 
+    // استعادة الجلسة غير متزامنة وتنتهي غالبًا بعد `initState`، لذا لا يكفي
+    // تحميل الحجوزات مرة واحدة هناك: عند اكتمال تسجيل الدخول نُعيد التحميل.
+    ref.listen<bool>(sessionProvider.select((s) => s.isLoggedIn),
+        (previous, next) {
+      if (next && previous != true) _loadBookings();
+    });
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(

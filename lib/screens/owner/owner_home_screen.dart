@@ -189,11 +189,12 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
                         ],
                       );
                     }
-                    final units = (stats['units_count'] ?? 0).toString();
-                    final revenue = (stats['revenue'] is num)
-                        ? (stats['revenue'] as num).toStringAsFixed(0)
-                        : '0';
-                    final pending = (stats['pending_bookings'] ?? 0).toString();
+                    final units = asInt(stats['units_count']).toString();
+                    // السيرفر يعيد `revenue` كنص رقمي أحيانًا، و`is num` كان
+                    // يُظهر الصفر دائمًا في تلك الحالة.
+                    final revenue =
+                        asDouble(stats['revenue']).toStringAsFixed(0);
+                    final pending = asInt(stats['pending_bookings']).toString();
 
                     return Column(
                       children: [

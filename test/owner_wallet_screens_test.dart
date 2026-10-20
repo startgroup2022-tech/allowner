@@ -48,9 +48,10 @@ const _walletJson = {
 };
 
 class _Adapter implements HttpClientAdapter {
-  _Adapter({this.walletNotFound = false, this.walletBody});
+  _Adapter({this.walletNotFound = false, this.walletBody, this.settingsBody});
   final bool walletNotFound;
   final Object? walletBody;
+  final Object? settingsBody;
 
   @override
   void close({bool force = false}) {}
@@ -71,7 +72,7 @@ class _Adapter implements HttpClientAdapter {
       return _json(walletBody ?? _walletJson);
     }
     if (path.contains('content/settings')) {
-      return _json(_settingsJson);
+      return _json(settingsBody ?? _settingsJson);
     }
     return _json({'success': true});
   }
@@ -137,14 +138,37 @@ void main() {
       });
     }
 
-    testWidgets('زر التفعيل معطّل (لا مزوّد دفع) ويشرح السبب', (tester) async {
+    testWidgets('زر التفعيل معطّل بلا رابط دفع مُعلن ويشرح السبب',
+        (tester) async {
       useAdapter(_Adapter());
       await tester.pumpWidget(_wrap(const OwnerSubscriptionScreen()));
       await tester.pumpAndSettle();
 
       final btn = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+      // الرسم معلن (500) لكن رابط الصفحة المستضافة لم يُعلن → الزر معطّل.
       expect(btn.onPressed, isNull);
-      expect(find.text(AppStrings.t(true, 'subscription_payment_pending')),
+      expect(
+          find.text(AppStrings.t(true, 'subscription_checkout_not_declared')),
+          findsOneWidget);
+    });
+
+    testWidgets('زر التفعيل يعمل عند إعلان رابط الدفع المستضاف',
+        (tester) async {
+      // المتطلب 124: عندما تُعلن الإدارة رابطًا صالحًا (https) يعمل الزر
+      // ويفتح الصفحة المستضافة؛ لا يبقى معطّلًا إلى الأبد.
+      useAdapter(_Adapter(settingsBody: const {
+        'success': true,
+        'subscription_annual_fee': 500,
+        'subscription_active': '0',
+        'subscription_checkout_url': 'https://pay.example.com/subscription',
+        'subscription_payment_provider': 'Moyasar',
+      }));
+      await tester.pumpWidget(_wrap(const OwnerSubscriptionScreen()));
+      await tester.pumpAndSettle();
+
+      final btn = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+      expect(btn.onPressed, isNotNull);
+      expect(find.text(AppStrings.t(true, 'subscription_checkout_ready')),
           findsOneWidget);
     });
   });

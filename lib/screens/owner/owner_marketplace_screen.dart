@@ -7,6 +7,7 @@ import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
 import '../../services/api_client.dart';
 import '../../utils/safe_parse.dart';
+import '../../widgets/state_views.dart';
 
 class OwnerMarketplaceScreen extends ConsumerStatefulWidget {
   const OwnerMarketplaceScreen({super.key});
@@ -271,11 +272,16 @@ class _OwnerMarketplaceScreenState
               return GridView.builder(
                 padding: const EdgeInsets.all(AppDimens.pagePadding),
                 itemCount: listings.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  // عرض الخلية ثابت تقريبًا (~158px على 360px) فيظل المحتوى
+                  // قابلاً للقياس، بينما الشاشات الأعرض تحصل على أعمدة أكثر
+                  // بدل تكبير الخلايا بلا داعٍ.
+                  maxCrossAxisExtent: 220,
                   mainAxisSpacing: AppDimens.md,
                   crossAxisSpacing: AppDimens.md,
-                  childAspectRatio: 0.72,
+                  // ارتفاع كافٍ لمحتوى البطاقة (صورة + عنوان + فندق + سعة +
+                  // سعر + زر) عند أضيق عرض مدعوم.
+                  childAspectRatio: 0.58,
                 ),
                 itemBuilder: (context, index) {
                   final l = listings[index];
@@ -292,8 +298,14 @@ class _OwnerMarketplaceScreenState
                       children: [
                         AspectRatio(
                           aspectRatio: 1.5,
-                          child: l['image_url'] != null
-                              ? Image.network(l['image_url'].toString(),
+                          // `Image.network("")` يرمي استثناء تحميل؛ نستخدم رسمًا
+                          // بديلًا صريحًا عند غياب الصورة أو كونها فارغة.
+                          child: (l['image_url'] ?? '')
+                                  .toString()
+                                  .trim()
+                                  .isNotEmpty
+                              ? AppNetworkImage(
+                                  url: l['image_url'].toString(),
                                   fit: BoxFit.cover)
                               : Container(
                                   color: AppColors.surfaceMuted,
@@ -328,6 +340,8 @@ class _OwnerMarketplaceScreenState
                                   padding: const EdgeInsets.only(top: 4),
                                   child: Text(
                                     '${asDouble(l['price']).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')} / ${AppStrings.t(isArabic, 'night')}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     style: textTheme.bodySmall?.copyWith(
                                         color: AppColors.success,
                                         fontWeight: FontWeight.w700),

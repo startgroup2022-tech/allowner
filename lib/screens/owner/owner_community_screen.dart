@@ -7,6 +7,7 @@ import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
 import '../../services/api_client.dart';
 import '../../utils/safe_parse.dart';
+import '../../widgets/state_views.dart';
 
 class OwnerCommunityScreen extends ConsumerStatefulWidget {
   const OwnerCommunityScreen({super.key});
@@ -245,14 +246,20 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
                               const SizedBox(height: AppDimens.sm),
                               Text(p['content'].toString(),
                                   style: textTheme.bodyMedium),
-                              if (p['image_url'] != null) ...[
+                              // `AppNetworkImage` يتعامل مع الحقل الفارغ/غير الصالح
+                              // برسم بديل، بينما `Image.network("")` يرمي استثناء
+                              // تحميل لكل منشور بلا صورة.
+                              if ((p['image_url'] ?? '')
+                                  .toString()
+                                  .trim()
+                                  .isNotEmpty) ...[
                                 const SizedBox(height: AppDimens.sm),
-                                ClipRRect(
+                                AppNetworkImage(
+                                  url: p['image_url'].toString(),
+                                  height: 180,
+                                  fit: BoxFit.cover,
                                   borderRadius:
                                       BorderRadius.circular(AppDimens.radiusMd),
-                                  child: Image.network(
-                                      p['image_url'].toString(),
-                                      fit: BoxFit.cover),
                                 ),
                               ],
                               const SizedBox(height: AppDimens.sm),

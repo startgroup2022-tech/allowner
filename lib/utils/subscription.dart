@@ -10,6 +10,7 @@
 /// رسالة «غير معلنة» بدل رقم مُخترع.
 library;
 
+import 'payment_security.dart';
 import 'safe_parse.dart';
 
 /// حالة اشتراك المالك كما تُعلنها الإعدادات أو استجابة الملف الشخصي.
@@ -101,3 +102,42 @@ String? subscriptionBlockMessageKey(SubscriptionState state) =>
 /// == null) نُعيد `false` فتظهر حالة «الرسم غير معلن» بدل مبلغ وهمي.
 bool canPaySubscription(SubscriptionState state) =>
     state.annualFee != null && state.annualFee! > 0;
+
+/// رابط صفحة الدفع المستضافة **للاتشتراك** إن أعلنته الإعدادات.
+///
+/// المتطلب 124: يُدفع الاشتراك من صفحة مستضافة عند مزوّد مرخّص. لا نخترع رابطًا
+/// ولا مزوّدًا: نقرأ `subscription_checkout_url` (أو نرجع إلى
+/// `payment_checkout_url` المشترك) من `content/settings.php`، ونرفض أي رابط غير
+/// https. عندما تُعلنه الإدارة يعمل الزر؛ وقبل ذلك يبقى معطّلًا بسبب صريح.
+HostedCheckoutConfig? resolveSubscriptionCheckout(
+    Map<String, dynamic>? settings) {
+  final data = settings ?? const <String, dynamic>{};
+  final raw =
+      (data['subscription_checkout_url'] ?? data['payment_checkout_url'] ?? '')
+          .toString()
+          .trim();
+  if (raw.isEmpty) return null;
+  final cfg = HostedCheckoutConfig(
+    checkoutUrl: raw,
+    provider: (data['subscription_payment_provider'] ??
+            data['payment_provider'] ??
+            '')
+        .toString()
+        .trim(),
+  );
+  return cfg.isUsable ? cfg : null;
+}
+
+/// يبني رابط صفحة دفع الاشتراك مع معرّف المالك كمعامل استعلام.
+///
+/// لا نمرّر مبلغًا: المزوّد يعرف رسم الاشتراك من جانبه بعد التحقق من الحساب،
+/// والمبلغ من العميل قابل للتلاعب.
+Uri buildSubscriptionCheckoutUri(HostedCheckoutConfig config,
+    {required int ownerId}) {
+  final base = Uri.parse(config.checkoutUrl);
+  return base.replace(queryParameters: {
+    ...base.queryParameters,
+    'owner_id': ownerId.toString(),
+    'purpose': 'subscription',
+  });
+}

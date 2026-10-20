@@ -117,7 +117,9 @@ class _HotelDashboardScreenState extends ConsumerState<HotelDashboardScreen> {
                     physics: const NeverScrollableScrollPhysics(),
                     crossAxisSpacing: AppDimens.md,
                     mainAxisSpacing: AppDimens.md,
-                    childAspectRatio: 1.3,
+                    // 1.3 كان يضغط خلية العمود على العروض الضيقة (360px) فتفيض
+                    // التسمية 2px؛ 1.15 يمنح ارتفاعًا كافيًا مع بقاء الشبكة مدمجة.
+                    childAspectRatio: 1.15,
                     children: cards
                         .map((c) => Container(
                               padding: const EdgeInsets.all(AppDimens.md),
@@ -135,6 +137,8 @@ class _HotelDashboardScreenState extends ConsumerState<HotelDashboardScreen> {
                                   Text('${c.$2}',
                                       style: textTheme.headlineSmall),
                                   Text(c.$1,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                       style: textTheme.bodySmall?.copyWith(
                                           color: AppColors.textMuted)),
                                 ],

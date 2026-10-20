@@ -268,4 +268,78 @@ void main() {
       expect(formatFinalPrice(1500, isArabic: false), '1500 SAR');
     });
   });
+
+  group('المتطلب 124: دفع الاشتراك من صفحة مستضافة', () {
+    test('بلا رابط مُعلن = null، فلا يُفعَّل الزر', () {
+      expect(resolveSubscriptionCheckout(const {}), isNull);
+      expect(resolveSubscriptionCheckout(null), isNull);
+      expect(resolveSubscriptionCheckout({'subscription_checkout_url': '  '}),
+          isNull);
+    });
+
+    test('يرفض الروابط غير الآمنة (http أو نسبية)', () {
+      expect(
+          resolveSubscriptionCheckout(
+              {'subscription_checkout_url': 'http://pay.example.com'}),
+          isNull,
+          reason: 'الدفع يجب أن يكون عبر https');
+      expect(
+          resolveSubscriptionCheckout(
+              {'subscription_checkout_url': '/checkout/subscription'}),
+          isNull,
+          reason: 'الرابط يجب أن يكون مطلقًا');
+    });
+
+    test('يقبل رابطًا مطلقًا https ويقرأ اسم المزوّد', () {
+      final cfg = resolveSubscriptionCheckout({
+        'subscription_checkout_url': 'https://pay.example.com/sub',
+        'subscription_payment_provider': 'Moyasar',
+      });
+      expect(cfg, isNotNull);
+      expect(cfg!.provider, 'Moyasar');
+      expect(cfg.isUsable, isTrue);
+    });
+
+    test('يرجع إلى رابط الدفع المشترك إن لم يُعلن رابط الاشتراك', () {
+      final cfg = resolveSubscriptionCheckout(
+          {'payment_checkout_url': 'https://pay.example.com/any'});
+      expect(cfg, isNotNull);
+      expect(cfg!.checkoutUrl, 'https://pay.example.com/any');
+    });
+
+    test('رابط الاشتراك المخصّص يتقدّم على المشترك', () {
+      final cfg = resolveSubscriptionCheckout({
+        'subscription_checkout_url': 'https://pay.example.com/sub',
+        'payment_checkout_url': 'https://pay.example.com/any',
+      });
+      expect(cfg!.checkoutUrl, 'https://pay.example.com/sub');
+    });
+
+    test('الزر لا يعمل إلا بالرسم والرابط معًا', () {
+      const url = 'https://pay.example.com/sub';
+      final feeKnown =
+          SubscriptionState.fromMap({'subscription_annual_fee': 500});
+      final feeUnknown = SubscriptionState.fromMap(const {});
+      final checkout = resolveSubscriptionCheckout({
+        'subscription_checkout_url': url,
+      });
+
+      expect(canPaySubscription(feeKnown) && checkout != null, isTrue);
+      expect(canPaySubscription(feeUnknown) && checkout != null, isFalse,
+          reason: 'لا رسم معلن = لا زر يعمل');
+      expect(canPaySubscription(feeKnown) && null != null, isFalse,
+          reason: 'لا رابط معلن = لا زر يعمل');
+    });
+
+    test('بناء الرابط يمرّر معرّف المالك والغرض فقط، بلا مبلغ', () {
+      final cfg = resolveSubscriptionCheckout(
+          {'subscription_checkout_url': 'https://pay.example.com/sub?x=1'});
+      final uri = buildSubscriptionCheckoutUri(cfg!, ownerId: 42);
+      expect(uri.queryParameters['owner_id'], '42');
+      expect(uri.queryParameters['purpose'], 'subscription');
+      expect(uri.queryParameters['x'], '1', reason: 'المعاملات الأصلية تُحفظ');
+      expect(uri.queryParameters.containsKey('amount'), isFalse,
+          reason: 'المبلغ من العميل قابل للتلاعب، فلا يُمرَّر');
+    });
+  });
 }

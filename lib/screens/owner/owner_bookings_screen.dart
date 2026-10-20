@@ -31,6 +31,33 @@ String? bookingSourceKey(Map<String, dynamic> b) {
   return null;
 }
 
+/// يستخرج مفاتيح الوجبات من `meal_types` بأي شكل يصل به:
+///   • قائمة نصوص: `['breakfast', 'dinner']`
+///   • قائمة خرائط: `[{'type': 'breakfast'}]` أو `[{'name': 'breakfast'}]`
+///   • نص مفرد: `'breakfast'`
+List<String> _mealTypeKeys(dynamic value) {
+  final out = <String>[];
+  void addKey(dynamic v) {
+    final key = v?.toString().trim();
+    if (key != null && key.isNotEmpty) out.add(key);
+  }
+
+  if (value is List) {
+    for (final item in value) {
+      if (item is Map) {
+        addKey(item['type'] ?? item['name'] ?? item['key']);
+      } else {
+        addKey(item);
+      }
+    }
+  } else if (value is Map) {
+    addKey(value['type'] ?? value['name'] ?? value['key']);
+  } else {
+    addKey(value);
+  }
+  return out;
+}
+
 List<String> buildBookingAddonLines(bool isArabic, Map<String, dynamic> b) {
   final lines = <String>[];
 
@@ -39,9 +66,10 @@ List<String> buildBookingAddonLines(bool isArabic, Map<String, dynamic> b) {
       .where((n) => n != null && n.toString().trim().isNotEmpty)
       .map((n) => n.toString())
       .toList();
-  final legacyMeals = asMapList(b['meal_types'])
-      .map((m) => m['name'] ?? m['type'])
-      .where((n) => n != null && n.toString().trim().isNotEmpty)
+  // `meal_types` يصل بشكلين حسب مصدر الحجز: قائمة نصوص (ما يرسله التطبيق
+  // نفسه: `['breakfast']`) أو قائمة خرائط `[{type: breakfast}]` من الحجوزات
+  // القديمة. التعامل مع الشكلين فقط هو ما يُظهر الوجبات فعليًا.
+  final legacyMeals = _mealTypeKeys(b['meal_types'])
       .map((n) => AppStrings.t(isArabic, 'meal_option_$n'))
       .toList();
   final allMeals = [...meals, ...legacyMeals];
@@ -369,9 +397,8 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
                   final unitName = isArabic
                       ? (b['unit_name'] ?? '')
                       : (b['unit_name_en'] ?? b['unit_name'] ?? '');
-                  final total = (b['total'] is num)
-                      ? (b['total'] as num).toStringAsFixed(0)
-                      : '0';
+                  // `total` يعود كنص رقمي أحيانًا من PDO.
+                  final total = asDouble(b['total']).toStringAsFixed(0);
 
                   return Container(
                     padding: const EdgeInsets.all(AppDimens.md),
@@ -433,12 +460,18 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                                '${AppStrings.t(isArabic, 'check_in')}: ${b['check_in']}',
-                                style: textTheme.bodySmall),
-                            Text(
-                                '${AppStrings.t(isArabic, 'check_out')}: ${b['check_out']}',
-                                style: textTheme.bodySmall),
+                            Expanded(
+                              child: Text(
+                                  '${AppStrings.t(isArabic, 'check_in')}: ${b['check_in']}',
+                                  style: textTheme.bodySmall),
+                            ),
+                            const SizedBox(width: AppDimens.sm),
+                            Expanded(
+                              child: Text(
+                                  '${AppStrings.t(isArabic, 'check_out')}: ${b['check_out']}',
+                                  style: textTheme.bodySmall,
+                                  textAlign: TextAlign.end),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 6),

@@ -134,9 +134,9 @@ class _OwnerUnitsScreenState extends ConsumerState<OwnerUnitsScreen> {
                       ? (unit['name_ar'] ?? '')
                       : (unit['name_en'] ?? unit['name_ar'] ?? '');
                   final hotel = unit['hotel_name'] ?? '';
-                  final price = (unit['price_per_night'] is num)
-                      ? (unit['price_per_night'] as num).toStringAsFixed(0)
-                      : '0';
+                  // `price_per_night` يعود كنص رقمي أحيانًا من PDO.
+                  final price =
+                      asDouble(unit['price_per_night']).toStringAsFixed(0);
                   final images = asStringList(unit['images']);
                   final coverImage =
                       (unit['cover_image'] as String?)?.isNotEmpty == true
