@@ -1118,6 +1118,32 @@ void main() {
       }
     });
   });
+  group('ترتيب صفوف تفاصيل الحجز (المتطلبات 52 و97)', () {
+    test('رقم الغرفة يظهر قبل عدد الأشخاص', () {
+      final rows = buildBookingDetailRows(true, {
+        'hotel_name': 'فندق',
+        'unit_number': '4005',
+        'guests': 3,
+      });
+      final labels = rows.map((r) => r.$1).toList();
+      expect(labels.contains(AppStrings.t(true, 'unit_no')), isTrue);
+      expect(labels.indexOf(AppStrings.t(true, 'unit_no')),
+          lessThan(labels.indexOf(AppStrings.t(true, 'guests'))));
+      expect(rows.firstWhere((r) => r.$1 == AppStrings.t(true, 'unit_no')).$2,
+          '4005');
+    });
+    test('بلا رقم غرفة لا يُضاف صف فارغ', () {
+      final rows = buildBookingDetailRows(true, {'hotel_name': 'فندق'});
+      expect(rows.any((r) => r.$1 == AppStrings.t(true, 'unit_no')), isFalse);
+    });
+    test('الرقم يُقبل كنص أو كعدد من الـ API', () {
+      expect(
+          buildBookingDetailRows(true, {'unit_number': 12})
+              .firstWhere((r) => r.$1 == AppStrings.t(true, 'unit_no'))
+              .$2,
+          '12');
+    });
+  });
   group('إجمالي الحجز (المتطلبات 33 و55)', () {
     test('الإجمالي = غرفة + إضافات + سرير + ضريبة على المجموع', () {
       final t = computeBookingTotals(

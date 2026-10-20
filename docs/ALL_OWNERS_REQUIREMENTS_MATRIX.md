@@ -25,8 +25,8 @@
 
 | الحالة | العدد |
 |---|---|
-| VERIFIED PASS | 36 |
-| IMPLEMENTED UNTESTED | 67 |
+| VERIFIED PASS | 37 |
+| IMPLEMENTED UNTESTED | 66 |
 | PARTIAL | 2 |
 | NOT IMPLEMENTED | 0 |
 | BACKEND BLOCKED | 43 |
@@ -599,11 +599,11 @@
 
 - **القسم:** الضيف والوجبات والسرير — 12 نقطة
 - **التنفيذ:** Execution 02
-- **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** my_bookings_screen.dart _unitNumberLabel + guests، hotel_bookings_screen.dart
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** my_bookings_screen.dart _unitNumberLabel + buildBookingDetailRows، hotel_bookings_screen.dart
 - **اعتماد الـ API:** /bookings/my.php, /hotel/bookings.php
-- **الدليل:** يُعرض رقم/اسم الوحدة ثم عدد الأشخاص أسفله في حجوزات الضيف/الوكيل وحجوزات موظف الفندق
-- **المتبقي:** اختبار حقيقي
+- **الدليل:** يُعرض رقم/اسم الوحدة ثم عدد الأشخاص أسفله. أُضيف صف «رقم الوحدة» إلى نافذة التفاصيل في موضعه قبل صف الأشخاص؛ 3 اختبارات تثبت الترتيب وعدم إضافة صف فارغ وقبول الرقم نصًا أو عددًا
+- **المتبقي:** اختبار حقيقي بحساب ضيف/وكيل
 - **معيار القبول:** يظهر عدد الأشخاص
 
 ### 53. إرسال طلب الوجبات من الضيف إلى مالك الوحدة

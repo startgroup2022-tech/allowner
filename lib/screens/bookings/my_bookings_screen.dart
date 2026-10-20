@@ -25,6 +25,11 @@ List<(String, String)> buildBookingDetailRows(
   add('city', isArabic ? b['city_ar']?.toString() : b['city_en']?.toString());
   add('unit_name', (isArabic ? b['unit_name_ar'] : b['unit_name_en'])?.toString() ??
       b['unit_name']?.toString());
+  // المتطلب 52: رقم الغرفة يُعرض قبل عدد الأشخاص، ورقم الوحدة قبل الاسم.
+  final unitNumber = (b['unit_number'] ?? '').toString().trim();
+  if (unitNumber.isNotEmpty) {
+    rows.add((AppStrings.t(isArabic, 'unit_no'), unitNumber));
+  }
   add('guest_name', b['guest_name']?.toString());
   add('guest_phone', b['guest_phone']?.toString());
   add('guest_id_number', b['guest_id_number']?.toString());

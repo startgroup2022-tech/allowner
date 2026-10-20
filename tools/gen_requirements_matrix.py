@@ -86,7 +86,7 @@ RANGES = {
     49: (2,'IMPLEMENTED UNTESTED','meal_request_screen.dart','/services/meal-request.php','طلب وجبة مستقل بعدة وجبات','اختبار حقيقي','يستطيع الضيف طلب عدة وجبات'),
     50: (2,'IMPLEMENTED UNTESTED','booking_screen.dart','/units/addons.php','عرض سعر كل وجبة','اختبار حقيقي','يظهر سعر كل وجبة'),
     51: (2,'VERIFIED PASS','booking_screen.dart _mealsSubtotal + صندوق «إجمالي الوجبات»','/units/addons.php','أُزيلت الملاحظة وحلّ محلها إظهار قيمة إجمالي الوجبات المختارة محسوبةً من أسعار الإضافات الحقيقية','—','يظهر إجمالي الوجبات'),
-    52: (2,'IMPLEMENTED UNTESTED','my_bookings_screen.dart _unitNumberLabel + guests، hotel_bookings_screen.dart','/bookings/my.php, /hotel/bookings.php','يُعرض رقم/اسم الوحدة ثم عدد الأشخاص أسفله في حجوزات الضيف/الوكيل وحجوزات موظف الفندق','اختبار حقيقي','يظهر عدد الأشخاص'),
+    52: (2,'VERIFIED PASS','my_bookings_screen.dart _unitNumberLabel + buildBookingDetailRows، hotel_bookings_screen.dart','/bookings/my.php, /hotel/bookings.php','يُعرض رقم/اسم الوحدة ثم عدد الأشخاص أسفله. أُضيف صف «رقم الوحدة» إلى نافذة التفاصيل في موضعه قبل صف الأشخاص؛ 3 اختبارات تثبت الترتيب وعدم إضافة صف فارغ وقبول الرقم نصًا أو عددًا','اختبار حقيقي بحساب ضيف/وكيل','يظهر عدد الأشخاص'),
     53: (2,'IMPLEMENTED UNTESTED','meal_request_screen.dart','/services/meal-request.php','إرسال طلب الوجبات للمالك','اختبار حقيقي','يصل طلب الوجبات للمالك'),
     54: (2,'IMPLEMENTED UNTESTED','booking_screen.dart extraBed','/units/addons.php','طلب السرير الإضافي مع الحجز ويُحتسب رسمه بشكل صحيح','اختبار حقيقي','يُضاف السرير الإضافي'),
     55: (2,'IMPLEMENTED UNTESTED','booking_screen.dart','/units/addons.php','عرض سعر السرير الإضافي','اختبار حقيقي','يظهر سعر السرير'),
