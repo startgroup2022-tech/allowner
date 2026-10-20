@@ -21,7 +21,7 @@ find / -iname "*requirement*"        # only toolchain files + this matrix
 find /workspace -iname "*.pdf" -o -iname "*.docx"   # nothing
 ```
 
-**Consequence, stated plainly:** the 105 `Verified` rows below are verified
+**Consequence, stated plainly:** the 108 `Verified` rows below are verified
 against the Execution 01 mandate text, the live backend, and the source code —
 **not** against the original 51-page document. They are therefore **not proof of
 compliance with the original project requirements**, and are not claimed to be.
@@ -36,6 +36,20 @@ When supplied, the remaining work is: read both in full, map every item to a row
 here, and report omitted, duplicated, partial, and missing requirements. Until
 then this section stays **BLOCKED** and no requirement is re-marked on the basis
 of the missing documents.
+
+---
+
+## Owner decisions (confirmed 2026-10-20)
+
+These decisions are binding for this matrix and for Executions 02–05.
+
+| # | Decision | Effect on this matrix |
+|---|---|---|
+| 1 | Unit amenities must support unit-specific facilities **separately** from shared hotel amenities; keep the honest UI fallback until the backend relationship exists | `AO-AMN-06`, `AO-UNIT-07` stay Verified with the two-section UI; a unit↔amenity backend endpoint is still an open dependency |
+| 2 | Real reviews and ratings only — never display fabricated data | Rating chip hidden when `rating <= 0`; review UI hidden while `reviews` is empty. Confirmed correct |
+| 3 | Booking Agent remains within mobile scope; central administration is primarily web-based | Booking Agent role is in scope (`AO-AUTH-*`); Administrator surfaces are out of mobile scope |
+| 4 | Keep `pubspec.lock` tracked | Verified: tracked, not ignored |
+| 5 | Preserve the existing Android application ID and signing configuration | Verified: `com.superai.allowners`, `android/` and `codemagic.yaml` untouched |
 
 ---
 
