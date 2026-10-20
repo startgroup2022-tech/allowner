@@ -178,13 +178,20 @@ flutter test test/integration/live_backend_test.dart --dart-define=RUN_LIVE_TEST
 `bool.fromEnvironment` only accepts `true`/`false`, not `1`; without the define
 all 17 cases skip and print the reason.
 
-| Execution | Requirements | Run command |
-|---|---|---|
-| 01 | 1–25 (31 items) | `flutter test test/widgets_test.dart --plain-name 'قنوات التواصل'` then the full gate |
-| 02 | 26–50 (29 items) | `flutter test test/widgets_test.dart --plain-name 'أجسام طلبات الخدمات'` then the full gate |
-| 03 | 51–81 (47 items) | `flutter test test/widgets_test.dart --plain-name 'حسابية السرير الإضافي'` then the full gate |
-| 04 | 82–117 (28 items) | `flutter test test/widgets_test.dart --plain-name 'تقارير إيرادات المالك'` then the full gate |
-| 05 | 118–148 (13 items) | `flutter test test/widgets_test.dart --plain-name 'جسم طلب إنشاء الحجز'` then the full gate |
+| Execution | Requirements (IDs) | Count | Run command |
+|---|---|---|---|
+| 01 | 1–30, 76 | 31 | `flutter test test/widgets_test.dart --plain-name 'قنوات التواصل'` then the full gate |
+| 02 | 31–59 | 29 | `flutter test test/widgets_test.dart --plain-name 'أجسام طلبات الخدمات'` then the full gate |
+| 03 | 60–75, 77–107 | 47 | `flutter test test/widgets_test.dart --plain-name 'حسابية السرير الإضافي'` then the full gate |
+| 04 | 108–109, 118–143 | 28 | `flutter test test/widgets_test.dart --plain-name 'تقارير إيرادات المالك'` then the full gate |
+| 05 | 110–117, 144–148 | 13 | `flutter test test/widgets_test.dart --plain-name 'جسم طلب إنشاء الحجز'` then the full gate |
+
+The ID ranges are **not** contiguous blocks. Executions are assigned by module, and
+the inventory's sections interleave: the service-request group (110–117) is
+Execution 05 while the financial-report group (118–143) is Execution 04. The
+ranges above are the actual assignment read back from
+`docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md` (148 rows), not an assumption that
+Execution *N* means "IDs in the *N*-th fifth".
 
 The per-group `--plain-name` runs are the fast way to re-check one execution's
 own tests; the full gate is what the final numbers in this document come from.
