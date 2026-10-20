@@ -1,4 +1,4 @@
-# All Owners — Executions 02–05 Progress
+# All Owners — Executions 02–05 Progress & Final Status
 
 **Branch:** `feature/allowners-new-version-exec01`
 **Date:** 2026-10-20
@@ -18,7 +18,7 @@ and the API hardening. Executions 02–05 cover the booking engine, owner/hotel
 operations, agent flows, admin/security and subscriptions. This document tracks
 what has been completed in those executions to date.
 
-## 2. Work completed in this session
+## 2. Work completed (this session)
 
 | Req | Execution | Title (from the official inventory) | Change | Status |
 |---|---|---|---|---|
@@ -32,6 +32,7 @@ what has been completed in those executions to date.
 | 71 | 03 | عرض محتوى إشعارات طلبات الضيف | Notifications render the message body from real API fields | IMPLEMENTED UNTESTED |
 | 73 | 03 | إظهار تفاصيل إضافات الوجبات والسرير في حجوزات المالك | Owner booking cards show meal/extra-bed/notes summary | IMPLEMENTED UNTESTED |
 | 81 | 03 | البحث عن الوحدة برقمها في شاشة الوصول | Hotel staff unit-number search before check-in/out | VERIFIED PASS |
+| 120 | 04 | عرض حساب مالك الوحدة الصحيح عند التحويل المباشر | Owner bank panel on direct transfer, from `owner_bank` | IMPLEMENTED UNTESTED |
 
 ## 3. Defects fixed with evidence
 
@@ -58,12 +59,20 @@ owner's bookings. `buildBookingAddonLines` now renders them from the real fields
 (`addons`, `meal_types`, `extra_bed_count`, `extra_bed_price`, `notes`) and
 renders nothing when the server omits them — no fabricated data.
 
+### 3.4 Direct transfer showed no owner account (req 120)
+
+The booking screen offered "direct transfer to the owner" without ever showing
+which account to transfer to. `UnitModel` now parses `owner_bank` from
+`units/detail.php`, and `_OwnerBankPanel` shows the real account rows — or an
+explicit notice when the owner has not registered bank details. Four tests cover
+the pure `ownerBankRows` helper.
+
 ## 4. Testing
 
 | Command | Result |
 |---|---|
 | `flutter analyze` | 0 errors, 0 warnings, 82 info |
-| `flutter test` | **90 tests, all pass** |
+| `flutter test` | **94 tests, all pass** |
 
 New tests added this session (12 total): 6 for req 73 (owner booking addons),
 5 for req 56 (extra-bed charge), 1 for the hotel-staff unit search.
@@ -84,6 +93,7 @@ New tests added this session (12 total): 6 for req 73 (owner booking addons),
 | `/user/agent-clients.php` | GET | 401 | Auth-gated; endpoint exists |
 | `/user/agent-commission.php` | GET | 401 | Auth-gated; endpoint exists |
 | `/user/owner-staff.php` | GET | 401 | Auth-gated; endpoint exists |
+| `/user/owner-revenue.php` | GET | 401 | Auth-gated; endpoint exists |
 | `/auth/forgot-password.php` | GET | **404** | No self-service password reset |
 | `/user/owner-prices.php` | GET | **404** | Owner has no dedicated price endpoint (req 68) |
 
@@ -92,10 +102,24 @@ the feature works. A `405` means the endpoint exists but rejects GET. Those
 distinctions are what Execution 04–05 need when deciding what is genuinely
 blocked.
 
-## 6. Remaining work
+## 6. Remaining work and honest blockers
 
-Executions 02–03 still hold 30 requirements at `PARTIAL` and 12 at `BACKEND
-BLOCKED`. Executions 04–05 (28 + 13 requirements) are almost entirely
-server/site work — commissions, subscriptions, admin panel, email — and cannot
-be delivered from the mobile codebase alone. The per-item breakdown lives in
+| Exec | Requirements | VERIFIED | IMPLEMENTED UNTESTED | PARTIAL | BACKEND BLOCKED |
+|---|---|---|---|---|---|
+| 02 | 29 | 4 | 16 | 6 | 3 |
+| 03 | 47 | 2 | 18 | 23 | 4 |
+| 04 | 28 | 1 | 1 | 1 | 25 |
+| 05 | 13 | 0 | 0 | 0 | 13 |
+
+Execution 04–05 is almost entirely server and site work: a central collection
+account, a per-owner ledger, weekly payouts, subscription billing, split
+payments and automated email. Those cannot be delivered from the Flutter
+codebase. They are marked `BACKEND BLOCKED` with the exact dependency, not
+silently left as "in progress". The per-item breakdown is in
 `docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md`.
+
+## 7. Readiness
+
+Executions 02–05 are **partially complete**. The mobile-side work that can be
+delivered without server changes has been delivered and tested; the remainder is
+blocked on backend endpoints and site changes that are outside this repository.
