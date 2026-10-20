@@ -592,6 +592,49 @@ void main() {
       final list = [h(name: 'أ'), h(name: 'ب', typeAr: 'فندق')];
       expect(HotelService.filterHotels(list), hasLength(2));
     });
+
+    test('التصنيف يُصفّى محليًا لأن السيرفر يتجاهل type و category_id', () {
+      // مُثبت حيًّا على all-owner.online: hotels/list.php?type=Hotel و?type=Resorts
+      // و?type=Chalet و?category_id=1..4 كلها ترجع نفس الفنادق الأربعة بلا تصفية.
+      // لذلك يجب أن يبقى الترشيح في العميل. لو أُزيل filterHotels من searchHotels
+      // فسيعرض التصنيف كل الفنادق، وهذا الاختبار يحمي من ذلك.
+      final hotels = [
+        h(name: 'فندق أ', typeAr: 'فندق', typeEn: 'Hotel'),
+        h(name: 'منتجع ب', typeAr: 'منتجع', typeEn: 'Resort'),
+        h(name: 'شاليه ج', typeAr: 'شاليه', typeEn: 'Chalet'),
+      ];
+      expect(HotelService.filterHotels(hotels, categoryName: 'Hotels'),
+          hasLength(1));
+      expect(HotelService.filterHotels(hotels, categoryName: 'Resorts'),
+          hasLength(1));
+      expect(HotelService.filterHotels(hotels, categoryName: 'Chalets'),
+          hasLength(1));
+    });
+
+    test('تصنيف عربي جمع يطابق نوع المنشأة المفرد (عيب حقيقي)', () {
+      // العيب: اسم التصنيف في قاعدة البيانات جمع («فنادق»، «منتجعات»، «شاليهات»)
+      // ونوع المنشأة مفرد («فندق»، «منتجع»، «شاليه»). المقارنة النصية المباشرة
+      // كانت ترجع صفرًا لكل تصنيف عربي، ويسقط معه قسم الوحدات لأن الوحدات
+      // تُقيَّد بفنادق التصنيف عبر hotel_id.
+      final hotels = [
+        h(name: 'فندق أ', typeAr: 'فندق', typeEn: 'Hotel'),
+        h(name: 'منتجع ب', typeAr: 'منتجع', typeEn: 'Resort'),
+        h(name: 'شاليه ج', typeAr: 'شاليه', typeEn: 'Chalet'),
+        h(name: 'شقة د', typeAr: 'شقق فندقية', typeEn: 'Apartments'),
+      ];
+      expect(HotelService.filterHotels(hotels, categoryName: 'فنادق'),
+          hasLength(1),
+          reason: '«فنادق» يجب أن تطابق type_ar=«فندق»');
+      expect(HotelService.filterHotels(hotels, categoryName: 'منتجعات'),
+          hasLength(1),
+          reason: '«منتجعات» يجب أن تطابق type_ar=«منتجع»');
+      expect(HotelService.filterHotels(hotels, categoryName: 'شاليهات'),
+          hasLength(1),
+          reason: '«شاليهات» يجب أن تطابق type_ar=«شاليه»');
+      expect(HotelService.filterHotels(hotels, categoryName: 'شقق فندقية'),
+          hasLength(1),
+          reason: '«شقق» جمع تكسير ولا يُشتق بقاعدة، فالمرادفات تغطيه');
+    });
   });
 
   group('تصفية الوحدات (searchUnits/filterUnits) — المتطلب 26', () {

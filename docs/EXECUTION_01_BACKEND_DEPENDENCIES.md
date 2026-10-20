@@ -327,3 +327,41 @@ endpoint actually sends, and the matrix item (76) records that the amenity
 relationship for a *unit* has to come from the server before the section can be
 populated with real data. Hotel amenities are unaffected — `hotels/detail.php`
 does return them (11 for hotel 4).
+
+### 10.5 `hotels/list.php` ignores `type` and `category_id`
+
+Probed on 2026-10-19. Every value returns the same 4 rows:
+
+| Query | Rows returned |
+|---|---|
+| `?type=Hotel` | 4 |
+| `?type=Resorts` | 4 |
+| `?type=Chalet` | 4 |
+| `?type=Apartment` | 4 |
+| `?type=فندق` | 4 |
+| `?category_id=1` … `?category_id=4` | 4 each |
+| no filter | 4 |
+
+The website's `?type=` filter is equally inert, so this is a server-side gap,
+not a client misuse. **The app must keep filtering category on the client** —
+`HotelService.filterHotels` does exactly that, and `test/widgets_test.dart`
+locks the behaviour in so a future "optimisation" cannot drop it.
+
+**Consequence found and fixed in the client (real defect).** Because the client
+had to filter locally, the category name had to match `type_ar`/`type_en`. The
+category rows are plural (`فنادق`, `منتجعات`, `شاليهات`, `شقق فندقية`) but the
+hotel rows are singular (`فندق`, `منتجع`, `شاليه`). A plain substring test
+therefore returned **zero hotels for every Arabic category**, and — because the
+search screen constrains units to the hotels of the chosen category via
+`hotel_id` — the units section went empty too. English only worked by luck:
+`"hotel".contains("hotels")` is false but `"hotels".contains("hotel")` is true,
+and the old code tried both directions.
+
+Fixed by canonicalising both sides before comparison (regular plural suffixes
+plus an explicit broken-plural alias table). Verified live: the real
+`فنادق` category now returns the 4 real hotels. Covered by a unit test and a
+live integration test.
+
+**Ask for the backend owner:** honour `category_id` (preferred — it is a real
+foreign key) or `type` in `hotels/list.php` and `units/browse.php`, so the app
+can stop filtering client-side and paginate correctly.

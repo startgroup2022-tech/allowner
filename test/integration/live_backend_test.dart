@@ -105,6 +105,27 @@ void main() {
           await HotelService().searchUnits(query: 'zzz-no-such-unit-zzz');
       expect(units, isEmpty);
     });
+
+    live('تصنيف عربي حقيقي من categories/list.php يعيد فنادق لا صفرًا',
+        () async {
+      // العيب الحقيقي: categories/list.php يعيد «فنادق» (جمع) و hotels/list.php
+      // يعيد type_ar=«فندق» (مفرد)، فكان كل تصنيف عربي يعيد صفر نتائج. هذا
+      // الاختبار يمنع رجوع العيب بمقارنة الاسم الحقيقي من قاعدة البيانات.
+      final cats = await CatalogService().listCategories();
+      final hotels = await HotelService().listHotels();
+      expect(hotels, isNotEmpty);
+
+      final hotelsCat = cats.firstWhere(
+        (c) => c.iconKey == 'hotels',
+        orElse: () => cats.first,
+      );
+      final filtered = HotelService.filterHotels(
+        hotels,
+        categoryName: hotelsCat.nameAr,
+      );
+      expect(filtered, isNotEmpty,
+          reason: 'التصنيف «${hotelsCat.nameAr}» يجب أن يطابق type_ar الفعلي');
+    });
   });
 
   group('باك إند حيّ — التفاصيل (المتطلبات 40–50)', () {

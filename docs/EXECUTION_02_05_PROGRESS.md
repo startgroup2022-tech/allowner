@@ -97,7 +97,9 @@ transform matrix's first element is `-1.0`).
 | Command | Result |
 |---|---|
 | `flutter analyze` | 0 errors, 0 warnings |
-| `flutter test` | **193 tests, all pass** |
+| `flutter test` | **200 unit/widget tests pass, 0 failing** (16 live tests skip) |
+| `flutter test test/integration/live_backend_test.dart --dart-define=RUN_LIVE_TESTS=true` | **16 tests, all pass** against `all-owner.online` |
+| `flutter build apk --release` | **succeeds** — 69.4 MB, `com.superai.allowners`, versionCode 20 |
 
 Test groups that guard this session's work, by `--plain-name`:
 
@@ -122,8 +124,18 @@ commit:
 flutter pub get
 dart format --output=none --set-exit-if-changed .
 flutter analyze          # 0 errors, 0 warnings
-flutter test             # 193 passing, 0 failing
+flutter test             # 200 passing, 0 failing
 ```
+
+A second gate exercises the real backend and is **not** part of the default run
+(it needs the network, so Codemagic would be flaky):
+
+```bash
+flutter test test/integration/live_backend_test.dart --dart-define=RUN_LIVE_TESTS=true
+```
+
+`bool.fromEnvironment` only accepts `true`/`false`, not `1`; without the define
+all 16 cases skip and print the reason.
 
 | Execution | Requirements | Run command |
 |---|---|---|
@@ -165,12 +177,17 @@ blocked.
 
 | Exec | Requirements | VERIFIED | IMPLEMENTED UNTESTED | PARTIAL | BACKEND BLOCKED |
 |---|---|---|---|---|---|
-| 01 | 31 | 20 | 8 | 0 | 3 |
+| 01 | 31 | 21 | 7 | 0 | 3 |
 | 02 | 29 | 15 | 11 | 1 | 2 |
 | 03 | 47 | 17 | 25 | 0 | 5 |
 | 04 | 28 | 1 | 6 | 2 | 19 |
 | 05 | 13 | 0 | 0 | 0 | 13 |
-| **Total** | **148** | **53** | **50** | **3** | **42** |
+| **Total** | **148** | **54** | **49** | **3** | **42** |
+
+Three items (reqs 29, 30, 50) are counted above as VERIFIED; they are tagged
+`INTEGRATION VERIFIED` in the matrix, which means the service path and the API
+contract are proven by a live test but the on-device visual result is not yet
+seen. Do not read them as device-verified.
 
 `IMPLEMENTED UNTESTED` is not a soft "done": it means the code path exists and is
 wired to a live endpoint, but confirming it needs a signed-in session on a real

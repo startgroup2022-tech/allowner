@@ -197,27 +197,26 @@ class HotelService {
 
   /// تصفية الفنادق نصيًا محليًا (دالة نقية قابلة للاختبار بلا شبكة).
   ///
-  /// `hotels/list.php` لا يدعم بحثًا نصيًا ولا تصنيفًا على السيرفر، لذلك
-  /// نُرشّح هنا على الاسم والمدينة والنوع (عربي + إنجليزي).
+  /// `hotels/list.php` لا يدعم بحثًا نصيًا ولا تصنيفًا على السيرفر (يتجاهل
+  /// `type` و`category_id` — مُثبت حيًّا)، لذلك نُرشّح هنا على الاسم والمدينة
+  /// والنوع.
   static List<HotelModel> filterHotels(
     List<HotelModel> hotels, {
     String? query,
     String? categoryName,
   }) {
     final normalizedQuery = _normalize(query);
-    final normalizedCategory = _normalize(categoryName);
+    final categoryTokens = _canonicalTokens(categoryName);
 
     return hotels.where((h) {
-      final typeAr = _normalize(h.typeAr) ?? '';
-      final typeEn = _normalize(h.typeEn) ?? '';
-
-      // ملاحظة: `'x'.contains('')` ترجع true، لذلك لا نسمح للنوع الفارغ
-      // بمطابقة أي تصنيف — وإلا ظهر كل فندق بلا نوع تحت كل تصنيف.
-      final matchesCategory = normalizedCategory == null ||
-          (typeAr.isNotEmpty && typeAr.contains(normalizedCategory)) ||
-          (typeEn.isNotEmpty && typeEn.contains(normalizedCategory)) ||
-          (typeAr.isNotEmpty && normalizedCategory.contains(typeAr)) ||
-          (typeEn.isNotEmpty && normalizedCategory.contains(typeEn));
+      // اسم التصنيف في قاعدة البيانات جمع («فنادق»)، ونوع المنشأة مفرد
+      // («فندق»)، وبعض الجموع جمع تكسير (شقق/شقة) فلا يكفي التطبيع وحده.
+      // نقارن الصيغة القانونية كلمة بكلمة. بدون ذلك كان اختيار تصنيف عربي
+      // يعيد صفر نتائج، ويسقط معه قسم الوحدات لأن الوحدات تُقيَّد بفنادق
+      // التصنيف عبر `hotel_id`.
+      final matchesCategory = categoryTokens.isEmpty ||
+          _canonicalTokens(h.typeAr).intersection(categoryTokens).isNotEmpty ||
+          _canonicalTokens(h.typeEn).intersection(categoryTokens).isNotEmpty;
 
       if (!matchesCategory) return false;
       if (normalizedQuery == null) return true;
@@ -228,6 +227,57 @@ class HotelService {
       return haystack.contains(normalizedQuery);
     }).toList();
   }
+
+  /// صيغة قانونية موحّدة لاسم تصنيف/نوع منشأة، لمقارنة الجمع بالمفرد.
+  ///
+  /// نُطبّع النص أولًا، ثم نجرّد لواحق الجمع المنتظمة («ات»، «ون»، «ين»، «s»)،
+  /// ثم نُمرّر الكلمة على جدول المرادفات الذي يغطي جموع التكسير التي لا
+  /// تُشتق بقاعدة (فنادق→فندق، شقق→شقة). الجدول مأخوذ من قيم `type_ar`/
+  /// `type_en` و`categories/list.php` الحقيقية في قاعدة البيانات.
+  static Set<String> _canonicalTokens(String? value) {
+    final normalized = _normalize(value);
+    if (normalized == null) return {};
+    return normalized
+        .split(RegExp(r'\s+'))
+        .map(_canonicalWord)
+        .where((s) => s.isNotEmpty)
+        .toSet();
+  }
+
+  static String _canonicalWord(String word) {
+    // نبحث في المرادفات على الصيغة الكاملة أولًا، لأن تجريد اللاحقة قد
+    // يُفسد الكلمة قبل أن تُطابَق («منتجعات» → «منتج» لا «منتجع»).
+    final direct = _categoryAliases[word];
+    if (direct != null) return direct;
+
+    var s = word;
+    for (final suffix in const ['ات', 'ون', 'ين']) {
+      if (s.length > suffix.length + 1 && s.endsWith(suffix)) {
+        s = s.substring(0, s.length - suffix.length);
+        break;
+      }
+    }
+    final afterStrip = _categoryAliases[s];
+    if (afterStrip != null) return afterStrip;
+
+    if (RegExp(r'^[a-z]+$').hasMatch(s) && s.length > 3 && s.endsWith('s')) {
+      s = s.substring(0, s.length - 1);
+    }
+    return s;
+  }
+
+  /// مرادفات الجمع/المفرد لتصنيفات الإقامة، بصيغة مُطبَّعة.
+  static const Map<String, String> _categoryAliases = {
+    'فنادق': 'فندق',
+    'شقق': 'شقه',
+    'منتجعات': 'منتجع',
+    'منتج': 'منتجع',
+    'شاليهات': 'شاليه',
+    'فلل': 'فيلا',
+    'عقارات': 'عقار',
+    'وحدات': 'وحده',
+    'بيوت': 'بيت',
+  };
 
   /// تفصيل فندق + معرض الصور + المرافق المرتبطة به فعليًا.
   Future<HotelDetail> getHotelDetail(String id) async {
