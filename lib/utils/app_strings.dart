@@ -294,6 +294,8 @@ class AppStrings {
     'owner_bank_account_name': {'ar': 'اسم صاحب الحساب', 'en': 'Account Holder'},
     'owner_bank_account_number': {'ar': 'رقم الحساب', 'en': 'Account Number'},
     'owner_bank_iban': {'ar': 'رقم الآيبان IBAN', 'en': 'IBAN'},
+    'attach_image': {'ar': 'إرفاق صورة (اختياري)', 'en': 'Attach Image (optional)'},
+    'image_attached': {'ar': 'تم إرفاق صورة ✓', 'en': 'Image attached ✓'},
     'owner_bank_missing': {
       'ar': 'لم يسجّل المالك بيانات حسابه البنكي بعد. يمكنك الحجز والدفع عند الوصول أو التواصل مع الدعم.',
       'en': 'The owner has not added bank details yet. You can book and pay at the hotel or contact support.'

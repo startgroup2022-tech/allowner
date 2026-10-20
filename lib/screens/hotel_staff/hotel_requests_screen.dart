@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
@@ -45,6 +47,9 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
     final needsNote = action == 'reject';
     final noteCtrl = TextEditingController();
     final priceCtrl = TextEditingController(text: r['price'] != null ? r['price'].toString() : '');
+    // المتطلب 92: صورة اختيارية تُرفق بطلب الصيانة من إدارة الفندق.
+    final canAttachImage = (r['type'] ?? '') == 'maintenance';
+    File? imageFile;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -65,6 +70,35 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
               maxLines: 2,
               decoration: InputDecoration(labelText: AppStrings.t(isArabic, needsNote ? 'reject_reason' : 'note_optional')),
             ),
+            if (canAttachImage) ...[
+              const SizedBox(height: AppDimens.sm),
+              StatefulBuilder(
+                builder: (ictx, setDlgState) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: () async {
+                        final picked = await ImagePicker()
+                            .pickImage(source: ImageSource.gallery, imageQuality: 85);
+                        if (picked != null) setDlgState(() => imageFile = File(picked.path));
+                      },
+                      icon: const Icon(Icons.add_photo_alternate_outlined, size: 18),
+                      label: Text(imageFile == null
+                          ? AppStrings.t(isArabic, 'attach_image')
+                          : AppStrings.t(isArabic, 'image_attached')),
+                    ),
+                    if (imageFile != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: AppDimens.sm),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                          child: Image.file(imageFile!, height: 100, fit: BoxFit.cover),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
         actions: [
@@ -89,6 +123,7 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
         action: action,
         note: noteCtrl.text.trim().isNotEmpty ? noteCtrl.text.trim() : null,
         price: priceCtrl.text.trim().isNotEmpty ? double.tryParse(priceCtrl.text.trim()) : null,
+        imagePath: imageFile?.path,
       );
       _reload();
     } on ApiException catch (e) {

@@ -235,14 +235,28 @@ class OwnerService {
     int? unitId,
     required String title,
     String? description,
+    String? imagePath,
   }) async {
     try {
-      await _dio.post('/user/owner-maintenance.php', data: {
-        'hotel_id': hotelId,
-        if (unitId != null) 'unit_id': unitId,
-        'title': title,
-        if (description != null) 'description': description,
-      });
+      // المتطلب 72: إرفاق صورة اختيارية بالطلب — multipart فقط عند وجود صورة،
+      // وإلا نُرسل JSON كما كان حتى لا نغيّر العقد بلا داعٍ.
+      if (imagePath != null) {
+        final form = FormData.fromMap({
+          'hotel_id': hotelId.toString(),
+          if (unitId != null) 'unit_id': unitId.toString(),
+          'title': title,
+          if (description != null) 'description': description,
+          'image': await MultipartFile.fromFile(imagePath),
+        });
+        await _dio.post('/user/owner-maintenance.php', data: form);
+      } else {
+        await _dio.post('/user/owner-maintenance.php', data: {
+          'hotel_id': hotelId,
+          if (unitId != null) 'unit_id': unitId,
+          'title': title,
+          if (description != null) 'description': description,
+        });
+      }
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }

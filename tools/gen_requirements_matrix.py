@@ -107,7 +107,7 @@ RANGES = {
     69: (3,'IMPLEMENTED UNTESTED','owner_maintenance_screen.dart price + hotel_note','/user/owner-maintenance.php','أُضيف عرض التكلفة وملاحظة الفندق من الحقول الحقيقية','اختبار حقيقي','يرى المالك تكلفة الصيانة'),
     70: (3,'PARTIAL','owner_cleaning_screen.dart','/user/owner-requests.php','عرض تكلفة النظافة المؤكدة','تأكيد عرض التكلفة','يرى المالك تكلفة النظافة'),
     71: (3,'IMPLEMENTED UNTESTED','owner_notifications_screen.dart body/message','/user/notifications.php','أُضيف عرض نص الإشعار (body_ar/body_en/message) من الحقول الحقيقية','اختبار حقيقي','تظهر تفاصيل إشعار الطلبات'),
-    72: (3,'PARTIAL','owner_maintenance_screen.dart','/user/owner-maintenance.php','إضافة صورة لطلب الصيانة','تأكيد رفع الصورة','تُضاف صورة للطلب'),
+    72: (3,'IMPLEMENTED UNTESTED','owner_maintenance_screen.dart + owner_service.createMaintenanceRequest(imagePath)','/user/owner-maintenance.php (multipart image)','أُضيف اختيار صورة اختيارية وإرسالها multipart فقط عند وجودها','اختبار رفع حقيقي','تُرفق الصورة بالطلب'),
     73: (3,'IMPLEMENTED UNTESTED','owner_bookings_screen.dart buildBookingAddonLines (دالة نقية)','/user/owner-bookings.php (حقول addons/meal_types/extra_bed_count/extra_bed_price/notes)','تُعرض الإضافات من الحقول الحقيقية فقط مع 7 اختبارات؛ تحتاج الحقول أن يُرجعها الـ API فعليًا','إرجاع حقول الإضافات في owner-bookings.php','تظهر الإضافات في الحجوزات'),
     74: (3,'PARTIAL','owner_staff_screen.dart','/user/owner-staff.php','إدارة صلاحيات موظفي المالك','تأكيد الصلاحيات الكاملة','تُدار الصلاحيات'),
     75: (3,'IMPLEMENTED UNTESTED','splash_screen.dart, owner_navigation_screen.dart','—','توجيه موظف المالك لواجهته','اختبار حقيقي','يُوجّه الموظف لواجهته الصحيحة'),
@@ -127,7 +127,7 @@ RANGES = {
     89: (3,'PARTIAL','hotel_staff/hotel_prices_screen.dart','/hotel/prices.php','تحديد أسعار السرير الإضافي','تأكيد الحفظ','تُحدَّد الأسعار'),
     90: (3,'PARTIAL','hotel_staff/hotel_requests_screen.dart','/hotel/requests.php','تأكيد طلب السرير الإضافي','تأكيد الإجراء','يُؤكَّد الطلب'),
     91: (3,'PARTIAL','hotel_staff/hotel_requests_screen.dart','/hotel/requests.php','استقبال الطلبات من المالك','تأكيد الاستقبال','تُستقبل الطلبات'),
-    92: (3,'PARTIAL','hotel_staff/hotel_requests_screen.dart','/hotel/requests.php','إضافة صورة لطلب الصيانة','تأكيد الرفع','تُضاف الصورة'),
+    92: (3,'IMPLEMENTED UNTESTED','hotel_requests_screen.dart + hotel_staff_service.actOnRequest(imagePath)','/hotel/requests.php (multipart image)','أُضيفت صورة اختيارية لطلب الصيانة من إدارة الفندق','اختبار رفع حقيقي','تُرفق صورة الطلب'),
     # وكيل الحجوزات (93-109)
     93: (3,'PARTIAL','owner_clients_screen.dart','/user/agent-clients.php','إصلاح إضافة عملاء الوكيل','تأكيد الإضافة','يُضيف الوكيل عملاء'),
     94: (3,'PARTIAL','booking_screen.dart customerName','/bookings/create.php','حقل اسم العميل عند الحجز','تأكيد الحقل','يُدخل اسم العميل'),

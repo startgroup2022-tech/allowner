@@ -26,8 +26,8 @@
 | الحالة | العدد |
 |---|---|
 | VERIFIED PASS | 20 |
-| IMPLEMENTED UNTESTED | 43 |
-| PARTIAL | 37 |
+| IMPLEMENTED UNTESTED | 45 |
+| PARTIAL | 35 |
 | NOT IMPLEMENTED | 0 |
 | BACKEND BLOCKED | 48 |
 | OWNER DECISION REQUIRED | 0 |
@@ -819,12 +819,12 @@
 
 - **القسم:** المالك والخدمات — 17 نقطة
 - **التنفيذ:** Execution 03
-- **الحالة:** PARTIAL
-- **ملفات Flutter:** owner_maintenance_screen.dart
-- **اعتماد الـ API:** /user/owner-maintenance.php
-- **الدليل:** إضافة صورة لطلب الصيانة
-- **المتبقي:** تأكيد رفع الصورة
-- **معيار القبول:** تُضاف صورة للطلب
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_maintenance_screen.dart + owner_service.createMaintenanceRequest(imagePath)
+- **اعتماد الـ API:** /user/owner-maintenance.php (multipart image)
+- **الدليل:** أُضيف اختيار صورة اختيارية وإرسالها multipart فقط عند وجودها
+- **المتبقي:** اختبار رفع حقيقي
+- **معيار القبول:** تُرفق الصورة بالطلب
 
 ### 73. إظهار تفاصيل إضافات الوجبات والسرير في حجوزات المالك
 
@@ -1039,12 +1039,12 @@
 
 - **القسم:** إدارة الفندق — 16 نقطة
 - **التنفيذ:** Execution 03
-- **الحالة:** PARTIAL
-- **ملفات Flutter:** hotel_staff/hotel_requests_screen.dart
-- **اعتماد الـ API:** /hotel/requests.php
-- **الدليل:** إضافة صورة لطلب الصيانة
-- **المتبقي:** تأكيد الرفع
-- **معيار القبول:** تُضاف الصورة
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** hotel_requests_screen.dart + hotel_staff_service.actOnRequest(imagePath)
+- **اعتماد الـ API:** /hotel/requests.php (multipart image)
+- **الدليل:** أُضيفت صورة اختيارية لطلب الصيانة من إدارة الفندق
+- **المتبقي:** اختبار رفع حقيقي
+- **معيار القبول:** تُرفق صورة الطلب
 
 ### 93. إصلاح إضافة عملاء الوكيل
 

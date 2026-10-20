@@ -62,8 +62,22 @@ class HotelStaffService {
     required String action,
     String? note,
     double? price,
+    String? imagePath,
   }) async {
     try {
+      // المتطلب 92: صورة اختيارية لطلب الصيانة من حساب إدارة الفندق.
+      if (imagePath != null) {
+        final form = FormData.fromMap({
+          'type': type,
+          'id': id.toString(),
+          'action': action,
+          if (note != null) 'note': note,
+          if (price != null) 'price': price.toString(),
+          'image': await MultipartFile.fromFile(imagePath),
+        });
+        await _dio.post('/hotel/requests.php', data: form);
+        return;
+      }
       await _dio.post('/hotel/requests.php', data: {
         'type': type,
         'id': id,

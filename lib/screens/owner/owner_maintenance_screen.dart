@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
@@ -50,6 +52,7 @@ class _OwnerMaintenanceScreenState extends ConsumerState<OwnerMaintenanceScreen>
     int? selectedHotelId = hotels.isNotEmpty ? asInt(hotels.first['id']) : null;
     final titleCtrl = TextEditingController();
     final descCtrl = TextEditingController();
+    File? imageFile; // المتطلب 72: صورة اختيارية تُرفق بالطلب
 
     await showModalBottomSheet(
       context: context,
@@ -90,6 +93,28 @@ class _OwnerMaintenanceScreenState extends ConsumerState<OwnerMaintenanceScreen>
                     maxLines: 3,
                     decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'description')),
                   ),
+                  const SizedBox(height: AppDimens.md),
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final picked = await ImagePicker()
+                          .pickImage(source: ImageSource.gallery, imageQuality: 85);
+                      if (picked != null) {
+                        setSheetState(() => imageFile = File(picked.path));
+                      }
+                    },
+                    icon: const Icon(Icons.add_photo_alternate_outlined, size: 18),
+                    label: Text(imageFile == null
+                        ? AppStrings.t(isArabic, 'attach_image')
+                        : AppStrings.t(isArabic, 'image_attached')),
+                  ),
+                  if (imageFile != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: AppDimens.sm),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                        child: Image.file(imageFile!, height: 120, fit: BoxFit.cover),
+                      ),
+                    ),
                   const SizedBox(height: AppDimens.lg),
                   SizedBox(
                     width: double.infinity,
@@ -103,6 +128,7 @@ class _OwnerMaintenanceScreenState extends ConsumerState<OwnerMaintenanceScreen>
                                   hotelId: selectedHotelId!,
                                   title: titleCtrl.text.trim(),
                                   description: descCtrl.text.trim(),
+                                  imagePath: imageFile?.path,
                                 );
                                 if (ctx.mounted) Navigator.of(ctx).pop();
                                 _reload();
