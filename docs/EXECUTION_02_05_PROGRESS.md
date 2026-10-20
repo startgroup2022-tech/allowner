@@ -48,6 +48,8 @@ what has been completed in those executions to date.
 | 73 | 03 | إظهار تفاصيل إضافات الوجبات والسرير في حجوزات المالك | Owner booking cards show meal/extra-bed/notes summary | IMPLEMENTED UNTESTED |
 | 81 | 03 | البحث عن الوحدة برقمها في شاشة الوصول | Hotel staff unit-number search before check-in/out | VERIFIED PASS |
 | 120 | 04 | عرض حساب مالك الوحدة الصحيح عند التحويل المباشر | Owner bank panel on direct transfer, from `owner_bank` | IMPLEMENTED UNTESTED |
+| 74 | 03 | إدارة صلاحيات موظفي المالك كاملة | `RolePermissions` layer builds the owner menu from real permissions; unit_manager loses wallet/revenue/bank and cannot add units | IMPLEMENTED UNTESTED |
+| 123 | 04 | منع إضافة الوحدات والطلبات حتى الاشتراك | Shared `ensureSubscriptionForOperation` gate now covers the four request screens, not only units | IMPLEMENTED UNTESTED |
 
 ## 3. Defects fixed with evidence
 
@@ -133,12 +135,34 @@ The raw name cannot simply be replaced, because it drives filtering. A separate
 categories by id (falling back to raw-name match), and only the chip uses it.
 The test fails without the fix and passes with it.
 
+### 3.8 The unit manager could reach owner-only money screens (req 74)
+
+`unit_manager` fell through `isOwnerSide`, so the app handed that role the full
+owner menu: wallet, revenue reports and the bank account. Requirement 74 states
+the unit manager may only view units, toggle their status and receive
+maintenance/housekeeping reports - no delete, no wallet, no revenue.
+
+The menu is now built from a pure `RolePermissions` object rather than a role
+string comparison, so a forbidden destination is never constructed instead of
+merely hidden. The owner navigation swaps the revenue tab for the maintenance
+tab for that role, and the units screen refuses the add-unit action on the
+device even if the server wrongly returns `can_create=true`. Owner and agent
+permissions are unchanged and pinned by tests.
+
+### 3.9 The subscription gate missed every request screen (req 123)
+
+Requirement 123 blocks adding units *and* requests until the annual subscription
+is active, but the gate lived only in `owner_units_screen`. A non-subscribed
+owner could still raise maintenance, cleaning, meal and extra-bed requests. The
+gate is now a shared helper applied to all five entry points, and still blocks
+only when the server explicitly confirms the subscription is inactive.
+
 ## 4. Testing
 
 | Command | Result |
 |---|---|
 | `flutter analyze` | 0 errors, 0 warnings |
-| `flutter test` | **212 unit/widget tests pass, 0 failing** (17 live tests skip) |
+| `flutter test` | **267 unit/widget tests pass, 0 failing** (17 live tests skip) |
 | `flutter test test/integration/live_backend_test.dart --dart-define=RUN_LIVE_TESTS=true` | **17 tests, all pass** against `all-owner.online` |
 | `flutter build apk --release` | **succeeds** — 69.4 MB, `com.superai.allowners`, versionCode 20 |
 
@@ -165,7 +189,7 @@ commit:
 flutter pub get
 dart format --output=none --set-exit-if-changed .
 flutter analyze          # 0 errors, 0 warnings
-flutter test             # 212 passing, 0 failing
+flutter test             # 267 passing, 0 failing
 ```
 
 A second gate exercises the real backend and is **not** part of the default run

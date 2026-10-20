@@ -17,8 +17,8 @@ Arabic-first (RTL) with full English (LTR) support. Builds via Codemagic.
 export PATH=/opt/flutter/bin:$PATH
 flutter pub get
 flutter analyze                 # 0 errors, 0 warnings (info items are style-only)
-flutter test                    # 212 unit/widget tests pass, 17 live tests skip
-dart format --output=none --set-exit-if-changed .   # clean (95 files)
+flutter test                    # 267 unit/widget tests pass, 17 live tests skip
+dart format --output=none --set-exit-if-changed .   # clean (108 files)
 
 # Live integration tests against the real backend (network required):
 flutter test test/integration/live_backend_test.dart --dart-define=RUN_LIVE_TESTS=true
