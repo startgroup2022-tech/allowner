@@ -305,6 +305,10 @@ class AppStrings {
     },
     'bank_saved': {'ar': 'تم حفظ بيانات الحساب البنكي', 'en': 'Bank account details saved'},
     'nav_bank': {'ar': 'الحساب البنكي', 'en': 'Bank Account'},
+    'no_service_prices': {
+      'ar': 'لم يضبط الفندق أسعار خدمات بعد',
+      'en': 'The hotel has not set any service prices yet'
+    },
     'booked_by_guest': {'ar': 'حجز من الضيف', 'en': 'Booked by guest'},
     'booked_by_agent': {'ar': 'حجز من وكيل الحجوزات', 'en': 'Booked by agent'},
     'booked_by_owner': {'ar': 'حجز من المالك', 'en': 'Booked by owner'},

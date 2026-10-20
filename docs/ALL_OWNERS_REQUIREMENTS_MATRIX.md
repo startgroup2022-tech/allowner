@@ -26,8 +26,8 @@
 | الحالة | العدد |
 |---|---|
 | VERIFIED PASS | 22 |
-| IMPLEMENTED UNTESTED | 69 |
-| PARTIAL | 8 |
+| IMPLEMENTED UNTESTED | 70 |
+| PARTIAL | 7 |
 | NOT IMPLEMENTED | 0 |
 | BACKEND BLOCKED | 49 |
 | OWNER DECISION REQUIRED | 0 |
@@ -775,12 +775,12 @@
 
 - **القسم:** المالك والخدمات — 17 نقطة
 - **التنفيذ:** Execution 03
-- **الحالة:** PARTIAL
-- **ملفات Flutter:** hotel_staff/hotel_prices_screen.dart, owner screens
-- **اعتماد الـ API:** /hotel/prices.php
-- **الدليل:** عرض أسعار خدمات الفندق للمالك
-- **المتبقي:** تأكيد ظهور الأسعار للمالك
-- **معيار القبول:** يرى المالك أسعار الخدمات
+- **الحالة:** IMPLEMENTED UNTESTED
+- **ملفات Flutter:** owner_service_prices_screen.dart + owner_service.getOwnerServicePrices
+- **اعتماد الـ API:** /hotel/prices.php (نفس نقطة الفندق، 401 بدون توكن)
+- **الدليل:** شاشة قراءة فقط للمالك تعرض أسعار خدمات الفندق (نظافة/صيانة/وجبات/سرير) لكل وحدة
+- **المتبقي:** اختبار حقيقي بحساب مالك
+- **معيار القبول:** تظهر أسعار الخدمات للمالك
 
 ### 69. عرض تكلفة الصيانة المؤكدة للمالك
 

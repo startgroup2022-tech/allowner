@@ -229,6 +229,23 @@ class OwnerService {
     }
   }
 
+  // ===== المتطلب 68: عرض أسعار خدمات الفندق للمالك (قراءة فقط) =====
+  // الفندق يُسعّر الخدمات عبر `/hotel/prices.php`، والمالك يحتاج أن يراها.
+  // نستخدم نفس نقطة النهاية (متاحة للدور المصرّح له) ونعرضها للقراءة فقط.
+
+  Future<Map<String, dynamic>> getOwnerServicePrices() async {
+    try {
+      final res = await _dio.get('/hotel/prices.php');
+      return {
+        'prices': asMapList(res.data['prices']),
+        'units': asMapList(res.data['units']),
+        'hotels': asMapList(res.data['hotels']),
+      };
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
   Future<Map<String, dynamic>> getMyCommission() async {
     try {
       final res = await _dio.get('/user/agent-commission.php');
