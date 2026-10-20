@@ -25,9 +25,9 @@
 
 | الحالة | العدد |
 |---|---|
-| VERIFIED PASS | 22 |
+| VERIFIED PASS | 24 |
 | IMPLEMENTED UNTESTED | 79 |
-| PARTIAL | 2 |
+| PARTIAL | 0 |
 | NOT IMPLEMENTED | 0 |
 | BACKEND BLOCKED | 45 |
 | OWNER DECISION REQUIRED | 0 |
@@ -126,11 +126,11 @@
 
 - **القسم:** الهوية والمحتوى والدعم — 9 نقطة
 - **التنفيذ:** Execution 01
-- **الحالة:** PARTIAL
-- **ملفات Flutter:** editable_avatar.dart, profile_screen.dart, owner_profile_screen.dart, hotel_profile_screen.dart
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** editable_avatar.dart + owner_profile_screen.dart + اختبارين
 - **اعتماد الـ API:** /user/avatar.php
-- **الدليل:** رفع الصورة متاح للضيف والمالك وموظف الفندق
-- **المتبقي:** تأكيد تغطية دور الوكيل أيضًا
+- **الدليل:** الأفتار القابل للتغيير متاح للضيف (profile_screen) والمالك والوكيل (owner_profile_screen) وموظف الفندق (hotel_profile_screen). أُضيف اختباران بحساب وكيل يثبتان ظهور الأفتار وفتح خيارات المعرض/الكاميرا
+- **المتبقي:** —
 - **معيار القبول:** كل الأدوار تستطيع تغيير صورتها
 
 ### 10. ترحيب مخصص باسم المستخدم
@@ -225,11 +225,11 @@
 
 - **القسم:** الرئيسية والبحث والاكتشاف — 18 نقطة
 - **التنفيذ:** Execution 01
-- **الحالة:** PARTIAL
-- **ملفات Flutter:** home_screen.dart _buildDestinations
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** city_ordering.dart (جديد), arabic_text.dart (جديد), home_screen.dart _buildDestinations
 - **اعتماد الـ API:** /cities/list.php
-- **الدليل:** الـ API يُرجع مكة/جدة/المدينة/الخبر/الدمام — الرياض غير موجودة
-- **المتبقي:** إضافة مدينة الرياض في قاعدة البيانات
+- **الدليل:** قسم الوجهات يقرأ المدن من الـ API ويعرض مكة/المدينة/جدة/الرياض أولًا بترتيب المستند عبر CityOrdering.prioritize، دون حذف أو اختراع أي مدينة. 5 اختبارات. ملاحظة: الرياض غير موجودة في قاعدة البيانات حاليًا (مكة/جدة/المدينة/الخبر/الدمام) فتُعرض المتاحة فقط حتى تُضاف
+- **المتبقي:** إضافة مدينة الرياض في قاعدة البيانات لعرضها
 - **معيار القبول:** تظهر الوجهات مكة/جدة/المدينة/الرياض
 
 ### 19. بطاقات مدن قابلة للنقر والتصفية

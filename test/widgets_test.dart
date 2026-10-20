@@ -1,3 +1,4 @@
+import 'package:allowners/models/app_user.dart';
 import 'package:allowners/models/category_model.dart';
 import 'package:allowners/models/city_model.dart';
 import 'package:allowners/models/hotel_model.dart';
@@ -5,6 +6,7 @@ import 'package:allowners/models/owner_hotel_summary.dart';
 import 'package:allowners/models/unit_model.dart';
 import 'package:allowners/screens/hotel_staff/hotel_bookings_screen.dart';
 import 'package:allowners/screens/owner/owner_bookings_screen.dart';
+import 'package:allowners/screens/owner/owner_profile_screen.dart';
 import 'package:allowners/screens/booking/booking_screen.dart';
 import 'package:allowners/screens/bookings/my_bookings_screen.dart';
 import 'package:allowners/screens/shared/app_about_screen.dart';
@@ -15,10 +17,14 @@ import 'package:allowners/theme/app_colors.dart';
 import 'package:allowners/theme/app_theme.dart';
 import 'package:allowners/utils/amenity_icons.dart';
 import 'package:allowners/utils/app_strings.dart';
+import 'package:allowners/utils/arabic_text.dart';
 import 'package:allowners/utils/category_labels.dart';
+import 'package:allowners/utils/city_ordering.dart';
 import 'package:allowners/utils/revenue_reports.dart';
+import 'package:allowners/utils/session_provider.dart';
 import 'package:allowners/utils/service_categories.dart';
 import 'package:allowners/widgets/cards.dart';
+import 'package:allowners/widgets/editable_avatar.dart';
 import 'package:allowners/widgets/state_views.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -940,6 +946,88 @@ void main() {
       );
       expect(find.textContaining('everything you need to manage your property'),
           findsOneWidget);
+    });
+  });
+
+  group('تغيير الصورة الشخصية لكل الأدوار (المتطلب 9)', () {
+    Future<void> pumpAgentProfile(WidgetTester tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final session = SessionNotifier();
+      await tester.pumpWidget(ProviderScope(
+        overrides: [sessionProvider.overrideWith((ref) => session)],
+        child: wrap(const OwnerProfileScreen()),
+      ));
+      await tester.pumpAndSettle();
+      session.state = SessionState(
+        user: AppUser(
+          id: 7,
+          fullName: 'وكيل الحجوزات',
+          email: 'agent@example.com',
+          role: 'booking_agent',
+        ),
+        isLoading: false,
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('حساب الوكيل يعرض أفتارًا قابلًا للتغيير', (tester) async {
+      await pumpAgentProfile(tester);
+      expect(find.byType(EditableAvatar), findsOneWidget);
+      expect(find.byIcon(Icons.edit), findsOneWidget);
+    });
+
+    testWidgets('الضغط على الأفتار يعرض خيارات المعرض والكاميرا للوكيل',
+        (tester) async {
+      await pumpAgentProfile(tester);
+      await tester.tap(find.byType(EditableAvatar));
+      await tester.pumpAndSettle();
+      expect(find.text(AppStrings.t(true, 'choose_from_gallery')), findsOneWidget);
+      expect(find.text(AppStrings.t(true, 'take_photo')), findsOneWidget);
+    });
+  });
+
+  group('ترتيب الوجهات الرئيسية (المتطلب 18)', () {
+    List<String> orderedNames(List<String> names) => CityOrdering.prioritize(
+          names,
+          (n) => n,
+        ).toList();
+
+    test('المدن المطلوبة في المستند تُقدَّم بالترتيب مكة/المدينة/جدة/الرياض', () {
+      final out = orderedNames([
+        'الدمام',
+        'جدة',
+        'مكة المكرمة',
+        'الخبر',
+        'المدينة المنورة',
+        'الرياض',
+      ]);
+      expect(out.take(4).toList(), [
+        'مكة المكرمة',
+        'المدينة المنورة',
+        'جدة',
+        'الرياض',
+      ]);
+    });
+    test('المدن الأخرى تبقى كما هي ولا تُحذف ولا تُضاف', () {
+      final input = ['الدمام', 'جدة', 'مكة المكرمة', 'الخبر'];
+      final out = orderedNames(input);
+      expect(out.length, input.length);
+      expect(out.toSet(), input.toSet());
+      expect(out.skip(2).toList(), ['الدمام', 'الخبر']);
+    });
+    test('غياب مدينة مطلوبة (الرياض) لا يمنع عرض البقية', () {
+      final out = orderedNames(['الدمام', 'جدة', 'مكة المكرمة']);
+      expect(out.first, 'مكة المكرمة');
+      expect(out.contains('الرياض'), isFalse);
+      expect(out.length, 3);
+    });
+    test('المقارنة تتجاهل التشكيل وتوحّد الألف والهاء', () {
+      expect(orderedNames(['جده', 'مكه']).first, 'مكه');
+      expect(normalizeArabic('مَكّة') == normalizeArabic('مكة'), isTrue);
+      expect(normalizeArabic('الرّياض') == normalizeArabic('الرياض'), isTrue);
+    });
+    test('قائمة فارغة لا تنهار', () {
+      expect(orderedNames(const []), isEmpty);
     });
   });
 

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../models/hotel_model.dart';
 import '../models/unit_model.dart';
 import '../utils/safe_parse.dart';
+import '../utils/arabic_text.dart';
 import 'api_client.dart';
 
 /// كل استدعاءات الـ API الخاصة بالضيوف: الفنادق، الوحدات، المفضلة، الحجوزات.
@@ -447,19 +448,7 @@ class HotelService {
 
   /// يوحّد النص العربي/الإنجليزي للمقارنة: يزيل التشكيل والهمزات والمسافات
   /// الزائدة، ويوحّد الألف/الهاء حتى يطابق "مكة" و"مكه" و"Makkah"/"makkah".
-  static String? _normalize(String? value) {
-    if (value == null) return null;
-    var text = value.trim().toLowerCase();
-    if (text.isEmpty) return null;
-    text = text
-        .replaceAll(RegExp(r'[\u064B-\u0652\u0670\u0640]'), '') // تشكيل + تطويل
-        .replaceAll(RegExp('[أإآٱ]'), 'ا')
-        .replaceAll('ة', 'ه')
-        .replaceAll('ى', 'ي')
-        .replaceAll('ؤ', 'و')
-        .replaceAll('ئ', 'ي');
-    return text;
-  }
+  static String? _normalize(String? value) => normalizeArabic(value);
 
   String _fmt(DateTime d) {
     final y = d.year.toString().padLeft(4, '0');

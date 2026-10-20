@@ -10,6 +10,7 @@ import '../../services/catalog_service.dart';
 import '../../services/hotel_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_dimens.dart';
+import '../../utils/city_ordering.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../utils/session_provider.dart';
@@ -304,13 +305,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   message: AppStrings.t(isArabic, 'no_results'),
                 );
               }
+              // المتطلب 18: مكة/المدينة/جدة/الرياض أولًا. لا نحذف ولا نُضيف
+              // مدنًا — نُعيد ترتيب ما أعاده الـ API فقط.
+              final ordered = CityOrdering.prioritize(
+                cities,
+                (c) => '${c.nameAr} ${c.nameEn}',
+              );
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(
                     horizontal: AppDimens.pagePadding),
-                itemCount: cities.length,
+                itemCount: ordered.length,
                 itemBuilder: (context, index) {
-                  final city = cities[index];
+                  final city = ordered[index];
                   return Padding(
                     padding: EdgeInsets.only(
                       left: isArabic ? 0 : AppDimens.md,
