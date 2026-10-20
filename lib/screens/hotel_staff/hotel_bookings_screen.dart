@@ -6,6 +6,7 @@ import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/hotel_staff_service.dart';
 import '../../services/api_client.dart';
+import '../../utils/safe_parse.dart';
 
 class HotelBookingsScreen extends ConsumerStatefulWidget {
   const HotelBookingsScreen({super.key});
@@ -143,8 +144,8 @@ class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen> with 
                               onPressed: busy
                                   ? null
                                   : () => b['can_check_in'] == true
-                                      ? _checkIn(isArabic, b['id'] as int)
-                                      : _checkOut(isArabic, b['id'] as int),
+                                      ? _checkIn(isArabic, asInt(b['id']))
+                                      : _checkOut(isArabic, asInt(b['id'])),
                               child: Text(AppStrings.t(isArabic, b['can_check_in'] == true ? 'confirm_check_in' : 'confirm_check_out')),
                             ),
                           ),

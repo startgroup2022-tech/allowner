@@ -9,6 +9,7 @@ import '../../utils/session_provider.dart';
 import '../../services/hotel_service.dart';
 import '../../services/api_client.dart';
 import '../auth/login_screen.dart';
+import '../../utils/safe_parse.dart';
 
 class MyBookingsScreen extends ConsumerStatefulWidget {
   const MyBookingsScreen({super.key});
@@ -225,10 +226,10 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
     );
 
     if (saved != true) return;
-    setState(() => _busyId = b['id'] as int);
+    setState(() => _busyId = asInt(b['id']));
     try {
       await _hotelService.editMyBooking(
-        bookingId: b['id'] as int,
+        bookingId: asInt(b['id']),
         guestName: nameCtrl.text.trim().isNotEmpty ? nameCtrl.text.trim() : null,
         guestPhone: phoneCtrl.text.trim().isNotEmpty ? phoneCtrl.text.trim() : null,
       );
@@ -341,7 +342,7 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
                         Expanded(
                           child: OutlinedButton(
                             style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger, side: const BorderSide(color: AppColors.danger)),
-                            onPressed: busy ? null : () => _cancelBooking(isArabic, b['id'] as int),
+                            onPressed: busy ? null : () => _cancelBooking(isArabic, asInt(b['id'])),
                             child: Text(AppStrings.t(isArabic, 'cancel_booking')),
                           ),
                         ),

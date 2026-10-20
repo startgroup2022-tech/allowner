@@ -1,3 +1,5 @@
+import '../utils/safe_parse.dart';
+
 class AppUser {
   final int id;
   final String fullName;
@@ -17,12 +19,12 @@ class AppUser {
 
   factory AppUser.fromJson(Map<String, dynamic> json) {
     return AppUser(
-      id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
-      fullName: json['full_name']?.toString() ?? '',
-      email: json['email']?.toString() ?? '',
-      phone: json['phone']?.toString(),
-      role: json['role']?.toString() ?? 'guest',
-      avatarUrl: json['avatar_url']?.toString(),
+      id: asInt(json['id']),
+      fullName: asString(json['full_name']),
+      email: asString(json['email']),
+      phone: asStringOrNull(json['phone']),
+      role: asString(json['role'], 'guest'),
+      avatarUrl: asStringOrNull(json['avatar_url']),
     );
   }
 

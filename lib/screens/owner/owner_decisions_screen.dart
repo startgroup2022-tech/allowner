@@ -44,7 +44,7 @@ class _OwnerDecisionsScreenState extends ConsumerState<OwnerDecisionsScreen> {
     final titleCtrl = TextEditingController();
     final descCtrl = TextEditingController();
     final optionCtrls = [TextEditingController(), TextEditingController()];
-    int? selectedHotelId = hotels.first['id'] as int;
+    int? selectedHotelId = asInt(hotels.first['id']);
     bool submitting = false;
 
     await showModalBottomSheet(
@@ -70,7 +70,7 @@ class _OwnerDecisionsScreenState extends ConsumerState<OwnerDecisionsScreen> {
                     value: selectedHotelId,
                     decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'select_hotel')),
                     items: hotels
-                        .map((h) => DropdownMenuItem<int>(value: h['id'] as int, child: Text(h['name'].toString())))
+                        .map((h) => DropdownMenuItem<int>(value: asInt(h['id']), child: Text(h['name'].toString())))
                         .toList(),
                     onChanged: (v) => setSheetState(() => selectedHotelId = v),
                   ),
@@ -226,7 +226,7 @@ class _OwnerDecisionsScreenState extends ConsumerState<OwnerDecisionsScreen> {
                 itemBuilder: (context, index) {
                   final d = decisions[index];
                   final isOpen = d['status'] == 'open';
-                  final myVote = d['my_vote'] as int?;
+                  final myVote = asIntOrNull(d['my_vote']);
                   final options = (d['options'] as List).cast<Map<String, dynamic>>();
                   final total = (d['total_votes'] as num?)?.toInt() ?? 0;
 
@@ -269,7 +269,7 @@ class _OwnerDecisionsScreenState extends ConsumerState<OwnerDecisionsScreen> {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: AppDimens.sm),
                             child: InkWell(
-                              onTap: (!isOpen || _votingOn == d['id']) ? null : () => _vote(isArabic, d['id'] as int, o['id'] as int),
+                              onTap: (!isOpen || _votingOn == d['id']) ? null : () => _vote(isArabic, asInt(d['id']), asInt(o['id'])),
                               borderRadius: BorderRadius.circular(AppDimens.radiusMd),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,

@@ -6,6 +6,7 @@ import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
 import '../../services/api_client.dart';
+import '../../utils/safe_parse.dart';
 
 class OwnerStaffScreen extends ConsumerStatefulWidget {
   const OwnerStaffScreen({super.key});
@@ -41,7 +42,7 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
 
   Future<void> _toggleStatus(Map<String, dynamic> staff) async {
     try {
-      await _service.toggleStaffStatus(staff['id'] as int);
+      await _service.toggleStaffStatus(asInt(staff['id']));
       _reload();
     } on ApiException catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
@@ -86,7 +87,7 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
                       onPressed: () async {
                         if (pwCtrl.text.trim().length < 6) return;
                         try {
-                          await _service.resetStaffPassword(staff['id'] as int, pwCtrl.text.trim());
+                          await _service.resetStaffPassword(asInt(staff['id']), pwCtrl.text.trim());
                           if (ctx.mounted) Navigator.of(ctx).pop();
                           if (mounted) {
                             ScaffoldMessenger.of(context)

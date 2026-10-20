@@ -212,7 +212,7 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
                   return InkWell(
                     borderRadius: BorderRadius.circular(AppDimens.radiusLg),
                     onTap: () => Navigator.of(context)
-                        .push(MaterialPageRoute(builder: (_) => _ClientDetailScreen(clientId: c['id'] as int)))
+                        .push(MaterialPageRoute(builder: (_) => _ClientDetailScreen(clientId: asInt(c['id']))))
                         .then((_) => _reload()),
                     child: Container(
                       padding: const EdgeInsets.all(AppDimens.md),
@@ -247,7 +247,7 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
                           PopupMenuButton<String>(
                             onSelected: (v) {
                               if (v == 'edit') _openEditor(isArabic, existing: c);
-                              if (v == 'delete') _delete(isArabic, c['id'] as int);
+                              if (v == 'delete') _delete(isArabic, asInt(c['id']));
                               if (v == 'book') {
                                 Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SearchScreen(initialQuery: '')));
                               }

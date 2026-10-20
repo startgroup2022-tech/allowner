@@ -6,6 +6,7 @@ import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
 import '../../services/api_client.dart';
+import '../../utils/safe_parse.dart';
 
 class OwnerBookingsScreen extends ConsumerStatefulWidget {
   const OwnerBookingsScreen({super.key});
@@ -167,10 +168,10 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
     );
 
     if (saved != true) return;
-    setState(() => _busyId = b['id'] as int);
+    setState(() => _busyId = asInt(b['id']));
     try {
       await _service.editBooking(
-        bookingId: b['id'] as int,
+        bookingId: asInt(b['id']),
         checkIn: checkIn,
         checkOut: checkOut,
         guestName: nameCtrl.text.trim().isNotEmpty ? nameCtrl.text.trim() : null,
@@ -315,7 +316,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
                                 Expanded(
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
-                                    onPressed: _busyId == b['id'] ? null : () => _confirmBooking(isArabic, b['id'] as int),
+                                    onPressed: _busyId == b['id'] ? null : () => _confirmBooking(isArabic, asInt(b['id'])),
                                     child: Text(AppStrings.t(isArabic, 'confirm_booking')),
                                   ),
                                 ),
@@ -333,7 +334,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
                                 Expanded(
                                   child: OutlinedButton(
                                     style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger, side: const BorderSide(color: AppColors.danger)),
-                                    onPressed: _busyId == b['id'] ? null : () => _cancelBooking(isArabic, b['id'] as int),
+                                    onPressed: _busyId == b['id'] ? null : () => _cancelBooking(isArabic, asInt(b['id'])),
                                     child: Text(AppStrings.t(isArabic, 'cancel_booking')),
                                   ),
                                 ),

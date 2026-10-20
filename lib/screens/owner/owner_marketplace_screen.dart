@@ -53,7 +53,7 @@ class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen>
     );
     final descCtrl = TextEditingController();
     final contactCtrl = TextEditingController();
-    int? selectedUnitId = units.first['id'] as int;
+    int? selectedUnitId = asInt(units.first['id']);
     bool submitting = false;
 
     await showModalBottomSheet(
@@ -83,7 +83,7 @@ class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen>
                     decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'select_unit')),
                     items: units
                         .map((u) => DropdownMenuItem<int>(
-                              value: u['id'] as int,
+                              value: asInt(u['id']),
                               child: Text('${u['hotel_name']} — ${u['name_ar']}', overflow: TextOverflow.ellipsis),
                             ))
                         .toList(),
@@ -283,7 +283,7 @@ class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen>
                                   width: double.infinity,
                                   child: OutlinedButton(
                                     style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 6)),
-                                    onPressed: () => _expressInterest(isArabic, l['id'] as int),
+                                    onPressed: () => _expressInterest(isArabic, asInt(l['id'])),
                                     child: Text(AppStrings.t(isArabic, 'im_interested'), style: const TextStyle(fontSize: 11)),
                                   ),
                                 )

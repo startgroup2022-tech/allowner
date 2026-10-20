@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../utils/safe_parse.dart';
 import 'api_client.dart';
 
 /// كل استدعاءات الـ API الخاصة بحساب "إدارة الفندق" (وصول/مغادرة الضيوف،
@@ -9,7 +10,7 @@ class HotelStaffService {
   Future<Map<String, dynamic>> getDashboard() async {
     try {
       final res = await _dio.get('/hotel/dashboard.php');
-      return res.data as Map<String, dynamic>;
+      return asMap(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -20,7 +21,7 @@ class HotelStaffService {
   Future<List<Map<String, dynamic>>> getBookings({String scope = 'active'}) async {
     try {
       final res = await _dio.get('/hotel/bookings.php', queryParameters: {'scope': scope});
-      return (res.data['bookings'] as List).cast<Map<String, dynamic>>();
+      return asMapList(res.data['bookings']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -48,7 +49,7 @@ class HotelStaffService {
   Future<List<Map<String, dynamic>>> getRequests({required String type, String status = 'open'}) async {
     try {
       final res = await _dio.get('/hotel/requests.php', queryParameters: {'type': type, 'status': status});
-      return (res.data['requests'] as List).cast<Map<String, dynamic>>();
+      return asMapList(res.data['requests']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -81,9 +82,9 @@ class HotelStaffService {
     try {
       final res = await _dio.get('/hotel/prices.php');
       return {
-        'prices': (res.data['prices'] as List).cast<Map<String, dynamic>>(),
-        'units': (res.data['units'] as List).cast<Map<String, dynamic>>(),
-        'hotels': (res.data['hotels'] as List).cast<Map<String, dynamic>>(),
+        'prices': asMapList(res.data['prices']),
+        'units': asMapList(res.data['units']),
+        'hotels': asMapList(res.data['hotels']),
       };
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);

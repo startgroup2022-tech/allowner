@@ -6,6 +6,7 @@ import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/hotel_staff_service.dart';
 import '../../services/api_client.dart';
+import '../../utils/safe_parse.dart';
 
 class HotelPricesScreen extends ConsumerStatefulWidget {
   const HotelPricesScreen({super.key});
@@ -38,7 +39,7 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
 
   Future<void> _openPriceSheet(bool isArabic, List<Map<String, dynamic>> hotels, List<Map<String, dynamic>> units,
       {Map<String, dynamic>? existing}) async {
-    int? hotelId = existing?['hotel_id'] as int? ?? (hotels.isNotEmpty ? hotels.first['id'] as int : null);
+    int? hotelId = existing?['hotel_id'] as int? ?? (hotels.isNotEmpty ? asInt(hotels.first['id']) : null);
     int? unitId = existing?['unit_id'] as int?;
     String type = existing?['service_type']?.toString() ?? _types.first;
     final priceCtrl = TextEditingController(text: existing?['price']?.toString() ?? '');
@@ -74,7 +75,7 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
                   DropdownButtonFormField<int>(
                     value: hotelId,
                     decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'select_hotel')),
-                    items: hotels.map((h) => DropdownMenuItem<int>(value: h['id'] as int, child: Text(h['name']?.toString() ?? ''))).toList(),
+                    items: hotels.map((h) => DropdownMenuItem<int>(value: asInt(h['id']), child: Text(h['name']?.toString() ?? ''))).toList(),
                     onChanged: (v) => setSheetState(() => hotelId = v),
                   ),
                 const SizedBox(height: AppDimens.md),
@@ -86,7 +87,7 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
                     ...units
                         .where((u) => hotelId == null || u['hotel_id'] == hotelId)
                         .map((u) => DropdownMenuItem<int?>(
-                              value: u['id'] as int,
+                              value: asInt(u['id']),
                               child: Text(isArabic ? (u['name_ar']?.toString() ?? '') : (u['name_en']?.toString() ?? '')),
                             )),
                   ],
@@ -214,7 +215,7 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
                               ),
                               IconButton(
                                 icon: Icon(Icons.delete_outline_rounded, size: 20, color: AppColors.danger),
-                                onPressed: () => _deletePrice(p['id'] as int),
+                                onPressed: () => _deletePrice(asInt(p['id'])),
                               ),
                             ],
                           ),

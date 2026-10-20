@@ -5,7 +5,6 @@ import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/hotel_staff_service.dart';
-import '../../services/api_client.dart';
 
 class HotelDashboardScreen extends ConsumerStatefulWidget {
   const HotelDashboardScreen({super.key});

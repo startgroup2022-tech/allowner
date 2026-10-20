@@ -1,11 +1,37 @@
 import 'package:dio/dio.dart';
 import '../models/hotel_model.dart';
+import '../models/unit_model.dart';
+import '../utils/safe_parse.dart';
 import 'api_client.dart';
 
+/// كل استدعاءات الـ API الخاصة بالضيوف: الفنادق، الوحدات، المفضلة، الحجوزات.
+///
+/// قواعد التحويل هنا:
+/// - لا نستخدم `as List` / `as int` مباشرة — نستخدم `asMapList`/`asInt` لأن
+///   السيرفر قد يعيد حقلًا مفقودًا أو نصًا بدل رقم.
+/// - فشل الـ API يُرمى كـ [ApiException] مع [ApiErrorKind] — لا يُحوَّل بصمت
+///   إلى قائمة فارغة (وإلا يظهر "لا توجد نتائج" عند انقطاع الشبكة).
 class HotelService {
   final Dio _dio = ApiClient.instance.dio;
 
-  Future<List<Map<String, dynamic>>> browseUnits({
+  /// يتحقق من نجاح الاستجابة ويرمي [ApiException] عند فشل السيرفر.
+  /// بعض المسارات تعيد `success:false` مع HTTP 200.
+  void _ensureSuccess(dynamic data) {
+    if (data is Map && data['success'] == false) {
+      throw ApiException(
+        (data['message'] ?? 'Request failed').toString(),
+        kind: ApiErrorKind.badResponse,
+      );
+    }
+  }
+
+  /// البحث/التصفح الموحّد للوحدات — يغطي البحث بالمدينة، اسم الفندق، النطاق
+  /// السعري، السعة، ووحدات الملاك.
+  ///
+  /// ملاحظة مهمة عن الـ API: `units/browse.php` يدعم فعلًا `q` (يبحث في اسم
+  /// الفندق واسم الوحدة معًا) و`city` (عربي أو إنجليزي). لذلك نمرّر نص البحث
+  /// كما هو بدل إرسال طلبين منفصلين (اسم فندق + مدينة).
+  Future<List<UnitModel>> browseUnits({
     String? search,
     String? city,
     bool ownerOnly = false,
@@ -26,12 +52,21 @@ class HotelService {
         'sort': sort,
         'limit': limit,
       });
-      return (res.data['units'] as List).cast<Map<String, dynamic>>();
+      _ensureSuccess(res.data);
+      return asMapList(res.data is Map ? res.data['units'] : null)
+          .map(UnitModel.fromJson)
+          .toList();
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
   }
 
+  /// قائمة الفنادق. يدعم السيرفر: `city`، `featured`، `stars`، `min_price`،
+  /// `max_price`.
+  ///
+  /// مهم: `hotels/list.php` **لا يدعم** بحثًا نصيًا بالاسم (`q`/`search`/
+  /// `name`/`keyword` كلها تُتجاهل وتُرجع كل الفنادق). لذلك لا نمرّر بحثًا
+  /// نصيًا هنا — البحث بالاسم يتم عبر [searchHotels] الذي يُرشّح محليًا.
   Future<List<HotelModel>> listHotels({
     String? city,
     double? minPrice,
@@ -47,28 +82,81 @@ class HotelService {
         if (stars != null) 'stars': stars,
         if (featuredOnly) 'featured': 1,
       });
-      final list = (res.data['hotels'] as List).cast<Map<String, dynamic>>();
-      return list.map((h) => HotelModel.fromJson(h)).toList();
+      _ensureSuccess(res.data);
+      return asMapList(res.data is Map ? res.data['hotels'] : null)
+          .map((h) => HotelModel.fromJson(h))
+          .toList();
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
   }
 
-  Future<HotelModel> getHotelDetail(String id) async {
+  /// الفنادق المميزة الحقيقية من السيرفر (`featured=1`).
+  Future<List<HotelModel>> featuredHotels() => listHotels(featuredOnly: true);
+
+  /// بحث الفنادق بالاسم/المدينة/التصنيف.
+  ///
+  /// السيرفر لا يدعم بحثًا نصيًا على الفنادق، لذلك:
+  /// 1. نجلب الفنادق (مُقيّدة بالمدينة على السيرفر عندما يكون متاحًا).
+  /// 2. نُرشّح نصيًا محليًا على الاسم والمدينة والنوع (عربي + إنجليزي).
+  ///
+  /// هذا يضمن أن البحث عن "مكة" أو "فيرمونت" يرجع نتائج مطابقة فعلية من
+  /// بيانات الـ API، وليس من قوائم ثابتة في الواجهة.
+  Future<List<HotelModel>> searchHotels({
+    String? query,
+    String? city,
+    String? categoryName,
+  }) async {
+    final hotels = await listHotels(city: city);
+    final normalizedQuery = _normalize(query);
+    final normalizedCategory = _normalize(categoryName);
+
+    return hotels.where((h) {
+      final typeAr = _normalize(h.typeAr) ?? '';
+      final typeEn = _normalize(h.typeEn) ?? '';
+
+      final matchesCategory = normalizedCategory == null ||
+          typeAr.contains(normalizedCategory) ||
+          typeEn.contains(normalizedCategory) ||
+          normalizedCategory.contains(typeAr) ||
+          normalizedCategory.contains(typeEn);
+
+      if (!matchesCategory) return false;
+      if (normalizedQuery == null) return true;
+
+      final haystack = [h.name, h.cityAr, h.cityEn, h.typeAr, h.typeEn]
+          .map((v) => _normalize(v) ?? '')
+          .join(' ');
+      return haystack.contains(normalizedQuery);
+    }).toList();
+  }
+
+  /// تفصيل فندق + معرض الصور + المرافق المرتبطة به فعليًا.
+  Future<HotelDetail> getHotelDetail(String id) async {
     try {
-      final res = await _dio.get('/hotels/detail.php', queryParameters: {'id': id});
-      final data = res.data as Map<String, dynamic>;
-      final gallery = (data['gallery'] as List?)?.cast<String>() ?? const <String>[];
-      return HotelModel.fromJson(data['hotel'] as Map<String, dynamic>, gallery: gallery);
+      final res =
+          await _dio.get('/hotels/detail.php', queryParameters: {'id': id});
+      _ensureSuccess(res.data);
+      final data = asMap(res.data);
+      return HotelDetail(
+        hotel: HotelModel.fromJson(
+          asMap(data['hotel']),
+          gallery: asStringList(data['gallery']),
+        ),
+        amenities: asMapList(data['amenities']),
+      );
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
   }
 
+  /// مرافق الفندق المرتبطة فعليًا (من نفس استجابة `hotels/detail.php`).
   Future<List<Map<String, dynamic>>> getHotelAmenities(String id) async {
     try {
-      final res = await _dio.get('/hotels/detail.php', queryParameters: {'id': id});
-      return (res.data['amenities'] as List).cast<Map<String, dynamic>>();
+      final res =
+          await _dio.get('/hotels/detail.php', queryParameters: {'id': id});
+      _ensureSuccess(res.data);
+      return asMapList(res.data is Map ? res.data['amenities'] : null);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -76,8 +164,11 @@ class HotelService {
 
   Future<bool> toggleFavorite(String hotelId) async {
     try {
-      final res = await _dio.post('/favorites/toggle.php', data: {'hotel_id': int.parse(hotelId)});
-      return res.data['favorited'] == true;
+      final res = await _dio.post('/favorites/toggle.php', data: {
+        'hotel_id': asInt(hotelId),
+      });
+      _ensureSuccess(res.data);
+      return res.data is Map && res.data['favorited'] == true;
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -86,35 +177,51 @@ class HotelService {
   Future<List<HotelModel>> myFavorites() async {
     try {
       final res = await _dio.get('/favorites/my.php');
-      final list = (res.data['hotels'] as List).cast<Map<String, dynamic>>();
-      return list.map((h) => HotelModel.fromJson(h, isFavorite: true)).toList();
+      _ensureSuccess(res.data);
+      return asMapList(res.data is Map ? res.data['hotels'] : null)
+          .map((h) => HotelModel.fromJson(h, isFavorite: true))
+          .toList();
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
   }
 
-  Future<List<Map<String, dynamic>>> getUnits(String hotelId) async {
+  /// وحدات فندق معيّن من `units/list.php`.
+  Future<List<UnitModel>> getUnits(String hotelId) async {
     try {
-      final res = await _dio.get('/units/list.php', queryParameters: {'hotel_id': int.parse(hotelId)});
-      return (res.data['units'] as List).cast<Map<String, dynamic>>();
+      final res = await _dio.get('/units/list.php', queryParameters: {
+        'hotel_id': asInt(hotelId),
+      });
+      _ensureSuccess(res.data);
+      return asMapList(res.data is Map ? res.data['units'] : null)
+          .map(UnitModel.fromJson)
+          .toList();
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
   }
 
-  Future<Map<String, dynamic>> getUnitDetail(int unitId) async {
+  /// تفصيل وحدة — يشمل الصور، الإضافات، وفترات الإتاحة.
+  Future<UnitModel> getUnitDetail(int unitId) async {
     try {
-      final res = await _dio.get('/units/detail.php', queryParameters: {'id': unitId});
-      return (res.data['unit'] as Map).cast<String, dynamic>();
+      final res =
+          await _dio.get('/units/detail.php', queryParameters: {'id': unitId});
+      _ensureSuccess(res.data);
+      final data = asMap(res.data);
+      return UnitModel.fromJson(asMap(data['unit']));
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
   }
 
-  Future<List<Map<String, dynamic>>> getUnitAddons(int unitId) async {
+  Future<List<UnitAddonModel>> getUnitAddons(int unitId) async {
     try {
-      final res = await _dio.get('/units/addons.php', queryParameters: {'unit_id': unitId});
-      return (res.data['addons'] as List).cast<Map<String, dynamic>>();
+      final res = await _dio
+          .get('/units/addons.php', queryParameters: {'unit_id': unitId});
+      _ensureSuccess(res.data);
+      return asMapList(res.data is Map ? res.data['addons'] : null)
+          .map(UnitAddonModel.fromJson)
+          .toList();
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -137,7 +244,7 @@ class HotelService {
   }) async {
     try {
       final res = await _dio.post('/bookings/create.php', data: {
-        'hotel_id': int.parse(hotelId),
+        'hotel_id': asInt(hotelId),
         if (unitId != null) 'unit_id': unitId,
         'check_in': _fmt(checkIn),
         'check_out': _fmt(checkOut),
@@ -151,7 +258,8 @@ class HotelService {
         if (customerName != null) 'customer_name': customerName,
         if (customerPhone != null) 'customer_phone': customerPhone,
       });
-      return (res.data['booking'] as Map).cast<String, dynamic>();
+      _ensureSuccess(res.data);
+      return asMap(res.data is Map ? res.data['booking'] : null);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -164,12 +272,13 @@ class HotelService {
     String? description,
   }) async {
     try {
-      await _dio.post('/services/request.php', data: {
+      final res = await _dio.post('/services/request.php', data: {
         if (bookingId != null) 'booking_id': bookingId,
         'room_number': roomNumber,
         'service_type': serviceType,
         if (description != null) 'description': description,
       });
+      _ensureSuccess(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -182,12 +291,13 @@ class HotelService {
     String? notes,
   }) async {
     try {
-      await _dio.post('/services/meal-request.php', data: {
+      final res = await _dio.post('/services/meal-request.php', data: {
         'booking_id': bookingId,
         'room_number': roomNumber,
         'meal_types': mealTypes,
         if (notes != null) 'notes': notes,
       });
+      _ensureSuccess(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -196,7 +306,8 @@ class HotelService {
   Future<List<Map<String, dynamic>>> myBookings() async {
     try {
       final res = await _dio.get('/bookings/my.php');
-      return (res.data['bookings'] as List).cast<Map<String, dynamic>>();
+      _ensureSuccess(res.data);
+      return asMapList(res.data is Map ? res.data['bookings'] : null);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -204,7 +315,11 @@ class HotelService {
 
   Future<void> cancelMyBooking(int bookingId) async {
     try {
-      await _dio.post('/bookings/manage.php', data: {'booking_id': bookingId, 'action': 'cancel'});
+      final res = await _dio.post('/bookings/manage.php', data: {
+        'booking_id': bookingId,
+        'action': 'cancel',
+      });
+      _ensureSuccess(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -220,7 +335,7 @@ class HotelService {
     String? notes,
   }) async {
     try {
-      await _dio.post('/bookings/manage.php', data: {
+      final res = await _dio.post('/bookings/manage.php', data: {
         'booking_id': bookingId,
         'action': 'update',
         if (checkIn != null) 'check_in': _fmt(checkIn),
@@ -230,11 +345,40 @@ class HotelService {
         if (guestPhone != null) 'guest_phone': guestPhone,
         if (notes != null) 'notes': notes,
       });
+      _ensureSuccess(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
   }
 
-  String _fmt(DateTime d) =>
-      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  /// يوحّد النص العربي/الإنجليزي للمقارنة: يزيل التشكيل والهمزات والمسافات
+  /// الزائدة، ويوحّد الألف/الهاء حتى يطابق "مكة" و"مكه" و"Makkah"/"makkah".
+  static String? _normalize(String? value) {
+    if (value == null) return null;
+    var text = value.trim().toLowerCase();
+    if (text.isEmpty) return null;
+    text = text
+        .replaceAll(RegExp(r'[\u064B-\u0652\u0670\u0640]'), '') // تشكيل + تطويل
+        .replaceAll(RegExp('[أإآٱ]'), 'ا')
+        .replaceAll('ة', 'ه')
+        .replaceAll('ى', 'ي')
+        .replaceAll('ؤ', 'و')
+        .replaceAll('ئ', 'ي');
+    return text;
+  }
+
+  String _fmt(DateTime d) {
+    final y = d.year.toString().padLeft(4, '0');
+    final m = d.month.toString().padLeft(2, '0');
+    final day = d.day.toString().padLeft(2, '0');
+    return '$y-$m-$day';
+  }
+}
+
+/// نتيجة تفصيل الفندق: الفندق + مرافقه المرتبطة فعليًا.
+class HotelDetail {
+  final HotelModel hotel;
+  final List<Map<String, dynamic>> amenities;
+
+  const HotelDetail({required this.hotel, this.amenities = const []});
 }

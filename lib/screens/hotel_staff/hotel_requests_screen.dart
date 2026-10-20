@@ -6,6 +6,7 @@ import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/hotel_staff_service.dart';
 import '../../services/api_client.dart';
+import '../../utils/safe_parse.dart';
 
 class HotelRequestsScreen extends ConsumerStatefulWidget {
   const HotelRequestsScreen({super.key});
@@ -80,11 +81,11 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen> with 
     );
     if (confirmed != true) return;
 
-    setState(() => _busyId = r['id'] as int);
+    setState(() => _busyId = asInt(r['id']));
     try {
       await _service.actOnRequest(
         type: r['type'] as String,
-        id: r['id'] as int,
+        id: asInt(r['id']),
         action: action,
         note: noteCtrl.text.trim().isNotEmpty ? noteCtrl.text.trim() : null,
         price: priceCtrl.text.trim().isNotEmpty ? double.tryParse(priceCtrl.text.trim()) : null,

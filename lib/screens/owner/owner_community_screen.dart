@@ -6,6 +6,7 @@ import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
 import '../../services/api_client.dart';
+import '../../utils/safe_parse.dart';
 
 class OwnerCommunityScreen extends ConsumerStatefulWidget {
   const OwnerCommunityScreen({super.key});
@@ -45,7 +46,7 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
 
   Future<void> _toggleLike(Map<String, dynamic> post) async {
     try {
-      await _service.toggleCommunityLike(post['id'] as int);
+      await _service.toggleCommunityLike(asInt(post['id']));
       _reload();
     } on ApiException catch (_) {}
   }
@@ -54,7 +55,7 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
     final commentCtrl = TextEditingController();
     List<Map<String, dynamic>> comments = [];
     try {
-      comments = await _service.getPostComments(post['id'] as int);
+      comments = await _service.getPostComments(asInt(post['id']));
     } catch (_) {}
     if (!mounted) return;
 
@@ -112,9 +113,9 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
                           final text = commentCtrl.text.trim();
                           if (text.isEmpty) return;
                           try {
-                            await _service.addComment(post['id'] as int, text);
+                            await _service.addComment(asInt(post['id']), text);
                             commentCtrl.clear();
-                            final refreshed = await _service.getPostComments(post['id'] as int);
+                            final refreshed = await _service.getPostComments(asInt(post['id']));
                             setSheetState(() => comments = refreshed);
                             _reload();
                           } catch (_) {}

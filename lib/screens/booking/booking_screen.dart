@@ -9,6 +9,7 @@ import '../../utils/session_provider.dart';
 import '../../models/hotel_model.dart';
 import '../../services/hotel_service.dart';
 import '../../services/owner_service.dart';
+import '../../models/unit_model.dart';
 import '../../utils/safe_parse.dart';
 import '../auth/login_screen.dart';
 import 'booking_success_screen.dart';
@@ -49,7 +50,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   bool _isSubmitting = false;
 
   // إضافات الوحدة الحقيقية (سرير/وجبات/أخرى) يلي حددها المالك — لو في وحدة محددة
-  List<Map<String, dynamic>> _unitAddons = [];
+  List<UnitAddonModel> _unitAddons = [];
   bool _loadingAddons = false;
   final Set<int> _selectedMealAddonIds = {}; // فاضية = بدون وجبات — يسمح باختيار أكثر من وجبة معاً (فطور + غداء مثلاً)
   final Set<int> _selectedOtherAddonIds = {};
@@ -58,37 +59,45 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   double get _basePricePerNight => widget.unitPricePerNight ?? widget.hotel.pricePerNight;
 
-  List<Map<String, dynamic>> get _mealAddons =>
-      _unitAddons.where((a) => a['category'] == 'meal_plan').toList()
+  List<UnitAddonModel> get _mealAddons =>
+      _unitAddons.where((a) => a.category == 'meal_plan').toList()
         ..sort((a, b) {
-          const order = {'فطور': 0, 'Breakfast': 0, 'غداء': 1, 'Lunch': 1, 'عشاء': 2, 'Dinner': 2};
-          return (order[a['name_ar']] ?? 9).compareTo(order[b['name_ar']] ?? 9);
+          const order = {
+            'فطور': 0,
+            'Breakfast': 0,
+            'غداء': 1,
+            'Lunch': 1,
+            'عشاء': 2,
+            'Dinner': 2,
+          };
+          return (order[a.nameAr] ?? 9).compareTo(order[b.nameAr] ?? 9);
         });
 
-  List<Map<String, dynamic>> get _otherAddons =>
-      _unitAddons.where((a) => a['category'] != 'meal_plan').toList();
+  List<UnitAddonModel> get _otherAddons =>
+      _unitAddons.where((a) => a.category != 'meal_plan').toList();
 
-  double _addonLineTotal(Map<String, dynamic> addon) {
-    final price = asDouble(addon['price']);
-    switch (addon['price_unit']) {
+  /// إجمالي سطر الإضافة. الإضافات في الـ API تُسعَّر بالليلة افتراضيًا،
+  /// و`billing` يحدد إن كان السعر لليلة أم لكل إقامة أم لكل شخص/ليلة.
+  double _addonLineTotal(UnitAddonModel addon) {
+    switch (addon.billing) {
       case 'per_stay':
-        return price;
+        return addon.price;
       case 'per_person_night':
-        return price * _nights * (_guests < 1 ? 1 : _guests);
+        return addon.price * _nights * (_guests < 1 ? 1 : _guests);
       default:
-        return price * _nights;
+        return addon.price * _nights;
     }
   }
 
   double get _addonsTotal {
     double sum = 0;
     for (final id in _selectedMealAddonIds) {
-      final meal = _unitAddons.firstWhere((a) => a['id'] == id, orElse: () => {});
-      if (meal.isNotEmpty) sum += _addonLineTotal(meal);
+      final meal = _unitAddons.where((a) => a.id == id).firstOrNull;
+      if (meal != null) sum += _addonLineTotal(meal);
     }
     for (final id in _selectedOtherAddonIds) {
-      final addon = _unitAddons.firstWhere((a) => a['id'] == id, orElse: () => {});
-      if (addon.isNotEmpty) sum += _addonLineTotal(addon);
+      final addon = _unitAddons.where((a) => a.id == id).firstOrNull;
+      if (addon != null) sum += _addonLineTotal(addon);
     }
     return sum;
   }
@@ -402,7 +411,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                           items: [
                             DropdownMenuItem<int?>(value: null, child: Text(AppStrings.t(isArabic, 'new_client'))),
                             ..._agentClients.map((c) => DropdownMenuItem<int?>(
-                                  value: c['id'] as int,
+                                  value: asInt(c['id']),
                                   child: Text('${c['full_name']} — ${c['phone']}', overflow: TextOverflow.ellipsis),
                                 )),
                           ],
@@ -453,10 +462,10 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                             onTap: () => setState(() => _selectedMealAddonIds.clear()),
                           ),
                           ..._mealAddons.map((m) {
-                            final id = m['id'] as int;
+                            final id = m.id;
                             final selected = _selectedMealAddonIds.contains(id);
                             return _MealOptionTile(
-                              label: isArabic ? (m['name_ar']?.toString() ?? '') : (m['name_en']?.toString() ?? ''),
+                              label: m.name(isArabic),
                               priceLabel: '+${_addonLineTotal(m).toStringAsFixed(0)} ${AppStrings.t(isArabic, "sar")}',
                               selected: selected,
                               onTap: () => setState(() {
@@ -474,7 +483,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                           Text(AppStrings.t(isArabic, 'unit_addons_title'), style: textTheme.titleMedium),
                           const SizedBox(height: AppDimens.sm),
                           ..._otherAddons.map((a) {
-                            final id = a['id'] as int;
+                            final id = a.id;
                             final selected = _selectedOtherAddonIds.contains(id);
                             return Container(
                               margin: const EdgeInsets.only(bottom: AppDimens.sm),
@@ -491,7 +500,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          '${a['category'] == 'extra_bed' ? '🛏️ ' : '✨ '}${isArabic ? (a['name_ar']?.toString() ?? '') : (a['name_en']?.toString() ?? '')}',
+                                          '${a.category == 'extra_bed' ? '🛏️ ' : '✨ '}${a.name(isArabic)}',
                                           style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
                                         ),
                                         Text(

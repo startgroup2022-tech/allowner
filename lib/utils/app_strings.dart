@@ -101,6 +101,61 @@ class AppStrings {
     'recommended_for_you': {'ar': 'موصى به لك', 'en': 'Recommended for You'},
     'per_night': {'ar': '/ليلة', 'en': '/night'},
 
+    // ===== الصفحة الرئيسية (النسخة الجديدة) =====
+    'retry': {'ar': 'إعادة المحاولة', 'en': 'Retry'},
+    'featured_hotels': {'ar': 'فنادق مميزة', 'en': 'Featured Hotels'},
+    'featured_destinations': {'ar': 'وجهات مميزة', 'en': 'Featured Destinations'},
+    'recently_added_units': {'ar': 'أحدث الوحدات المضافة', 'en': 'Recently Added Units'},
+    'browse_by_category': {'ar': 'تصفّح حسب التصنيف', 'en': 'Browse by Category'},
+    'hotels_in_city': {'ar': 'فنادق في', 'en': 'Hotels in'},
+    'units_in_city': {'ar': 'وحدات في', 'en': 'Units in'},
+    'search_city_or_hotel': {
+      'ar': 'ابحث عن مدينة أو فندق أو وحدة',
+      'en': 'Search city, hotel or unit'
+    },
+    'search_hotels_tab': {'ar': 'الفنادق', 'en': 'Hotels'},
+    'search_units_tab': {'ar': 'الوحدات', 'en': 'Units'},
+    'all_categories': {'ar': 'كل التصنيفات', 'en': 'All Categories'},
+    'clear_search': {'ar': 'مسح البحث', 'en': 'Clear search'},
+    'price_on_request': {'ar': 'السعر عند الطلب', 'en': 'Price on request'},
+    'no_description': {
+      'ar': 'لا يوجد وصف مضاف لهذا العقار',
+      'en': 'No description has been added for this property'
+    },
+    'no_amenities': {
+      'ar': 'لا توجد مرافق مضافة لهذا العقار',
+      'en': 'No amenities added for this property'
+    },
+    'amenities_from_backend': {
+      'ar': 'المرافق المضافة لهذا العقار',
+      'en': 'Amenities listed for this property'
+    },
+
+    // ===== تفاصيل الوحدة =====
+    'about_unit': {'ar': 'عن الوحدة', 'en': 'About this unit'},
+    'unit_facilities': {'ar': 'المرافق', 'en': 'Facilities'},
+    'availability_period': {'ar': 'فترة الإتاحة', 'en': 'Availability period'},
+    'no_availability_info': {
+      'ar': 'لا توجد فترة إتاحة محددة — تواصل مع الفندق للتأكد',
+      'en': 'No availability period set — contact the property to confirm'
+    },
+    'unit_number_label': {'ar': 'رقم الوحدة', 'en': 'Unit number'},
+    'capacity_label': {'ar': 'السعة', 'en': 'Capacity'},
+    'beds_label': {'ar': 'الأسرّة', 'en': 'Beds'},
+    'price_per_week_short': {'ar': 'أسبوع', 'en': 'week'},
+    'price_per_month_short': {'ar': 'شهر', 'en': 'month'},
+    'not_available': {'ar': 'غير متاح حاليًا', 'en': 'Currently unavailable'},
+    'hotel_label': {'ar': 'الفندق', 'en': 'Hotel'},
+    'view_hotel': {'ar': 'عرض الفندق', 'en': 'View hotel'},
+    'load_failed_title': {
+      'ar': 'تعذّر تحميل البيانات',
+      'en': 'Could not load the data'
+    },
+    'session_expired': {
+      'ar': 'انتهت الجلسة، الرجاء تسجيل الدخول من جديد',
+      'en': 'Session expired, please log in again'
+    },
+
     // ===== Search & Filters =====
     'search_results': {'ar': 'نتائج البحث', 'en': 'Search Results'},
     'results_found': {'ar': 'نتيجة', 'en': 'results found'},
@@ -313,7 +368,6 @@ class AppStrings {
     'monthly_revenue': {'ar': 'الإيراد الشهري', 'en': 'Monthly Revenue'},
     'total_revenue_month': {'ar': 'إجمالي إيرادات هذا الشهر', 'en': 'Total Revenue This Month'},
     'revenue_history': {'ar': 'سجل الإيرادات', 'en': 'Revenue History'},
-    'retry': {'ar': 'إعادة المحاولة', 'en': 'Retry'},
     'hotel_dashboard': {'ar': 'لوحة الفندق', 'en': 'Hotel Dashboard'},
     'arrivals_today': {'ar': 'وصول اليوم', 'en': 'Arrivals Today'},
     'departures_today': {'ar': 'مغادرة اليوم', 'en': 'Departures Today'},

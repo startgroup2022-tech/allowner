@@ -1,0 +1,225 @@
+# All Owners — Execution 01 Backend Dependencies
+
+**Branch:** `feature/allowners-new-version-exec01`
+**Backend:** `https://all-owner.online/api`
+**Probed:** 2026-10-19, read-only (GET requests only; no writes to production)
+
+---
+
+## 1. Purpose
+
+This document records every place where the mobile application's behaviour is
+limited by the backend, not by the mobile code. It exists so that Execution 02–05
+can distinguish "we have not built it yet" from "the backend does not expose it
+yet". Nothing here is a guess: each item was confirmed by an actual request.
+
+---
+
+## 2. Endpoints the app depends on
+
+| Endpoint | Used by | Status |
+|---|---|---|
+| `GET /cities/list.php` | Homepage destinations, search | Working |
+| `GET /categories/list.php` | Homepage categories | Working |
+| `GET /hotels/list.php` | Homepage featured, search, destinations | Working |
+| `GET /hotels/detail.php` | Hotel details | Working, with gaps (§4) |
+| `GET /units/browse.php` | Homepage units, search, hotel units | Working |
+| `GET /units/detail.php` | Unit details | Working, with gaps (§4) |
+| `GET /auth/login.php` | Login | Working (not modified) |
+| `GET /auth/register.php` | Registration | Working (not modified) |
+| `GET /user/owner-bookings.php` | Owner bookings | Working |
+| `GET /hotels/amenities.php` (via `detail.php`) | Amenities | Working |
+
+---
+
+## 3. Query-parameter support actually verified
+
+### `GET /hotels/list.php`
+
+| Parameter | Supported | Verified |
+|---|---|---|
+| `city` | Yes | `city=Makkah` → 3 hotels (accepts Arabic or English) |
+| `featured` | Yes | `featured=1` → 1 hotel |
+| `stars` | Yes (per code) | Not probed with data |
+| `min_price` / `max_price` | Yes | `min_price=2000` → 1 hotel |
+| **`q` / text search** | **No** | Sending `q` has no effect |
+
+**Consequence — important and honestly reported:** the backend provides **no
+server-side hotel name search**. Hotel name matching is therefore done
+client-side over the results of `hotels/list.php`. This is correct behaviour
+(no fake results, no invented endpoint), but it means hotel-name search cannot
+find a hotel outside the returned page. If the catalogue grows, a server-side
+`q` parameter should be requested from the backend owner.
+
+### `GET /units/browse.php`
+
+| Parameter | Supported | Verified |
+|---|---|---|
+| `q` | **Yes** | `q=فيرمونت` → 3 units |
+| `city` | Yes | `city=Makkah` → 4 units |
+| `hotel_id` | Yes | `hotel_id=2` → 8 units |
+| `owner_only` | Yes | used by the homepage owner-units section |
+| `min_price` / `max_price` | Yes | per code |
+| `min_capacity` | Yes | per code |
+| `sort` | Yes | `newest` used |
+| `limit` | Yes | used |
+
+Units are the one entity with real server-side text search.
+
+---
+
+## 4. Backend gaps that block or limit features
+
+### 4.1 Hotel gallery returns `null`
+
+```
+GET /hotels/detail.php?id=4
+→ { "success": true, "hotel": {...}, "gallery": null, "amenities": [...], "reviews": [...] }
+```
+
+`gallery` is `null`, not `[]`, and is not populated for this hotel.
+
+- **Mobile impact:** the hotel detail gallery falls back to the cover image.
+- **Requirement:** `AO-HTL-04`.
+- **Needed from backend:** populate `gallery` with image URLs per hotel, or
+  confirm the field is deprecated and remove it from the contract.
+
+### 4.2 Hotel detail does not return its units
+
+`hotels/detail.php` returns `units: []`. Units are fetched separately via
+`units/browse.php?hotel_id=<id>`, which works.
+
+- **Mobile impact:** none — the app already makes the second call.
+- **Requirement:** `AO-HTL-07`.
+- **Note:** this is a design choice, not a defect. Recorded so it is not
+  mistaken for a bug.
+
+### 4.3 Unit detail returns no facilities or amenities
+
+```
+GET /units/detail.php?id=13
+→ { "success": true, "unit": { ..., "images": [...], "addons": [], "availability": [...] } }
+```
+
+There is **no `facilities` key and no `amenities` key** in the response.
+
+- **Mobile impact:** the unit detail screen shows "no facilities added for this
+  property". It does not invent amenities.
+- **Requirement:** `AO-AMN-06`, `AO-UNIT-07`.
+- **Needed from backend:** an amenity relation for units — either
+  `unit_amenities` joined into `units/detail.php`, or the unit inheriting its
+  hotel's amenities. **This is the single most impactful backend dependency for
+  the unit experience.**
+- **Owner decision required:** should a unit inherit the hotel's amenities, or
+  have its own? The data model must answer this before the UI can.
+
+### 4.4 No password-reset endpoint
+
+Probed and confirmed **404**:
+
+```
+/api/auth/forgot-password.php   → 404
+/api/auth/forgot.php            → 404
+/api/auth/reset-password.php    → 404
+/api/auth/forgot_password.php   → 404
+```
+
+- **Mobile impact:** the login screen's "Forgot Password?" button had no
+  destination. In the baseline it was a non-functional button
+  (`onPressed: () {}`), which the mandate forbids.
+- **Fix applied in Execution 01:** the button now opens the real Help & Support
+  screen, which offers the working WhatsApp / phone / email channels from
+  `contact` data. The user has a real path to recover access.
+- **Needed from backend:** a password-reset endpoint, if self-service reset is
+  wanted. Until then the support route is the honest option.
+
+### 4.5 All ratings are zero
+
+Every hotel returned by `hotels/list.php` has `rating: 0` and `reviews_count: 0`,
+even where `reviews: []` is returned by the detail endpoint.
+
+- **Mobile impact:** the rating chip is suppressed when the value is 0
+  (`if (hotel.rating > 0)`). Nothing is displayed rather than showing a
+  fabricated "4.9".
+- **Requirement:** `AO-HOME-10`.
+- **Needed from backend:** either real aggregated ratings, or confirmation that
+  ratings are not part of this product.
+
+### 4.6 `reviews` array is empty
+
+`hotels/detail.php` returns a `reviews` array, but it is empty for the hotels
+probed.
+
+- **Mobile impact:** the baseline displayed **two fabricated reviews** (invented
+  names, ratings and comments) regardless of this array. Those were removed in
+  Execution 01. The screen now renders real reviews when present, and shows
+  nothing fabricated when absent.
+- **Requirement:** `AO-HTL-11`.
+
+---
+
+## 5. Field-shape hazards in the contract
+
+These are not gaps but genuine contract hazards that the mobile code must defend
+against. All are now handled by `lib/utils/safe_parse.dart`.
+
+| Field | Observed shapes | Risk |
+|---|---|---|
+| `price_per_night` | `1500` (int), `"2300.75"` (string) | `as num` throws on the string form |
+| `rating` | `0` (int), `"4.5"` (string) | same |
+| `stars` | `5` (int), `"5"` (string) | same |
+| `free_cancellation` | `true` (bool in `list.php`), `1` (int in `detail.php`) | `as bool` throws on the int form |
+| `breakfast_included` | `true` / `1` | same |
+| `is_featured` | `true` / `1` | same |
+| `gallery` | `null` (not `[]`) | `as List` throws |
+| `unit_type_en` | often `null` while `unit_type_ar` is set | blank labels unless fallback exists |
+| `images`, `addons`, `availability` | `[]` on most rows | must not be treated as present |
+| `units` (in hotel detail) | `[]` | must not be treated as present |
+
+**Recommendation for the backend owner:** normalise numeric columns to a single
+type in JSON, and return `[]` rather than `null` for empty collections. This
+would remove an entire class of client-side defensive code. The mobile app now
+handles both shapes, so this is a robustness improvement rather than a blocker.
+
+---
+
+## 6. Production-safety constraints respected
+
+| Constraint | How it was respected |
+|---|---|
+| Do not modify the production database | Only GET requests were issued |
+| Do not modify the production website | No write endpoint was called |
+| Do not introduce fake data | All displayed content comes from the API; demo data was removed |
+| Do not hardcode inventory | Cities, categories, hotels and units are all fetched |
+| Do not disable auth checks | The bearer-token interceptor is intact |
+| Do not publish to Google Play | No build, no upload |
+
+---
+
+## 7. Requests to the backend owner
+
+Ordered by impact on the remaining executions.
+
+| # | Request | Blocks |
+|---|---|---|
+| 1 | Unit amenity relation (own or inherited from hotel) | Unit experience completeness — `AO-AMN-06`, `AO-UNIT-07` |
+| 2 | Server-side hotel name search (`q` on `hotels/list.php`) | Search completeness at catalogue scale — `AO-SRCH-02` |
+| 3 | Populate hotel `gallery` | Hotel gallery — `AO-HTL-04` |
+| 4 | Decide whether ratings/reviews are in scope | Rating and review display — `AO-HOME-10`, `AO-HTL-11` |
+| 5 | Password-reset endpoint | Self-service account recovery — `AO-AUTH-08` area |
+| 6 | Normalise numeric and boolean JSON types | Removes a class of client defensive code |
+| 7 | Confirm the Booking Agent role is in mobile scope | Role shell — `AO-AUTH-04` |
+
+---
+
+## 8. What is *not* a backend dependency
+
+Recorded to prevent misattribution in later executions:
+
+| Item | Real cause |
+|---|---|
+| Booking flow not finished | Mobile scope — Execution 02 by mandate |
+| Session not auto-redirecting on 401 | Mobile scope — shared session provider |
+| Remaining `as List?` casts in 6 owner screens | Mobile scope — `AO-API-02` |
+| `dart format` check failing | Repository/CI scope, pre-existing |
+| Missing `.gitignore` | Repository hygiene — `AO-CLEAN-01` |

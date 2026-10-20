@@ -6,6 +6,7 @@ import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
 import '../../services/api_client.dart';
+import '../../utils/safe_parse.dart';
 
 class OwnerMealRequestsScreen extends ConsumerStatefulWidget {
   const OwnerMealRequestsScreen({super.key});
@@ -172,7 +173,7 @@ class _OwnerMealRequestsScreenState extends ConsumerState<OwnerMealRequestsScree
                           Align(
                             alignment: Alignment.centerLeft,
                             child: OutlinedButton(
-                              onPressed: _updatingId == r['id'] ? null : () => _advanceStatus(isArabic, r['id'] as int, status),
+                              onPressed: _updatingId == r['id'] ? null : () => _advanceStatus(isArabic, asInt(r['id']), status),
                               child: Text(AppStrings.t(
                                   isArabic, status == 'pending' ? 'mark_preparing' : 'mark_delivered')),
                             ),

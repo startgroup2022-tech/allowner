@@ -6,6 +6,7 @@ import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
 import '../../services/api_client.dart';
+import '../../utils/safe_parse.dart';
 
 /// طلب نظافة من المالك للفندق — بيوصل لإدارة الفندق فورًا (إشعار + إيميل)
 /// وتقدر إدارة الفندق تؤكده بسعر وملاحظة، أو تتمّه، أو ترفضه.
@@ -60,8 +61,8 @@ class _OwnerCleaningScreenState extends ConsumerState<OwnerCleaningScreen> {
     }
     if (!mounted) return;
 
-    int? selectedUnitId = units.isNotEmpty ? units.first['id'] as int : null;
-    int? selectedHotelId = units.isNotEmpty ? units.first['hotel_id'] as int : null;
+    int? selectedUnitId = units.isNotEmpty ? asInt(units.first['id']) : null;
+    int? selectedHotelId = units.isNotEmpty ? asInt(units.first['hotel_id']) : null;
     final descCtrl = TextEditingController();
 
     await showModalBottomSheet(
@@ -89,7 +90,7 @@ class _OwnerCleaningScreenState extends ConsumerState<OwnerCleaningScreen> {
                       decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'select_unit')),
                       items: units
                           .map((u) => DropdownMenuItem<int>(
-                                value: u['id'] as int,
+                                value: asInt(u['id']),
                                 child: Text(isArabic ? (u['name_ar']?.toString() ?? '') : (u['name_en']?.toString() ?? '')),
                               ))
                           .toList(),
@@ -97,7 +98,7 @@ class _OwnerCleaningScreenState extends ConsumerState<OwnerCleaningScreen> {
                         final unit = units.firstWhere((u) => u['id'] == v);
                         setSheetState(() {
                           selectedUnitId = v;
-                          selectedHotelId = unit['hotel_id'] as int;
+                          selectedHotelId = asInt(unit['hotel_id']);
                         });
                       },
                     )
@@ -261,7 +262,7 @@ class _OwnerCleaningScreenState extends ConsumerState<OwnerCleaningScreen> {
                             width: double.infinity,
                             child: OutlinedButton(
                               style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger, side: const BorderSide(color: AppColors.danger)),
-                              onPressed: () => _cancelRequest(isArabic, r['id'] as int),
+                              onPressed: () => _cancelRequest(isArabic, asInt(r['id'])),
                               child: Text(AppStrings.t(isArabic, 'cancel_request')),
                             ),
                           ),

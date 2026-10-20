@@ -6,6 +6,7 @@ import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/hotel_service.dart';
 import '../../services/api_client.dart';
+import '../../utils/safe_parse.dart';
 
 /// طلب وجبات حقيقي — يُرسل فعليًا لإدارة الفندق (اختيار مفتوح لأكثر من وجبة معًا)
 class MealRequestScreen extends ConsumerStatefulWidget {
@@ -37,7 +38,7 @@ class _MealRequestScreenState extends ConsumerState<MealRequestScreen> {
     super.initState();
     _bookingsFuture = _service.myBookings().then((list) {
       final eligible = list.where((b) => ['confirmed', 'checked_in'].contains(b['status']?.toString())).toList();
-      if (eligible.isNotEmpty) _selectedBookingId = eligible.first['id'] as int;
+      if (eligible.isNotEmpty) _selectedBookingId = asInt(eligible.first['id']);
       return eligible;
     });
   }
@@ -156,7 +157,7 @@ class _MealRequestScreenState extends ConsumerState<MealRequestScreen> {
                     value: _selectedBookingId,
                     items: bookings
                         .map((b) => DropdownMenuItem<int>(
-                              value: b['id'] as int,
+                              value: asInt(b['id']),
                               child: Text('${b['hotel_name'] ?? ''} — #${b['booking_ref'] ?? b['id']}', overflow: TextOverflow.ellipsis),
                             ))
                         .toList(),

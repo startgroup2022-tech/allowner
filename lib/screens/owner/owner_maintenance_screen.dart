@@ -6,6 +6,7 @@ import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
 import '../../services/api_client.dart';
+import '../../utils/safe_parse.dart';
 
 class OwnerMaintenanceScreen extends ConsumerStatefulWidget {
   const OwnerMaintenanceScreen({super.key});
@@ -46,7 +47,7 @@ class _OwnerMaintenanceScreenState extends ConsumerState<OwnerMaintenanceScreen>
     }
     if (!mounted) return;
 
-    int? selectedHotelId = hotels.isNotEmpty ? hotels.first['id'] as int : null;
+    int? selectedHotelId = hotels.isNotEmpty ? asInt(hotels.first['id']) : null;
     final titleCtrl = TextEditingController();
     final descCtrl = TextEditingController();
 
@@ -74,7 +75,7 @@ class _OwnerMaintenanceScreenState extends ConsumerState<OwnerMaintenanceScreen>
                       value: selectedHotelId,
                       decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'select_hotel')),
                       items: hotels
-                          .map((h) => DropdownMenuItem<int>(value: h['id'] as int, child: Text(h['name'].toString())))
+                          .map((h) => DropdownMenuItem<int>(value: asInt(h['id']), child: Text(h['name'].toString())))
                           .toList(),
                       onChanged: (v) => setSheetState(() => selectedHotelId = v),
                     ),

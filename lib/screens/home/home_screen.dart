@@ -1,18 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../models/category_model.dart';
+import '../../models/city_model.dart';
+import '../../models/hotel_model.dart';
+import '../../models/unit_model.dart';
+import '../../services/api_client.dart';
+import '../../services/catalog_service.dart';
+import '../../services/hotel_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../utils/session_provider.dart';
-import '../../services/hotel_service.dart';
 import '../../widgets/app_logo.dart';
-import '../../utils/safe_parse.dart';
+import '../../widgets/cards.dart';
+import '../../widgets/state_views.dart';
+import '../hotel/hotel_details_screen.dart';
 import '../owner/owner_notifications_screen.dart';
 import '../search/search_screen.dart';
 import '../unit/unit_details_screen.dart';
 
+/// الصفحة الرئيسية الجديدة.
+///
+/// كل قسم فيها يقرأ بياناته من الـ API:
+/// - التصنيفات من `categories/list.php` (وليس قائمة ثابتة في الكود).
+/// - الوجهات من `cities/list.php` (وليس 4 مدن مكتوبة يدويًا).
+/// - الفنادق المميزة من `hotels/list.php?featured=1`.
+/// - أحدث الوحدات من `units/browse.php?sort=newest`.
+/// - وحدات الملاك من `units/browse.php?owner_only=1`.
+///
+/// كل قسم يحمل حالته الخاصة (تحميل / خطأ / فراغ) حتى لا يُعطّل قسمٌ واحد
+/// الصفحة كاملة عند فشل أحد الطلبات.
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -22,55 +40,69 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   final HotelService _hotelService = HotelService();
-  List<Map<String, dynamic>> _units = [];
-  List<Map<String, dynamic>> _ownerUnits = [];
-  bool _isLoading = true;
-  bool _isLoadingOwnerUnits = true;
-  String? _error;
-  String _sort = 'newest';
+  final CatalogService _catalogService = CatalogService();
 
-  static const _mainCities = ['مكة المكرمة', 'المدينة المنورة', 'الرياض', 'جدة'];
+  late Future<List<CategoryModel>> _categoriesFuture;
+  late Future<List<CityModel>> _citiesFuture;
+  late Future<List<HotelModel>> _featuredHotelsFuture;
+  late Future<List<UnitModel>> _recentUnitsFuture;
+  late Future<List<UnitModel>> _ownerUnitsFuture;
 
   @override
   void initState() {
     super.initState();
-    _loadUnits();
-    _loadOwnerUnits();
+    _loadAll();
   }
 
-  Future<void> _loadOwnerUnits() async {
-    try {
-      final units = await _hotelService.browseUnits(ownerOnly: true, sort: 'newest', limit: 10);
-      if (!mounted) return;
-      setState(() {
-        _ownerUnits = units;
-        _isLoadingOwnerUnits = false;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _isLoadingOwnerUnits = false);
-    }
+  void _loadAll() {
+    _categoriesFuture = _catalogService.listCategories();
+    _citiesFuture = _catalogService.listCities();
+    _featuredHotelsFuture = _hotelService.featuredHotels();
+    _recentUnitsFuture = _hotelService.browseUnits(sort: 'newest', limit: 12);
+    _ownerUnitsFuture =
+        _hotelService.browseUnits(ownerOnly: true, sort: 'newest', limit: 10);
   }
 
-  Future<void> _loadUnits() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-    try {
-      final units = await _hotelService.browseUnits(sort: _sort, limit: 12);
-      if (!mounted) return;
-      setState(() {
-        _units = units;
-        _isLoading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
-    }
+  Future<void> _refresh() async {
+    setState(_loadAll);
+    await Future.wait([
+      _categoriesFuture.catchError((_) => const <CategoryModel>[]),
+      _citiesFuture.catchError((_) => const <CityModel>[]),
+      _featuredHotelsFuture.catchError((_) => const <HotelModel>[]),
+      _recentUnitsFuture.catchError((_) => const <UnitModel>[]),
+      _ownerUnitsFuture.catchError((_) => const <UnitModel>[]),
+    ]);
+  }
+
+  void _openSearch(
+      {String? query,
+      int? categoryId,
+      String? categoryName,
+      String? city,
+      int tab = 0}) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SearchScreen(
+          initialQuery: query,
+          initialCategoryId: categoryId,
+          initialCategoryName: categoryName,
+          initialCity: city,
+          initialTab: tab,
+        ),
+      ),
+    );
+  }
+
+  void _openUnit(UnitModel unit) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => UnitDetailsScreen(unitId: unit.id)),
+    );
+  }
+
+  void _openHotel(HotelModel hotel) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => HotelDetailsScreen(hotel: hotel)),
+    );
   }
 
   @override
@@ -78,377 +110,498 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final isArabic = ref.watch(localeProvider).languageCode == 'ar';
     final textTheme = Theme.of(context).textTheme;
     final userName = ref.watch(sessionProvider).user?.fullName.split(' ').first;
-    final units = _units;
-
-    final categories = [
-      {'icon': Icons.king_bed_outlined, 'key': 'hotels', 'color': AppColors.ink},
-      {'icon': Icons.apartment_rounded, 'key': 'apartments', 'color': AppColors.secondary},
-      {'icon': Icons.beach_access_rounded, 'key': 'resorts', 'color': AppColors.goldDark},
-      {'icon': Icons.cabin_outlined, 'key': 'chalets', 'color': AppColors.success},
-      {'icon': Icons.villa_outlined, 'key': 'properties', 'color': AppColors.primary},
-    ];
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // ===== Header =====
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                    AppDimens.pagePadding, AppDimens.md, AppDimens.pagePadding, 0),
-                child: Row(
-                  children: [
-                    const AppLogo(width: 72),
-                    const SizedBox(width: AppDimens.sm),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            userName != null
-                                ? '${AppStrings.t(isArabic, 'hello')}, $userName 👋'
-                                : '${AppStrings.t(isArabic, 'hello_guest')} 👋',
-                            style: textTheme.titleMedium,
-                          ),
-                          Text(
-                            AppStrings.t(isArabic, 'where_to'),
-                            style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const OwnerNotificationsScreen()),
-                      ),
-                      icon: const Icon(Icons.notifications_outlined),
-                      style: IconButton.styleFrom(
-                        backgroundColor: AppColors.surfaceMuted,
-                        shape: const CircleBorder(),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // ===== Search bar =====
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(AppDimens.pagePadding),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const SearchScreen()),
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-                  child: Container(
-                    padding: const EdgeInsets.all(AppDimens.md),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-                      border: Border.all(color: AppColors.cardBorder),
-                      boxShadow: AppColors.cardShadow,
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.search_rounded, color: AppColors.textMuted),
-                        const SizedBox(width: AppDimens.sm),
-                        Expanded(
-                          child: Text(
-                            AppStrings.t(isArabic, 'search_destination'),
-                            style: textTheme.bodyMedium?.copyWith(color: AppColors.textMuted),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: const BoxDecoration(
-                            gradient: AppColors.goldGradient,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.tune_rounded, size: 16, color: Colors.white),
-                        ),
-                      ],
-                    ),
+        child: RefreshIndicator(
+          color: AppColors.gold,
+          onRefresh: _refresh,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverToBoxAdapter(
+                child: _Header(
+                  isArabic: isArabic,
+                  userName: userName,
+                  onNotifications: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (_) => const OwnerNotificationsScreen()),
                   ),
                 ),
               ),
-            ),
-
-            // ===== المدن الرئيسية =====
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 36,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
-                  itemCount: _mainCities.length,
-                  itemBuilder: (context, index) {
-                    final city = _mainCities[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(left: AppDimens.sm),
-                      child: _SortChip(
-                        label: city,
-                        selected: false,
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => SearchScreen(initialQuery: city)),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: AppDimens.md)),
-
-            // ===== Categories =====
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 96,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
-                  itemCount: categories.length,
-                  itemBuilder: (context, index) {
-                    final cat = categories[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(left: AppDimens.md),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => SearchScreen(
-                                initialQuery: AppStrings.t(isArabic, cat['key'] as String),
-                              ),
-                            ),
-                          );
-                        },
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 60,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                color: (cat['color'] as Color).withOpacity(0.08),
-                                borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-                              ),
-                              child: Icon(cat['icon'] as IconData, color: cat['color'] as Color),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              AppStrings.t(isArabic, cat['key'] as String),
-                              style: textTheme.labelSmall,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: AppDimens.md)),
-
-            // ===== فنادق بوحدات ملاك =====
-            if (_isLoadingOwnerUnits || _ownerUnits.isNotEmpty) ...[
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(AppStrings.t(isArabic, 'hotels_with_owner_units'), style: textTheme.headlineSmall),
-                      TextButton(
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const SearchScreen(initialQuery: '')),
-                        ),
-                        child: Text(AppStrings.t(isArabic, 'see_all')),
-                      ),
-                    ],
+                  padding: const EdgeInsets.fromLTRB(
+                    AppDimens.pagePadding,
+                    AppDimens.md,
+                    AppDimens.pagePadding,
+                    0,
+                  ),
+                  child: _SearchEntry(
+                    isArabic: isArabic,
+                    onTap: () => _openSearch(),
                   ),
                 ),
               ),
-              const SliverToBoxAdapter(child: SizedBox(height: AppDimens.sm)),
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 260,
-                  child: _isLoadingOwnerUnits
-                      ? const Center(
-                          child: SizedBox(
-                            width: 28,
-                            height: 28,
-                            child: CircularProgressIndicator(strokeWidth: 2.4, color: AppColors.gold),
-                          ),
-                        )
-                      : ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
-                          itemCount: _ownerUnits.length,
-                          itemBuilder: (context, index) {
-                            final unit = _ownerUnits[index];
-                            return Padding(
-                              padding: const EdgeInsets.only(left: AppDimens.md),
-                              child: _UnitCard(
-                                unit: unit,
-                                isArabic: isArabic,
-                                onTap: () => Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => UnitDetailsScreen(unitId: unit['id'] as int)),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                ),
-              ),
-              const SliverToBoxAdapter(child: SizedBox(height: AppDimens.md)),
+              ..._buildCategories(isArabic, textTheme),
+              ..._buildDestinations(isArabic, textTheme),
+              ..._buildFeaturedHotels(isArabic, textTheme),
+              ..._buildOwnerUnits(isArabic, textTheme),
+              ..._buildRecentUnits(isArabic, textTheme),
+              const SliverToBoxAdapter(child: SizedBox(height: AppDimens.xxl)),
             ],
-
-            // ===== أحدث الأجنحة =====
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(AppStrings.t(isArabic, 'newest_suites'), style: textTheme.headlineSmall),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const SearchScreen()),
-                      ),
-                      child: Text(AppStrings.t(isArabic, 'see_all')),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
-                child: Row(
-                  children: [
-                    _SortChip(
-                      label: AppStrings.t(isArabic, 'sort_newest'),
-                      selected: _sort == 'newest',
-                      onTap: () {
-                        setState(() => _sort = 'newest');
-                        _loadUnits();
-                      },
-                    ),
-                    const SizedBox(width: AppDimens.sm),
-                    _SortChip(
-                      label: AppStrings.t(isArabic, 'sort_price_asc'),
-                      selected: _sort == 'price_asc',
-                      onTap: () {
-                        setState(() => _sort = 'price_asc');
-                        _loadUnits();
-                      },
-                    ),
-                    const SizedBox(width: AppDimens.sm),
-                    _SortChip(
-                      label: AppStrings.t(isArabic, 'sort_capacity'),
-                      selected: _sort == 'capacity',
-                      onTap: () {
-                        setState(() => _sort = 'capacity');
-                        _loadUnits();
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: AppDimens.sm)),
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 260,
-                child: _isLoading
-                    ? const Center(
-                        child: SizedBox(
-                          width: 28,
-                          height: 28,
-                          child: CircularProgressIndicator(strokeWidth: 2.4, color: AppColors.gold),
-                        ),
-                      )
-                    : _error != null
-                        ? Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(_error!, style: textTheme.bodySmall, textAlign: TextAlign.center),
-                                const SizedBox(height: 8),
-                                TextButton(
-                                  onPressed: _loadUnits,
-                                  child: Text(isArabic ? 'إعادة المحاولة' : 'Retry'),
-                                ),
-                              ],
-                            ),
-                          )
-                        : units.isEmpty
-                            ? Center(
-                                child: Text(
-                                  AppStrings.t(isArabic, 'no_units'),
-                                  style: textTheme.bodySmall,
-                                ),
-                              )
-                            : ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
-                                itemCount: units.length,
-                                itemBuilder: (context, index) {
-                                  final unit = units[index];
-                                  return Padding(
-                                    padding: const EdgeInsets.only(left: AppDimens.md),
-                                    child: _UnitCard(
-                                      unit: unit,
-                                      isArabic: isArabic,
-                                      onTap: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (_) => UnitDetailsScreen(unitId: unit['id'] as int),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  );
-                                },
-                              ),
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: AppDimens.xxl)),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  // ===== التصنيفات (من قاعدة البيانات) =====
+  List<Widget> _buildCategories(bool isArabic, TextTheme textTheme) {
+    return [
+      SliverToBoxAdapter(
+        child: _SectionHeader(
+          title: AppStrings.t(isArabic, 'browse_by_category'),
+          isArabic: isArabic,
+        ),
+      ),
+      SliverToBoxAdapter(
+        child: SizedBox(
+          height: 104,
+          child: FutureBuilder<List<CategoryModel>>(
+            future: _categoriesFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const LoadingView(height: 104);
+              }
+              final categories = snapshot.data ?? const <CategoryModel>[];
+              if (categories.isEmpty) {
+                return EmptyView(
+                  compact: true,
+                  icon: Icons.category_outlined,
+                  message: AppStrings.t(isArabic, 'no_results'),
+                  actionLabel: AppStrings.t(isArabic, 'retry'),
+                  onAction: () => setState(() {
+                    _categoriesFuture = _catalogService.listCategories();
+                  }),
+                );
+              }
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.pagePadding),
+                itemCount: categories.length,
+                itemBuilder: (context, index) {
+                  final category = categories[index];
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      left: isArabic ? 0 : AppDimens.md,
+                      right: isArabic ? AppDimens.md : 0,
+                    ),
+                    child: CategoryCard(
+                      category: category,
+                      isArabic: isArabic,
+                      onTap: () => _openSearch(
+                        categoryId: category.id,
+                        categoryName: category.name(isArabic),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ),
+      const SliverToBoxAdapter(child: SizedBox(height: AppDimens.md)),
+    ];
+  }
+
+  // ===== الوجهات (من cities/list.php) =====
+  List<Widget> _buildDestinations(bool isArabic, TextTheme textTheme) {
+    return [
+      SliverToBoxAdapter(
+        child: _SectionHeader(
+          title: AppStrings.t(isArabic, 'featured_destinations'),
+          isArabic: isArabic,
+        ),
+      ),
+      SliverToBoxAdapter(
+        child: SizedBox(
+          height: 172,
+          child: FutureBuilder<List<CityModel>>(
+            future: _citiesFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const LoadingView(height: 172);
+              }
+              if (snapshot.hasError) {
+                return ErrorView(
+                  compact: true,
+                  isArabic: isArabic,
+                  message: _errorMessage(snapshot.error),
+                  onRetry: () => setState(() {
+                    _citiesFuture = _catalogService.listCities();
+                  }),
+                );
+              }
+              final cities = snapshot.data ?? const <CityModel>[];
+              if (cities.isEmpty) {
+                return EmptyView(
+                  compact: true,
+                  icon: Icons.location_city_outlined,
+                  message: AppStrings.t(isArabic, 'no_results'),
+                );
+              }
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.pagePadding),
+                itemCount: cities.length,
+                itemBuilder: (context, index) {
+                  final city = cities[index];
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      left: isArabic ? 0 : AppDimens.md,
+                      right: isArabic ? AppDimens.md : 0,
+                    ),
+                    child: DestinationCard(
+                      city: city,
+                      isArabic: isArabic,
+                      onTap: () => _openSearch(
+                        city:
+                            city.nameEn.isNotEmpty ? city.nameEn : city.nameAr,
+                        query: city.name(isArabic),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ),
+      const SliverToBoxAdapter(child: SizedBox(height: AppDimens.md)),
+    ];
+  }
+
+  // ===== الفنادق المميزة (featured=1) =====
+  List<Widget> _buildFeaturedHotels(bool isArabic, TextTheme textTheme) {
+    return [
+      SliverToBoxAdapter(
+        child: _SectionHeader(
+          title: AppStrings.t(isArabic, 'featured_hotels'),
+          isArabic: isArabic,
+          onSeeAll: () => _openSearch(tab: 0),
+        ),
+      ),
+      SliverToBoxAdapter(
+        child: FutureBuilder<List<HotelModel>>(
+          future: _featuredHotelsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const LoadingView(height: 140);
+            }
+            if (snapshot.hasError) {
+              return ErrorView(
+                compact: true,
+                isArabic: isArabic,
+                message: _errorMessage(snapshot.error),
+                onRetry: () => setState(() {
+                  _featuredHotelsFuture = _hotelService.featuredHotels();
+                }),
+              );
+            }
+            final hotels = snapshot.data ?? const <HotelModel>[];
+            if (hotels.isEmpty) {
+              return EmptyView(
+                compact: true,
+                icon: Icons.hotel_outlined,
+                message: AppStrings.t(isArabic, 'no_results'),
+              );
+            }
+            return SizedBox(
+              height: 220,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.pagePadding),
+                itemCount: hotels.length,
+                itemBuilder: (context, index) {
+                  final hotel = hotels[index];
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      left: isArabic ? 0 : AppDimens.md,
+                      right: isArabic ? AppDimens.md : 0,
+                    ),
+                    child: _FeaturedHotelCard(
+                      hotel: hotel,
+                      isArabic: isArabic,
+                      onTap: () => _openHotel(hotel),
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        ),
+      ),
+      const SliverToBoxAdapter(child: SizedBox(height: AppDimens.md)),
+    ];
+  }
+
+  // ===== وحدات الملاك =====
+  List<Widget> _buildOwnerUnits(bool isArabic, TextTheme textTheme) {
+    return [
+      SliverToBoxAdapter(
+        child: _SectionHeader(
+          title: AppStrings.t(isArabic, 'hotels_with_owner_units'),
+          isArabic: isArabic,
+          onSeeAll: () => _openSearch(tab: 1),
+        ),
+      ),
+      SliverToBoxAdapter(
+        child: SizedBox(
+          height: 250,
+          child: FutureBuilder<List<UnitModel>>(
+            future: _ownerUnitsFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const LoadingView(height: 250);
+              }
+              if (snapshot.hasError) {
+                return ErrorView(
+                  compact: true,
+                  isArabic: isArabic,
+                  message: _errorMessage(snapshot.error),
+                  onRetry: () => setState(() {
+                    _ownerUnitsFuture = _hotelService.browseUnits(
+                        ownerOnly: true, sort: 'newest', limit: 10);
+                  }),
+                );
+              }
+              final units = snapshot.data ?? const <UnitModel>[];
+              if (units.isEmpty) {
+                return EmptyView(
+                  compact: true,
+                  icon: Icons.villa_outlined,
+                  message: AppStrings.t(isArabic, 'no_units'),
+                );
+              }
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.pagePadding),
+                itemCount: units.length,
+                itemBuilder: (context, index) {
+                  final unit = units[index];
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      left: isArabic ? 0 : AppDimens.md,
+                      right: isArabic ? AppDimens.md : 0,
+                    ),
+                    child: UnitCard(
+                      unit: unit,
+                      isArabic: isArabic,
+                      onTap: () => _openUnit(unit),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ),
+      const SliverToBoxAdapter(child: SizedBox(height: AppDimens.md)),
+    ];
+  }
+
+  // ===== أحدث الوحدات =====
+  List<Widget> _buildRecentUnits(bool isArabic, TextTheme textTheme) {
+    return [
+      SliverToBoxAdapter(
+        child: _SectionHeader(
+          title: AppStrings.t(isArabic, 'recently_added_units'),
+          isArabic: isArabic,
+          onSeeAll: () => _openSearch(tab: 1),
+        ),
+      ),
+      SliverToBoxAdapter(
+        child: SizedBox(
+          height: 250,
+          child: FutureBuilder<List<UnitModel>>(
+            future: _recentUnitsFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const LoadingView(height: 250);
+              }
+              if (snapshot.hasError) {
+                return ErrorView(
+                  compact: true,
+                  isArabic: isArabic,
+                  message: _errorMessage(snapshot.error),
+                  onRetry: () => setState(() {
+                    _recentUnitsFuture =
+                        _hotelService.browseUnits(sort: 'newest', limit: 12);
+                  }),
+                );
+              }
+              final units = snapshot.data ?? const <UnitModel>[];
+              if (units.isEmpty) {
+                return EmptyView(
+                  compact: true,
+                  icon: Icons.king_bed_outlined,
+                  message: AppStrings.t(isArabic, 'no_units'),
+                );
+              }
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.pagePadding),
+                itemCount: units.length,
+                itemBuilder: (context, index) {
+                  final unit = units[index];
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      left: isArabic ? 0 : AppDimens.md,
+                      right: isArabic ? AppDimens.md : 0,
+                    ),
+                    child: UnitCard(
+                      unit: unit,
+                      isArabic: isArabic,
+                      onTap: () => _openUnit(unit),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ),
+    ];
+  }
+
+  /// رسائل الخطأ تأتي من [ApiException] وتُترجم إلى نص مناسب للعرض.
+  String _errorMessage(Object? error) {
+    if (error is ApiException) return error.message;
+    return AppStrings.t(
+        ref.read(localeProvider).languageCode == 'ar', 'load_failed_title');
+  }
+}
+
+class _Header extends StatelessWidget {
+  final bool isArabic;
+  final String? userName;
+  final VoidCallback onNotifications;
+
+  const _Header({
+    required this.isArabic,
+    required this.userName,
+    required this.onNotifications,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.md,
+        AppDimens.pagePadding,
+        0,
+      ),
+      child: Row(
+        children: [
+          const AppLogo(width: 68),
+          const SizedBox(width: AppDimens.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  userName != null
+                      ? '${AppStrings.t(isArabic, 'hello')}, $userName'
+                      : AppStrings.t(isArabic, 'hello_guest'),
+                  style: textTheme.titleMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  AppStrings.t(isArabic, 'where_to'),
+                  style: textTheme.bodySmall
+                      ?.copyWith(color: AppColors.textSecondary),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          Semantics(
+            button: true,
+            label: AppStrings.t(isArabic, 'notifications'),
+            child: IconButton(
+              onPressed: onNotifications,
+              icon: const Icon(Icons.notifications_outlined),
+              style: IconButton.styleFrom(
+                backgroundColor: AppColors.surfaceMuted,
+                shape: const CircleBorder(),
+                minimumSize: const Size(44, 44),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _SortChip extends StatelessWidget {
-  final String label;
-  final bool selected;
+class _SearchEntry extends StatelessWidget {
+  final bool isArabic;
   final VoidCallback onTap;
-  const _SortChip({required this.label, required this.selected, required this.onTap});
+
+  const _SearchEntry({required this.isArabic, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.gold.withOpacity(0.15) : AppColors.surfaceMuted,
-          borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-          border: Border.all(color: selected ? AppColors.gold : Colors.transparent),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12.5,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? AppColors.goldDark : AppColors.textMuted,
+    final textTheme = Theme.of(context).textTheme;
+    return Semantics(
+      button: true,
+      label: AppStrings.t(isArabic, 'search_city_or_hotel'),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+        child: Container(
+          padding: const EdgeInsets.all(AppDimens.md),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+            border: Border.all(color: AppColors.cardBorder),
+            boxShadow: AppColors.cardShadow,
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.search_rounded, color: AppColors.textMuted),
+              const SizedBox(width: AppDimens.sm),
+              Expanded(
+                child: Text(
+                  AppStrings.t(isArabic, 'search_city_or_hotel'),
+                  style: textTheme.bodyMedium
+                      ?.copyWith(color: AppColors.textMuted),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  gradient: AppColors.goldGradient,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.tune_rounded,
+                    size: 16, color: Colors.white),
+              ),
+            ],
           ),
         ),
       ),
@@ -456,109 +609,137 @@ class _SortChip extends StatelessWidget {
   }
 }
 
-class _UnitCard extends StatelessWidget {
-  final Map<String, dynamic> unit;
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final bool isArabic;
+  final VoidCallback? onSeeAll;
+
+  const _SectionHeader(
+      {required this.title, required this.isArabic, this.onSeeAll});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.sm,
+        AppDimens.pagePadding,
+        AppDimens.sm,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.headlineSmall,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (onSeeAll != null)
+            TextButton(
+              onPressed: onSeeAll,
+              child: Text(AppStrings.t(isArabic, 'see_all')),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// بطاقة فندق مميز عمودية للشريط الأفقي بالصفحة الرئيسية.
+class _FeaturedHotelCard extends StatelessWidget {
+  final HotelModel hotel;
   final bool isArabic;
   final VoidCallback onTap;
 
-  const _UnitCard({required this.unit, required this.isArabic, required this.onTap});
+  const _FeaturedHotelCard({
+    required this.hotel,
+    required this.isArabic,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final name = isArabic ? (unit['name_ar']?.toString() ?? '') : (unit['name_en']?.toString() ?? '');
-    final hotelName = unit['hotel_name']?.toString() ?? '';
-    final price = asInt(unit['price_per_night']);
-    final capacity = unit['capacity'] ?? 1;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-      child: Container(
-        width: 220,
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-          border: Border.all(color: AppColors.cardBorder),
-          boxShadow: AppColors.cardShadow,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(AppDimens.radiusLg)),
-              child: CachedNetworkImage(
-                imageUrl: unit['cover_image']?.toString() ?? '',
-                height: 130,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  height: 130,
-                  color: AppColors.surfaceMuted,
-                  child: const Center(
-                    child: SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.gold),
+    return Semantics(
+      button: true,
+      label: hotel.name,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+        child: Container(
+          width: 240,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+            border: Border.all(color: AppColors.cardBorder),
+            boxShadow: AppColors.cardShadow,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  AppNetworkImage(
+                    url: hotel.imageUrl,
+                    height: 118,
+                    width: double.infinity,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(AppDimens.radiusLg),
                     ),
                   ),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  height: 130,
-                  color: AppColors.surfaceMuted,
-                  child: Icon(Icons.image_outlined, color: AppColors.textMuted, size: 36),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(AppDimens.sm),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: textTheme.titleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Icon(Icons.location_on_outlined, size: 12, color: AppColors.textMuted),
-                      const SizedBox(width: 2),
-                      Expanded(
-                        child: Text(hotelName,
-                            maxLines: 1, overflow: TextOverflow.ellipsis,
-                            style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                  if (hotel.isFeatured)
+                    Positioned(
+                      top: 8,
+                      right: isArabic ? null : 8,
+                      left: isArabic ? 8 : null,
+                      child: AppBadge(
+                        text: AppStrings.t(isArabic, 'featured_hotels'),
+                        color: AppColors.goldDark,
+                        icon: Icons.star_rounded,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.people_outline_rounded, size: 12, color: AppColors.secondary),
-                            Text(' $capacity',
-                                style: const TextStyle(
-                                    fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.secondary)),
-                          ],
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        '$price ${AppStrings.t(isArabic, "sar")}',
-                        style: textTheme.titleSmall?.copyWith(color: AppColors.goldDark),
-                      ),
-                      Text(AppStrings.t(isArabic, 'per_night'),
-                          style: textTheme.labelSmall?.copyWith(color: AppColors.textMuted)),
-                    ],
-                  ),
+                    ),
                 ],
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.all(AppDimens.sm),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      hotel.name,
+                      style: textTheme.titleSmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on_outlined,
+                            size: 12, color: AppColors.textMuted),
+                        const SizedBox(width: 2),
+                        Expanded(
+                          child: Text(
+                            hotel.city(isArabic),
+                            style: textTheme.bodySmall
+                                ?.copyWith(color: AppColors.textMuted),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    PriceText(
+                      amount: hotel.pricePerNight,
+                      isArabic: isArabic,
+                      fontSize: 14,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

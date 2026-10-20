@@ -7,6 +7,7 @@ import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
 import '../../services/api_client.dart';
 import 'owner_chat_thread_screen.dart';
+import '../../utils/safe_parse.dart';
 
 class OwnerMessagesScreen extends ConsumerStatefulWidget {
   const OwnerMessagesScreen({super.key});
@@ -62,7 +63,7 @@ class _OwnerMessagesScreenState extends ConsumerState<OwnerMessagesScreen> {
                   DropdownButtonFormField<int>(
                     decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'select_recipient')),
                     items: owners
-                        .map((o) => DropdownMenuItem<int>(value: o['id'] as int, child: Text(o['full_name'].toString())))
+                        .map((o) => DropdownMenuItem<int>(value: asInt(o['id']), child: Text(o['full_name'].toString())))
                         .toList(),
                     onChanged: (v) => setSheetState(() => selectedId = v),
                   ),
@@ -173,7 +174,7 @@ class _OwnerMessagesScreenState extends ConsumerState<OwnerMessagesScreen> {
                         : null,
                     onTap: () async {
                       await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => OwnerChatThreadScreen(conversationId: c['id'] as int, otherName: c['other_name'].toString()),
+                        builder: (_) => OwnerChatThreadScreen(conversationId: asInt(c['id']), otherName: c['other_name'].toString()),
                       ));
                       _reload();
                     },

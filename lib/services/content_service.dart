@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../utils/safe_parse.dart';
 import 'api_client.dart';
 
 class ContentService {
@@ -16,7 +17,7 @@ class ContentService {
   Future<Map<String, dynamic>> getSettings() async {
     try {
       final res = await _dio.get('/content/settings.php');
-      return res.data as Map<String, dynamic>;
+      return asMap(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }

@@ -8,6 +8,7 @@ import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
 import '../../services/api_client.dart';
+import '../../utils/safe_parse.dart';
 
 class OwnerAddUnitScreen extends ConsumerStatefulWidget {
   final List<Map<String, dynamic>> hotels;
@@ -50,7 +51,7 @@ class _OwnerAddUnitScreenState extends ConsumerState<OwnerAddUnitScreen> {
   void initState() {
     super.initState();
     if (widget.hotels.isNotEmpty) {
-      _selectedHotelId = widget.hotels.first['id'] as int;
+      _selectedHotelId = asInt(widget.hotels.first['id']);
     }
   }
 
@@ -320,7 +321,7 @@ class _OwnerAddUnitScreenState extends ConsumerState<OwnerAddUnitScreen> {
                   initialValue: _selectedHotelId,
                   decoration: _dec(AppStrings.t(isArabic, 'hotel')),
                   items: widget.hotels
-                      .map((h) => DropdownMenuItem<int>(value: h['id'] as int, child: Text(h['name']?.toString() ?? '')))
+                      .map((h) => DropdownMenuItem<int>(value: asInt(h['id']), child: Text(h['name']?.toString() ?? '')))
                       .toList(),
                   onChanged: (v) => setState(() => _selectedHotelId = v),
                 ),
