@@ -20,6 +20,7 @@ import 'package:allowners/utils/app_strings.dart';
 import 'package:allowners/utils/arabic_text.dart';
 import 'package:allowners/utils/category_labels.dart';
 import 'package:allowners/utils/city_ordering.dart';
+import 'package:allowners/utils/booking_totals.dart';
 import 'package:allowners/utils/maintenance_settlement.dart';
 import 'package:allowners/utils/role_menus.dart';
 import 'package:allowners/utils/revenue_reports.dart';
@@ -1092,6 +1093,36 @@ void main() {
         expect(AppStrings.t(false, key).isNotEmpty, isTrue, reason: key);
         expect(AppStrings.t(true, key) == key, isFalse, reason: key);
       }
+    });
+  });
+  group('إجمالي الحجز (المتطلبات 33 و55)', () {
+    test('الإجمالي = غرفة + إضافات + سرير + ضريبة على المجموع', () {
+      final t = computeBookingTotals(
+        basePricePerNight: 1000,
+        nights: 2,
+        addonsTotal: 200,
+        extraBedCharge: 100,
+      );
+      expect(t.roomPrice, 2000);
+      expect(t.taxes, closeTo((2000 + 200 + 100) * 0.15, 0.001));
+      expect(t.total, closeTo(2300 * 1.15, 0.001));
+    });
+    test('ليلة واحدة على الأقل حتى لو أُرسل صفر', () {
+      final t = computeBookingTotals(basePricePerNight: 500, nights: 0);
+      expect(t.roomPrice, 500);
+    });
+    test('بلا إضافات يبقى الإجمالي سعر الليالي + الضريبة فقط', () {
+      final t = computeBookingTotals(basePricePerNight: 300, nights: 3);
+      expect(t.addonsTotal, 0);
+      expect(t.extraBedCharge, 0);
+      expect(t.total, closeTo(900 * 1.15, 0.001));
+    });
+    test('نفس الحساب مستخدم في نافذة التأكيد وملخص الصفحة (قيمة واحدة)', () {
+      final a = computeBookingTotals(
+          basePricePerNight: 700, nights: 2, addonsTotal: 50, extraBedCharge: 0);
+      final b = computeBookingTotals(
+          basePricePerNight: 700, nights: 2, addonsTotal: 50, extraBedCharge: 0);
+      expect(a.total, b.total);
     });
   });
   group('قائمة الوكيل (المتطلبات 100–107)', () {

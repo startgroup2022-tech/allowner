@@ -10,6 +10,7 @@ import '../../models/hotel_model.dart';
 import '../../services/hotel_service.dart';
 import '../../services/owner_service.dart';
 import '../../models/unit_model.dart';
+import '../../utils/booking_totals.dart';
 import '../../utils/safe_parse.dart';
 import '../auth/login_screen.dart';
 import 'booking_success_screen.dart';
@@ -221,12 +222,18 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       isScrollControlled: true,
       builder: (ctx) {
         final textTheme = Theme.of(ctx).textTheme;
-        final roomPrice = _basePricePerNight * _nights;
-        final addonsTotal = _addonsTotal;
-        final extraBedCharge = computeExtraBedCharge(
-            extraBed: _extraBed, extraBedPrice: widget.hotel.extraBedPrice);
-        final taxes = (roomPrice + addonsTotal + extraBedCharge) * 0.15;
-        final total = roomPrice + addonsTotal + extraBedCharge + taxes;
+        final totals = computeBookingTotals(
+          basePricePerNight: _basePricePerNight,
+          nights: _nights,
+          addonsTotal: _addonsTotal,
+          extraBedCharge: computeExtraBedCharge(
+              extraBed: _extraBed, extraBedPrice: widget.hotel.extraBedPrice),
+        );
+        final roomPrice = totals.roomPrice;
+        final addonsTotal = totals.addonsTotal;
+        final extraBedCharge = totals.extraBedCharge;
+        final taxes = totals.taxes;
+        final total = totals.total;
 
         final paymentLabel = switch (_paymentMethod) {
           PaymentMethod.online => 'pay_online',
@@ -401,13 +408,19 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     final textTheme = Theme.of(context).textTheme;
     final hotel = widget.hotel;
 
-    final roomPrice = _basePricePerNight * _nights;
-    final addonsTotal = _addonsTotal;
     // نفس منطق الباكيند: سرير إضافي يُحسب كرسم ثابت مرة واحدة، ويُحتسب فقط إذا ما فيه إضافات وحدة مختارة
-    final extraBedCharge = computeExtraBedCharge(
-        extraBed: _extraBed, extraBedPrice: widget.hotel.extraBedPrice);
-    final taxes = (roomPrice + addonsTotal + extraBedCharge) * 0.15;
-    final total = roomPrice + addonsTotal + extraBedCharge + taxes;
+    final totals = computeBookingTotals(
+      basePricePerNight: _basePricePerNight,
+      nights: _nights,
+      addonsTotal: _addonsTotal,
+      extraBedCharge: computeExtraBedCharge(
+          extraBed: _extraBed, extraBedPrice: widget.hotel.extraBedPrice),
+    );
+    final roomPrice = totals.roomPrice;
+    final addonsTotal = totals.addonsTotal;
+    final extraBedCharge = totals.extraBedCharge;
+    final taxes = totals.taxes;
+    final total = totals.total;
 
     return Scaffold(
       backgroundColor: AppColors.background,

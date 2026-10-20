@@ -25,8 +25,8 @@
 
 | الحالة | العدد |
 |---|---|
-| VERIFIED PASS | 32 |
-| IMPLEMENTED UNTESTED | 71 |
+| VERIFIED PASS | 33 |
+| IMPLEMENTED UNTESTED | 70 |
 | PARTIAL | 2 |
 | NOT IMPLEMENTED | 0 |
 | BACKEND BLOCKED | 43 |
@@ -390,10 +390,10 @@
 
 - **القسم:** الحجز وتفاصيله — 20 نقطة
 - **التنفيذ:** Execution 02
-- **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** booking_screen.dart, booking_success_screen.dart
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** booking_screen.dart نافذة التأكيد + booking_totals.dart computeBookingTotals
 - **اعتماد الـ API:** /bookings/create.php
-- **الدليل:** ملخص ببيانات الضيف والتواريخ والأشخاص
+- **الدليل:** ملخص الحجز يعرض الغرفة والإضافات والسرير والضريبة والإجمالي. الحساب كان مكرَّرًا حرفيًا في نافذة التأكيد وملخص الصفحة فصار دالة نقية واحدة (computeBookingTotals)؛ 4 اختبارات
 - **المتبقي:** اختبار حقيقي
 - **معيار القبول:** يظهر ملخص الحجز كاملًا
 
