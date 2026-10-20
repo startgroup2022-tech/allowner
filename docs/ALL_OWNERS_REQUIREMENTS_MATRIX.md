@@ -14,23 +14,35 @@ be carried out, because **neither document was supplied**. They are not in the
 repository, not in the workspace, and not in git history (a single grafted commit,
 `8634e33`).
 
-Re-verified 2026-10-19 with:
+**Re-confirmed 2026-10-20.** A message announced that
+`AllOwners_Requirements_Inventory.md` was being attached. It was **not
+delivered**: the message contains text only — one `text` content element, empty
+`extended_content`, no file payload and no download link. Full search evidence is
+recorded in `docs/ALL_OWNERS_148_REQUIREMENTS_FINAL_AUDIT.md` §1–§2.
+
+Re-verified with:
 
 ```
-find / -iname "*requirement*"        # only toolchain files + this matrix
-find /workspace -iname "*.pdf" -o -iname "*.docx"   # nothing
+find / -iname "*AllOwners_Requirements_Inventory*"     # nothing
+find / -iname "*inventory*" -o -iname "*requirements*"  # toolchain + this matrix only
+grep -rIl "متطلب" /workspace /home/openhands /tmp       # nothing
+git ls-files | grep -i "inventory\|148\|requirement"    # this matrix only
+gh api repos/startgroup2022-tech/allowner/git/trees/main?recursive=1  # nothing
+gh pr view 1 --json files                               # no inventory file
 ```
 
-**Consequence, stated plainly:** the 108 `Verified` rows below are verified
+**Consequence, stated plainly:** the 110 `Verified` rows below are verified
 against the Execution 01 mandate text, the live backend, and the source code —
-**not** against the original 51-page document. They are therefore **not proof of
-compliance with the original project requirements**, and are not claimed to be.
-No original requirement can be marked `Verified` until the documents exist.
+**not** against the original 51-page document or the 148-item inventory. They are
+therefore **not proof of compliance with the original project requirements**, and
+are not claimed to be. No original requirement can be marked `Verified` until the
+documents exist.
 
 To complete the reconciliation, the owner must supply:
 
 1. The 51-page requirements document (PDF or equivalent).
-2. The 148-item inventory (spreadsheet, table, or list).
+2. The 148-item inventory — **paste its contents into the message, or commit the
+   file to the repository.** Attaching it to the message did not deliver it.
 
 When supplied, the remaining work is: read both in full, map every item to a row
 here, and report omitted, duplicated, partial, and missing requirements. Until
