@@ -25,6 +25,22 @@ enum PaymentMethod { online, atHotel, ownerTransfer }
 double computeExtraBedCharge({required bool extraBed, double? extraBedPrice}) =>
     extraBed && extraBedPrice != null && extraBedPrice > 0 ? extraBedPrice : 0.0;
 
+/// إجمالي سطر الإضافة الواحدة (المتطلبان 31 و48). دالة نقية لأن السعر قد يكون
+/// لليلة أو لكل إقامة أو لكل شخص/ليلة حسب `price_unit` القادم من الـ API.
+/// كانت تقرأ `billing` فقط بينما السيرفر يرسل `price_unit`، فكان المضاعف يسقط
+/// دائمًا على الافتراضي ويُخطئ في الإجمالي.
+double addonLineTotal(UnitAddonModel addon, {required int nights, required int guests}) {
+  final n = nights < 1 ? 1 : nights;
+  switch (addon.billing) {
+    case 'per_stay':
+      return addon.price;
+    case 'per_person_night':
+      return addon.price * n * (guests < 1 ? 1 : guests);
+    default:
+      return addon.price * n;
+  }
+}
+
 /// صفوف حساب المالك القابلة للعرض (المتطلب 120). دالة نقية تُرجع فقط الحقول
 /// التي أعادها السيرفر فعلًا (المفتاح ثم القيمة) — بلا حقول فارغة أو وهمية.
 List<(String, String)> ownerBankRows(Map<String, dynamic>? bank) {
@@ -111,16 +127,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   /// إجمالي سطر الإضافة. الإضافات في الـ API تُسعَّر بالليلة افتراضيًا،
   /// و`billing` يحدد إن كان السعر لليلة أم لكل إقامة أم لكل شخص/ليلة.
-  double _addonLineTotal(UnitAddonModel addon) {
-    switch (addon.billing) {
-      case 'per_stay':
-        return addon.price;
-      case 'per_person_night':
-        return addon.price * _nights * (_guests < 1 ? 1 : _guests);
-      default:
-        return addon.price * _nights;
-    }
-  }
+  double _addonLineTotal(UnitAddonModel addon) =>
+      addonLineTotal(addon, nights: _nights, guests: _guests);
 
   /// إجمالي الوجبات المختارة فقط (المتطلب 51) — يُعرض أسفل قائمة الوجبات.
   double get _mealsSubtotal {

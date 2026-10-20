@@ -158,7 +158,10 @@ class UnitAddonModel {
       nameAr: asString(json['name_ar']),
       nameEn: asString(json['name_en']),
       price: asDouble(json['price']),
-      billing: asStringOrNull(json['billing']),
+      // السيرفر يُرسل `price_unit` (وهو ما تكتبه شاشة إضافة الوحدة أيضًا)،
+      // وبعض الإصدارات القديمة تُرسل `billing`. نقرأ الاثنين وإلا فسقط
+      // المضاعف دائمًا على القيمة الافتراضية وأخطأنا في حساب الإجمالي.
+      billing: asStringOrNull(json['price_unit'] ?? json['billing']),
     );
   }
 

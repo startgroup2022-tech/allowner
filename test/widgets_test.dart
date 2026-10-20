@@ -860,4 +860,37 @@ void main() {
       expect(rows, isEmpty);
     });
   });
+
+  group('حساب إجمالي الإضافات حسب price_unit (المتطلبان 31 و48)', () {
+    UnitAddonModel addon(String unit, double price) => UnitAddonModel.fromJson({
+          'id': 1,
+          'category': 'meal_plan',
+          'name_ar': 'وجبة',
+          'name_en': 'Meal',
+          'price': price,
+          'price_unit': unit,
+        });
+
+    test('السيرفر يُرسل price_unit ويُقرأ في الموديل', () {
+      expect(addon('per_person_night', 110).billing, 'per_person_night');
+      expect(addon('per_stay', 300).billing, 'per_stay');
+    });
+    test('per_person_night يضرب في الليالي والأشخاص', () {
+      expect(addonLineTotal(addon('per_person_night', 110), nights: 3, guests: 2), 660);
+    });
+    test('per_stay يُحتسب مرة واحدة مهما طالت الإقامة', () {
+      expect(addonLineTotal(addon('per_stay', 300), nights: 5, guests: 4), 300);
+    });
+    test('per_night يضرب في الليالي فقط', () {
+      expect(addonLineTotal(addon('per_night', 100), nights: 4, guests: 3), 400);
+    });
+    test('يحمي من ليالٍ أو ضيوف صفر', () {
+      expect(addonLineTotal(addon('per_person_night', 100), nights: 0, guests: 0), 100);
+    });
+    test('يقبل billing القديم كبديل', () {
+      final legacy = UnitAddonModel.fromJson({'price': 100, 'billing': 'per_stay'});
+      expect(legacy.billing, 'per_stay');
+      expect(addonLineTotal(legacy, nights: 9, guests: 9), 100);
+    });
+  });
 }

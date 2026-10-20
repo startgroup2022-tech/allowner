@@ -64,7 +64,7 @@ M = {
 # (يحتاج تعديل سيرفر) أو NOT IMPLEMENTED (لا يوجد سطح تطبيق أصلًا).
 RANGES = {
     # الحجز وتفاصيله (31-47) — شاشة حجز بها دفع/تواريخ/إضافات + إدارة حجوزات
-    31: (2,'IMPLEMENTED UNTESTED','booking_screen.dart جدول الأسعار (ليلة/إضافات/سرير/ضرائب/إجمالي)','/units/addons.php','ملخّص السعر يظهر قبل الحجز مع إضافة الوجبات والسرير الإضافي والضرائب','تحقق كامل على جهاز','يظهر السعر النهائي قبل الحجز'),
+    31: (2,'VERIFIED PASS','booking_screen.dart addonLineTotal + جدول الأسعار','/units/addons.php price_unit','إصلاح: كان الموديل يقرأ billing والسيرفر يرسل price_unit فيسقط المضاعف على الافتراضي؛ أُصلح و6 اختبارات','—','يظهر السعر النهائي الصحيح قبل الحجز'),
     32: (2,'VERIFIED PASS','booking_screen.dart _openDetailsReview + _ReviewRow','/bookings/create.php','زر الخطوة الرابعة يفتح ورقة «تفاصيل الحجز» (الوحدة/التواريخ/الليالي/الضيوف/العميل/رقم الهوية/السرير الإضافي/تفصيل السعر/طريقة الدفع) ثم زر تأكيد داخلها','—','ينقل الزر إلى تفاصيل الحجز قبل التأكيد'),
     33: (2,'IMPLEMENTED UNTESTED','booking_screen.dart, booking_success_screen.dart','/bookings/create.php','ملخص ببيانات الضيف والتواريخ والأشخاص','اختبار حقيقي','يظهر ملخص الحجز كاملًا'),
     34: (2,'IMPLEMENTED UNTESTED','booking_screen.dart PaymentMethod','/bookings/create.php','خيار الدفع الإلكتروني أو في الفندق','اختبار بوابة الدفع الحقيقية','تظهر طرق الدفع وتُختار'),
@@ -82,7 +82,7 @@ RANGES = {
     46: (2,'IMPLEMENTED UNTESTED','booking_success_screen.dart (المدينة/العنوان من API)','/bookings/create.php + /hotels/detail.php','أُضيفت المدينة والعنوان من بيانات الفندق الحقيقية كبيانات وصول؛ تُخفى إن لم يرجعها الـ API','تأكيد بيانات الوصول للوحدة','تظهر بيانات الوصول بعد التأكيد'),
     47: (2,'BACKEND BLOCKED','—','مزامنة الموقع','مزامنة تفاصيل الحجز مع الموقع تحتاج تكامل سيرفر','تنفيذ المزامنة','تتزامن التفاصيل بين التطبيق والموقع'),
     # الضيف والوجبات والسرير (48-59)
-    48: (2,'IMPLEMENTED UNTESTED','booking_screen.dart _mealAddons','/units/addons.php','اختيار عدة وجبات مسموح ويُرسل الكل في الطلب','اختبار حقيقي','تُختار عدة وجبات'),
+    48: (2,'VERIFIED PASS','booking_screen.dart _mealAddons + addonLineTotal','/units/addons.php price_unit','اختيار عدة وجبات ويُحتسب كل سطر حسب price_unit؛ 6 اختبارات تغطي كل الوحدات','—','تُختار عدة وجبات بإجمالي صحيح'),
     49: (2,'IMPLEMENTED UNTESTED','meal_request_screen.dart','/services/meal-request.php','طلب وجبة مستقل بعدة وجبات','اختبار حقيقي','يستطيع الضيف طلب عدة وجبات'),
     50: (2,'IMPLEMENTED UNTESTED','booking_screen.dart','/units/addons.php','عرض سعر كل وجبة','اختبار حقيقي','يظهر سعر كل وجبة'),
     51: (2,'VERIFIED PASS','booking_screen.dart _mealsSubtotal + صندوق «إجمالي الوجبات»','/units/addons.php','أُزيلت الملاحظة وحلّ محلها إظهار قيمة إجمالي الوجبات المختارة محسوبةً من أسعار الإضافات الحقيقية','—','يظهر إجمالي الوجبات'),
