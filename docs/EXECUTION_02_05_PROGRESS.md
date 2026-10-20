@@ -92,13 +92,54 @@ flip cancelled the automatic one and the "continue" arrow pointed the way back.
 now asserts the icon really is mirrored in an RTL `Directionality` (the
 transform matrix's first element is `-1.0`).
 
+### 3.6 Arabic category filter returned zero hotels (reqs 13, 26)
+
+The most serious defect found in this session, because it silently emptied two
+sections of the search screen at once.
+
+Proven live: `hotels/list.php` ignores `type` and `category_id`. `?type=Hotel`,
+`?type=Resorts`, `?type=Chalet`, `?type=فندق`, `?category_id=1..4` and no filter
+all return the same four rows. The website's `?type=` filter is inert too, so
+this is a server-side gap, and the app therefore has to filter category on the
+client.
+
+That client filter compared the category name to `type_ar` / `type_en`. But
+`categories/list.php` returns **plural** names (`فنادق`, `منتجعات`, `شاليهات`,
+`شقق فندقية`) while the hotels carry **singular** types (`فندق`, `منتجع`,
+`شاليه`). Nothing matched. Every Arabic category returned zero hotels, and
+because `search_screen` constrains units to the chosen category's hotels via
+`hotel_id`, the units list went empty with it. English only appeared to work by
+luck of substring direction — the old code tried both `contains` directions, and
+`'hotels'.contains('hotel')` happens to be true.
+
+Fixed by canonicalising both sides before comparison: regular plural suffixes
+(`ات` / `ون` / `ين` / `s`) plus an explicit alias table for broken plurals that
+no rule derives (`فنادق`→`فندق`, `شقق`→`شقة`, `منتجعات`→`منتجع`). The alias
+lookup runs on the whole word first, because stripping the suffix first turns
+`منتجعات` into `منتج`, not `منتجع`.
+
+Evidence: a unit test covers all four real categories, and a live integration
+test takes the actual category name from the database and asserts non-empty
+results. Both fail against the old code.
+
+### 3.7 Category label differed between two consecutive screens (req 13)
+
+The homepage category button shows the approved label `الوحدات الفندقية`
+(reqs 13/14), but after tapping it the search screen's active filter chip showed
+the raw database name `فنادق`. One category, two names, two taps apart.
+
+The raw name cannot simply be replaced, because it drives filtering. A separate
+`_categoryLabel` now carries the display name, resolved from the loaded
+categories by id (falling back to raw-name match), and only the chip uses it.
+The test fails without the fix and passes with it.
+
 ## 4. Testing
 
 | Command | Result |
 |---|---|
 | `flutter analyze` | 0 errors, 0 warnings |
-| `flutter test` | **200 unit/widget tests pass, 0 failing** (16 live tests skip) |
-| `flutter test test/integration/live_backend_test.dart --dart-define=RUN_LIVE_TESTS=true` | **16 tests, all pass** against `all-owner.online` |
+| `flutter test` | **212 unit/widget tests pass, 0 failing** (17 live tests skip) |
+| `flutter test test/integration/live_backend_test.dart --dart-define=RUN_LIVE_TESTS=true` | **17 tests, all pass** against `all-owner.online` |
 | `flutter build apk --release` | **succeeds** — 69.4 MB, `com.superai.allowners`, versionCode 20 |
 
 Test groups that guard this session's work, by `--plain-name`:
@@ -124,7 +165,7 @@ commit:
 flutter pub get
 dart format --output=none --set-exit-if-changed .
 flutter analyze          # 0 errors, 0 warnings
-flutter test             # 200 passing, 0 failing
+flutter test             # 212 passing, 0 failing
 ```
 
 A second gate exercises the real backend and is **not** part of the default run
@@ -135,7 +176,7 @@ flutter test test/integration/live_backend_test.dart --dart-define=RUN_LIVE_TEST
 ```
 
 `bool.fromEnvironment` only accepts `true`/`false`, not `1`; without the define
-all 16 cases skip and print the reason.
+all 17 cases skip and print the reason.
 
 | Execution | Requirements | Run command |
 |---|---|---|
@@ -203,6 +244,25 @@ silently left as "in progress". The per-item breakdown is in
 
 ## 7. Readiness
 
-Executions 02–05 are **partially complete**. The mobile-side work that can be
-delivered without server changes has been delivered and tested; the remainder is
-blocked on backend endpoints and site changes that are outside this repository.
+Executions 02–05 are **partially complete**, and that is the honest status.
+
+Delivered and verified from the mobile side: the backend discovery pass over the
+whole `/api/` surface, the live integration harness, the Android release build
+proof, the in-repo screen render tests, and seven real defects fixed with
+evidence (three extra-bed / addon / meal-request / transfer-display defects, the
+double icon flip, the Arabic category filter, and the category label mismatch).
+
+Not delivered, and not deliverable here: 42 requirements are `BACKEND BLOCKED`.
+They need PHP and SQL changes on the server — password reset, owner
+subscription, agent payout, the owner wallet and ledger, weekly payouts, split
+payments. A further 47 are `IMPLEMENTED UNTESTED`: the code path exists and
+points at a real endpoint, but confirming it needs a signed-in owner, hotel or
+agent account on a device. Three are `PARTIAL` for the same reason.
+
+The counts above are the machine-generated totals from
+`docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md` (148 rows). Do not read them as a claim
+that the server side is finished.
+
+Final readiness: **EXECUTION 01 PARTIALLY COMPLETE** — the mobile-side scope is
+implemented, tested and built; the server-side scope is blocked on the backend
+owner.

@@ -17,8 +17,8 @@ Arabic-first (RTL) with full English (LTR) support. Builds via Codemagic.
 export PATH=/opt/flutter/bin:$PATH
 flutter pub get
 flutter analyze                 # 0 errors, 0 warnings (info items are style-only)
-flutter test                    # 200 unit/widget tests pass, 16 live tests skip
-dart format --output=none --set-exit-if-changed .   # clean (93 files)
+flutter test                    # 212 unit/widget tests pass, 17 live tests skip
+dart format --output=none --set-exit-if-changed .   # clean (95 files)
 
 # Live integration tests against the real backend (network required):
 flutter test test/integration/live_backend_test.dart --dart-define=RUN_LIVE_TESTS=true
@@ -28,7 +28,16 @@ flutter build apk --release
 ```
 
 **`--dart-define=RUN_LIVE_TESTS=true` is required** — `bool.fromEnvironment` does not accept
-`1`. Without the define the 16 integration tests skip, so a Codemagic build stays offline-safe.
+`1`. Without the define the 17 integration tests skip, so a Codemagic build stays offline-safe.
+
+**Test files:**
+- `test/widgets_test.dart` — pure functions and individual widgets.
+- `test/screens_render_test.dart` — builds the real screens (`HomeScreen`, `SearchScreen`,
+  `HotelDetailsScreen`, `UnitDetailsScreen`) over the real service layer with a fixture Dio
+  adapter serving verbatim production payloads. Asserts no layout overflow at 360/390/768 and
+  `takeException() == null`. When adding a screen-level guarantee, put it here.
+- `test/integration/live_backend_test.dart` — network; see the define above.
+- `test/models_parsing_test.dart` — defensive JSON parsing.
 
 **`/opt/flutter` does not exist in every container.** A fresh container has no Flutter at
 all; install **3.47.7 / Dart 3.13.5** (the version this repo is verified against):
@@ -70,6 +79,14 @@ conflicts with this repo's `intl: ^0.20.2`, and `pub get` fails with
    `CatalogService` (`cities/list.php`, `categories/list.php`).
 5. Every new user-visible string needs **both** an `ar` and an `en` entry; the
    test in `test/widgets_test.dart` enforces this.
+5b. **A category has two names, and they must not be confused.** The raw DB name
+   (`CategoryModel.name`) drives filtering and must stay verbatim. The approved
+   display label (`CategoryModel.displayName`, e.g. `الوحدات الفندقية` for
+   `icon_key=hotels`) is presentation only, per reqs 13/14. Anywhere a category
+   is shown to the user — including the search screen's active filter chip —
+   use `displayName`; anywhere it is sent to the API or compared to
+   `type_ar`, use `name`. Mixing them produces two labels for one category on
+   consecutive screens.
 6. New widgets should reuse `lib/widgets/cards.dart` and
    `lib/widgets/state_views.dart` rather than duplicating UI.
 
@@ -86,6 +103,14 @@ conflicts with this repo's `intl: ^0.20.2`, and `pub get` fails with
 - `units/browse.php` supports `q`, `city`, `hotel_id`, `owner_only` — but
   **ignores category/type**. To filter units by category, constrain them to the
   hotels of that category via `hotel_id`.
+- **Category names are plural, hotel types are singular.** `categories/list.php`
+  returns `فنادق` / `منتجعات` / `شاليهات` / `شقق فندقية`; `hotels/list.php`
+  returns `type_ar` of `فندق` / `منتجع` / `شاليه`. A plain `contains` therefore
+  matches nothing, and an Arabic category yields zero hotels — which also
+  empties the units section, because units are constrained by `hotel_id`.
+  `HotelService._canonicalTokens` canonicalises both sides (regular plural
+  suffixes + a broken-plural alias table) before comparing. Keep it, and keep
+  the category comparison client-side.
 - `hotels/detail.php` returns `gallery: null` (not `[]`) and `units: []`.
 - `units/detail.php` returns no `facilities` or `amenities` key at all.
 - All `auth/forgot*` paths return **404** — there is no password reset.
