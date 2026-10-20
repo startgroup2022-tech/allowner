@@ -53,8 +53,8 @@ M = {
  26: (1,'VERIFIED PASS','hotel_service.dart searchHotels + searchUnits/filterUnits, search_screen.dart','/hotels/list.php + /units/browse.php','بحث المدينة يعمل للفنادق والوحدات: `q` على السيرفر يطابق الأسماء فقط (مكة → 0)، فأضيف searchUnits يدمج مطابقة السيرفر مع تصفية محلية على الاسم/الفندق/المدينة (تطبيع ة→ه، أ→ا)؛ اختبارات filterUnits تؤكد «مكة» تُرجع وحداتها','—','البحث باسم المدينة يعرض الفنادق والوحدات الحقيقية المضافة من لوحة المالك'),
  27: (1,'VERIFIED PASS','home_screen.dart build (ترتيب الأقسام), main_navigation_screen.dart','—','حُسم بترتيب المالك: البحث ← الوجهات ← التصنيفات ← فنادق بوحدات ملاك ← أحدث الوحدات؛ والشريط السفلي 5 عناصر لكل دور','—','ترتيب الرئيسية والشريط السفلي مطابق لقرار المالك'),
  28: (1,'VERIFIED PASS','hotel_details_screen.dart','/hotels/detail.php','صفحة تفاصيل الفندق قبل الوحدات','—','تُعرض تفاصيل الفندق قبل اختيار الغرفة'),
- 29: (1,'IMPLEMENTED UNTESTED','hotel_details_screen.dart, hotel_service.getUnits','/units/list.php?hotel_id=','عرض وحدات الفندق وأسعارها','اختبار حقيقي','تظهر وحدات الفندق وأسعارها'),
- 30: (1,'IMPLEMENTED UNTESTED','unit_details_screen.dart','/units/detail.php','تفاصيل الوحدة + الصور + زر احجز الآن','اختبار حقيقي','تُعرض تفاصيل وصور الوحدة وزر الحجز'),
+ 29: (1,'INTEGRATION VERIFIED','hotel_details_screen.dart, hotel_service.getUnits','/units/list.php?hotel_id=','عرض وحدات الفندق وأسعارها','اختبار حقيقي','تظهر وحدات الفندق وأسعارها'),
+ 30: (1,'INTEGRATION VERIFIED','unit_details_screen.dart','/units/detail.php','تفاصيل الوحدة + الصور + زر احجز الآن','اختبار حقيقي','تُعرض تفاصيل وصور الوحدة وزر الحجز'),
 76: (1,'VERIFIED PASS','service_categories.dart (جديد), unit_details_screen.dart _serviceCategorySection','/units/detail.php (facilities/amenities) — غير مُرجَع حاليًا','المتطلب ينص على خانات الخدمات الخمس (مفارش/طعام/حمام/وسائط/معدات) مع التفاصيل. نُفّذ مصنّف `ServiceCategories` يشتق التصنيف من `icon`/الاسم القادم من قاعدة البيانات ويعرض كل تصنيف بقسمه، وأي عنصر غير معروف يُدرج تحت «خدمات أخرى» ولا يُسقط. 6 اختبارات — مُثبت بستة اختبارات على ServiceCategories','إرجاع `facilities`/`amenities` من `units/detail.php` (علاقة وحدة-مرفق)','تظهر خدمات الوحدة مصنّفة في التصنيفات الخمسة من بيانات حقيقية'),
 }
 
@@ -67,7 +67,7 @@ RANGES = {
     31: (2,'VERIFIED PASS','booking_screen.dart addonLineTotal + جدول الأسعار','/units/addons.php price_unit','إصلاح: كان الموديل يقرأ billing والسيرفر يرسل price_unit فيسقط المضاعف على الافتراضي؛ أُصلح و6 اختبارات','—','يظهر السعر النهائي الصحيح قبل الحجز'),
     32: (2,'VERIFIED PASS','booking_screen.dart _openDetailsReview + _ReviewRow','/bookings/create.php','زر الخطوة الرابعة يفتح ورقة «تفاصيل الحجز» (الوحدة/التواريخ/الليالي/الضيوف/العميل/رقم الهوية/السرير الإضافي/تفصيل السعر/طريقة الدفع) ثم زر تأكيد داخلها','—','ينقل الزر إلى تفاصيل الحجز قبل التأكيد'),
     33: (2,'VERIFIED PASS','booking_screen.dart نافذة التأكيد + booking_totals.dart computeBookingTotals','/bookings/create.php','ملخص الحجز يعرض الغرفة والإضافات والسرير والضريبة والإجمالي. الحساب كان مكرَّرًا حرفيًا في نافذة التأكيد وملخص الصفحة فصار دالة نقية واحدة (computeBookingTotals)؛ 4 اختبارات','اختبار حقيقي','يظهر ملخص الحجز كاملًا'),
-    34: (2,'IMPLEMENTED UNTESTED','booking_screen.dart PaymentMethod','/bookings/create.php','خيار الدفع الإلكتروني أو في الفندق','اختبار بوابة الدفع الحقيقية','تظهر طرق الدفع وتُختار'),
+    34: (2,'IMPLEMENTED UNTESTED','booking_screen.dart PaymentMethod, payment_security.dart, _HostedCheckoutNotice','/bookings/create.php + /content/settings.php (payment_checkout_url)','خيار الدفع الإلكتروني أو في الفندق. أُزيل جمع بيانات البطاقة نهائيًا: الدفع الإلكتروني يحوّل إلى صفحة مستضافة عند مزوّد مرخّص عبر رابط من الإعدادات ويُمرَّر رقم الحجز فقط. الرسائل ar/en موجودة، و7 اختبارات تثبّت الحاجز وبناء الرابط','إعلان payment_checkout_url في content/settings.php + اعتماد مزوّد دفع مرخّص + اختبار معاملة حقيقية على staging','تظهر طرق الدفع وتُختار، والدفع الإلكتروني يُنفَّذ عند مزوّد مرخّص بلا جمع بطاقة داخل التطبيق'),
     35: (2,'IMPLEMENTED UNTESTED','owner_bookings_screen.dart تفاصيل الحجز الكاملة','/user/owner-bookings.php','البطاقة تعرض الضيف والوحدة والتواريخ والإجمالي والإضافات ومصدر الحجز','مزامنة تفاصيل الحجز الكاملة','تظهر كل تفاصيل الحجز'),
     36: (2,'VERIFIED PASS','owner_bookings_screen.dart bookingSourceKey + شارة المصدر','/user/owner-bookings.php source/agent_name','يُعرض مصدر الحجز (ضيف/وكيل/مالك) من الحقول الحقيقية، ويُخفى إن لم تُرجع؛ 4 اختبارات — مُثبت باختبار على bookingSourceKey','مزامنة تفاصيل الحجز الكاملة','يظهر مصدر كل حجز'),
     37: (2,'IMPLEMENTED UNTESTED','owner_bookings_screen.dart _confirmBooking','owner_service','زر تأكيد الحجز في تطبيق المالك','اختبار حقيقي','يستطيع المالك تأكيد الحجز'),
@@ -84,7 +84,7 @@ RANGES = {
     # الضيف والوجبات والسرير (48-59)
     48: (2,'VERIFIED PASS','booking_screen.dart _mealAddons + addonLineTotal','/units/addons.php price_unit','اختيار عدة وجبات ويُحتسب كل سطر حسب price_unit؛ 6 اختبارات تغطي كل الوحدات','—','تُختار عدة وجبات بإجمالي صحيح'),
     49: (2,'VERIFIED PASS','meal_request_screen.dart + service_request_payload.buildMealRequestPayload (مُختبَرة)','/services/meal-request.php','طلب وجبة مستقل بعدة وجبات؛ جسم الطلب صار دالة نقية مع اختبارين يثبتان إرسال عدة وجبات معًا وحذف الملاحظة الفارغة. المتبقي اختبار حقيقي بحساب ضيف — مُثبت باختبار على buildMealRequestPayload','اختبار حقيقي','يستطيع الضيف طلب عدة وجبات'),
-    50: (2,'IMPLEMENTED UNTESTED','booking_screen.dart','/units/addons.php','عرض سعر كل وجبة','اختبار حقيقي','يظهر سعر كل وجبة'),
+    50: (2,'INTEGRATION VERIFIED','booking_screen.dart','/units/addons.php','عرض سعر كل وجبة','اختبار حقيقي','يظهر سعر كل وجبة'),
     51: (2,'VERIFIED PASS','booking_screen.dart _mealsSubtotal + صندوق «إجمالي الوجبات»','/units/addons.php','أُزيلت الملاحظة وحلّ محلها إظهار قيمة إجمالي الوجبات المختارة محسوبةً من أسعار الإضافات الحقيقية','—','يظهر إجمالي الوجبات'),
     52: (2,'VERIFIED PASS','my_bookings_screen.dart _unitNumberLabel + buildBookingDetailRows، hotel_bookings_screen.dart','/bookings/my.php, /hotel/bookings.php','يُعرض رقم/اسم الوحدة ثم عدد الأشخاص أسفله. أُضيف صف «رقم الوحدة» إلى نافذة التفاصيل في موضعه قبل صف الأشخاص؛ 3 اختبارات تثبت الترتيب وعدم إضافة صف فارغ وقبول الرقم نصًا أو عددًا','اختبار حقيقي بحساب ضيف/وكيل','يظهر عدد الأشخاص'),
     53: (2,'VERIFIED PASS','meal_request_screen.dart + buildMealRequestPayload','/services/meal-request.php','إرسال طلب الوجبات: الحقول المُرسلة (booking_id/room_number/meal_types/notes) مثبَتة باختبار. وصوله للمالك يعتمد على السيرفر — مُثبت باختبار على buildMealRequestPayload','اختبار حقيقي','يصل طلب الوجبات للمالك'),
@@ -215,6 +215,7 @@ def main():
     lines.append('**نطاق التنفيذ 01:** الرئيسية، البحث، اكتشاف الفنادق، تجربة الوحدة، نظام التصميم، المرافق\n')
     lines.append('> كل وصف عربي في هذا الملف مأخوذ حرفيًا من ملف الحصر الرسمي. لا توجد أوصاف مُختلقة.  ')
     lines.append('> «VERIFIED PASS» تعني: الكود موجود + مربوط بـ API حيّ + مُتحقَّق منه (اختبار وحدات أو استجابة API فعلية).  ')
+    lines.append('> «INTEGRATION VERIFIED» تعني: مسار الخدمة وعقد الـ API مُثبتان باختبار تكامل حيّ ضد all-owner.online، لكن العرض البصري على جهاز لم يُتحقق منه بعد.  ')
     lines.append('> «IMPLEMENTED UNTESTED» تعني: الكود مكتمل ومربوط لكن لم يُختبر على جهاز حقيقي.  ')
     lines.append('> «BACKEND BLOCKED» تعني: يحتاج تعديل PHP/قاعدة البيانات على السيرفر (خارج نطاق التطبيق).\n')
     lines.append('## ملخّص\n')
@@ -227,7 +228,7 @@ def main():
     lines.append('')
     lines.append('| الحالة | العدد |')
     lines.append('|---|---|')
-    for st in ('VERIFIED PASS','IMPLEMENTED UNTESTED','PARTIAL','NOT IMPLEMENTED','BACKEND BLOCKED','OWNER DECISION REQUIRED'):
+    for st in ('VERIFIED PASS','INTEGRATION VERIFIED','IMPLEMENTED UNTESTED','PARTIAL','NOT IMPLEMENTED','BACKEND BLOCKED','OWNER DECISION REQUIRED'):
         lines.append(f'| {st} | {st_counts.get(st,0)} |')
     lines.append('')
 

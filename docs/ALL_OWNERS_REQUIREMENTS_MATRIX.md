@@ -8,6 +8,7 @@
 
 > كل وصف عربي في هذا الملف مأخوذ حرفيًا من ملف الحصر الرسمي. لا توجد أوصاف مُختلقة.  
 > «VERIFIED PASS» تعني: الكود موجود + مربوط بـ API حيّ + مُتحقَّق منه (اختبار وحدات أو استجابة API فعلية).  
+> «INTEGRATION VERIFIED» تعني: مسار الخدمة وعقد الـ API مُثبتان باختبار تكامل حيّ ضد all-owner.online، لكن العرض البصري على جهاز لم يُتحقق منه بعد.  
 > «IMPLEMENTED UNTESTED» تعني: الكود مكتمل ومربوط لكن لم يُختبر على جهاز حقيقي.  
 > «BACKEND BLOCKED» تعني: يحتاج تعديل PHP/قاعدة البيانات على السيرفر (خارج نطاق التطبيق).
 
@@ -26,7 +27,8 @@
 | الحالة | العدد |
 |---|---|
 | VERIFIED PASS | 53 |
-| IMPLEMENTED UNTESTED | 50 |
+| INTEGRATION VERIFIED | 3 |
+| IMPLEMENTED UNTESTED | 47 |
 | PARTIAL | 3 |
 | NOT IMPLEMENTED | 0 |
 | BACKEND BLOCKED | 42 |
@@ -346,7 +348,7 @@
 
 - **القسم:** الحجز وتفاصيله — 20 نقطة
 - **التنفيذ:** Execution 01
-- **الحالة:** IMPLEMENTED UNTESTED
+- **الحالة:** INTEGRATION VERIFIED
 - **ملفات Flutter:** hotel_details_screen.dart, hotel_service.getUnits
 - **اعتماد الـ API:** /units/list.php?hotel_id=
 - **الدليل:** عرض وحدات الفندق وأسعارها
@@ -357,7 +359,7 @@
 
 - **القسم:** الحجز وتفاصيله — 20 نقطة
 - **التنفيذ:** Execution 01
-- **الحالة:** IMPLEMENTED UNTESTED
+- **الحالة:** INTEGRATION VERIFIED
 - **ملفات Flutter:** unit_details_screen.dart
 - **اعتماد الـ API:** /units/detail.php
 - **الدليل:** تفاصيل الوحدة + الصور + زر احجز الآن
@@ -402,11 +404,11 @@
 - **القسم:** الحجز وتفاصيله — 20 نقطة
 - **التنفيذ:** Execution 02
 - **الحالة:** IMPLEMENTED UNTESTED
-- **ملفات Flutter:** booking_screen.dart PaymentMethod
-- **اعتماد الـ API:** /bookings/create.php
-- **الدليل:** خيار الدفع الإلكتروني أو في الفندق
-- **المتبقي:** اختبار بوابة الدفع الحقيقية
-- **معيار القبول:** تظهر طرق الدفع وتُختار
+- **ملفات Flutter:** booking_screen.dart PaymentMethod, payment_security.dart, _HostedCheckoutNotice
+- **اعتماد الـ API:** /bookings/create.php + /content/settings.php (payment_checkout_url)
+- **الدليل:** خيار الدفع الإلكتروني أو في الفندق. أُزيل جمع بيانات البطاقة نهائيًا: الدفع الإلكتروني يحوّل إلى صفحة مستضافة عند مزوّد مرخّص عبر رابط من الإعدادات ويُمرَّر رقم الحجز فقط. الرسائل ar/en موجودة، و7 اختبارات تثبّت الحاجز وبناء الرابط
+- **المتبقي:** إعلان payment_checkout_url في content/settings.php + اعتماد مزوّد دفع مرخّص + اختبار معاملة حقيقية على staging
+- **معيار القبول:** تظهر طرق الدفع وتُختار، والدفع الإلكتروني يُنفَّذ عند مزوّد مرخّص بلا جمع بطاقة داخل التطبيق
 
 ### 35. إظهار تفاصيل الحجز في تطبيق المالك ولوحته
 
@@ -577,7 +579,7 @@
 
 - **القسم:** الضيف والوجبات والسرير — 12 نقطة
 - **التنفيذ:** Execution 02
-- **الحالة:** IMPLEMENTED UNTESTED
+- **الحالة:** INTEGRATION VERIFIED
 - **ملفات Flutter:** booking_screen.dart
 - **اعتماد الـ API:** /units/addons.php
 - **الدليل:** عرض سعر كل وجبة
