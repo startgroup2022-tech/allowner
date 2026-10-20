@@ -27,8 +27,8 @@ def load_inventory():
 M = {
  1:  (1,'VERIFIED PASS','home_screen.dart _Header, app_strings hello_guest','—','السلسلة ar=«مرحبًا بك» مطابقة لنص المستند ص1','—','تظهر رسالة الترحيب العربية بلا مستخدم مسجّل'),
  2:  (1,'VERIFIED PASS','app_strings hello_guest','—','en=«Welcome»','—','تظهر رسالة الترحيب الإنجليزية عند تبديل اللغة'),
-3:  (1,'IMPLEMENTED UNTESTED','app_about_screen.dart, app_strings app_description_intro/body/closing','—','نص الوصف العربي منقول حرفيًا من مستند المتطلبات (صفحة «تعريف تطبيق All Owners») ويُعرض في شاشة التعريف المتاحة من ملف كل دور','—','يطابق الوصف العربي نص المستند المعتمد'),
-4:  (1,'IMPLEMENTED UNTESTED','app_about_screen.dart, app_strings app_description_intro/body/closing','—','نص الوصف الإنجليزي منقول حرفيًا من مستند المتطلبات','—','يطابق الوصف الإنجليزي نص المستند'),
+3:  (1,'VERIFIED PASS','app_about_screen.dart, app_strings app_description_intro/body/closing','—','نص الوصف العربي منقول حرفيًا من مستند المتطلبات ويُعرض في شاشة التعريف من ملف كل دور. اختبار يفتح الشاشة بالعربية ويطابق نصين من المستند','—','يطابق الوصف العربي نص المستند المعتمد'),
+4:  (1,'VERIFIED PASS','app_about_screen.dart, app_strings app_description_intro/body/closing','—','نص الوصف الإنجليزي منقول حرفيًا من مستند المتطلبات. اختبار يفتح الشاشة بالإنجليزية ويطابق نصين من المستند','—','يطابق الوصف الإنجليزي نص المستند'),
 5:  (1,'VERIFIED PASS','app_strings app_tagline, app_tagline_full, splash_screen.dart, app_about_screen.dart','—','العبارة صارت «المنصة الموثوقة لملاك الوحدات والعقارات» ويقرأها شاشة البداية من AppStrings؛ اختبار يؤكد النص الدقيق','—','تظهر العبارة التعريفية المعتمدة عربيًا وإنجليزيًا'),
  6:  (1,'IMPLEMENTED UNTESTED','assets/images/logo.png, logo_full.png, app_logo.dart','/content/settings.php','الشعار يُحمّل من الإعدادات مع بديل محلي','تأكيد أن ملفات الشعار هي النسخة الجديدة المعتمدة','يظهر الشعار الجديد في كل الشاشات'),
 7:  (1,'IMPLEMENTED UNTESTED','home_screen.dart _Header AppLogo(width:80)','—','كُبّر شعار AO في منطقة الترحيب من 68 إلى 80 (+17.6%) ضمن المدى المطلوب 15–20% دون تغيير الشعار','تأكيد بصري من المالك على الحجم','حجم الشعار مطابق للمقترح (أكبر 15–20%)'),
@@ -96,7 +96,7 @@ RANGES = {
     59: (2,'IMPLEMENTED UNTESTED','service_request_screen.dart','/services/request.php','حالة طلبات الخدمة للضيف','اختبار حقيقي','تظهر حالة الطلبات للضيف'),
     # المالك والخدمات (60-75)
     60: (3,'IMPLEMENTED UNTESTED','owner_cleaning_screen.dart','/user/owner-requests.php?type=cleaning','قائمة طلب النظافة في حساب المالك','اختبار حقيقي','تظهر قائمة طلبات النظافة'),
-    61: (3,'IMPLEMENTED UNTESTED','app_strings','—','التسمية «النظافة» بدل «هاوس كيبنج»','—','تظهر التسمية «النظافة»'),
+    61: (3,'VERIFIED PASS','app_strings housekeeping/housekeeping_desc, role_menus.dart','—','التسمية «النظافة» (Cleaning) بدل «هاوس كيبنج» في كل النصوص؛ 3 اختبارات: النص العربي والإنجليزي، غياب كلمة «هاوس» من النصوص المعروضة، ووجود العنصر في قائمتي المالك والوكيل','—','تظهر التسمية «النظافة»'),
     62: (3,'IMPLEMENTED UNTESTED','owner_cleaning_screen.dart','/user/owner-requests.php','إنشاء طلب نظافة من التطبيق','اختبار حقيقي','يُنشئ المالك طلب نظافة'),
     63: (3,'BACKEND BLOCKED','—','لوحة المالك','إنشاء طلب نظافة من لوحة المالك يحتاج تعديل الموقع','تنفيذ الواجهة على الموقع','يُنشأ الطلب من اللوحة'),
     64: (3,'BACKEND BLOCKED','—','/user/owner-requests.php','إرسال الطلب من المالك للفندق يحتاج ربط سيرفر','تنفيذ الإرسال','يصل الطلب للفندق'),

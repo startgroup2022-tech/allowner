@@ -952,6 +952,29 @@ void main() {
     });
   });
 
+  group('تسمية النظافة بدل هاوس كيبنج (المتطلب 61)', () {
+    test('مفتاح housekeeping يعرض «النظافة» بالعربية وCleaning بالإنجليزية', () {
+      expect(AppStrings.t(true, 'housekeeping'), 'النظافة');
+      expect(AppStrings.t(false, 'housekeeping'), 'Cleaning');
+    });
+    test('لا تظهر كلمة «هاوس كيبنج» في أي نص معروض', () {
+      const keys = [
+        'housekeeping',
+        'housekeeping_desc',
+        'new_cleaning_request',
+        'owner_staff',
+        'owner_staff_desc',
+      ];
+      for (final k in keys) {
+        expect(AppStrings.t(true, k).contains('هاوس'), isFalse, reason: k);
+      }
+    });
+    test('مفتاح housekeeping مستخدم فعلًا في قوائم المالك والوكيل', () {
+      for (final menu in [ownerMenu, agentMenu]) {
+        expect(menu.any((e) => e.labelKey == 'housekeeping'), isTrue);
+      }
+    });
+  });
   group('تغيير الصورة الشخصية لكل الأدوار (المتطلب 9)', () {
     Future<void> pumpAgentProfile(WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({});
