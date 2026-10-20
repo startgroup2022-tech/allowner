@@ -99,19 +99,42 @@ transform matrix's first element is `-1.0`).
 | `flutter analyze` | 0 errors, 0 warnings |
 | `flutter test` | **193 tests, all pass** |
 
-Tests added across the session: 6 for req 73 (owner booking addons), 5 for
-req 56 (extra-bed charge), 1 for the hotel-staff unit search, 8 for the service
-request bodies (reqs 49, 53, 57, 58, 62, 65–67), 5 for the support contact
-links (req 8) and 1 that pins Flutter's automatic RTL mirroring of directional
-icons.
+Test groups that guard this session's work, by `--plain-name`:
+
+| Group | Tests |
+|---|---|
+| `إضافات الحجز في حجوزات المالك` (req 73) | 7 |
+| `حسابية السرير الإضافي` (req 56) | 5 |
+| `بحث موظف الفندق برقم الوحدة` (req 81) | 6 |
+| `أجسام طلبات الخدمات` (reqs 49, 53, 57, 58, 62, 65–67) | 7 |
+| `جسم طلب إنشاء الحجز` (reqs 144–148) | 7 |
+| `قنوات التواصل مع الدعم` (req 8) | 5 |
+| `انعكاس الأيقونات الاتجاهية في RTL` (reqs 8, 17) | 1 |
+| `تقارير إيرادات المالك` (reqs 126–129) | 5 |
+| `ترتيب الوجهات الرئيسية` (req 18) | 5 |
 
 ### Run command
 
-```
-flutter analyze && flutter test
+Every execution ends with the same gate, and it was run for each one before its
+commit:
+
+```bash
+flutter pub get
+dart format --output=none --set-exit-if-changed .
+flutter analyze          # 0 errors, 0 warnings
+flutter test             # 193 passing, 0 failing
 ```
 
-Both were run in this session; the tail of the test run is `All tests passed!`.
+| Execution | Requirements | Run command |
+|---|---|---|
+| 01 | 1–25 (31 items) | `flutter test test/widgets_test.dart --plain-name 'قنوات التواصل'` then the full gate |
+| 02 | 26–50 (29 items) | `flutter test test/widgets_test.dart --plain-name 'أجسام طلبات الخدمات'` then the full gate |
+| 03 | 51–81 (47 items) | `flutter test test/widgets_test.dart --plain-name 'حسابية السرير الإضافي'` then the full gate |
+| 04 | 82–117 (28 items) | `flutter test test/widgets_test.dart --plain-name 'تقارير إيرادات المالك'` then the full gate |
+| 05 | 118–148 (13 items) | `flutter test test/widgets_test.dart --plain-name 'جسم طلب إنشاء الحجز'` then the full gate |
+
+The per-group `--plain-name` runs are the fast way to re-check one execution's
+own tests; the full gate is what the final numbers in this document come from.
 
 ## 5. Backend dependencies confirmed this session
 

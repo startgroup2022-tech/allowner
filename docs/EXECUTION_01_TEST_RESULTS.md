@@ -403,8 +403,8 @@ repository — the earlier failure recorded in §1.1 was resolved by running
 |---|---|---|
 | Support contact links were built inline with an untested private helper, so a phone stored as `+966 555 634 615` or an Arabic email subject produced a broken URL | `contact_channels.dart` + 5 tests pinning the exact `wa.me` / `tel:` / `mailto:` strings | 8 |
 | Six screens flipped directional arrows by hand (`isArabic ? chevron_left : chevron_right`). Flutter already mirrors `arrow_*` / `chevron_*` in an RTL subtree (a probe test confirmed `matchTextDirection == true` for all of them), so the manual flip cancelled the automatic one and "continue" pointed backwards | Plain icons; a widget test asserts the RTL transform matrix's first element is `-1.0` | 8, 17 |
-| Guest meal, cleaning and maintenance request bodies, and the owner cleaning / meal / extra-bed bodies, were composed inline in three call sites with nothing proving what left the device | `service_request_payload.dart` + 8 tests | 49, 53, 57, 58, 62, 65–67 |
-| The booking create payload was assembled inline in `HotelService.createBooking` | `booking_payload.dart` + `buildBookingPayload` tests | 144–148 |
+| Guest meal, cleaning and maintenance request bodies, and the owner cleaning / meal / extra-bed bodies, were composed inline in three call sites with nothing proving what left the device | `service_request_payload.dart` + 7 tests in the `أجسام طلبات الخدمات` group | 49, 53, 57, 58, 62, 65–67 |
+| The booking create payload was assembled inline in `HotelService.createBooking` | `booking_payload.dart` + 7 tests in the `جسم طلب إنشاء الحجز` group | 144–148 |
 
 ### 10.2 Status movement in the 148-item matrix
 
