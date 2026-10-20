@@ -506,3 +506,52 @@ Architecture, state management, routing, roles, application ID, signing, and
 `codemagic.yaml` are unchanged. The new code follows the existing
 Riverpod + `FutureBuilder` + typed-model conventions and introduces no new
 dependency.
+
+---
+
+## 13. Addendum — Executions 02–05 close-out (2026-10-20)
+
+This addendum extends the audit to the modules touched while closing Executions
+02–05. The architecture itself did not change: still Riverpod, still imperative
+`Navigator.push`, still a single `Dio` instance, still typed models behind
+`safe_parse`. What changed is that four payloads that were previously assembled
+inline now live in pure functions, and two RTL/contact defects were fixed.
+
+### 13.1 New pure functions (and why)
+
+| Function | File | Call sites it replaced | Reqs |
+|---|---|---|---|
+| `digitsOnly`, `whatsappUri`, `telUri`, `mailUri` | `lib/utils/contact_channels.dart` | Inline string surgery in `help_support_screen.dart` | 8 |
+| `buildMealRequestPayload`, `buildServiceRequestPayload`, `buildOwnerRequestPayload`, `buildOwnerMealDescription` | `lib/utils/service_request_payload.dart` | Inline maps in `meal_request_screen.dart`, `service_request_screen.dart`, `owner_cleaning_screen.dart`, `owner_meal_requests_screen.dart`, `owner_extra_bed_screen.dart`, `owner_service_prices_screen.dart` | 49, 53, 57, 58, 62, 65–67 |
+| `buildBookingPayload`, `formatBookingDate` | `lib/utils/booking_payload.dart` | Inline map in `HotelService.createBooking` | 144–148 |
+
+The reason for the extraction is not tidiness. Each of these bodies carries data
+the server needs and the client cannot verify by looking at a screen — a guest
+name, an ID number, a check-in date, a unit id. With the map inline, the only way
+to know what left the device was to read the widget tree and trust it. As a pure
+function it is a seven-line test. This is the same reasoning already applied to
+`booking_totals.dart` and `availability.dart`.
+
+### 13.2 Correctness fixes with a stated limit
+
+- **`dart format` is now clean repo-wide.** Execution 01's audit recorded the
+  check as failing for pre-existing reasons and recommended one dedicated format
+  commit; that commit was made. `dart format --output=none --set-exit-if-changed .`
+  now reports 0 of 92 files changed.
+- **Requirements 120 and 126–129 were not upgraded to VERIFIED PASS** even though
+  their helpers have tests. `ownerBankRows` and `RevenueReports` read
+  `bank_name`, `account_number`, `iban`, `maintenance_expense`,
+  `cleaning_expense` and multi-year `monthly[]` out of the response. A test on the
+  pure function proves the mapping; it does not prove the server sends those
+  keys. `user/owner-revenue.php` returns `401` to an unauthenticated probe, so
+  the field names stay unconfirmed and the items stay IMPLEMENTED UNTESTED.
+  Recording them as verified would have been the easiest way to make the
+  numbers look better and the one thing the mandate forbids.
+
+### 13.3 Scope boundary, restated
+
+`find . -name "*.php"` still returns nothing. Every item whose required change is
+server-side — password reset (110), subscriptions (121–125), wallet/ledger/payout
+(132–143), server-side double-booking prevention (45), commission settlement
+(108, 109) — is recorded as BACKEND BLOCKED or PARTIAL in the matrix with the
+missing route named. None was stubbed, mocked, or faked in the client.

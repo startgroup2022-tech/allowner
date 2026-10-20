@@ -331,3 +331,46 @@ in the existing widget harness, not on a device:
 emulator is available in this environment, so the claim is limited to
 layout-integrity and RTL direction in the widget harness — consistent with the
 limitations already stated in §7 of this document.
+
+---
+
+## 9. Addendum — Executions 02–05 close-out (2026-10-20)
+
+Executions 02–05 changed no screen layout, colour, spacing or typography, so the
+twelve captures in §1–§6 remain the visual evidence for the app. Two exceptions
+are visual and are recorded here rather than left implicit.
+
+### 9.1 The directional arrow now points the right way (reqs 8, 17)
+
+This is the one *visible* defect fixed in this pass. Six screens chose the arrow
+by hand:
+
+```dart
+icon: isArabic ? Icons.chevron_left : Icons.chevron_right   // before
+icon: Icons.chevron_right                                   // after
+```
+
+Flutter mirrors every `arrow_*` / `chevron_*` icon inside an RTL subtree because
+their `matchTextDirection` is true. A probe test confirmed this for the whole
+family, so the manual condition was flipping an already-flipped icon and the
+"continue" affordance pointed backwards in Arabic. The fix is a deletion, not a
+new layout, so no new capture is required — but a reviewer comparing screenshots
+before and after will see the arrow reverse, and that is intended.
+
+The behaviour is now pinned by a widget test that asserts the rendered icon's
+transform matrix has `-1.0` as its first element under an RTL `Directionality`.
+
+### 9.2 Contact links
+
+`help_support_screen.dart` builds the WhatsApp / phone / email targets through
+`contact_channels.dart` instead of inline string surgery. The visible result is
+identical when the stored number is already digits-only; it changes (correctly)
+when the number contains `+` or spaces, which previously produced a link the OS
+refused to open.
+
+### 9.3 What is still not visually verified
+
+Unchanged from §7: **no Android device or emulator exists in this container**, so
+there is no on-hardware capture. The twelve images are from a release web build
+rendered from the real widget tree against the live backend, at 390×844, 360×800
+and 768×1024. Nothing in this addendum claims a device screenshot.
