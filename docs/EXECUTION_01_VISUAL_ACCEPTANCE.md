@@ -87,6 +87,36 @@ content screens confirms real text/content is painted (a blank screen would show
 
 ---
 
+## 2b. Widget-tree render evidence (in-repo, runs in CI)
+
+Section 1 captured pixels from a scratch web harness. That harness is not in the
+repository, so it cannot guard against regressions. `test/screens_render_test.dart`
+complements it: it builds the **real** screens (`HomeScreen`, `SearchScreen`,
+`HotelDetailsScreen`, `UnitDetailsScreen`) over the **real** service layer, with a
+fixture HTTP adapter serving verbatim production payloads, and renders them.
+
+10 cases, all passing:
+
+| Case | Asserts |
+|---|---|
+| Homepage ar @360 / @390 / @768 | renders, `takeException()` null, real city + approved category label present |
+| Homepage en | renders LTR, shows `Hotel units` |
+| Search by city | shows the real hotel from `hotels/list.php` |
+| Search by real category `فنادق` | results are **not** empty (locks the plural/singular fix) |
+| Category filter chip | shows `الوحدات الفندقية`, never the raw `فنادق` |
+| Hotel details | renders real amenities from `hotels/detail.php` |
+| Hotel details, HTTP 500 | does not crash, no false-empty success |
+| Unit details | renders the real unit and its booking entry point |
+
+The overflow assertion is not vacuous: the same harness at 120 px width fails
+with `RenderFlex overflowed by 18/56 pixels`, so `takeException()` genuinely
+detects layout overflow. 360/390/768 are clean.
+
+This file is committed, so the layout and label guarantees now run on every
+`flutter test` instead of only in a throwaway harness.
+
+---
+
 ## 3. Rendered content — verbatim
 
 ### 3.1 Homepage, Arabic (RTL) — live data
@@ -96,7 +126,7 @@ content screens confirms real text/content is painted (a blank screen would show
 أين ترغب في الإقامة؟
 ابحث عن مدينة أو فندق أو وحدة
 تصفّح حسب التصنيف
-  فنادق · شقق فندقية · منتجعات · شاليهات
+  الوحدات الفندقية · شقق فندقية · منتجعات · شاليهات
 وجهات مميزة
   جدة · مكة المكرمة · المدينة المنورة · الخبر · الدمام
 فنادق مميزة                                    عرض الكل
@@ -142,7 +172,7 @@ documented fallback in `HotelModel.city()` / `UnitModel.name()`, not a defect.
 
 ```
 نتائج البحث            الفلاتر
-كل التصنيفات · فنادق · شقق فندقية · منتجعات · شاليهات
+كل التصنيفات · الوحدات الفندقية · شقق فندقية · منتجعات · شاليهات
 12 نتيجة                          الأحدث
   4005 — جناح عائلي — فندق فيرمونت مكه — 2 · 1 — 1500 ريال /ليلة
   غرفة سيتي12345 — غرفة لشخصين — فندق العنوان — 2 · 2 — 1200 ريال /ليلة

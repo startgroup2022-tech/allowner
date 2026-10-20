@@ -68,6 +68,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
   String _sort = 'newest';
   int? _categoryId;
   String? _categoryName;
+
+  /// التسمية المعروضة لشريحة التصنيف المختار. منفصلة عن [_categoryName]
+  /// لأن الأخير هو الاسم الحرفي من قاعدة البيانات ويُستخدم للفلترة، بينما
+  /// المتطلبان 13 و14 يطلبان تسمية معتمدة مختلفة («الوحدات الفندقية» بدل
+  /// «فنادق»). بدون الفصل كانت الشريحة تعرض اسمًا يخالف الزر الذي ضغطه المستخدم.
+  String? _categoryLabel;
   String? _city;
   double? _minPrice;
   double? _maxPrice;
@@ -106,10 +112,25 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     try {
       final categories = await _catalogService.listCategories();
       if (!mounted) return;
-      setState(() => _categories = categories);
+      setState(() {
+        _categories = categories;
+        _syncCategoryLabel();
+      });
     } catch (_) {
       // التصنيفات اختيارية — لا نُفشل الشاشة إذا لم تُحمّل
     }
+  }
+
+  /// يضبط التسمية المعروضة للشريحة من التصنيف المطابق بعد تحميل التصنيفات،
+  /// حتى تعرض الشريحة نفس تسمية الزر الذي ضغطه المستخدم في الرئيسية.
+  void _syncCategoryLabel() {
+    if (_categoryId == null && _categoryName == null) return;
+    final isArabic = ref.read(localeProvider).languageCode == 'ar';
+    final match = _categories.where((c) =>
+        (_categoryId != null && c.id == _categoryId) ||
+        (_categoryName != null && c.name(isArabic) == _categoryName));
+    _categoryLabel =
+        match.isEmpty ? _categoryName : match.first.displayName(isArabic);
   }
 
   /// يبني كل معايير البحث الحالية ويجلب النتائج من الـ API.
@@ -188,9 +209,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
 
   void _selectCategory(CategoryModel? category) {
     setState(() {
+      final isArabic = ref.read(localeProvider).languageCode == 'ar';
       _categoryId = category?.id;
-      _categoryName =
-          category?.name(ref.read(localeProvider).languageCode == 'ar');
+      _categoryName = category?.name(isArabic);
+      _categoryLabel = category?.displayName(isArabic);
     });
     _loadResults();
   }
@@ -398,7 +420,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
             ),
           if (_categoryName != null)
             _FilterChip(
-              label: _categoryName!,
+              label: _categoryLabel ?? _categoryName!,
               onRemove: () => _selectCategory(null),
             ),
           if (_minCapacity != null)
