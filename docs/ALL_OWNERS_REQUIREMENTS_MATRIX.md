@@ -25,11 +25,11 @@
 
 | الحالة | العدد |
 |---|---|
-| VERIFIED PASS | 18 |
+| VERIFIED PASS | 19 |
 | IMPLEMENTED UNTESTED | 41 |
 | PARTIAL | 37 |
 | NOT IMPLEMENTED | 0 |
-| BACKEND BLOCKED | 52 |
+| BACKEND BLOCKED | 51 |
 | OWNER DECISION REQUIRED | 0 |
 
 ## المصفوفة الكاملة
@@ -643,12 +643,12 @@
 
 - **القسم:** الضيف والوجبات والسرير — 12 نقطة
 - **التنفيذ:** Execution 02
-- **الحالة:** BACKEND BLOCKED
-- **ملفات Flutter:** booking_screen.dart
+- **الحالة:** VERIFIED PASS
+- **ملفات Flutter:** booking_screen.dart computeExtraBedCharge (دالة نقية)
 - **اعتماد الـ API:** /units/addons.php
-- **الدليل:** حساب تكلفة السرير يحتاج تصحيحًا على السيرفر
-- **المتبقي:** تصحيح الحساب في السيرفر
-- **معيار القبول:** يُحسب السرير بشكل صحيح
+- **الدليل:** كانت رسوم السرير تُصفَّر خطأً عند اختيار أي وجبة/إضافة (!hasAddonsSelected)؛ صُحّحت بدالة نقية مع 5 اختبارات
+- **المتبقي:** —
+- **معيار القبول:** تُحسب تكلفة السرير الإضافي دائمًا عند اختياره
 
 ### 57. تمكين الضيف من طلب النظافة
 

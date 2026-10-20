@@ -90,7 +90,7 @@ RANGES = {
     53: (2,'IMPLEMENTED UNTESTED','meal_request_screen.dart','/services/meal-request.php','إرسال طلب الوجبات للمالك','اختبار حقيقي','يصل طلب الوجبات للمالك'),
     54: (2,'PARTIAL','booking_screen.dart extraBed','/units/addons.php','خيار السرير الإضافي','اختبار حقيقي','يستطيع الضيف طلب سرير إضافي'),
     55: (2,'IMPLEMENTED UNTESTED','booking_screen.dart','/units/addons.php','عرض سعر السرير الإضافي','اختبار حقيقي','يظهر سعر السرير'),
-    56: (2,'BACKEND BLOCKED','booking_screen.dart','/units/addons.php','حساب تكلفة السرير يحتاج تصحيحًا على السيرفر','تصحيح الحساب في السيرفر','يُحسب السرير بشكل صحيح'),
+    56: (2,'VERIFIED PASS','booking_screen.dart computeExtraBedCharge (دالة نقية)','/units/addons.php','كانت رسوم السرير تُصفَّر خطأً عند اختيار أي وجبة/إضافة (!hasAddonsSelected)؛ صُحّحت بدالة نقية مع 5 اختبارات','—','تُحسب تكلفة السرير الإضافي دائمًا عند اختياره'),
     57: (2,'IMPLEMENTED UNTESTED','service_request_screen.dart','/services/request.php','طلب النظافة من الضيف','اختبار حقيقي','يستطيع الضيف طلب النظافة'),
     58: (2,'IMPLEMENTED UNTESTED','service_request_screen.dart','/services/request.php','طلب الصيانة من الضيف','اختبار حقيقي','يستطيع الضيف طلب الصيانة'),
     59: (2,'IMPLEMENTED UNTESTED','service_request_screen.dart','/services/request.php','حالة طلبات الخدمة للضيف','اختبار حقيقي','تظهر حالة الطلبات للضيف'),

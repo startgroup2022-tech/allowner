@@ -16,6 +16,15 @@ import 'booking_success_screen.dart';
 
 enum PaymentMethod { online, atHotel, ownerTransfer }
 
+/// المتطلب 56: تصحيح حسابية السرير الإضافي.
+///
+/// كانت الرسوم تُصفَّر خطأً كلما اختار الضيف أي وجبة/إضافة أخرى
+/// (`!hasAddonsSelected && _extraBed`)، فيظهر السرير الإضافي بلا تكلفة في
+/// الإجمالي. تُحتسب الآن متى اختار الضيف السرير الإضافي وكان للفندق سعر
+/// (السعر 0 يعني «مجاني» فيبقى صفرًا).
+double computeExtraBedCharge({required bool extraBed, double? extraBedPrice}) =>
+    extraBed && extraBedPrice != null && extraBedPrice > 0 ? extraBedPrice : 0.0;
+
 class BookingScreen extends ConsumerStatefulWidget {
   final HotelModel hotel;
   final int? unitId;
@@ -182,9 +191,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         final textTheme = Theme.of(ctx).textTheme;
         final roomPrice = _basePricePerNight * _nights;
         final addonsTotal = _addonsTotal;
-        final hasAddonsSelected = _selectedMealAddonIds.isNotEmpty || _selectedOtherAddonIds.isNotEmpty;
-        final extraBedCharge =
-            (!hasAddonsSelected && _extraBed && widget.hotel.extraBedPrice != null) ? widget.hotel.extraBedPrice! : 0.0;
+        final extraBedCharge = computeExtraBedCharge(
+            extraBed: _extraBed, extraBedPrice: widget.hotel.extraBedPrice);
         final taxes = (roomPrice + addonsTotal + extraBedCharge) * 0.15;
         final total = roomPrice + addonsTotal + extraBedCharge + taxes;
 
@@ -362,9 +370,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
     final roomPrice = _basePricePerNight * _nights;
     final addonsTotal = _addonsTotal;
-    final hasAddonsSelected = _selectedMealAddonIds.isNotEmpty || _selectedOtherAddonIds.isNotEmpty;
     // نفس منطق الباكيند: سرير إضافي يُحسب كرسم ثابت مرة واحدة، ويُحتسب فقط إذا ما فيه إضافات وحدة مختارة
-    final extraBedCharge = (!hasAddonsSelected && _extraBed && widget.hotel.extraBedPrice != null) ? widget.hotel.extraBedPrice! : 0.0;
+    final extraBedCharge = computeExtraBedCharge(
+        extraBed: _extraBed, extraBedPrice: widget.hotel.extraBedPrice);
     final taxes = (roomPrice + addonsTotal + extraBedCharge) * 0.15;
     final total = roomPrice + addonsTotal + extraBedCharge + taxes;
 

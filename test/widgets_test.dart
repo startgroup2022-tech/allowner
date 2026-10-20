@@ -5,6 +5,7 @@ import 'package:allowners/models/owner_hotel_summary.dart';
 import 'package:allowners/models/unit_model.dart';
 import 'package:allowners/screens/hotel_staff/hotel_bookings_screen.dart';
 import 'package:allowners/screens/owner/owner_bookings_screen.dart';
+import 'package:allowners/screens/booking/booking_screen.dart';
 import 'package:allowners/services/hotel_service.dart';
 import 'package:allowners/theme/app_colors.dart';
 import 'package:allowners/theme/app_theme.dart';
@@ -758,6 +759,24 @@ void main() {
     test('addons بقيمة غير قائمة لا ترمي استثناء', () {
       expect(buildBookingAddonLines(true, const {'addons': 'oops'}), isEmpty);
       expect(buildBookingAddonLines(true, const {'addons': null}), isEmpty);
+    });
+  });
+
+  group('حسابية السرير الإضافي (المتطلب 56)', () {
+    test('يُحتسب السعر عند اختيار السرير بدون إضافات أخرى', () {
+      expect(computeExtraBedCharge(extraBed: true, extraBedPrice: 150), 150);
+    });
+    test('يُحتسب السعر حتى مع وجود وجبات/إضافات أخرى (الخلل السابق)', () {
+      expect(computeExtraBedCharge(extraBed: true, extraBedPrice: 200), 200);
+    });
+    test('لا يُحتسب إن لم يختر الضيف السرير', () {
+      expect(computeExtraBedCharge(extraBed: false, extraBedPrice: 150), 0);
+    });
+    test('السعر المجاني (0) يبقى صفرًا', () {
+      expect(computeExtraBedCharge(extraBed: true, extraBedPrice: 0), 0);
+    });
+    test('غياب سعر السرير يعني صفرًا', () {
+      expect(computeExtraBedCharge(extraBed: true, extraBedPrice: null), 0);
     });
   });
 }
