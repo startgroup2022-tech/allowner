@@ -10,6 +10,8 @@
 ///   يُرسل دائمًا كنص فارغ كما كان، لأن السيرفر يعتمد على وجود المفتاح.
 /// - التواريخ بصيغة `YYYY-MM-DD` فقط (بلا وقت)، وهو ما يتوقعه السيرفر.
 /// - لا نخترع أي قيمة: كل حقل يأتي من مُدخل حقيقي أو يُحذف.
+/// - **لا تُرسل بيانات بطاقة إطلاقًا.** أُزيل حقل `card_number` نهائيًا: الدفع
+///   الإلكتروني يمر عبر صفحة مستضافة عند مزوّد مرخّص (انظر `payment_security.dart`).
 library;
 
 String formatBookingDate(DateTime d) => '${d.year.toString().padLeft(4, '0')}-'
@@ -23,7 +25,6 @@ Map<String, dynamic> buildBookingPayload({
   required DateTime checkOut,
   required int guests,
   required String paymentMethod,
-  String? cardNumber,
   List<String> mealTypes = const [],
   bool extraBed = false,
   List<int>? addonIds,
@@ -41,7 +42,6 @@ Map<String, dynamic> buildBookingPayload({
     'meal_types': mealTypes,
     'extra_bed': extraBed,
     if (addonIds != null && addonIds.isNotEmpty) 'addon_ids': addonIds,
-    if (cardNumber != null) 'card_number': cardNumber,
     'guest_id_number': guestIdNumber ?? '',
     if (customerName != null && customerName.trim().isNotEmpty)
       'customer_name': customerName.trim(),

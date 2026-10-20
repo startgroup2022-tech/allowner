@@ -4,6 +4,7 @@ import '../models/unit_model.dart';
 import '../utils/safe_parse.dart';
 import '../utils/arabic_text.dart';
 import '../utils/booking_payload.dart';
+import '../utils/payment_security.dart';
 import '../utils/service_request_payload.dart';
 import 'api_client.dart';
 
@@ -330,8 +331,7 @@ class HotelService {
     required DateTime checkIn,
     required DateTime checkOut,
     required int guests,
-    required String paymentMethod, // online | at_hotel
-    String? cardNumber,
+    required String paymentMethod, // online | at_hotel | owner_transfer
     List<String> mealTypes = const [], // يمكن اختيار أكثر من وجبة
     bool extraBed = false,
     List<int>? addonIds,
@@ -340,22 +340,32 @@ class HotelService {
     String? customerPhone,
   }) async {
     try {
-      final res = await _dio.post('/bookings/create.php',
-          data: buildBookingPayload(
-            hotelId: asInt(hotelId),
-            unitId: unitId,
-            checkIn: checkIn,
-            checkOut: checkOut,
-            guests: guests,
-            paymentMethod: paymentMethod,
-            cardNumber: cardNumber,
-            mealTypes: mealTypes,
-            extraBed: extraBed,
-            addonIds: addonIds,
-            guestIdNumber: guestIdNumber,
-            customerName: customerName,
-            customerPhone: customerPhone,
-          ));
+      final payload = buildBookingPayload(
+        hotelId: asInt(hotelId),
+        unitId: unitId,
+        checkIn: checkIn,
+        checkOut: checkOut,
+        guests: guests,
+        paymentMethod: paymentMethod,
+        mealTypes: mealTypes,
+        extraBed: extraBed,
+        addonIds: addonIds,
+        guestIdNumber: guestIdNumber,
+        customerName: customerName,
+        customerPhone: customerPhone,
+      );
+
+      // حاجز دفاع أخير: لا يخرج أي جسم طلب يحمل بيانات بطاقة. لو حدث ذلك فخطأ
+      // برمجي، ونرفض الإرسال بدل إرسال بيانات حساسة.
+      final leaks = findPaymentDataLeaks(payload);
+      if (leaks.isNotEmpty) {
+        throw ApiException(
+          'Refused to send payment data (${leaks.join(', ')})',
+          kind: ApiErrorKind.badResponse,
+        );
+      }
+
+      final res = await _dio.post('/bookings/create.php', data: payload);
       _ensureSuccess(res.data);
       return asMap(res.data is Map ? res.data['booking'] : null);
     } on DioException catch (e) {

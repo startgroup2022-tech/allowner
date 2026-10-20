@@ -11,6 +11,7 @@ import 'package:allowners/screens/booking/booking_screen.dart';
 import 'package:allowners/screens/booking/booking_success_screen.dart';
 import 'package:allowners/utils/availability.dart';
 import 'package:allowners/utils/booking_payload.dart';
+import 'package:allowners/utils/payment_security.dart';
 import 'package:allowners/utils/service_request_payload.dart';
 import 'package:allowners/screens/bookings/my_bookings_screen.dart';
 import 'package:allowners/screens/shared/app_about_screen.dart';
@@ -1801,6 +1802,90 @@ void main() {
         'req_type_maintenance',
         'req_type_meal',
         'req_type_extra_bed'
+      ]) {
+        expect(AppStrings.t(true, k), isNotEmpty, reason: '$k ar');
+        expect(AppStrings.t(false, k), isNotEmpty, reason: '$k en');
+      }
+    });
+  });
+
+  group('أمان الدفع — لا تمرّ بيانات البطاقة عبر التطبيق', () {
+    test('جسم إنشاء الحجز لا يحمل أي حقل بطاقة', () {
+      final p = buildBookingPayload(
+        hotelId: 1,
+        checkIn: DateTime(2026, 11, 1),
+        checkOut: DateTime(2026, 11, 3),
+        guests: 2,
+        paymentMethod: 'online',
+      );
+      expect(findPaymentDataLeaks(p), isEmpty);
+      expect(p.containsKey('card_number'), isFalse);
+      expect(p.containsKey('cvv'), isFalse);
+      expect(p.containsKey('expiry_date'), isFalse);
+      expect(p.containsKey('cardholder_name'), isFalse);
+    });
+
+    test('الحاجز يكشف أي حقل بطاقة مدسوس', () {
+      expect(findPaymentDataLeaks({'card_number': '4111111111111111'}),
+          contains('card_number'));
+      expect(findPaymentDataLeaks({'cvv': '123'}), contains('cvv'));
+      expect(findPaymentDataLeaks({'expiry_date': '12/28'}),
+          contains('expiry_date'));
+      expect(findPaymentDataLeaks({'cardholder_name': 'AHMED'}),
+          contains('cardholder_name'));
+    });
+
+    test('الحاجز يكشف رقم بطاقة صالحًا (Luhn) حتى تحت مفتاح بريء', () {
+      expect(looksLikeCardNumber('4111 1111 1111 1111'), isTrue);
+      expect(findPaymentDataLeaks({'notes': '4111111111111111'}),
+          contains('notes'));
+      // رقم عادي لا يُصنّف بطاقة
+      expect(looksLikeCardNumber('0500000000'), isFalse);
+      expect(findPaymentDataLeaks({'guest_id_number': '1234567890'}), isEmpty);
+    });
+
+    test('looksLikeCardNumber يرفض الأطوال والفراغات غير الصالحة', () {
+      expect(looksLikeCardNumber(null), isFalse);
+      expect(looksLikeCardNumber(''), isFalse);
+      expect(looksLikeCardNumber('1234'), isFalse);
+      expect(looksLikeCardNumber('4111111111111112'), isFalse); // Luhn خاطئ
+    });
+
+    test('إعداد الدفع المستضاف يُقرأ من الإعدادات أو يرجع null', () {
+      expect(resolveHostedCheckout(null), isNull);
+      expect(resolveHostedCheckout({}), isNull);
+      expect(resolveHostedCheckout({'payment_checkout_url': ''}), isNull);
+      // رابط غير https لا يُقبل
+      expect(
+          resolveHostedCheckout({'payment_checkout_url': 'http://pay.test/c'}),
+          isNull);
+      // رابط نسبي لا يُقبل
+      expect(
+          resolveHostedCheckout({'payment_checkout_url': '/checkout'}), isNull);
+      final ok = resolveHostedCheckout({
+        'payment_checkout_url': 'https://pay.moyasar.com/checkout/abc',
+        'payment_provider': 'Moyasar',
+      });
+      expect(ok, isNotNull);
+      expect(ok!.isUsable, isTrue);
+      expect(ok.provider, 'Moyasar');
+    });
+
+    test('رابط الدفع يحمل رقم الحجز فقط بلا مبلغ ولا بيانات بطاقة', () {
+      final cfg = HostedCheckoutConfig(
+          checkoutUrl: 'https://pay.moyasar.com/checkout/abc?x=1');
+      final uri = buildCheckoutUri(cfg, bookingRef: 'BK-2026-0001');
+      expect(uri.queryParameters['ref'], 'BK-2026-0001');
+      expect(uri.queryParameters['x'], '1');
+      expect(uri.queryParameters.containsKey('amount'), isFalse);
+      expect(uri.queryParameters.containsKey('card_number'), isFalse);
+      expect(uri.host, 'pay.moyasar.com');
+    });
+
+    test('رسائل أمان الدفع موجودة بالعربي والإنجليزي', () {
+      for (final k in [
+        kOnlinePaymentUnavailableKey,
+        kOnlinePaymentRedirectKey
       ]) {
         expect(AppStrings.t(true, k), isNotEmpty, reason: '$k ar');
         expect(AppStrings.t(false, k), isNotEmpty, reason: '$k en');

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
+import '../../utils/app_settings_provider.dart';
 import '../../utils/locale_provider.dart';
+import '../../utils/payment_security.dart';
 import '../../utils/session_provider.dart';
 import '../../models/hotel_model.dart';
 import '../../services/hotel_service.dart';
@@ -101,10 +104,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   final Set<String> _selectedLegacyMeals =
       {}; // للحجز العام: يسمح باختيار أكثر من وجبة
   bool _extraBed = false;
-  final _cardNumberController = TextEditingController();
-  final _expiryController = TextEditingController();
-  final _cvvController = TextEditingController();
-  final _cardNameController = TextEditingController();
   final _guestIdNumberController = TextEditingController();
   final _customerNameController = TextEditingController();
   final _customerPhoneController = TextEditingController();
@@ -195,10 +194,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   @override
   void dispose() {
-    _cardNumberController.dispose();
-    _expiryController.dispose();
-    _cvvController.dispose();
-    _cardNameController.dispose();
     _guestIdNumberController.dispose();
     _customerNameController.dispose();
     _customerPhoneController.dispose();
@@ -230,6 +225,11 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   }
 
   bool get _isAgent => ref.read(sessionProvider).user?.role == 'booking_agent';
+
+  /// إعداد الدفع المستضاف من إعدادات الموقع (المتطلب الأمني: لا بيانات بطاقة
+  /// داخل التطبيق). `null` يعني أن الدفع الإلكتروني غير مُفعَّل بعد.
+  HostedCheckoutConfig? get _hostedCheckout =>
+      resolveHostedCheckout(ref.watch(appSettingsProvider).valueOrNull);
 
   /// نتيجة فحص الإتاحة المحلي للتواريخ المختارة (المتطلب 45).
   AvailabilityVerdict get _availabilityVerdict => checkAvailability(
@@ -375,12 +375,14 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     }
 
     if (_paymentMethod == PaymentMethod.online) {
-      final digits = _cardNumberController.text.replaceAll(RegExp(r'\D'), '');
-      if (digits.length < 12) {
+      // لا نجمع بيانات البطاقة ولا نرسلها. الدفع الإلكتروني لا يعمل إلا عبر
+      // صفحة دفع مستضافة عند مزوّد مرخّص؛ وإن لم تُعلن الإعدادات رابطها بعد
+      // نرفض المتابعة بدل اختراع نجاح دفع وهمي.
+      if (_hostedCheckout == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(
-                  isArabic ? 'رقم البطاقة غير صحيح' : 'Invalid card number')),
+              content:
+                  Text(AppStrings.t(isArabic, kOnlinePaymentUnavailableKey))),
         );
         return;
       }
@@ -422,9 +424,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             : _paymentMethod == PaymentMethod.ownerTransfer
                 ? 'owner_transfer'
                 : 'at_hotel',
-        cardNumber: _paymentMethod == PaymentMethod.online
-            ? _cardNumberController.text.replaceAll(RegExp(r'\D'), '')
-            : null,
         mealTypes: _selectedLegacyMeals.toList(),
         extraBed: _extraBed,
         addonIds: addonIds.isNotEmpty ? addonIds : null,
@@ -434,6 +433,23 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       );
 
       if (!mounted) return;
+
+      // الدفع الإلكتروني: نفتح صفحة الدفع المستضافة عند المزوّد المرخّص ونمرّر
+      // رقم الحجز فقط. لا يمرّ التطبيق مبلغًا ولا بيانات بطاقة.
+      final checkout = _hostedCheckout;
+      final ref0 = booking['booking_ref']?.toString();
+      if (_paymentMethod == PaymentMethod.online &&
+          checkout != null &&
+          ref0 != null &&
+          ref0.isNotEmpty) {
+        final uri = buildCheckoutUri(checkout, bookingRef: ref0);
+        try {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } catch (_) {
+          // فشل فتح المتصفح لا يُبطل الحجز؛ نعرض الرابط في شاشة النجاح.
+        }
+      }
+
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => BookingSuccessScreen(
@@ -1026,43 +1042,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
                         if (_paymentMethod == PaymentMethod.online) ...[
                           const SizedBox(height: AppDimens.md),
-                          TextField(
-                            controller: _cardNumberController,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              hintText: AppStrings.t(isArabic, 'card_number'),
-                              prefixIcon:
-                                  const Icon(Icons.credit_card_outlined),
-                            ),
-                          ),
-                          const SizedBox(height: AppDimens.sm),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: _expiryController,
-                                  decoration: InputDecoration(
-                                      hintText: AppStrings.t(
-                                          isArabic, 'expiry_date')),
-                                ),
-                              ),
-                              const SizedBox(width: AppDimens.sm),
-                              Expanded(
-                                child: TextField(
-                                  controller: _cvvController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                      hintText: AppStrings.t(isArabic, 'cvv')),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: AppDimens.sm),
-                          TextField(
-                            controller: _cardNameController,
-                            decoration: InputDecoration(
-                                hintText:
-                                    AppStrings.t(isArabic, 'cardholder_name')),
+                          _HostedCheckoutNotice(
+                            config: _hostedCheckout,
+                            isArabic: isArabic,
                           ),
                         ],
                         const SizedBox(height: AppDimens.lg),
@@ -1443,6 +1425,59 @@ class _OwnerBankPanel extends StatelessWidget {
                 ],
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// إشعار الدفع الإلكتروني (الأمان): يشرح أن الدفع يتم في صفحة مستضافة عند
+/// مزوّد مرخّص، وأن التطبيق لا يطلب بيانات البطاقة ولا يخزّنها. وإن لم تُعلن
+/// الإعدادات رابط الصفحة بعد، يظهر أن الخيار غير مُفعَّل مع السبب — بلا حقل
+/// بطاقة وبلا نجاح وهمي.
+class _HostedCheckoutNotice extends StatelessWidget {
+  final HostedCheckoutConfig? config;
+  final bool isArabic;
+  const _HostedCheckoutNotice({required this.config, required this.isArabic});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final enabled = config != null;
+    final accent = enabled ? AppColors.goldDark : AppColors.textMuted;
+    return Container(
+      padding: const EdgeInsets.all(AppDimens.md),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: accent.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(enabled ? Icons.lock_outline : Icons.info_outline,
+              color: accent),
+          const SizedBox(width: AppDimens.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  enabled
+                      ? AppStrings.t(isArabic, kOnlinePaymentRedirectKey)
+                      : AppStrings.t(isArabic, kOnlinePaymentUnavailableKey),
+                  style: textTheme.bodyMedium
+                      ?.copyWith(color: accent, fontWeight: FontWeight.w600),
+                ),
+                if (enabled && config!.provider.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(config!.provider,
+                      style: textTheme.bodySmall
+                          ?.copyWith(color: AppColors.textMuted)),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );

@@ -352,10 +352,19 @@ class AppStrings {
       'en':
           'The owner has not added bank details yet. You can book and pay at the hotel or contact support.'
     },
-    'card_number': {'ar': 'رقم البطاقة', 'en': 'Card Number'},
-    'expiry_date': {'ar': 'تاريخ الانتهاء', 'en': 'Expiry Date'},
-    'cvv': {'ar': 'رمز الأمان CVV', 'en': 'CVV'},
-    'cardholder_name': {'ar': 'اسم حامل البطاقة', 'en': 'Cardholder Name'},
+    // أمان الدفع: التطبيق لا يجمع بيانات البطاقة؛ الدفع في صفحة مستضافة.
+    'online_payment_unavailable': {
+      'ar':
+          'الدفع الإلكتروني غير مُفعَّل حاليًا. اختر «الدفع عند الوصول» أو تواصل مع الدعم.',
+      'en':
+          'Online payment is not enabled yet. Choose "Pay at hotel" or contact support.'
+    },
+    'online_payment_redirect_notice': {
+      'ar':
+          'سيُفتح بعد التأكيد صفحة دفع آمنة عند مزوّد مرخّص. لا نطلب بيانات بطاقتك ولا نخزّنها.',
+      'en':
+          'After confirming, a secure checkout page from a licensed provider will open. We never ask for or store your card details.'
+    },
     'price_details': {'ar': 'تفاصيل السعر', 'en': 'Price Details'},
     'room_price': {'ar': 'سعر الغرفة', 'en': 'Room Price'},
     'taxes_fees': {'ar': 'الضرائب والرسوم', 'en': 'Taxes & Fees'},
