@@ -7,6 +7,8 @@ import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
 import '../../services/api_client.dart';
 import '../../utils/safe_parse.dart';
+import '../../utils/role_permissions.dart';
+import '../../utils/session_provider.dart';
 import '../../utils/subscription.dart';
 import 'owner_add_unit_screen.dart';
 import 'owner_subscription_screen.dart';
@@ -75,6 +77,11 @@ class _OwnerUnitsScreenState extends ConsumerState<OwnerUnitsScreen> {
   Widget build(BuildContext context) {
     final isArabic = ref.watch(localeProvider).languageCode == 'ar';
     final textTheme = Theme.of(context).textTheme;
+    // المتطلب 74: موظف الوحدة يشاهد الوحدات ويبدّل حالتها فقط — لا إضافة.
+    // طبقة الصلاحيات تمنع الإضافة على الجهاز حتى لو أخطأ السيرفر وأرسل
+    // can_create=true.
+    final canAddByRole =
+        RolePermissions(ref.watch(sessionProvider).user?.role).canAddUnits;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -101,7 +108,7 @@ class _OwnerUnitsScreenState extends ConsumerState<OwnerUnitsScreen> {
               final data = snapshot.data ?? {};
               final units = asMapList(data['units']);
               final hotels = asMapList(data['hotels']);
-              final canCreate = data['can_create'] == true;
+              final canCreate = data['can_create'] == true && canAddByRole;
 
               if (units.isEmpty) {
                 return ListView(
@@ -243,7 +250,7 @@ class _OwnerUnitsScreenState extends ConsumerState<OwnerUnitsScreen> {
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const SizedBox.shrink();
           final data = snapshot.data!;
-          final canCreate = data['can_create'] == true;
+          final canCreate = data['can_create'] == true && canAddByRole;
           final hotels = asMapList(data['hotels']);
           final units = asMapList(data['units']);
           // الزر العائم يظهر بس لو فيه صلاحية إضافة ولو القائمة مش فاضية أصلاً (لو فاضية، الزر موجود جوا الصفحة نفسها)

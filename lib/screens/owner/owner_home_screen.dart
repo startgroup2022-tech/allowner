@@ -7,6 +7,7 @@ import '../../utils/locale_provider.dart';
 import '../../utils/session_provider.dart';
 import '../../services/owner_service.dart';
 import '../../utils/role_menus.dart';
+import '../../utils/role_permissions.dart';
 import '../../utils/safe_parse.dart';
 import 'owner_bookings_screen.dart';
 import 'owner_maintenance_screen.dart';
@@ -103,7 +104,9 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
     }
 
-    final links = menuForRole(user?.role);
+    // القائمة تأتي من طبقة الصلاحيات (المتطلب 74): موظف الوحدة لا يرى المحفظة
+    // ولا الإيرادات ولا الحساب البنكي — الوجهة الممنوعة لا تظهر أصلًا.
+    final links = RolePermissions(user?.role).menu;
 
     return Scaffold(
       backgroundColor: AppColors.background,
