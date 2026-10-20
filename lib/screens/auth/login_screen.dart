@@ -8,9 +8,9 @@ import '../../utils/session_provider.dart';
 import '../home/main_navigation_screen.dart';
 import '../owner/owner_navigation_screen.dart';
 import '../hotel_staff/hotel_staff_navigation_screen.dart';
-import '../shared/help_support_screen.dart';
 import '../../widgets/app_logo.dart';
 import 'register_screen.dart';
+import 'reset_password_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -168,12 +168,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   alignment:
                       isArabic ? Alignment.centerLeft : Alignment.centerRight,
                   child: TextButton(
-                    // لا يوجد Endpoint لاستعادة كلمة المرور على السيرفر حاليًا
-                    // (كل مسارات auth/forgot* ترجع 404)، فبدلًا من زر لا يعمل
-                    // نوجّه المستخدم إلى قنوات الدعم الحقيقية.
+                    // الخدمة غير مُنفَّذة على السيرفر (كل مسارات auth/forgot*
+                    // ترجع 404)، فبدلًا من زر لا يعمل نفتح شاشة الاستعادة التي
+                    // تشرح الحالة وتوفّر مسار الدعم الحقيقي.
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                          builder: (_) => const HelpSupportScreen()),
+                          builder: (_) => const ResetPasswordScreen()),
                     ),
                     child: Text(AppStrings.t(isArabic, 'forgot_password')),
                   ),

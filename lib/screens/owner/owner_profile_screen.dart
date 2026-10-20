@@ -19,6 +19,8 @@ import 'owner_community_screen.dart';
 import 'owner_marketplace_screen.dart';
 import 'owner_messages_screen.dart';
 import 'owner_staff_screen.dart';
+import 'owner_wallet_screen.dart';
+import 'owner_subscription_screen.dart';
 
 class OwnerProfileScreen extends ConsumerWidget {
   const OwnerProfileScreen({super.key});
@@ -196,6 +198,22 @@ class OwnerProfileScreen extends ConsumerWidget {
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) => const OwnerBookingsScreen())),
                 ),
+                // المتطلبات 121–125 و132–143: الاشتراك السنوي والمحفظة —
+                // للمالك فقط (الوكيل له «تقارير العمولات»).
+                if (user?.role == 'owner') ...[
+                  _MenuItem(
+                    icon: Icons.workspace_premium_outlined,
+                    label: AppStrings.t(isArabic, 'subscription_title'),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const OwnerSubscriptionScreen())),
+                  ),
+                  _MenuItem(
+                    icon: Icons.account_balance_wallet_outlined,
+                    label: AppStrings.t(isArabic, 'wallet_title'),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const OwnerWalletScreen())),
+                  ),
+                ],
                 // الوكيل لا يرى العقود ولا مجتمع الملاك ولا التصويت (متطلبات 101-103)،
                 // لكنه يبقى يرى خدمات الصيانة (متطلب 104).
                 if (!isAgent)

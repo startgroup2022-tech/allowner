@@ -19,6 +19,8 @@ enum MenuTarget {
   voting,
   community,
   marketplace,
+  wallet,
+  subscription,
 }
 
 /// عنصر قائمة واحد: المفتاح النصي (للعرض من `AppStrings`) والوجهة والأيقونة.
@@ -43,6 +45,8 @@ const List<MenuEntry> agentMenu = [
       Icons.calendar_month_outlined),
   MenuEntry(
       'commission_reports', MenuTarget.commission, Icons.payments_outlined),
+  // المتطلب 109: الوكيل يُدخل بياناته البنكية لاستلام العمولات.
+  MenuEntry('nav_bank', MenuTarget.bankAccount, Icons.account_balance_outlined),
   MenuEntry(
       'maintenance_requests', MenuTarget.maintenance, Icons.build_outlined),
   MenuEntry(
@@ -60,6 +64,12 @@ const List<MenuEntry> ownerMenu = [
       Icons.calendar_month_outlined),
   MenuEntry(
       'financial_reports', MenuTarget.revenueReports, Icons.bar_chart_outlined),
+  // المتطلبات 132–143: المحفظة والمستحقات.
+  MenuEntry(
+      'wallet_title', MenuTarget.wallet, Icons.account_balance_wallet_outlined),
+  // المتطلبات 121–125: الاشتراك السنوي للمالك.
+  MenuEntry('subscription_title', MenuTarget.subscription,
+      Icons.workspace_premium_outlined),
   MenuEntry('service_prices', MenuTarget.servicePrices, Icons.sell_outlined),
   MenuEntry('nav_bank', MenuTarget.bankAccount, Icons.account_balance_outlined),
   MenuEntry(

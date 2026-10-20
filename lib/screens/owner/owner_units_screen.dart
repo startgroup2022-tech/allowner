@@ -5,8 +5,11 @@ import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
+import '../../services/api_client.dart';
 import '../../utils/safe_parse.dart';
+import '../../utils/subscription.dart';
 import 'owner_add_unit_screen.dart';
+import 'owner_subscription_screen.dart';
 
 class OwnerUnitsScreen extends ConsumerStatefulWidget {
   const OwnerUnitsScreen({super.key});
@@ -29,6 +32,33 @@ class _OwnerUnitsScreenState extends ConsumerState<OwnerUnitsScreen> {
 
   Future<void> _openAddUnit(
       bool isArabic, List<Map<String, dynamic>> hotels) async {
+    // المتطلب 123: منع إضافة الوحدات قبل الاشتراك. الحجب يقع فقط عندما يؤكّد
+    // السيرفر أن الاشتراك غير مُفعَّل؛ حالة «غير معلنة» تمرّ لأن السيرفر يفرض
+    // القيد عبر `can_create`، فلا نُعطّل تدفّقًا عاملًا.
+    try {
+      final settings = await _service.getSubscription();
+      final state = SubscriptionState.fromMap(settings);
+      if (state.isExplicitlyInactive) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+                AppStrings.t(isArabic, 'subscription_required_to_operate')),
+            action: SnackBarAction(
+              label: AppStrings.t(isArabic, 'subscription_title'),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (_) => const OwnerSubscriptionScreen()),
+              ),
+            ),
+          ));
+        }
+        return;
+      }
+    } on ApiException {
+      // تعذّر التحقق من حالة الاشتراك — نُكمل ولا نُعطّل الإضافة بسبب الشبكة.
+    }
+
+    if (!mounted) return;
     final added = await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (_) => OwnerAddUnitScreen(hotels: hotels)),
     );

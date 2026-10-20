@@ -1013,6 +1013,154 @@ class AppStrings {
     'type_message': {'ar': 'اكتب رسالة...', 'en': 'Type a message...'},
     'new_message': {'ar': 'رسالة جديدة', 'en': 'New Message'},
     'select_recipient': {'ar': 'اختر المستلم', 'en': 'Select Recipient'},
+
+    // ===== الاشتراك السنوي للمالك (121–125) =====
+    'subscription_title': {
+      'ar': 'الاشتراك السنوي',
+      'en': 'Annual Subscription'
+    },
+    'subscription_active': {
+      'ar': 'الاشتراك مُفعَّل',
+      'en': 'Subscription active'
+    },
+    'subscription_inactive': {
+      'ar': 'الاشتراك غير مُفعَّل',
+      'en': 'Subscription inactive'
+    },
+    'subscription_unknown': {
+      'ar': 'حالة الاشتراك غير معلنة من السيرفر',
+      'en': 'Subscription status not reported by the server'
+    },
+    'subscription_browse_only': {
+      'ar': 'أنت في وضع الاستعراض فقط حتى تفعيل الاشتراك السنوي.',
+      'en':
+          'You are in browse-only mode until the annual subscription is activated.'
+    },
+    'subscription_required_to_operate': {
+      'ar': 'تفعيل الاشتراك السنوي مطلوب لإضافة الوحدات أو إرسال الطلبات.',
+      'en':
+          'An active annual subscription is required to add units or submit requests.'
+    },
+    'subscription_fee': {'ar': 'رسم الاشتراك السنوي', 'en': 'Annual fee'},
+    'subscription_expires_at': {'ar': 'ينتهي في', 'en': 'Expires on'},
+    'subscription_fee_unknown': {
+      'ar': 'الرسم غير معلن من السيرفر',
+      'en': 'Fee not reported by the server'
+    },
+    'subscription_terms': {'ar': 'شروط الاشتراك', 'en': 'Subscription terms'},
+    'subscription_terms_body': {
+      'ar':
+          'الاشتراك سنوي ومخصص للمالك فقط. لا يُسمح بإضافة الوحدات أو إرسال الطلبات قبل تفعيله، ويبقى الاستعراض متاحًا.',
+      'en':
+          'The subscription is annual and for owners only. Adding units or submitting requests requires activation; browsing stays available.'
+    },
+    'commission_percent_label': {
+      'ar': 'نسبة عمولة المنصة',
+      'en': 'Platform commission rate'
+    },
+    'commission_percent_unknown': {
+      'ar': 'النسبة غير معلنة من السيرفر',
+      'en': 'Rate not reported by the server'
+    },
+    'activate_subscription': {
+      'ar': 'تفعيل الاشتراك',
+      'en': 'Activate subscription'
+    },
+    'subscription_payment_pending': {
+      'ar': 'دفع الاشتراك يتم عبر صفحة الدفع المستضافة عند تفعيلها من الإدارة.',
+      'en':
+          'Subscription payment goes through the hosted checkout page once the admin enables it.'
+    },
+
+    // ===== محفظة المالك والمستحقات (132–143) =====
+    'wallet_title': {'ar': 'المحفظة', 'en': 'Wallet'},
+    'wallet_balance': {'ar': 'الرصيد', 'en': 'Balance'},
+    'wallet_commission': {'ar': 'العمولة', 'en': 'Commission'},
+    'wallet_expenses': {'ar': 'المصروفات', 'en': 'Expenses'},
+    'wallet_reserved': {'ar': 'المحجوز', 'en': 'Reserved'},
+    'wallet_withdrawable': {'ar': 'القابل للتحويل', 'en': 'Withdrawable'},
+    'wallet_unavailable': {
+      'ar': 'المحفظة غير مُفعَّلة على السيرفر بعد',
+      'en': 'The wallet is not enabled on the server yet'
+    },
+    'wallet_ledger': {'ar': 'كشف الحساب', 'en': 'Ledger'},
+    'wallet_no_ledger': {'ar': 'لا حركات بعد', 'en': 'No entries yet'},
+    'ledger_booking': {'ar': 'حجز', 'en': 'Booking'},
+    'ledger_commission': {'ar': 'عمولة', 'en': 'Commission'},
+    'ledger_refund': {'ar': 'استرداد', 'en': 'Refund'},
+    'ledger_settlement': {'ar': 'تسوية', 'en': 'Settlement'},
+    'ledger_payout': {'ar': 'دفعة', 'en': 'Payout'},
+    'ledger_expense': {'ar': 'مصروف', 'en': 'Expense'},
+    'ledger_subscription': {'ar': 'اشتراك', 'en': 'Subscription'},
+    'ledger_other': {'ar': 'حركة أخرى', 'en': 'Other'},
+    'request_transfer': {'ar': 'طلب تحويل المستحقات', 'en': 'Request transfer'},
+    'transfer_amount': {'ar': 'المبلغ', 'en': 'Amount'},
+    'transfer_invalid_amount': {
+      'ar': 'أدخل مبلغًا صحيحًا لا يتجاوز القابل للتحويل.',
+      'en': 'Enter a valid amount within the withdrawable balance.'
+    },
+    'transfer_requested': {
+      'ar': 'تم إرسال طلب التحويل للمراجعة.',
+      'en': 'Transfer request submitted for review.'
+    },
+    'transfer_requires_server': {
+      'ar': 'تنفيذ التحويل الفعلي يتم على السيرفر بعد المراجعة.',
+      'en': 'The actual transfer is executed on the server after review.'
+    },
+    'payout_weekly_note': {
+      'ar': 'تُدفع المستحقات أسبوعيًا بعد التسوية.',
+      'en': 'Payouts are settled weekly.'
+    },
+    'commission_rate_note': {
+      'ar': 'تُحتسب عمولة المنصة على المالك عند التسوية.',
+      'en': 'The platform commission is charged to the owner at settlement.'
+    },
+    'settlement_after_stay': {
+      'ar': 'تُجرى التسوية بعد انتهاء الإقامة.',
+      'en': 'Settlement runs after the stay ends.'
+    },
+    'final_price': {'ar': 'السعر النهائي', 'en': 'Final price'},
+
+    // ===== استعادة كلمة المرور (110) =====
+    'reset_request_title': {
+      'ar': 'استعادة كلمة المرور',
+      'en': 'Reset your password'
+    },
+    'reset_request_body': {
+      'ar':
+          'أدخل بريدك المسجّل وسنرسل رابط إعادة التعيين. هذه الخدمة تعتمد على نقطة نهاية على السيرفر.',
+      'en':
+          'Enter your registered email and we will send a reset link. This service depends on a server endpoint.'
+    },
+    'reset_send_link': {'ar': 'إرسال رابط الإعادة', 'en': 'Send reset link'},
+    'reset_unavailable': {
+      'ar':
+          'خدمة استعادة كلمة المرور غير مُفعَّلة على السيرفر بعد. يمكنك التواصل مع الدعم.',
+      'en':
+          'Password reset is not enabled on the server yet. You can contact support.'
+    },
+    'reset_sent': {
+      'ar': 'تم إرسال الطلب. تحقّق من بريدك.',
+      'en': 'Request sent. Please check your email.'
+    },
+    'contact_support': {'ar': 'التواصل مع الدعم', 'en': 'Contact support'},
+
+    // ===== وكيل الحجوزات: بيانات البنك والعمولات (108–109) =====
+    'agent_bank_title': {
+      'ar': 'حساب استلام العمولات',
+      'en': 'Commission payout account'
+    },
+    'agent_bank_help': {
+      'ar':
+          'أدخل بياناتك البنكية لاستلام عمولاتك. تحويل العمولات غير المدفوعة يتم على السيرفر بعد المراجعة.',
+      'en':
+          'Enter your bank details to receive your commissions. Unpaid commission transfers are executed on the server after review.'
+    },
+    'agent_commission_transfer_note': {
+      'ar': 'طلبات تحويل العمولات تُنفَّذ على السيرفر؛ لا يظهر رصيد مُخترع.',
+      'en':
+          'Commission transfer requests are executed on the server; no balance is invented.'
+    },
   };
 
   static String t(bool isArabic, String key) {

@@ -641,4 +641,40 @@ class OwnerService {
       throw ApiException.fromDioError(e);
     }
   }
+
+  // ===== المحفظة والمستحقات (المتطلبات 132–143) =====
+  //
+  // لا يوجد endpoint للمحفظة على السيرفر (تم فحص شجرة `/api/` كاملة). لذلك
+  // نجرّب `/user/owner-wallet.php`، وإن أعاد 404 نُعيد خطأً صريحًا من نوع
+  // `notFound` لتعرض الشاشة حالة «غير مُفعَّلة على السيرفر» بدل أصفار مضلِّلة.
+
+  Future<Map<String, dynamic>> getOwnerWallet() async {
+    try {
+      final res = await _dio.get('/user/owner-wallet.php');
+      return asMap(res.data);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  /// يرسل طلب تحويل المستحقات. السيرفر هو من يتحقق من الرصيد ويُسجّل الطلب.
+  Future<void> requestTransfer(Map<String, dynamic> payload) async {
+    try {
+      await _dio.post('/user/owner-wallet.php', data: payload);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  // ===== الاشتراك السنوي للمالك (المتطلبات 121–125) =====
+  // لا يوجد endpoint للاشتراك؛ نقرأ الإعلان من إعدادات الموقع الحقيقية.
+
+  Future<Map<String, dynamic>> getSubscription() async {
+    try {
+      final res = await _dio.get('/content/settings.php');
+      return asMap(res.data);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
 }

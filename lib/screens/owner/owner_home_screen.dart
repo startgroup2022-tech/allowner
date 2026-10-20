@@ -23,6 +23,8 @@ import 'owner_clients_screen.dart';
 import 'owner_commission_screen.dart';
 import 'owner_bank_screen.dart';
 import 'owner_service_prices_screen.dart';
+import 'owner_wallet_screen.dart';
+import 'owner_subscription_screen.dart';
 import '../search/search_screen.dart';
 
 class OwnerHomeScreen extends ConsumerStatefulWidget {
@@ -93,6 +95,10 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
           screen = const OwnerCommunityScreen();
         case MenuTarget.marketplace:
           screen = const OwnerMarketplaceScreen();
+        case MenuTarget.wallet:
+          screen = const OwnerWalletScreen();
+        case MenuTarget.subscription:
+          screen = const OwnerSubscriptionScreen();
       }
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
     }

@@ -225,26 +225,38 @@ blocked.
 
 | Exec | Requirements | VERIFIED | IMPLEMENTED UNTESTED | PARTIAL | BACKEND BLOCKED |
 |---|---|---|---|---|---|
-| 01 | 31 | 21 | 7 | 0 | 3 |
-| 02 | 29 | 15 | 11 | 1 | 2 |
+| 01 | 31 | 20 (+2 integration) | 6 | 0 | 3 |
+| 02 | 29 | 15 (+1 integration) | 10 | 1 | 2 |
 | 03 | 47 | 17 | 25 | 0 | 5 |
-| 04 | 28 | 1 | 6 | 2 | 19 |
-| 05 | 13 | 0 | 0 | 0 | 13 |
-| **Total** | **148** | **54** | **49** | **3** | **42** |
+| 04 | 29 | 7 | 15 | 3 | 4 |
+| 05 | 12 | 0 | 0 | 0 | 12 |
+| **Total** | **148** | **59 (+3 integration)** | **56** | **4** | **26** |
 
-Three items (reqs 29, 30, 50) are counted above as VERIFIED; they are tagged
-`INTEGRATION VERIFIED` in the matrix, which means the service path and the API
-contract are proven by a live test but the on-device visual result is not yet
-seen. Do not read them as device-verified.
+Totals are machine-counted from `docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md` (148
+rows). The `PARTIAL` and `BACKEND BLOCKED` counts fell in this pass because the
+subscription, wallet and password-reset flows were implemented on the mobile
+side: the screens, the typed parsing and the pure calculation layers now exist
+and are tested, so what remains for those items is the server half only — not an
+untouched screen.
+
+Note the honest distinction that did not change: an item is not `VERIFIED` until
+it runs against a real signed-in session on a device. The new wallet and
+subscription screens are `IMPLEMENTED UNTESTED` for exactly that reason — their
+logic is unit-tested and their rendering is widget-tested, but the live numbers
+need an owner account and the missing server endpoints.
+
+Three items (reqs 29, 30, 50) are tagged `INTEGRATION VERIFIED`: the service path
+and the API contract are proven by a live test, but the on-device visual result
+is not yet seen. Do not read them as device-verified.
 
 `IMPLEMENTED UNTESTED` is not a soft "done": it means the code path exists and is
 wired to a live endpoint, but confirming it needs a signed-in session on a real
 device (an owner, hotel or agent account). A GET probe cannot reach past the
 `401`. Those are listed per item in `docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md`.
 
-Execution 04–05 is almost entirely server and site work: a central collection
-account, a per-owner ledger, weekly payouts, subscription billing, split
-payments and automated email. Those cannot be delivered from the Flutter
+Execution 05 and most of Execution 04 remain server and site work: a central
+collection account, a per-owner ledger, weekly payouts, subscription billing,
+split payments and automated email. Those cannot be delivered from the Flutter
 codebase. They are marked `BACKEND BLOCKED` with the exact dependency, not
 silently left as "in progress". The per-item breakdown is in
 `docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md`.
@@ -259,12 +271,20 @@ proof, the in-repo screen render tests, and seven real defects fixed with
 evidence (three extra-bed / addon / meal-request / transfer-display defects, the
 double icon flip, the Arabic category filter, and the category label mismatch).
 
-Not delivered, and not deliverable here: 42 requirements are `BACKEND BLOCKED`.
+Added in this pass: the owner subscription screen (121–125), the owner wallet
+screen with ledger and transfer request (132–136, 139–142), the agent commission
+bank screen (109), and the password-reset screen (110). These move the mobile
+half of those items from "not started" to `IMPLEMENTED UNTESTED`, with 39 new
+automated tests (28 pure-logic, 11 widget/render) and one genuine layout defect
+fixed (a 360px overflow in the wallet balance rows, caught by the new 360px
+render test).
+
+Not delivered, and not deliverable here: 26 requirements are `BACKEND BLOCKED`.
 They need PHP and SQL changes on the server — password reset, owner
-subscription, agent payout, the owner wallet and ledger, weekly payouts, split
-payments. A further 47 are `IMPLEMENTED UNTESTED`: the code path exists and
-points at a real endpoint, but confirming it needs a signed-in owner, hotel or
-agent account on a device. Three are `PARTIAL` for the same reason.
+subscription billing, agent payout, the owner wallet endpoint and ledger, weekly
+payouts, split payments. A further 56 are `IMPLEMENTED UNTESTED`: the code path
+exists and points at a real endpoint, but confirming it needs a signed-in owner,
+hotel or agent account on a device. Four are `PARTIAL` for the same reason.
 
 The counts above are the machine-generated totals from
 `docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md` (148 rows). Do not read them as a claim

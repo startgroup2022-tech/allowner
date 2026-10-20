@@ -81,6 +81,19 @@ class AuthService {
     }
   }
 
+  /// يطلب رابط إعادة تعيين كلمة المرور من السيرفر (المتطلب 110).
+  ///
+  /// النقطة غير مُنفَّذة على السيرفر حاليًا (كل مسارات `auth/forgot*` تُرجع
+  /// 404). نستدعي المسار المتوقع، وإن رد 404 يصل الخطأ للشاشة كنوع
+  /// `notFound` فتعرض «غير مُفعَّلة» بدل نجاح وهمي.
+  Future<void> requestPasswordReset(String email) async {
+    try {
+      await _dio.post('/auth/forgot-password.php', data: {'email': email});
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
   Future<void> logout() async {
     try {
       await _dio.post('/auth/logout.php');

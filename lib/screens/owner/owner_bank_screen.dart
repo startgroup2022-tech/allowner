@@ -6,12 +6,16 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
+import '../../utils/session_provider.dart';
 
 /// تسجيل بيانات الحساب البنكي للمالك (المتطلب 118).
 ///
 /// هذه البيانات هي نفسها التي يعرضها الضيف في شاشة الحجز عند اختيار
 /// «تحويل مباشر لحساب المالك» (`owner_bank` في `units/detail.php`)، لذلك
 /// تسجيلها هنا يُصلح المتطلبين 118 و120 معًا.
+///
+/// المتطلب 109: نفس الشاشة يفتحها وكيل الحجوزات لإدخال بياناته البنكية
+/// لاستلام العمولات، لذلك يختلف العنوان والشرح بحسب الدور.
 class OwnerBankScreen extends ConsumerStatefulWidget {
   const OwnerBankScreen({super.key});
 
@@ -95,13 +99,16 @@ class _OwnerBankScreenState extends ConsumerState<OwnerBankScreen> {
   Widget build(BuildContext context) {
     final isArabic = ref.watch(localeProvider).languageCode == 'ar';
     final textTheme = Theme.of(context).textTheme;
+    // المتطلب 109: الوكيل يستخدم نفس الشاشة لاستلام العمولات، بعنوان وشرح مختلفين.
+    final isAgent = ref.watch(sessionProvider).user?.role == 'booking_agent';
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.surface,
         elevation: 0,
-        title: Text(AppStrings.t(isArabic, 'owner_bank_title')),
+        title: Text(AppStrings.t(
+            isArabic, isAgent ? 'agent_bank_title' : 'owner_bank_title')),
       ),
       body: SafeArea(
         child: FutureBuilder<Map<String, dynamic>>(
@@ -150,7 +157,8 @@ class _OwnerBankScreenState extends ConsumerState<OwnerBankScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          AppStrings.t(isArabic, 'owner_bank_help'),
+                          AppStrings.t(isArabic,
+                              isAgent ? 'agent_bank_help' : 'owner_bank_help'),
                           style: textTheme.bodySmall
                               ?.copyWith(color: AppColors.textMuted),
                         ),
