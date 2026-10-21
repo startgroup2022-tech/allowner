@@ -28,7 +28,9 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
     _future = _service.getAgentClients();
   }
 
-  void _reload() => setState(() => _future = _service.getAgentClients());
+  void _reload() => setState(() {
+        _future = _service.getAgentClients();
+      });
 
   Future<void> _openEditor(bool isArabic,
       {Map<String, dynamic>? existing}) async {

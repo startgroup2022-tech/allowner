@@ -67,8 +67,9 @@ class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen>
     super.dispose();
   }
 
-  void _reload() =>
-      setState(() => _future = _service.getBookings(scope: _scope));
+  void _reload() => setState(() {
+        _future = _service.getBookings(scope: _scope);
+      });
 
   Future<void> _checkIn(bool isArabic, int id) async {
     setState(() => _busyId = id);

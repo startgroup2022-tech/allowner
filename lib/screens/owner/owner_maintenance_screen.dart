@@ -30,7 +30,9 @@ class _OwnerMaintenanceScreenState
     _future = _service.getMaintenanceRequests();
   }
 
-  void _reload() => setState(() => _future = _service.getMaintenanceRequests());
+  void _reload() => setState(() {
+        _future = _service.getMaintenanceRequests();
+      });
 
   Color _statusColor(String status) {
     switch (status) {

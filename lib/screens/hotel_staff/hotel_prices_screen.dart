@@ -26,7 +26,9 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
     _future = _service.getPrices();
   }
 
-  void _reload() => setState(() => _future = _service.getPrices());
+  void _reload() => setState(() {
+        _future = _service.getPrices();
+      });
 
   Future<void> _deletePrice(int id) async {
     try {

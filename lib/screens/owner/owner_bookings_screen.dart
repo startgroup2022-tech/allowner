@@ -114,7 +114,9 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
     _future = _service.getBookings();
   }
 
-  void _reload() => setState(() => _future = _service.getBookings());
+  void _reload() => setState(() {
+        _future = _service.getBookings();
+      });
 
   Future<void> _cancelBooking(bool isArabic, int bookingId) async {
     final confirmed = await showDialog<bool>(

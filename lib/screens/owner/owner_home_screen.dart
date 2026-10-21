@@ -51,7 +51,9 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
   Future<Map<String, dynamic>> _loadStats() =>
       _isAgent ? _service.getMyCommission() : _service.getDashboard();
 
-  void _reload() => setState(() => _future = _loadStats());
+  void _reload() => setState(() {
+        _future = _loadStats();
+      });
 
   @override
   Widget build(BuildContext context) {

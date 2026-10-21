@@ -36,7 +36,9 @@ class _OwnerWalletScreenState extends ConsumerState<OwnerWalletScreen> {
     _future = _service.getOwnerWallet();
   }
 
-  void _reload() => setState(() => _future = _service.getOwnerWallet());
+  void _reload() => setState(() {
+        _future = _service.getOwnerWallet();
+      });
 
   Future<void> _openTransferSheet(bool isArabic, WalletBalance balance) async {
     final ctrl = TextEditingController(

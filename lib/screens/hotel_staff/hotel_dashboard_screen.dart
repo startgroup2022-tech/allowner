@@ -25,7 +25,9 @@ class _HotelDashboardScreenState extends ConsumerState<HotelDashboardScreen> {
     _future = _service.getDashboard();
   }
 
-  void _reload() => setState(() => _future = _service.getDashboard());
+  void _reload() => setState(() {
+        _future = _service.getDashboard();
+      });
 
   @override
   Widget build(BuildContext context) {

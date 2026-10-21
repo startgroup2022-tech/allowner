@@ -151,11 +151,16 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  group('لوحة إدارة الفندق (المتطلبات 29–33)', () {
-    testWidgets('تعرض أرقام الوصول والمغادرة والنزلاء', (tester) async {
+  group('لوحة إدارة الفندق (المتطلبات 29–33، 80)', () {
+    testWidgets('تعرض أرقام الوصول والمغادرة والنزلاء (المتطلب 80)',
+        (tester) async {
       await _pump(tester, const HotelDashboardScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('فندق فيرمونت مكه'), findsWidgets);
+      // المتطلب 80: أقسام اللوحة مفتوحة وتُعرض أرقامها الحقيقية.
+      expect(find.textContaining('5'), findsWidgets); // arrivals_today
+      expect(find.textContaining('4'), findsWidgets); // departures_today
+      expect(find.textContaining('12'), findsWidgets); // in_house
     });
 
     for (final w in const [360.0, 768.0]) {

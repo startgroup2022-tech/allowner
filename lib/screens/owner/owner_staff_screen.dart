@@ -25,7 +25,9 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
     _future = _service.getStaff();
   }
 
-  void _reload() => setState(() => _future = _service.getStaff());
+  void _reload() => setState(() {
+        _future = _service.getStaff();
+      });
 
   String _roleLabel(bool isArabic, String role) {
     switch (role) {

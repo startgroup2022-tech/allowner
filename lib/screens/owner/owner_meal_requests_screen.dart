@@ -32,7 +32,9 @@ class _OwnerMealRequestsScreenState
     _future = _service.getMealRequests();
   }
 
-  void _reload() => setState(() => _future = _service.getMealRequests());
+  void _reload() => setState(() {
+        _future = _service.getMealRequests();
+      });
 
   Color _statusColor(String status) {
     switch (status) {

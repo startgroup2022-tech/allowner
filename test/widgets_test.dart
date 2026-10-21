@@ -1776,6 +1776,21 @@ void main() {
       expect(RevenueReports.yearOf('26-07'), isNull);
       expect(RevenueReports.yearOf(null), isNull);
     });
+    test('التجميع السنوي يقرأ مفتاح month الفعلي من الإنتاج لا ym فقط', () {
+      // استجابة owner-revenue.php الحقيقية تُسمّي الشهر `month`.
+      final years = RevenueReports.yearTotals([
+        {'month': '2025-01', 'total': '5000'},
+        {'month': '2026-01', 'total': '7000'},
+      ]);
+      expect(years.length, 2);
+      expect(years.first.year, 2026);
+      expect(years.first.total, 7000);
+      expect(years.last.year, 2025);
+      // ويبقى ym مقبولًا للإصدارات القديمة.
+      expect(RevenueReports.monthKey({'ym': '2026-02'}), '2026-02');
+      expect(RevenueReports.monthKey({'month': '2026-02'}), '2026-02');
+      expect(RevenueReports.monthKey({'other': 'x'}), isNull);
+    });
   });
 
   group('تسميات التصنيفات المعروضة (المتطلبان 13 و14)', () {

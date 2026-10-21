@@ -34,7 +34,9 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
     _tab = TabController(length: _types.length, vsync: this);
     _tab.addListener(() {
       if (_tab.indexIsChanging) return;
-      setState(() => _future = _service.getRequests(type: _types[_tab.index]));
+      setState(() {
+        _future = _service.getRequests(type: _types[_tab.index]);
+      });
     });
     _future = _service.getRequests(type: _types[0]);
   }
@@ -45,8 +47,9 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
     super.dispose();
   }
 
-  void _reload() =>
-      setState(() => _future = _service.getRequests(type: _types[_tab.index]));
+  void _reload() => setState(() {
+        _future = _service.getRequests(type: _types[_tab.index]);
+      });
 
   Future<void> _act(
       bool isArabic, Map<String, dynamic> r, String action) async {

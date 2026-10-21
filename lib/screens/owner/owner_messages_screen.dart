@@ -27,7 +27,9 @@ class _OwnerMessagesScreenState extends ConsumerState<OwnerMessagesScreen> {
     _future = _service.getConversations();
   }
 
-  void _reload() => setState(() => _future = _service.getConversations());
+  void _reload() => setState(() {
+        _future = _service.getConversations();
+      });
 
   Future<void> _openNewMessageSheet(bool isArabic) async {
     List<Map<String, dynamic>> owners = [];

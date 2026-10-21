@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:allowners/models/hotel_model.dart';
+import 'package:allowners/screens/booking/booking_screen.dart';
 import 'package:allowners/screens/hotel/hotel_details_screen.dart';
 import 'package:allowners/screens/home/home_screen.dart';
 import 'package:allowners/screens/search/search_screen.dart';
@@ -374,6 +375,44 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);
+      expect(find.textContaining('جناح عائلي'), findsWidgets);
+    });
+  });
+
+  group('اختيار الفندق والوحدة للحجز (المتطلبان 95، 96)', () {
+    testWidgets('المتطلب 96: وحدات الفندق تُعرض للاختيار مع زر الحجز',
+        (tester) async {
+      final hotel = HotelModel.fromJson(
+        Map<String, dynamic>.from(_hotelsList[0]),
+      );
+      await tester.pumpWidget(_wrap(HotelDetailsScreen(hotel: hotel)));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      // وحدات الفندق تُجلب من units/list.php وتظهر بأسمائها الحقيقية.
+      expect(find.textContaining('جناح عائلي'), findsWidgets);
+      // لكل وحدة زر «احجز الآن» يقود لنموذج الحجز.
+      expect(find.text('احجز الآن'), findsWidgets);
+    });
+
+    testWidgets('المتطلبان 95 و96: الضغط على وحدة يفتح نموذج الحجز بها',
+        (tester) async {
+      final hotel = HotelModel.fromJson(
+        Map<String, dynamic>.from(_hotelsList[0]),
+      );
+      await tester.pumpWidget(_wrap(HotelDetailsScreen(hotel: hotel)));
+      await tester.pumpAndSettle();
+
+      // نمرّر لزر الوحدة ثم نضغطه لنتأكد أننا ننتقل فعلًا لنموذج الحجز.
+      final bookButton = find.text('احجز الآن').first;
+      await tester.ensureVisible(bookButton);
+      await tester.pumpAndSettle();
+      await tester.tap(bookButton, warnIfMissed: true);
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      // نموذج الحجز هو شاشة مستقلة (BookingScreen) وليس تفاصيل الفندق.
+      expect(find.byType(BookingScreen), findsOneWidget);
       expect(find.textContaining('جناح عائلي'), findsWidgets);
     });
   });

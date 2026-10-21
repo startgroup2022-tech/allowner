@@ -25,7 +25,9 @@ class _OwnerDocumentsScreenState extends ConsumerState<OwnerDocumentsScreen> {
     _future = _service.getDocuments();
   }
 
-  void _reload() => setState(() => _future = _service.getDocuments());
+  void _reload() => setState(() {
+        _future = _service.getDocuments();
+      });
 
   IconData _iconFor(String type) {
     switch (type) {

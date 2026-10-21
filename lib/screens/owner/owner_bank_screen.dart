@@ -59,7 +59,9 @@ class _OwnerBankScreenState extends ConsumerState<OwnerBankScreen> {
     return data;
   }
 
-  void _reload() => setState(() => _future = _load());
+  void _reload() => setState(() {
+        _future = _load();
+      });
 
   Future<void> _save(bool isArabic) async {
     final bankName = _bankCtrl.text.trim();

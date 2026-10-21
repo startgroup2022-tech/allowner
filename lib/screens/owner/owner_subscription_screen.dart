@@ -43,7 +43,9 @@ class _OwnerSubscriptionScreenState
     _future = _service.getSubscription();
   }
 
-  void _reload() => setState(() => _future = _service.getSubscription());
+  void _reload() => setState(() {
+        _future = _service.getSubscription();
+      });
 
   @override
   Widget build(BuildContext context) {

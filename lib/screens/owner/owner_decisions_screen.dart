@@ -185,7 +185,9 @@ class _OwnerDecisionsScreenState extends ConsumerState<OwnerDecisionsScreen> {
     _future = _service.getDecisions();
   }
 
-  void _reload() => setState(() => _future = _service.getDecisions());
+  void _reload() => setState(() {
+        _future = _service.getDecisions();
+      });
 
   Future<void> _vote(bool isArabic, int decisionId, int optionId) async {
     setState(() => _votingOn = decisionId);

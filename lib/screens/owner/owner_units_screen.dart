@@ -28,7 +28,9 @@ class _OwnerUnitsScreenState extends ConsumerState<OwnerUnitsScreen> {
     _future = _service.getUnitsFull();
   }
 
-  void _reload() => setState(() => _future = _service.getUnitsFull());
+  void _reload() => setState(() {
+        _future = _service.getUnitsFull();
+      });
 
   Future<void> _openAddUnit(
       bool isArabic, List<Map<String, dynamic>> hotels) async {

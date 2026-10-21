@@ -34,7 +34,9 @@ class _OwnerChatThreadScreenState extends ConsumerState<OwnerChatThreadScreen> {
   }
 
   void _reload() {
-    setState(() => _future = _service.getThread(widget.conversationId));
+    setState(() {
+      _future = _service.getThread(widget.conversationId);
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollCtrl.hasClients)
         _scrollCtrl.jumpTo(_scrollCtrl.position.maxScrollExtent);

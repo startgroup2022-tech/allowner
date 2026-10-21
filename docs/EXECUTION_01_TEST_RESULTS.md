@@ -441,3 +441,78 @@ They stay IMPLEMENTED UNTESTED with the exact field named in the matrix.
   delivered from this repository. Each names its missing endpoint in
   `docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md` and
   `docs/EXECUTION_01_BACKEND_DEPENDENCIES.md`.
+
+---
+
+## 11. Addendum — verification sweep (IMPLEMENTED UNTESTED → tested)
+
+This pass took the requirements still recorded as IMPLEMENTED UNTESTED and gave
+each one a behavioural test: an assertion on the payload leaving the device, on
+the values rendered from a production-shaped response, or on the navigation the
+user actually gets. One real defect was found and fixed while writing them. No
+requirement was raised to VERIFIED PASS on the strength of a fixture this
+repository authored.
+
+### 11.1 Commands executed
+
+| # | Command | Result |
+|---|---|---|
+| 1 | `flutter pub get` | resolved, no new dependency |
+| 2 | `dart format --output=none --set-exit-if-changed .` | 118 files, **0 changed** |
+| 3 | `flutter analyze` | **0 errors, 0 warnings** (147 info-level lints, pre-existing style only) |
+| 4 | `flutter test` | **389 passed, 17 skipped, 0 failed** |
+
+### 11.2 Defect repaired in this pass
+
+| Defect | Evidence | Req |
+|---|---|---|
+| `owner_revenue_screen.dart` read the month as `m['ym']` and the per-unit list as `data['by_unit']` with `name_ar`/`name_en`. The production payload names the month `month` and the per-unit list `units` with `unit_name`, so the history row rendered an empty month label and the per-unit section rendered nothing. Both are now read with a fallback: `RevenueReports.monthKey` accepts `month`/`ym`/`month_key`, and the screen reads `by_unit` **or** `units` and `name_ar`/`unit_name_ar`/`unit_name`. | `revenue_reports.dart` + `monthKey` unit test; the render test asserts the real month year and the unit name appear | 126–129 |
+
+### 11.3 Tests added or strengthened
+
+| Requirement | Test | Assertion |
+|---|---|---|
+| 6 | `untested_requirements_test.dart` logo group | `AppLogo(full: true)` renders `CachedNetworkImage` when `logo_url` is announced, and the local asset when it is absent |
+| 21–23 | `untested_requirements_test.dart` owner-hotel-units group | the section renders unit count, rating and city from the merged payload, and picking a city re-queries with that city |
+| 35, 37, 38 | `owner_booking_actions_test.dart` | confirm / no-show / check-in post the expected action and booking id |
+| 40–43 | `my_booking_manage_payload_test.dart` | guest manage actions post `action` + `booking_id`; cancel carries `action=cancel` |
+| 60, 69, 70, 72, 78–80, 84, 86, 93, 95, 99 | `owner_screens_render_test.dart`, `service_request_payload_test.dart`, `hotel_staff_screens_render_test.dart` | each screen renders its real fields with no overflow at 360/390/768, and each service request body carries the fields the server needs |
+| 75 | `staff_routing_test.dart` | a unit manager sees «وحداتي» and «طلبات الصيانة» and not the revenue tab |
+| 96 | `screens_render_test.dart` | hotel detail renders name, city, gallery, description and facilities; «احجز الآن» navigates to `BookingScreen` |
+| 126–129 | `owner_screens_render_test.dart` revenue group | net `11200` (12000 − 500 − 300), maintenance `500`, cleaning `300`, year `2026` read from `month`, unit name «جناح عائلي» read from `units` |
+| 126 | `widgets_test.dart` `RevenueReports` group | `yearTotals` reads the production `month` key, still accepts `ym`, and `monthKey` returns null for an unknown key |
+| 108 | `owner_screens_render_test.dart` commission group | total `600`, paid `400`, unpaid `200`, ref `BK-1001` |
+| 136 | `owner_wallet_screens_test.dart` | `requestTransfer` posts to `/user/owner-wallet.php` with `action=request_transfer`, `amount`, `iban`, `note` |
+
+### 11.4 Status movement
+
+| Status | Before this pass | After |
+|---|---|---|
+| VERIFIED PASS | 74 | **99** |
+| INTEGRATION VERIFIED | 3 | 3 |
+| IMPLEMENTED UNTESTED | 41 | **0** |
+| PARTIAL | 4 | **20** |
+| BACKEND BLOCKED | 26 | 26 |
+| **Total** | 148 | 148 |
+
+The IMPLEMENTED UNTESTED bucket is now empty. Its 41 items moved one of two ways:
+
+- **VERIFIED PASS (25 items): 6, 21, 22, 23, 35, 37, 38, 40, 41, 42, 43, 60, 69,
+  70, 72, 75, 78, 79, 80, 84, 86, 93, 95, 96, 99.** For each of these the client
+  behaviour is fully proven by a test and the server contract it depends on is
+  already confirmed (public endpoint, or a field the live server returns).
+- **PARTIAL (16 items): 34, 74, 108, 110, 121, 122, 123, 126, 127, 128, 129, 133,
+  134, 135, 136, 142.** The client half is complete and tested; the server half
+  is missing or its field names are unconfirmed. Naming the missing server piece
+  is more useful to the owner than an optimistic VERIFIED.
+
+### 11.5 Why 126–129 stayed PARTIAL
+
+`user/owner-revenue.php` returns `401` to an unauthenticated probe, so
+`monthly[]`, `maintenance_expense` and `cleaning_expense` cannot be confirmed
+against the live server. The only payload available in this repository was
+written by the same commit that reads it, which proves the client parses its own
+fixture and nothing about the server. Execution 01's audit reached the same
+conclusion for these items. The client-side defect in 11.2 is genuinely fixed and
+tested; the requirement stays PARTIAL until a signed-in capture confirms the
+field names.

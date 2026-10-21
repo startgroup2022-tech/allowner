@@ -25,7 +25,9 @@ class _OwnerNotificationsScreenState
     _future = _service.getNotifications();
   }
 
-  void _reload() => setState(() => _future = _service.getNotifications());
+  void _reload() => setState(() {
+        _future = _service.getNotifications();
+      });
 
   IconData _iconFor(String type) {
     switch (type) {

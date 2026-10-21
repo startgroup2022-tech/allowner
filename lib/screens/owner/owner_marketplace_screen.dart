@@ -28,7 +28,9 @@ class _OwnerMarketplaceScreenState
     _future = _service.getMarketplaceListings();
   }
 
-  void _reload() => setState(() => _future = _service.getMarketplaceListings());
+  void _reload() => setState(() {
+        _future = _service.getMarketplaceListings();
+      });
 
   Future<void> _openNewListingSheet(bool isArabic) async {
     List<Map<String, dynamic>> units = [];

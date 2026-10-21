@@ -33,7 +33,9 @@ class _OwnerServicePricesScreenState
     _future = _service.getOwnerServicePrices();
   }
 
-  void _reload() => setState(() => _future = _service.getOwnerServicePrices());
+  void _reload() => setState(() {
+        _future = _service.getOwnerServicePrices();
+      });
 
   /// اسم الوحدة المرتبطة بالسعر — يُعرض «كل الوحدات» عندما يكون السعر عامًا.
   String _unitLabel(bool isArabic, Map<String, dynamic> price,

@@ -25,7 +25,9 @@ class _OwnerCommissionScreenState extends ConsumerState<OwnerCommissionScreen> {
     _future = _service.getMyCommission();
   }
 
-  void _reload() => setState(() => _future = _service.getMyCommission());
+  void _reload() => setState(() {
+        _future = _service.getMyCommission();
+      });
 
   String _statusLabel(bool isArabic, String status) {
     switch (status) {

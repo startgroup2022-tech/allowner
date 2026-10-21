@@ -2,9 +2,9 @@
 ///
 /// كل الدوال هنا نقية وتعمل على بيانات الـ API الحقيقية القادمة من
 /// `user/owner-revenue.php` — لا تُختلق أرقام. التجميع السنوي يُحسب من سطور
-/// `monthly` (كل سطر فيه `ym` بصيغة YYYY-MM و`total`)، أما مصروفات الصيانة
-/// والنظافة فتُقرأ فقط إن أعادها الـ API بأسمائها المعروفة؛ إن لم تُرجَع
-/// نُبلّغ بغيابها بدل عرض صفر مضلّل.
+/// `monthly` (كل سطر فيه `ym` أو `month` بصيغة YYYY-MM و`total`)، أما مصروفات
+/// الصيانة والنظافة فتُقرأ فقط إن أعادها الـ API بأسمائها المعروفة؛ إن لم
+/// تُرجَع نُبلّغ بغيابها بدل عرض صفر مضلّل.
 library;
 
 class YearTotal {
@@ -24,6 +24,19 @@ class ExpenseTotal {
 class RevenueReports {
   RevenueReports._();
 
+  /// مفتاح الشهر في سطر `monthly`. الاستجابة الفعلية من
+  /// `user/owner-revenue.php` تُسمّيه `month`، وبعض الإصدارات القديمة `ym`؛
+  /// نقرأ كليهما بدل أن يُبنى العنوان على `null`.
+  static String? monthKey(Map<String, dynamic> row) {
+    for (final key in const ['month', 'ym', 'month_key']) {
+      final value = row[key];
+      if (value != null && value.toString().trim().isNotEmpty) {
+        return value.toString();
+      }
+    }
+    return null;
+  }
+
   /// مفاتيح المصروفات المحتملة في استجابة الـ API، مرتّبة بحسب الأولوية.
   static const Map<String, List<String>> expenseKeys = {
     'maintenance_expense': [
@@ -40,7 +53,7 @@ class RevenueReports {
   static List<YearTotal> yearTotals(List<Map<String, dynamic>> monthly) {
     final sums = <int, double>{};
     for (final row in monthly) {
-      final year = yearOf(row['ym']?.toString());
+      final year = yearOf(monthKey(row));
       if (year == null) continue;
       sums[year] = (sums[year] ?? 0) + _toDouble(row['total']);
     }

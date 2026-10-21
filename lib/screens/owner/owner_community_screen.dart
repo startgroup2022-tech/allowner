@@ -29,7 +29,9 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
     _future = _service.getCommunityPosts();
   }
 
-  void _reload() => setState(() => _future = _service.getCommunityPosts());
+  void _reload() => setState(() {
+        _future = _service.getCommunityPosts();
+      });
 
   Future<void> _submitPost(bool isArabic) async {
     final text = _postCtrl.text.trim();

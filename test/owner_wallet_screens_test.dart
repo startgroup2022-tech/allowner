@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:allowners/screens/owner/owner_subscription_screen.dart';
 import 'package:allowners/screens/owner/owner_wallet_screen.dart';
 import 'package:allowners/services/api_client.dart';
+import 'package:allowners/services/owner_service.dart';
+import 'package:allowners/utils/owner_wallet.dart';
 import 'package:allowners/theme/app_theme.dart';
 import 'package:allowners/utils/app_strings.dart';
 import 'package:dio/dio.dart';
@@ -233,5 +235,52 @@ void main() {
         expect(tester.takeException(), isNull);
       });
     }
+
+    test('المتطلب 136: طلب التحويل يرسل action=request_transfer مع المبلغ',
+        () async {
+      // نلتقط ما يخرج من الجهاز فعلًا بدل الاكتفاء بأن الزر موجود.
+      final recorder = _RecordingAdapter(_walletJson);
+      ApiClient.instance.dio.httpClientAdapter = recorder;
+
+      await OwnerService().requestTransfer(
+        buildTransferRequestPayload(amount: 500, iban: 'SA123', note: 'شهري'),
+      );
+
+      expect(recorder.paths.single, contains('owner-wallet.php'));
+      final body = jsonDecode(recorder.bodies.single) as Map<String, dynamic>;
+      expect(body['action'], 'request_transfer');
+      expect(body['amount'], 500);
+      expect(body['iban'], 'SA123');
+      expect(body['note'], 'شهري');
+    });
   });
+}
+
+/// يلتقط أجسام الطلبات الخارجة ليُتحقَّق من عقد الـ API الحقيقي.
+class _RecordingAdapter implements HttpClientAdapter {
+  _RecordingAdapter(this.walletBody);
+
+  final Object walletBody;
+  final List<String> paths = [];
+  final List<String> bodies = [];
+
+  @override
+  void close({bool force = false}) {}
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    paths.add(options.path);
+    if (options.data != null) bodies.add(jsonEncode(options.data));
+    return ResponseBody.fromString(
+      jsonEncode(walletBody),
+      200,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
 }

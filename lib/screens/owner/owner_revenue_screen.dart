@@ -25,7 +25,9 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
     _future = _service.getRevenue();
   }
 
-  void _reload() => setState(() => _future = _service.getRevenue());
+  void _reload() => setState(() {
+        _future = _service.getRevenue();
+      });
 
   String _monthLabel(String ym, bool isArabic) {
     final parts = ym.split('-');
@@ -108,7 +110,7 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
               final grossRevenue = asDouble(data['total_revenue']);
               final totalRevenue = grossRevenue.toStringAsFixed(0);
               final monthly = asMapList(data['monthly']);
-              final byUnit = asMapList(data['by_unit']);
+              final byUnit = asMapList(data['by_unit'] ?? data['units']);
               final years = RevenueReports.yearTotals(monthly);
               final expenses = RevenueReports.expenses(data);
               final net = RevenueReports.netRevenue(grossRevenue, expenses);
@@ -230,7 +232,9 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                             children: [
                               Expanded(
                                 child: Text(
-                                    _monthLabel(m['ym'].toString(), isArabic),
+                                    _monthLabel(
+                                        RevenueReports.monthKey(m) ?? '',
+                                        isArabic),
                                     style: textTheme.bodyMedium),
                               ),
                               Text(
@@ -271,8 +275,15 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                               Expanded(
                                 child: Text(
                                   isArabic
-                                      ? (u['name_ar'] ?? '')
-                                      : (u['name_en'] ?? u['name_ar'] ?? ''),
+                                      ? (u['name_ar'] ??
+                                          u['unit_name_ar'] ??
+                                          u['unit_name'] ??
+                                          '')
+                                      : (u['name_en'] ??
+                                          u['unit_name_en'] ??
+                                          u['unit_name'] ??
+                                          u['name_ar'] ??
+                                          ''),
                                   style: textTheme.bodyMedium,
                                 ),
                               ),

@@ -56,7 +56,9 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
   }
 
   void _reload() {
-    setState(() => _detailFuture = _hotelService.getHotelDetail(_hotel.id));
+    setState(() {
+      _detailFuture = _hotelService.getHotelDetail(_hotel.id);
+    });
   }
 
   Future<void> _toggleFavorite() async {

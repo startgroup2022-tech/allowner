@@ -494,18 +494,33 @@ void main() {
   });
 
   group('تقارير الإيرادات (المتطلبات 126–129)', () {
-    testWidgets('الصافي والمصروفات تظهر من الحقول الحقيقية', (tester) async {
+    testWidgets('الصافي والمصروفات والسنة تظهر من الحقول الحقيقية',
+        (tester) async {
       await _pump(tester, const OwnerRevenueScreen());
       expect(tester.takeException(), isNull);
+      // المتطلب 126: الإجمالي والسنة من سطور monthly الحقيقية.
       expect(find.textContaining('12000'), findsWidgets);
+      expect(find.textContaining('2026'), findsWidgets);
+      // المتطلبان 128 و129: مصروفات الصيانة والنظافة تُعرض من حقولها.
+      expect(find.textContaining('500'), findsWidgets);
+      expect(find.textContaining('300'), findsWidgets);
+      // المتطلب 127: الصافي = 12000 − 500 − 300 = 11200.
+      expect(find.textContaining('11200'), findsWidgets);
+      // إيراد الوحدة يُعرض باسمها الحقيقي من `units`.
+      expect(find.textContaining('جناح عائلي'), findsWidgets);
     });
   });
 
   group('العمولة والبنك (المتطلبات 108، 118)', () {
-    testWidgets('شاشة العمولة تعرض الإجمالي والمدفوع وغير المدفوع',
+    testWidgets(
+        'شاشة العمولة تعرض الإجمالي والمدفوع وغير المدفوع (المتطلب 108)',
         (tester) async {
       await _pump(tester, const OwnerCommissionScreen());
       expect(tester.takeException(), isNull);
+      // الإجمالي والمدفوع وغير المدفوع من حقول الـ API الحقيقية.
+      expect(find.textContaining('600'), findsWidgets);
+      expect(find.textContaining('400'), findsWidgets);
+      expect(find.textContaining('200'), findsWidgets);
       expect(find.textContaining('BK-1001'), findsWidgets);
     });
 
@@ -517,10 +532,14 @@ void main() {
   });
 
   group('عملاء الوكيل (المتطلبات 93، 99)', () {
-    testWidgets('قائمة العملاء تُرسم ببياناتها', (tester) async {
+    testWidgets('قائمة العملاء تُرسم بعدد الحجوزات والإجمالي (المتطلب 99)',
+        (tester) async {
       await _pump(tester, const OwnerClientsScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('عميل الوكيل'), findsWidgets);
+      // المتطلب 99: يرى الوكيل عدد حجوزات عميله وإجمالي ما دفعه.
+      expect(find.textContaining('2'), findsWidgets);
+      expect(find.textContaining('3000'), findsWidgets);
     });
   });
 
