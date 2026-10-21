@@ -274,7 +274,7 @@ class _OwnerDecisionsScreenState extends ConsumerState<OwnerDecisionsScreen> {
                   final isOpen = d['status'] == 'open';
                   final myVote = asIntOrNull(d['my_vote']);
                   final options = asMapList(d['options']);
-                  final total = (d['total_votes'] as num?)?.toInt() ?? 0;
+                  final total = asInt(d['total_votes']);
 
                   return Container(
                     padding: const EdgeInsets.all(AppDimens.md),
@@ -328,10 +328,13 @@ class _OwnerDecisionsScreenState extends ConsumerState<OwnerDecisionsScreen> {
                         ],
                         const SizedBox(height: AppDimens.md),
                         ...options.map((o) {
-                          final votes = (o['votes'] as num).toInt();
+                          // السيرفر يعيد `votes` كرقم أو كنص، والمقارنة بـ
+                          // `my_vote` تفشل إن اختلف النوع (String مقابل int).
+                          final votes = asInt(o['votes']);
                           final pct =
                               total > 0 ? (votes / total * 100).round() : 0;
-                          final isMine = myVote == o['id'];
+                          final isMine =
+                              myVote != null && myVote == asIntOrNull(o['id']);
                           return Padding(
                             padding:
                                 const EdgeInsets.only(bottom: AppDimens.sm),

@@ -180,7 +180,7 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
     setState(() => _busyId = asInt(r['id']));
     try {
       await _service.actOnRequest(
-        type: r['type'] as String,
+        type: asString(r['type']),
         id: asInt(r['id']),
         action: action,
         note: noteCtrl.text.trim().isNotEmpty ? noteCtrl.text.trim() : null,

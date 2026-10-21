@@ -4,6 +4,13 @@
 **Date:** 2026-10-19
 **Flutter:** 3.47.7 (stable) · **Dart:** 3.13.5
 
+> **Historical snapshot.** This document records the state at the end of
+> Execution 01. The counts in §10 are superseded: a later reconciliation pass
+> added tests for the requirements listed as `IMPLEMENTED UNTESTED` here and
+> reclassified req 59. See `docs/EXECUTION_02_05_PROGRESS.md` §6.1 for the
+> current machine-counted totals, and `docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md`
+> for the authoritative per-requirement status.
+
 > Every number in this document comes from a command that was actually run.
 > Where a command failed or could not run, that is stated rather than smoothed over.
 

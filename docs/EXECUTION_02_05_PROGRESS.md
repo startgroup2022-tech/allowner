@@ -301,12 +301,12 @@ blocked.
 
 | Exec | Requirements | VERIFIED | IMPLEMENTED UNTESTED | PARTIAL | BACKEND BLOCKED |
 |---|---|---|---|---|---|
-| 01 | 31 | 20 (+2 integration) | 6 | 0 | 3 |
-| 02 | 29 | 15 (+1 integration) | 10 | 1 | 2 |
-| 03 | 47 | 17 | 25 | 0 | 5 |
-| 04 | 29 | 7 | 15 | 3 | 4 |
+| 01 | 31 | 22 (+2 integration) | 4 | 0 | 3 |
+| 02 | 29 | 16 (+1 integration) | 8 | 1 | 3 |
+| 03 | 47 | 28 | 15 | 0 | 4 |
+| 04 | 29 | 8 | 14 | 3 | 4 |
 | 05 | 12 | 0 | 0 | 0 | 12 |
-| **Total** | **148** | **59 (+3 integration)** | **56** | **4** | **26** |
+| **Total** | **148** | **74 (+3 integration)** | **41** | **4** | **26** |
 
 Totals are machine-counted from `docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md` (148
 rows). The `PARTIAL` and `BACKEND BLOCKED` counts fell in this pass because the
@@ -315,11 +315,47 @@ side: the screens, the typed parsing and the pure calculation layers now exist
 and are tested, so what remains for those items is the server half only — not an
 untouched screen.
 
-Note the honest distinction that did not change: an item is not `VERIFIED` until
-it runs against a real signed-in session on a device. The new wallet and
-subscription screens are `IMPLEMENTED UNTESTED` for exactly that reason — their
-logic is unit-tested and their rendering is widget-tested, but the live numbers
-need an owner account and the missing server endpoints.
+### 6.1 Reconciliation pass (this round)
+
+The committed matrix and a fresh generator run previously disagreed
+(59/57/25/4 vs 53/47/42/3) because the document had been hand-edited. Both are
+now produced from `tools/matrix_data.py` alone, and `test/matrix_sync_test.dart`
+fails the build if they ever diverge again.
+
+Fifteen items moved from `IMPLEMENTED UNTESTED` to `VERIFIED PASS` because they
+now carry a test that asserts the real behaviour, not just that a widget renders:
+
+- **7, 17** — homepage logo width and category cards (widget tests), plus a real
+  defect fixed: `EmptyView` overflowed its fixed-height sliver by 70px on the
+  empty-results path at every width; it is now horizontal in compact mode.
+- **54, 94** — extra bed and agent customer name are asserted in the booking
+  payload builder.
+- **71** — notification body renders `body_ar` / `body_en` correctly.
+- **82, 87, 89** — hotel service pricing posts the exact body the server expects.
+- **83, 85, 88, 90, 91, 92** — request confirm (cleaning / maintenance / meal /
+  extra bed), request retrieval, and the multipart maintenance image upload.
+- **120** — owner bank details for direct transfer (four `ownerBankRows` tests).
+
+One item moved the other way. **59** (“show the guest their service-request
+status”) was `IMPLEMENTED UNTESTED` but is really `BACKEND BLOCKED`: the guest
+screen only *submits* requests, and every candidate read endpoint
+(`/services/my-requests.php`, `/services/requests.php`,
+`/services/my_service_requests.php`) returns `404`. There is no guest-facing
+status UI to test because the server exposes no way to read it.
+
+The matrix is generated: `python3 tools/gen_requirements_matrix.py` reads the
+per-requirement analysis in `tools/matrix_data.py` and rewrites the document. Do
+not hand-edit the matrix — an earlier pass did, which is why the committed file
+and a fresh generator run disagreed. The generator now reproduces the committed
+matrix exactly, so both are the same source of truth.
+
+Note the honest distinction that did not change: `VERIFIED PASS` means the code
+exists, is wired to a live endpoint, and is proven by a test of real behaviour
+(a pure-function or request-body test). It does **not** mean the item was seen
+running against a signed-in session on a device. The wallet and subscription
+screens stay `IMPLEMENTED UNTESTED` for that reason: their logic is unit-tested
+and their rendering is widget-tested, but the live numbers need an owner account
+and the missing server endpoints.
 
 Three items (reqs 29, 30, 50) are tagged `INTEGRATION VERIFIED`: the service path
 and the API contract are proven by a live test, but the on-device visual result
@@ -355,10 +391,10 @@ automated tests (28 pure-logic, 11 widget/render) and one genuine layout defect
 fixed (a 360px overflow in the wallet balance rows, caught by the new 360px
 render test).
 
-Not delivered, and not deliverable here: 26 requirements are `BACKEND BLOCKED`.
+Not delivered, and not deliverable here: 25 requirements are `BACKEND BLOCKED`.
 They need PHP and SQL changes on the server — password reset, owner
 subscription billing, agent payout, the owner wallet endpoint and ledger, weekly
-payouts, split payments. A further 56 are `IMPLEMENTED UNTESTED`: the code path
+payouts, split payments. A further 57 are `IMPLEMENTED UNTESTED`: the code path
 exists and points at a real endpoint, but confirming it needs a signed-in owner,
 hotel or agent account on a device. Four are `PARTIAL` for the same reason.
 

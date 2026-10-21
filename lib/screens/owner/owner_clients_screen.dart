@@ -124,7 +124,7 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
                             });
                             try {
                               await _service.saveAgentClient(
-                                id: existing?['id'] as int?,
+                                id: asIntOrNull(existing?['id']),
                                 fullName: nameCtrl.text.trim(),
                                 phone: phoneCtrl.text.trim(),
                                 email: emailCtrl.text.trim().isNotEmpty
@@ -388,7 +388,7 @@ class _ClientDetailScreenState extends ConsumerState<_ClientDetailScreen> {
             if (snapshot.hasError)
               return Center(
                   child: Text(AppStrings.t(isArabic, 'error_loading')));
-            final client = snapshot.data!['client'] as Map<String, dynamic>;
+            final client = asMap(snapshot.data!['client']);
             final bookings = asMapList(snapshot.data!['bookings']);
 
             return ListView(

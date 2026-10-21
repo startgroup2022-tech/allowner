@@ -102,6 +102,12 @@ Summary:
 
 ### 3.2 By status (measured against code + live API)
 
+> **⚠️ لقطة تاريخية — ليست المصدر الحالي.** هذه الأرقام صُوِّرت عند الالتزام
+> `6371b6a` قبل تنفيذ جلسات الاشتراك/المحفظة/البنك/استعادة كلمة المرور. الأرقام
+> الحالية المعتمدة هي في
+> [`docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md`](ALL_OWNERS_REQUIREMENTS_MATRIX.md)
+> (مُولَّدة من `tools/matrix_data.py`، 148 صفًا). لا تستخدم الجدول أدناه لأي قرار.
+
 | Status | Count | Meaning |
 |---|---|---|
 | VERIFIED PASS | 14 | Code present + wired to a live endpoint + verified |

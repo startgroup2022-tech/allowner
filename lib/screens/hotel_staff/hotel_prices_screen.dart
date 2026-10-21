@@ -42,9 +42,9 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
   Future<void> _openPriceSheet(bool isArabic, List<Map<String, dynamic>> hotels,
       List<Map<String, dynamic>> units,
       {Map<String, dynamic>? existing}) async {
-    int? hotelId = existing?['hotel_id'] as int? ??
+    int? hotelId = asIntOrNull(existing?['hotel_id']) ??
         (hotels.isNotEmpty ? asInt(hotels.first['id']) : null);
-    int? unitId = existing?['unit_id'] as int?;
+    int? unitId = asIntOrNull(existing?['unit_id']);
     String type = existing?['service_type']?.toString() ?? _types.first;
     final priceCtrl =
         TextEditingController(text: existing?['price']?.toString() ?? '');
@@ -146,7 +146,7 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
                       if (price == null || hotelId == null) return;
                       try {
                         await _service.savePrice(
-                          id: existing?['id'] as int?,
+                          id: asIntOrNull(existing?['id']),
                           hotelId: hotelId!,
                           unitId: unitId,
                           serviceType: type,

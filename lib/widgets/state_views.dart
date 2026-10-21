@@ -95,22 +95,53 @@ class EmptyView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+
+    final iconBox = Container(
+      width: compact ? 52 : 68,
+      height: compact ? 52 : 68,
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+      ),
+      child: Icon(icon, size: compact ? 24 : 30, color: AppColors.textMuted),
+    );
+
+    // الوضع المضغوط يُستخدم داخل شرائح أفقية بارتفاع ثابت وصغير (104–238px)،
+    // فالترتيب العمودي مع زر إجراء يتجاوز الحد (104px لا تكفي 52+12+نص+8+زر).
+    // لذلك نرصف أفقيًا: أيقونة + رسالة (+ إجراء) في صف واحد.
+    if (compact) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            iconBox,
+            const SizedBox(width: AppDimens.md),
+            Flexible(
+              child: Text(
+                message,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style:
+                    textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
+              ),
+            ),
+            if (actionLabel != null && onAction != null) ...[
+              const SizedBox(width: AppDimens.sm),
+              TextButton(onPressed: onAction, child: Text(actionLabel!)),
+            ],
+          ],
+        ),
+      );
+    }
+
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(compact ? AppDimens.md : AppDimens.pagePadding),
+        padding: EdgeInsets.all(AppDimens.pagePadding),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: compact ? 52 : 68,
-              height: compact ? 52 : 68,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceMuted,
-                borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-              ),
-              child: Icon(icon,
-                  size: compact ? 24 : 30, color: AppColors.textMuted),
-            ),
+            iconBox,
             const SizedBox(height: AppDimens.md),
             Text(
               message,

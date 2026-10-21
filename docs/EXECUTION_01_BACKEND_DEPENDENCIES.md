@@ -313,7 +313,7 @@ These are the reason the corresponding matrix items are `BACKEND BLOCKED` or
 | Missing route | Blocks | Requirement |
 |---|---|---|
 | `/auth/forgot-password.php` (and every `auth/forgot*` path) | Password reset — the login screen routes to Help & Support instead of a dead button | 110 |
-| `/services/my-requests.php`, `/services/requests.php`, `/services/my_service_requests.php` | Guest viewing their own service-request status | 59 (partly) |
+| `/services/my-requests.php`, `/services/requests.php`, `/services/my_service_requests.php` | Guest viewing their own service-request status — reclassified from `IMPLEMENTED UNTESTED` to `BACKEND BLOCKED`: the guest screen only submits, so there is nothing to test until a read route exists | 59 |
 | `/user/owner-subscription.php`, `/subscription/status.php` | Owner annual subscription, gating, payment page, terms | 121–125 |
 | `/user/owner-prices.php` | Owner-specific price endpoint (the hotel endpoint is reused) | 68 |
 | `/user/agent-bank.php`, `/user/agent-commission-transfer.php`, `/user/agent-payout.php`, `/user/agent-commission-withdraw.php` | Agent commission transfer / payout | 108, 109 |

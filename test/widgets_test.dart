@@ -1502,6 +1502,32 @@ void main() {
       expect(formatBookingDate(DateTime(2026, 1, 5)), '2026-01-05');
       expect(formatBookingDate(DateTime(2026, 12, 31)), '2026-12-31');
     });
+    test('المتطلب 54: السرير الإضافي يُرسل مع الحجز', () {
+      final p = buildBookingPayload(
+        hotelId: 3,
+        unitId: 12,
+        checkIn: DateTime(2026, 11, 1),
+        checkOut: DateTime(2026, 11, 3),
+        guests: 2,
+        paymentMethod: 'at_hotel',
+        extraBed: true,
+      );
+      expect(p['extra_bed'], isTrue);
+    });
+    test('المتطلب 94: اسم العميل للوكيل يُرسل عند تعبئته', () {
+      final p = buildBookingPayload(
+        hotelId: 3,
+        unitId: 12,
+        checkIn: DateTime(2026, 11, 1),
+        checkOut: DateTime(2026, 11, 3),
+        guests: 2,
+        paymentMethod: 'at_hotel',
+        customerName: '  سالم الوكيل  ',
+        customerPhone: ' 0555555555 ',
+      );
+      expect(p['customer_name'], 'سالم الوكيل');
+      expect(p['customer_phone'], '0555555555');
+    });
   });
   group('فحص الإتاحة المحلي قبل الحجز (المتطلب 45)', () {
     UnitAvailabilityModel p(String from, String to) =>

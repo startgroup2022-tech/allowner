@@ -180,7 +180,7 @@ class _OwnerMessagesScreenState extends ConsumerState<OwnerMessagesScreen> {
                     const Divider(height: 1, color: AppColors.cardBorder),
                 itemBuilder: (context, index) {
                   final c = conversations[index];
-                  final unread = (c['unread_count'] as num?)?.toInt() ?? 0;
+                  final unread = asInt(c['unread_count']);
                   return ListTile(
                     leading: CircleAvatar(
                       backgroundColor: AppColors.gold.withOpacity(0.2),

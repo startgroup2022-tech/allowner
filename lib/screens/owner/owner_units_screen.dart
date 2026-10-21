@@ -138,10 +138,8 @@ class _OwnerUnitsScreenState extends ConsumerState<OwnerUnitsScreen> {
                   final price =
                       asDouble(unit['price_per_night']).toStringAsFixed(0);
                   final images = asStringList(unit['images']);
-                  final coverImage =
-                      (unit['cover_image'] as String?)?.isNotEmpty == true
-                          ? unit['cover_image'] as String
-                          : (images.isNotEmpty ? images.first : null);
+                  final coverImage = asStringOrNull(unit['cover_image']) ??
+                      (images.isNotEmpty ? images.first : null);
 
                   return Container(
                     decoration: BoxDecoration(
