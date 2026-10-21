@@ -7,15 +7,18 @@ import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
 import '../../services/api_client.dart';
 import '../../utils/safe_parse.dart';
+import '../../widgets/state_views.dart';
 
 class OwnerMarketplaceScreen extends ConsumerStatefulWidget {
   const OwnerMarketplaceScreen({super.key});
 
   @override
-  ConsumerState<OwnerMarketplaceScreen> createState() => _OwnerMarketplaceScreenState();
+  ConsumerState<OwnerMarketplaceScreen> createState() =>
+      _OwnerMarketplaceScreenState();
 }
 
-class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen> {
+class _OwnerMarketplaceScreenState
+    extends ConsumerState<OwnerMarketplaceScreen> {
   final _service = OwnerService();
   late Future<List<Map<String, dynamic>>> _future;
 
@@ -25,7 +28,9 @@ class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen>
     _future = _service.getMarketplaceListings();
   }
 
-  void _reload() => setState(() => _future = _service.getMarketplaceListings());
+  void _reload() => setState(() {
+        _future = _service.getMarketplaceListings();
+      });
 
   Future<void> _openNewListingSheet(bool isArabic) async {
     List<Map<String, dynamic>> units = [];
@@ -40,20 +45,24 @@ class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen>
     if (!mounted) return;
 
     if (loadError != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loadError)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(loadError)));
       return;
     }
     if (units.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppStrings.t(isArabic, 'no_units_available'))));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppStrings.t(isArabic, 'no_units_available'))));
       return;
     }
 
     final priceCtrl = TextEditingController(
-      text: units.first['price_per_night'] != null ? asDouble(units.first['price_per_night']).toStringAsFixed(0) : '',
+      text: units.first['price_per_night'] != null
+          ? asDouble(units.first['price_per_night']).toStringAsFixed(0)
+          : '',
     );
     final descCtrl = TextEditingController();
     final contactCtrl = TextEditingController();
-    int? selectedUnitId = units.first['id'] as int;
+    int? selectedUnitId = asInt(units.first['id']);
     bool submitting = false;
 
     await showModalBottomSheet(
@@ -65,7 +74,8 @@ class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen>
             left: AppDimens.pagePadding,
             right: AppDimens.pagePadding,
             top: AppDimens.pagePadding,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + AppDimens.pagePadding,
+            bottom:
+                MediaQuery.of(ctx).viewInsets.bottom + AppDimens.pagePadding,
           ),
           child: StatefulBuilder(
             builder: (ctx, setSheetState) => SingleChildScrollView(
@@ -73,18 +83,25 @@ class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen>
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(AppStrings.t(isArabic, 'add_listing'), style: Theme.of(ctx).textTheme.titleMedium),
+                  Text(AppStrings.t(isArabic, 'add_listing'),
+                      style: Theme.of(ctx).textTheme.titleMedium),
                   const SizedBox(height: AppDimens.sm),
                   Text(AppStrings.t(isArabic, 'nightly_rental_hint'),
-                      style: Theme.of(ctx).textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                      style: Theme.of(ctx)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: AppColors.textMuted)),
                   const SizedBox(height: AppDimens.md),
                   DropdownButtonFormField<int>(
                     value: selectedUnitId,
-                    decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'select_unit')),
+                    decoration: InputDecoration(
+                        labelText: AppStrings.t(isArabic, 'select_unit')),
                     items: units
                         .map((u) => DropdownMenuItem<int>(
-                              value: u['id'] as int,
-                              child: Text('${u['hotel_name']} — ${u['name_ar']}', overflow: TextOverflow.ellipsis),
+                              value: asInt(u['id']),
+                              child: Text(
+                                  '${u['hotel_name']} — ${u['name_ar']}',
+                                  overflow: TextOverflow.ellipsis),
                             ))
                         .toList(),
                     onChanged: (v) {
@@ -92,7 +109,10 @@ class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen>
                         selectedUnitId = v;
                         // تعبئة السعر تلقائياً من بيانات الوحدة الحقيقية (نفس السعر المعروض للزبائن)
                         final unit = units.firstWhere((u) => u['id'] == v);
-                        final unitPrice = unit['price_per_night'] != null ? asDouble(unit['price_per_night']).toStringAsFixed(0) : null;
+                        final unitPrice = unit['price_per_night'] != null
+                            ? asDouble(unit['price_per_night'])
+                                .toStringAsFixed(0)
+                            : null;
                         if (unitPrice != null) priceCtrl.text = unitPrice;
                       });
                     },
@@ -103,17 +123,23 @@ class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen>
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       labelText: AppStrings.t(isArabic, 'price_per_night'),
-                      helperText: AppStrings.t(isArabic, 'price_prefilled_hint'),
+                      helperText:
+                          AppStrings.t(isArabic, 'price_prefilled_hint'),
                     ),
                   ),
                   const SizedBox(height: AppDimens.md),
                   TextField(
                     controller: contactCtrl,
                     keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'contact_number')),
+                    decoration: InputDecoration(
+                        labelText: AppStrings.t(isArabic, 'contact_number')),
                   ),
                   const SizedBox(height: AppDimens.md),
-                  TextField(controller: descCtrl, maxLines: 3, decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'extra_note'))),
+                  TextField(
+                      controller: descCtrl,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                          labelText: AppStrings.t(isArabic, 'extra_note'))),
                   const SizedBox(height: AppDimens.lg),
                   SizedBox(
                     width: double.infinity,
@@ -122,10 +148,15 @@ class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen>
                       onPressed: submitting
                           ? null
                           : () async {
-                              final price = double.tryParse(priceCtrl.text.trim());
-                              if (selectedUnitId == null || price == null || price <= 0) {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(content: Text(AppStrings.t(isArabic, 'fill_required_fields'))));
+                              final price =
+                                  double.tryParse(priceCtrl.text.trim());
+                              if (selectedUnitId == null ||
+                                  price == null ||
+                                  price <= 0) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(AppStrings.t(isArabic,
+                                            'fill_required_fields'))));
                                 return;
                               }
                               setSheetState(() => submitting = true);
@@ -139,7 +170,9 @@ class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen>
                                 if (ctx.mounted) Navigator.of(ctx).pop();
                                 _reload();
                               } on ApiException catch (e) {
-                                if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+                                if (mounted)
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(e.message)));
                               } finally {
                                 setSheetState(() => submitting = false);
                               }
@@ -159,9 +192,13 @@ class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen>
   Future<void> _expressInterest(bool isArabic, int listingId) async {
     try {
       await _service.expressInterest(listingId);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppStrings.t(isArabic, 'interest_sent'))));
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppStrings.t(isArabic, 'interest_sent'))));
     } on ApiException catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
     }
   }
 
@@ -206,11 +243,16 @@ class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen>
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 32),
+                    Icon(Icons.error_outline_rounded,
+                        color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
-                    Text(AppStrings.t(isArabic, 'error_loading'), textAlign: TextAlign.center),
+                    Text(AppStrings.t(isArabic, 'error_loading'),
+                        textAlign: TextAlign.center),
                     const SizedBox(height: AppDimens.sm),
-                    Center(child: OutlinedButton(onPressed: _reload, child: Text(AppStrings.t(isArabic, 'retry')))),
+                    Center(
+                        child: OutlinedButton(
+                            onPressed: _reload,
+                            child: Text(AppStrings.t(isArabic, 'retry')))),
                   ],
                 );
               }
@@ -222,7 +264,8 @@ class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen>
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(AppDimens.xl),
-                      child: Center(child: Text(AppStrings.t(isArabic, 'no_listings'))),
+                      child: Center(
+                          child: Text(AppStrings.t(isArabic, 'no_listings'))),
                     ),
                   ],
                 );
@@ -231,11 +274,16 @@ class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen>
               return GridView.builder(
                 padding: const EdgeInsets.all(AppDimens.pagePadding),
                 itemCount: listings.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  // عرض الخلية ثابت تقريبًا (~158px على 360px) فيظل المحتوى
+                  // قابلاً للقياس، بينما الشاشات الأعرض تحصل على أعمدة أكثر
+                  // بدل تكبير الخلايا بلا داعٍ.
+                  maxCrossAxisExtent: 220,
                   mainAxisSpacing: AppDimens.md,
                   crossAxisSpacing: AppDimens.md,
-                  childAspectRatio: 0.72,
+                  // ارتفاع كافٍ لمحتوى البطاقة (صورة + عنوان + فندق + سعة +
+                  // سعر + زر) عند أضيق عرض مدعوم.
+                  childAspectRatio: 0.58,
                 ),
                 itemBuilder: (context, index) {
                   final l = listings[index];
@@ -252,29 +300,53 @@ class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen>
                       children: [
                         AspectRatio(
                           aspectRatio: 1.5,
-                          child: l['image_url'] != null
-                              ? Image.network(l['image_url'].toString(), fit: BoxFit.cover)
-                              : Container(color: AppColors.surfaceMuted, child: const Icon(Icons.storefront_outlined, color: AppColors.textMuted)),
+                          // `Image.network("")` يرمي استثناء تحميل؛ نستخدم رسمًا
+                          // بديلًا صريحًا عند غياب الصورة أو كونها فارغة.
+                          child: (l['image_url'] ?? '')
+                                  .toString()
+                                  .trim()
+                                  .isNotEmpty
+                              ? AppNetworkImage(
+                                  url: l['image_url'].toString(),
+                                  fit: BoxFit.cover)
+                              : Container(
+                                  color: AppColors.surfaceMuted,
+                                  child: const Icon(Icons.storefront_outlined,
+                                      color: AppColors.textMuted)),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(AppDimens.sm),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(l['title'].toString(), style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis),
+                              Text(l['title'].toString(),
+                                  style: textTheme.bodyMedium
+                                      ?.copyWith(fontWeight: FontWeight.w700),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis),
                               const SizedBox(height: 2),
                               if (l['hotel_name'] != null)
                                 Text(l['hotel_name'].toString(),
-                                    style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                    style: textTheme.bodySmall
+                                        ?.copyWith(color: AppColors.textMuted),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis),
                               if (l['unit_capacity'] != null)
-                                Text('👤 ${l['unit_capacity']} ${AppStrings.t(isArabic, 'guests')}',
-                                    style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted, fontSize: 11)),
+                                Text(
+                                    '👤 ${l['unit_capacity']} ${AppStrings.t(isArabic, 'guests')}',
+                                    style: textTheme.bodySmall?.copyWith(
+                                        color: AppColors.textMuted,
+                                        fontSize: 11)),
                               if (l['price'] != null)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 4),
                                   child: Text(
                                     '${asDouble(l['price']).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')} / ${AppStrings.t(isArabic, 'night')}',
-                                    style: textTheme.bodySmall?.copyWith(color: AppColors.success, fontWeight: FontWeight.w700),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: textTheme.bodySmall?.copyWith(
+                                        color: AppColors.success,
+                                        fontWeight: FontWeight.w700),
                                   ),
                                 ),
                               const SizedBox(height: 4),
@@ -282,14 +354,22 @@ class _OwnerMarketplaceScreenState extends ConsumerState<OwnerMarketplaceScreen>
                                 SizedBox(
                                   width: double.infinity,
                                   child: OutlinedButton(
-                                    style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 6)),
-                                    onPressed: () => _expressInterest(isArabic, l['id'] as int),
-                                    child: Text(AppStrings.t(isArabic, 'im_interested'), style: const TextStyle(fontSize: 11)),
+                                    style: OutlinedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 6)),
+                                    onPressed: () => _expressInterest(
+                                        isArabic, asInt(l['id'])),
+                                    child: Text(
+                                        AppStrings.t(isArabic, 'im_interested'),
+                                        style: const TextStyle(fontSize: 11)),
                                   ),
                                 )
                               else
-                                Text('${l['interest_count']} ${isArabic ? "مهتم" : "interested"}',
-                                    style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted, fontSize: 11)),
+                                Text(
+                                    '${l['interest_count']} ${isArabic ? "مهتم" : "interested"}',
+                                    style: textTheme.bodySmall?.copyWith(
+                                        color: AppColors.textMuted,
+                                        fontSize: 11)),
                             ],
                           ),
                         ),

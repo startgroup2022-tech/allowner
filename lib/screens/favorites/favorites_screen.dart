@@ -70,6 +70,13 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
     final isArabic = ref.watch(localeProvider).languageCode == 'ar';
     final isLoggedIn = ref.watch(sessionProvider).isLoggedIn;
 
+    // استعادة الجلسة غير متزامنة وتنتهي غالبًا بعد `initState`، لذا نُعيد تحميل
+    // المفضلة عند اكتمال تسجيل الدخول بدل بقائها فارغة.
+    ref.listen<bool>(sessionProvider.select((s) => s.isLoggedIn),
+        (previous, next) {
+      if (next && previous != true) _loadFavorites();
+    });
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(title: Text(AppStrings.t(isArabic, 'favorites'))),
@@ -77,14 +84,20 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
         child: !isLoggedIn
             ? _EmptyState(
                 icon: Icons.lock_outline_rounded,
-                message: isArabic ? 'سجّل الدخول لعرض المفضلة' : 'Log in to view your favorites',
+                message: isArabic
+                    ? 'سجّل الدخول لعرض المفضلة'
+                    : 'Log in to view your favorites',
                 actionLabel: AppStrings.t(isArabic, 'login'),
-                onAction: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                ).then((_) => _loadFavorites()),
+                onAction: () => Navigator.of(context)
+                    .push(
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    )
+                    .then((_) => _loadFavorites()),
               )
             : _isLoading
-                ? const Center(child: CircularProgressIndicator(strokeWidth: 2.4, color: AppColors.gold))
+                ? const Center(
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2.4, color: AppColors.gold))
                 : _error != null
                     ? _EmptyState(
                         icon: Icons.error_outline_rounded,
@@ -100,25 +113,34 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                         : RefreshIndicator(
                             onRefresh: _loadFavorites,
                             child: ListView.builder(
-                              padding: const EdgeInsets.all(AppDimens.pagePadding),
+                              padding:
+                                  const EdgeInsets.all(AppDimens.pagePadding),
                               itemCount: _favorites.length,
                               itemBuilder: (context, index) {
                                 final hotel = _favorites[index];
                                 return Padding(
-                                  padding: const EdgeInsets.only(bottom: AppDimens.md),
+                                  padding: const EdgeInsets.only(
+                                      bottom: AppDimens.md),
                                   child: InkWell(
                                     onTap: () {
                                       Navigator.of(context)
-                                          .push(MaterialPageRoute(builder: (_) => HotelDetailsScreen(hotel: hotel)))
+                                          .push(MaterialPageRoute(
+                                              builder: (_) =>
+                                                  HotelDetailsScreen(
+                                                      hotel: hotel)))
                                           .then((_) => _loadFavorites());
                                     },
-                                    borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+                                    borderRadius: BorderRadius.circular(
+                                        AppDimens.radiusLg),
                                     child: Container(
-                                      padding: const EdgeInsets.all(AppDimens.sm),
+                                      padding:
+                                          const EdgeInsets.all(AppDimens.sm),
                                       decoration: BoxDecoration(
                                         color: AppColors.surface,
-                                        borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-                                        border: Border.all(color: AppColors.cardBorder),
+                                        borderRadius: BorderRadius.circular(
+                                            AppDimens.radiusLg),
+                                        border: Border.all(
+                                            color: AppColors.cardBorder),
                                       ),
                                       child: Row(
                                         children: [
@@ -128,42 +150,58 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                                             clipBehavior: Clip.antiAlias,
                                             decoration: BoxDecoration(
                                               color: AppColors.surfaceMuted,
-                                              borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                      AppDimens.radiusMd),
                                             ),
                                             child: CachedNetworkImage(
                                               imageUrl: hotel.imageUrl,
                                               fit: BoxFit.cover,
-                                              errorWidget: (context, url, error) =>
-                                                  Icon(Icons.image_outlined, color: AppColors.textMuted),
+                                              errorWidget:
+                                                  (context, url, error) => Icon(
+                                                      Icons.image_outlined,
+                                                      color:
+                                                          AppColors.textMuted),
                                             ),
                                           ),
                                           const SizedBox(width: AppDimens.sm),
                                           Expanded(
                                             child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
-                                                Text(hotel.name, style: Theme.of(context).textTheme.titleSmall),
+                                                Text(hotel.name,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .titleSmall),
                                                 Text(hotel.city(isArabic),
                                                     style: Theme.of(context)
                                                         .textTheme
                                                         .bodySmall
-                                                        ?.copyWith(color: AppColors.textMuted)),
+                                                        ?.copyWith(
+                                                            color: AppColors
+                                                                .textMuted)),
                                                 const SizedBox(height: 4),
                                                 Text(
                                                     '${hotel.pricePerNight.toInt()} ${AppStrings.t(isArabic, "sar")} ${AppStrings.t(isArabic, "per_night")}',
                                                     style: Theme.of(context)
                                                         .textTheme
                                                         .titleSmall
-                                                        ?.copyWith(color: AppColors.goldDark)),
+                                                        ?.copyWith(
+                                                            color: AppColors
+                                                                .goldDark)),
                                               ],
                                             ),
                                           ),
                                           InkWell(
                                             onTap: () => _removeFavorite(hotel),
-                                            borderRadius: BorderRadius.circular(20),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
                                             child: const Padding(
                                               padding: EdgeInsets.all(6),
-                                              child: Icon(Icons.favorite_rounded, color: AppColors.danger),
+                                              child: Icon(
+                                                  Icons.favorite_rounded,
+                                                  color: AppColors.danger),
                                             ),
                                           ),
                                         ],
@@ -185,7 +223,11 @@ class _EmptyState extends StatelessWidget {
   final String? actionLabel;
   final VoidCallback? onAction;
 
-  const _EmptyState({required this.icon, required this.message, this.actionLabel, this.onAction});
+  const _EmptyState(
+      {required this.icon,
+      required this.message,
+      this.actionLabel,
+      this.onAction});
 
   @override
   Widget build(BuildContext context) {
@@ -196,8 +238,11 @@ class _EmptyState extends StatelessWidget {
           Icon(icon, size: 56, color: AppColors.textMuted),
           const SizedBox(height: AppDimens.md),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
-            child: Text(message, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textMuted)),
+            padding:
+                const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
+            child: Text(message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.textMuted)),
           ),
           if (actionLabel != null && onAction != null) ...[
             const SizedBox(height: AppDimens.md),

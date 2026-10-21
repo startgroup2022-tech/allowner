@@ -7,21 +7,26 @@ import '../../utils/locale_provider.dart';
 import '../../utils/session_provider.dart';
 import '../../widgets/editable_avatar.dart';
 import '../shared/help_support_screen.dart';
+import '../shared/app_about_screen.dart';
 import '../home/main_navigation_screen.dart';
 import 'owner_bookings_screen.dart';
 import 'owner_maintenance_screen.dart';
 import 'owner_revenue_screen.dart';
+import 'owner_commission_screen.dart';
 import 'owner_documents_screen.dart';
 import 'owner_decisions_screen.dart';
 import 'owner_community_screen.dart';
 import 'owner_marketplace_screen.dart';
 import 'owner_messages_screen.dart';
 import 'owner_staff_screen.dart';
+import 'owner_wallet_screen.dart';
+import 'owner_subscription_screen.dart';
 
 class OwnerProfileScreen extends ConsumerWidget {
   const OwnerProfileScreen({super.key});
 
-  Future<void> _openEditProfileSheet(BuildContext context, WidgetRef ref, bool isArabic, dynamic user) async {
+  Future<void> _openEditProfileSheet(
+      BuildContext context, WidgetRef ref, bool isArabic, dynamic user) async {
     final nameCtrl = TextEditingController(text: user?.fullName ?? '');
     final phoneCtrl = TextEditingController(text: user?.phone ?? '');
     final currentPwCtrl = TextEditingController();
@@ -38,7 +43,8 @@ class OwnerProfileScreen extends ConsumerWidget {
             left: AppDimens.pagePadding,
             right: AppDimens.pagePadding,
             top: AppDimens.pagePadding,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + AppDimens.pagePadding,
+            bottom:
+                MediaQuery.of(ctx).viewInsets.bottom + AppDimens.pagePadding,
           ),
           child: StatefulBuilder(
             builder: (ctx, setSheetState) => SingleChildScrollView(
@@ -46,20 +52,43 @@ class OwnerProfileScreen extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(AppStrings.t(isArabic, 'edit_profile'), style: Theme.of(ctx).textTheme.titleMedium),
+                  Text(AppStrings.t(isArabic, 'edit_profile'),
+                      style: Theme.of(ctx).textTheme.titleMedium),
                   const SizedBox(height: AppDimens.md),
-                  TextField(controller: nameCtrl, decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'full_name'))),
+                  TextField(
+                      controller: nameCtrl,
+                      decoration: InputDecoration(
+                          labelText: AppStrings.t(isArabic, 'full_name'))),
                   const SizedBox(height: AppDimens.md),
-                  TextField(controller: phoneCtrl, decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'phone')), keyboardType: TextInputType.phone),
+                  TextField(
+                      controller: phoneCtrl,
+                      decoration: InputDecoration(
+                          labelText: AppStrings.t(isArabic, 'phone')),
+                      keyboardType: TextInputType.phone),
                   const SizedBox(height: AppDimens.lg),
-                  Text(AppStrings.t(isArabic, 'change_password_optional'), style: Theme.of(ctx).textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                  Text(AppStrings.t(isArabic, 'change_password_optional'),
+                      style: Theme.of(ctx)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: AppColors.textMuted)),
                   const SizedBox(height: AppDimens.sm),
-                  TextField(controller: currentPwCtrl, obscureText: true, decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'current_password'))),
+                  TextField(
+                      controller: currentPwCtrl,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                          labelText:
+                              AppStrings.t(isArabic, 'current_password'))),
                   const SizedBox(height: AppDimens.md),
-                  TextField(controller: newPwCtrl, obscureText: true, decoration: InputDecoration(labelText: AppStrings.t(isArabic, 'new_password'))),
+                  TextField(
+                      controller: newPwCtrl,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                          labelText: AppStrings.t(isArabic, 'new_password'))),
                   if (errorText != null) ...[
                     const SizedBox(height: AppDimens.sm),
-                    Text(errorText!, style: const TextStyle(color: AppColors.danger, fontSize: 12)),
+                    Text(errorText!,
+                        style: const TextStyle(
+                            color: AppColors.danger, fontSize: 12)),
                   ],
                   const SizedBox(height: AppDimens.lg),
                   SizedBox(
@@ -70,7 +99,8 @@ class OwnerProfileScreen extends ConsumerWidget {
                           ? null
                           : () async {
                               if (nameCtrl.text.trim().isEmpty) {
-                                setSheetState(() => errorText = AppStrings.t(isArabic, 'required_field'));
+                                setSheetState(() => errorText =
+                                    AppStrings.t(isArabic, 'required_field'));
                                 return;
                               }
                               setSheetState(() {
@@ -78,11 +108,19 @@ class OwnerProfileScreen extends ConsumerWidget {
                                 errorText = null;
                               });
                               try {
-                                await ref.read(sessionProvider.notifier).updateProfile(
+                                await ref
+                                    .read(sessionProvider.notifier)
+                                    .updateProfile(
                                       fullName: nameCtrl.text.trim(),
                                       phone: phoneCtrl.text.trim(),
-                                      currentPassword: newPwCtrl.text.trim().isNotEmpty ? currentPwCtrl.text.trim() : null,
-                                      newPassword: newPwCtrl.text.trim().isNotEmpty ? newPwCtrl.text.trim() : null,
+                                      currentPassword:
+                                          newPwCtrl.text.trim().isNotEmpty
+                                              ? currentPwCtrl.text.trim()
+                                              : null,
+                                      newPassword:
+                                          newPwCtrl.text.trim().isNotEmpty
+                                              ? newPwCtrl.text.trim()
+                                              : null,
                                     );
                                 if (ctx.mounted) Navigator.of(ctx).pop();
                               } catch (e) {
@@ -93,7 +131,11 @@ class OwnerProfileScreen extends ConsumerWidget {
                               }
                             },
                       child: saving
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white))
                           : Text(AppStrings.t(isArabic, 'save')),
                     ),
                   ),
@@ -111,6 +153,7 @@ class OwnerProfileScreen extends ConsumerWidget {
     final isArabic = ref.watch(localeProvider).languageCode == 'ar';
     final textTheme = Theme.of(context).textTheme;
     final user = ref.watch(sessionProvider).user;
+    final isAgent = user?.role == 'booking_agent';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -124,86 +167,131 @@ class OwnerProfileScreen extends ConsumerWidget {
               const SizedBox(height: AppDimens.md),
               Text(user?.fullName ?? '', style: textTheme.headlineSmall),
               Text(_roleLabel(isArabic, user?.role ?? 'owner'),
-                  style: textTheme.bodyMedium?.copyWith(color: AppColors.goldDark)),
+                  style: textTheme.bodyMedium
+                      ?.copyWith(color: AppColors.goldDark)),
               const SizedBox(height: AppDimens.sm),
               OutlinedButton.icon(
-                onPressed: () => _openEditProfileSheet(context, ref, isArabic, user),
+                onPressed: () =>
+                    _openEditProfileSheet(context, ref, isArabic, user),
                 icon: const Icon(Icons.edit_outlined, size: 16),
                 label: Text(AppStrings.t(isArabic, 'edit_profile')),
-                style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8)),
+                style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18, vertical: 8)),
               ),
               const SizedBox(height: AppDimens.xl),
-
               _MenuSection(items: [
+                // الوكيل يرى «تقارير العمولات» لا «التقارير المالية» (متطلب 100).
                 _MenuItem(
                   icon: Icons.bar_chart_outlined,
-                  label: AppStrings.t(isArabic, 'financial_reports'),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerRevenueScreen())),
+                  label: AppStrings.t(isArabic,
+                      isAgent ? 'commission_reports' : 'financial_reports'),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => isAgent
+                        ? const OwnerCommissionScreen()
+                        : const OwnerRevenueScreen(),
+                  )),
                 ),
                 _MenuItem(
                   icon: Icons.calendar_month_outlined,
                   label: AppStrings.t(isArabic, 'owner_bookings'),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerBookingsScreen())),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const OwnerBookingsScreen())),
                 ),
-                _MenuItem(
-                  icon: Icons.folder_outlined,
-                  label: AppStrings.t(isArabic, 'contracts_docs'),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerDocumentsScreen())),
-                ),
+                // المتطلبات 121–125 و132–143: الاشتراك السنوي والمحفظة —
+                // للمالك فقط (الوكيل له «تقارير العمولات»).
+                if (user?.role == 'owner') ...[
+                  _MenuItem(
+                    icon: Icons.workspace_premium_outlined,
+                    label: AppStrings.t(isArabic, 'subscription_title'),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const OwnerSubscriptionScreen())),
+                  ),
+                  _MenuItem(
+                    icon: Icons.account_balance_wallet_outlined,
+                    label: AppStrings.t(isArabic, 'wallet_title'),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const OwnerWalletScreen())),
+                  ),
+                ],
+                // الوكيل لا يرى العقود ولا مجتمع الملاك ولا التصويت (متطلبات 101-103)،
+                // لكنه يبقى يرى خدمات الصيانة (متطلب 104).
+                if (!isAgent)
+                  _MenuItem(
+                    icon: Icons.folder_outlined,
+                    label: AppStrings.t(isArabic, 'contracts_docs'),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const OwnerDocumentsScreen())),
+                  ),
                 _MenuItem(
                   icon: Icons.build_outlined,
                   label: AppStrings.t(isArabic, 'maintenance_requests'),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerMaintenanceScreen())),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const OwnerMaintenanceScreen())),
                 ),
-                _MenuItem(
-                  icon: Icons.how_to_vote_outlined,
-                  label: AppStrings.t(isArabic, 'voting_decisions'),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerDecisionsScreen())),
-                ),
+                if (!isAgent)
+                  _MenuItem(
+                    icon: Icons.how_to_vote_outlined,
+                    label: AppStrings.t(isArabic, 'voting_decisions'),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const OwnerDecisionsScreen())),
+                  ),
                 if (user?.role == 'owner')
                   _MenuItem(
                     icon: Icons.badge_outlined,
                     label: AppStrings.t(isArabic, 'staff'),
-                    onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerStaffScreen())),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const OwnerStaffScreen())),
                   ),
               ]),
               const SizedBox(height: AppDimens.md),
-
               _MenuSection(items: [
-                _MenuItem(
-                  icon: Icons.groups_outlined,
-                  label: AppStrings.t(isArabic, 'owners_community'),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerCommunityScreen())),
-                ),
+                if (!isAgent)
+                  _MenuItem(
+                    icon: Icons.groups_outlined,
+                    label: AppStrings.t(isArabic, 'owners_community'),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const OwnerCommunityScreen())),
+                  ),
                 _MenuItem(
                   icon: Icons.storefront_outlined,
                   label: AppStrings.t(isArabic, 'units_marketplace'),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerMarketplaceScreen())),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const OwnerMarketplaceScreen())),
                 ),
                 _MenuItem(
                   icon: Icons.chat_bubble_outline_rounded,
                   label: AppStrings.t(isArabic, 'messages'),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerMessagesScreen())),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const OwnerMessagesScreen())),
                 ),
               ]),
               const SizedBox(height: AppDimens.md),
-
               _MenuSection(items: [
                 _MenuItem(
                   icon: Icons.help_outline_rounded,
                   label: AppStrings.t(isArabic, 'help_support'),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HelpSupportScreen())),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const HelpSupportScreen())),
+                ),
+                // المتطلبات 3-5: تعريف التطبيق — متاح لكل الأدوار.
+                _MenuItem(
+                  icon: Icons.info_outline_rounded,
+                  label: AppStrings.t(isArabic, 'about_us'),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const AppAboutScreen(),
+                  )),
                 ),
                 _MenuItem(
                   icon: Icons.language_rounded,
                   label: AppStrings.t(isArabic, 'language'),
                   trailing: Text(isArabic ? 'العربية' : 'English',
-                      style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
+                      style: const TextStyle(
+                          color: AppColors.textMuted, fontSize: 13)),
                   onTap: () => ref.read(localeProvider.notifier).toggleLocale(),
                 ),
               ]),
               const SizedBox(height: AppDimens.md),
-
               _MenuSection(items: [
                 _MenuItem(
                   icon: Icons.logout_rounded,
@@ -214,7 +302,8 @@ class OwnerProfileScreen extends ConsumerWidget {
                     await ref.read(sessionProvider.notifier).logout();
                     if (context.mounted) {
                       Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+                        MaterialPageRoute(
+                            builder: (_) => const MainNavigationScreen()),
                         (route) => false,
                       );
                     }
@@ -269,10 +358,13 @@ class _MenuSection extends StatelessWidget {
                 onTap: item.onTap,
                 borderRadius: BorderRadius.circular(AppDimens.radiusLg),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppDimens.md, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppDimens.md, vertical: 14),
                   child: Row(
                     children: [
-                      Icon(item.icon, size: 22, color: item.iconColor ?? AppColors.textSecondary),
+                      Icon(item.icon,
+                          size: 22,
+                          color: item.iconColor ?? AppColors.textSecondary),
                       const SizedBox(width: AppDimens.md),
                       Expanded(
                         child: Text(
@@ -286,13 +378,15 @@ class _MenuSection extends StatelessWidget {
                       ),
                       if (item.trailing != null) item.trailing!,
                       const SizedBox(width: 4),
-                      const Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textMuted),
+                      const Icon(Icons.chevron_right_rounded,
+                          size: 18, color: AppColors.textMuted),
                     ],
                   ),
                 ),
               ),
               if (index != items.length - 1)
-                const Divider(height: 1, indent: AppDimens.md, endIndent: AppDimens.md),
+                const Divider(
+                    height: 1, indent: AppDimens.md, endIndent: AppDimens.md),
             ],
           );
         }),
@@ -300,6 +394,7 @@ class _MenuSection extends StatelessWidget {
     );
   }
 }
+
 String _roleLabel(bool isArabic, String role) {
   switch (role) {
     case 'unit_manager':

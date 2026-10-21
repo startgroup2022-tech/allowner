@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/app_user.dart';
+import '../utils/safe_parse.dart';
 import 'api_client.dart';
 
 class AuthService {
@@ -22,19 +23,20 @@ class AuthService {
         'password': password,
         'role': role,
       });
-      return _handleAuthResponse(res.data);
+      return await _handleAuthResponse(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
   }
 
-  Future<AppUser> login({required String email, required String password}) async {
+  Future<AppUser> login(
+      {required String email, required String password}) async {
     try {
       final res = await _dio.post('/auth/login.php', data: {
         'email': email,
         'password': password,
       });
-      return _handleAuthResponse(res.data);
+      return await _handleAuthResponse(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -66,13 +68,27 @@ class AuthService {
     try {
       final formData = FormData.fromMap({
         if (remove) 'remove': '1',
-        if (!remove && filePath != null) 'avatar': await MultipartFile.fromFile(filePath),
+        if (!remove && filePath != null)
+          'avatar': await MultipartFile.fromFile(filePath),
       });
       final res = await _dio.post('/user/avatar.php', data: formData);
       final user = AppUser.fromJson(res.data['user']);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_json', jsonEncode(user.toJson()));
       return user;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  /// يطلب رابط إعادة تعيين كلمة المرور من السيرفر (المتطلب 110).
+  ///
+  /// النقطة غير مُنفَّذة على السيرفر حاليًا (كل مسارات `auth/forgot*` تُرجع
+  /// 404). نستدعي المسار المتوقع، وإن رد 404 يصل الخطأ للشاشة كنوع
+  /// `notFound` فتعرض «غير مُفعَّلة» بدل نجاح وهمي.
+  Future<void> requestPasswordReset(String email) async {
+    try {
+      await _dio.post('/auth/forgot-password.php', data: {'email': email});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -87,7 +103,11 @@ class AuthService {
     await ApiClient.instance.clearToken();
   }
 
-  /// يحاول استرجاع المستخدم من التخزين المحلي، ويتحقق من صلاحية التوكن مع السيرفر
+  /// يحاول استرجاع المستخدم من التخزين المحلي، ويتحقق من صلاحية التوكن مع السيرفر.
+  ///
+  /// مهم: لا نمسح الجلسة عند انقطاع الشبكة — فقط عند رد السيرفر بأن التوكن غير
+  /// صالح (401/403). النسخة السابقة كانت تمسح الجلسة عند أي خطأ شبكة، فيُطرد
+  /// المستخدم لمجرد أنه بلا إنترنت لحظيًا.
   Future<AppUser?> restoreSession() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
@@ -95,19 +115,46 @@ class AuthService {
 
     try {
       final res = await _dio.get('/auth/me.php');
-      final user = AppUser.fromJson(res.data['user']);
+      final user =
+          AppUser.fromJson(asMap(res.data is Map ? res.data['user'] : null));
       await prefs.setString('user_json', jsonEncode(user.toJson()));
       return user;
-    } on DioException {
-      // التوكن غير صالح أو منتهي — امسح الجلسة المحلية
-      await ApiClient.instance.clearToken();
-      return null;
+    } on DioException catch (e) {
+      final apiError = ApiException.fromDioError(e);
+      if (apiError.isUnauthorized) {
+        await ApiClient.instance.clearToken();
+        return null;
+      }
+      // خطأ شبكة/سيرفر — نُرجع بيانات المستخدم المخزّنة محليًا بدل تسجيل الخروج
+      return _cachedUser(prefs);
     }
   }
 
-  Future<AppUser> _handleAuthResponse(Map<String, dynamic> data) async {
-    final token = data['token'] as String;
-    final user = AppUser.fromJson(data['user']);
+  /// يقرأ آخر مستخدم محفوظ محليًا (يُستخدم عند تعذّر الاتصال).
+  AppUser? _cachedUser(SharedPreferences prefs) {
+    final raw = prefs.getString('user_json');
+    if (raw == null || raw.isEmpty) return null;
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map) {
+        return AppUser.fromJson(decoded.cast<String, dynamic>());
+      }
+    } catch (_) {
+      // بيانات محلية تالفة — نتجاهلها ونعيد null
+    }
+    return null;
+  }
+
+  Future<AppUser> _handleAuthResponse(dynamic rawData) async {
+    final data = asMap(rawData);
+    final token = asStringOrNull(data['token']);
+    if (token == null) {
+      throw ApiException(
+        (data['message'] ?? 'Login response is missing the token').toString(),
+        kind: ApiErrorKind.badResponse,
+      );
+    }
+    final user = AppUser.fromJson(asMap(data['user']));
     await ApiClient.instance.saveToken(token);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_json', jsonEncode(user.toJson()));

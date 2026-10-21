@@ -7,6 +7,7 @@ import '../../utils/locale_provider.dart';
 import '../../utils/session_provider.dart';
 import '../../widgets/editable_avatar.dart';
 import '../shared/help_support_screen.dart';
+import '../shared/app_about_screen.dart';
 import '../home/main_navigation_screen.dart';
 
 class HotelProfileScreen extends ConsumerWidget {
@@ -30,13 +31,27 @@ class HotelProfileScreen extends ConsumerWidget {
           children: [
             EditableAvatar(avatarUrl: user?.avatarUrl, radius: 34),
             const SizedBox(height: AppDimens.md),
-            Text(user?.fullName ?? '', style: Theme.of(context).textTheme.titleLarge),
-            Text(user?.email ?? '', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+            Text(user?.fullName ?? '',
+                style: Theme.of(context).textTheme.titleLarge),
+            Text(user?.email ?? '',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: AppColors.textMuted)),
             const SizedBox(height: AppDimens.xl),
             OutlinedButton.icon(
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HelpSupportScreen())),
+              onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const HelpSupportScreen())),
               icon: const Icon(Icons.help_outline_rounded),
               label: Text(AppStrings.t(isArabic, 'help_support')),
+            ),
+            const SizedBox(height: AppDimens.md),
+            OutlinedButton.icon(
+              // المتطلبات 3-5: تعريف التطبيق — متاح أيضًا لإدارة الفندق.
+              onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const AppAboutScreen())),
+              icon: const Icon(Icons.info_outline_rounded),
+              label: Text(AppStrings.t(isArabic, 'about_us')),
             ),
             const SizedBox(height: AppDimens.md),
             OutlinedButton.icon(
@@ -51,14 +66,17 @@ class HotelProfileScreen extends ConsumerWidget {
               width: double.infinity,
               height: AppDimens.buttonHeight,
               child: OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger, side: const BorderSide(color: AppColors.danger)),
+                style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.danger,
+                    side: const BorderSide(color: AppColors.danger)),
                 icon: const Icon(Icons.logout_rounded),
                 label: Text(AppStrings.t(isArabic, 'logout')),
                 onPressed: () async {
                   await ref.read(sessionProvider.notifier).logout();
                   if (context.mounted) {
                     Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+                      MaterialPageRoute(
+                          builder: (_) => const MainNavigationScreen()),
                       (route) => false,
                     );
                   }

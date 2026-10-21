@@ -4,7 +4,10 @@ class AppStrings {
   static const Map<String, Map<String, String>> _strings = {
     // ===== عام =====
     'app_name': {'ar': 'All Owners', 'en': 'All Owners'},
-    'app_tagline': {'ar': 'فندقك، أينما كنت', 'en': 'Your stay, anywhere'},
+    'app_tagline': {
+      'ar': 'المنصة الموثوقة لملاك الوحدات والعقارات',
+      'en': 'The Trusted Platform for Property Owners'
+    },
     'continue': {'ar': 'استمرار', 'en': 'Continue'},
     'next': {'ar': 'التالي', 'en': 'Next'},
     'skip': {'ar': 'تخطي', 'en': 'Skip'},
@@ -14,32 +17,48 @@ class AppStrings {
     'save': {'ar': 'حفظ', 'en': 'Save'},
     'search': {'ar': 'بحث', 'en': 'Search'},
     'see_all': {'ar': 'عرض الكل', 'en': 'See all'},
+    'all_cities': {'ar': 'كل المدن', 'en': 'All cities'},
     'loading': {'ar': 'جاري التحميل...', 'en': 'Loading...'},
     'night': {'ar': 'ليلة', 'en': 'night'},
     'nights': {'ar': 'ليالٍ', 'en': 'nights'},
     'guests': {'ar': 'ضيوف', 'en': 'guests'},
     'sar': {'ar': 'ريال', 'en': 'SAR'},
     'one_time_fee': {'ar': 'رسم مرة واحدة', 'en': 'one-time fee'},
-    'choose_from_gallery': {'ar': 'اختر من المعرض', 'en': 'Choose from gallery'},
+    'choose_from_gallery': {
+      'ar': 'اختر من المعرض',
+      'en': 'Choose from gallery'
+    },
     'take_photo': {'ar': 'التقاط صورة', 'en': 'Take a photo'},
     'remove_photo': {'ar': 'حذف الصورة', 'en': 'Remove photo'},
-    'avatar_update_failed': {'ar': 'تعذّر تحديث الصورة، حاول مرة ثانية', 'en': 'Could not update photo, try again'},
+    'avatar_update_failed': {
+      'ar': 'تعذّر تحديث الصورة، حاول مرة ثانية',
+      'en': 'Could not update photo, try again'
+    },
 
     // ===== Onboarding =====
-    'onboard_title_1': {'ar': 'مرحبًا بك في All Owners', 'en': 'Welcome to All Owners'},
+    'onboard_title_1': {
+      'ar': 'مرحبًا بك في All Owners',
+      'en': 'Welcome to All Owners'
+    },
     'onboard_desc_1': {
-      'ar': 'المنصة الموثوقة لملاك الوحدات الفندقية والعقارات، وتجربة حجز ذكية للضيوف.',
-      'en': 'The Trusted Platform for Hotel Unit & Property Owners, with a Smart Booking Experience for Guests.'
+      'ar':
+          'المنصة الموثوقة لملاك الوحدات الفندقية والعقارات، وتجربة حجز ذكية للضيوف.',
+      'en':
+          'The Trusted Platform for Hotel Unit & Property Owners, with a Smart Booking Experience for Guests.'
     },
     'onboard_title_2': {'ar': 'للملاك', 'en': 'For Property Owners'},
     'onboard_desc_2': {
-      'ar': 'نوفر منصة متكاملة تمكّن الملاك من إدارة ممتلكاتهم ومتابعة الحجوزات، والإيرادات، والعقود، والصيانة والنظافة، والتواصل مع إدارات الفنادق وشركات التشغيل، بكل سهولة وأمان.',
-      'en': 'An integrated platform that enables property owners to manage their properties, track bookings, revenues, contracts, maintenance and housekeeping, and communicate with hotel management and operating companies.'
+      'ar':
+          'نوفر منصة متكاملة تمكّن الملاك من إدارة ممتلكاتهم ومتابعة الحجوزات، والإيرادات، والعقود، والصيانة والنظافة، والتواصل مع إدارات الفنادق وشركات التشغيل، بكل سهولة وأمان.',
+      'en':
+          'An integrated platform that enables property owners to manage their properties, track bookings, revenues, contracts, maintenance and housekeeping, and communicate with hotel management and operating companies.'
     },
     'onboard_title_3': {'ar': 'للضيوف والوكلاء', 'en': 'For Guests & Agents'},
     'onboard_desc_3': {
-      'ar': 'كما تتيح للضيوف والوكلاء البحث عن الوحدات المتاحة، وإجراء الحجوزات والدفع الإلكتروني، وإدارة الإقامة بكل سهولة وأمان.\n\nكل ما تحتاجه لإدارة ممتلكاتك أو حجز إقامتك... في منصة واحدة آمنة وذكية.',
-      'en': 'Guests and booking agents can search for available units, make reservations, complete secure online payments, and manage their stays with ease.\n\nEverything you need to manage your property or book your stay — all in one secure and smart platform.'
+      'ar':
+          'كما تتيح للضيوف والوكلاء البحث عن الوحدات المتاحة، وإجراء الحجوزات والدفع الإلكتروني، وإدارة الإقامة بكل سهولة وأمان.\n\nكل ما تحتاجه لإدارة ممتلكاتك أو حجز إقامتك... في منصة واحدة آمنة وذكية.',
+      'en':
+          'Guests and booking agents can search for available units, make reservations, complete secure online payments, and manage their stays with ease.\n\nEverything you need to manage your property or book your stay — all in one secure and smart platform.'
     },
     'get_started': {'ar': 'ابدأ الآن', 'en': 'Get Started'},
 
@@ -47,7 +66,10 @@ class AppStrings {
     'login': {'ar': 'تسجيل الدخول', 'en': 'Login'},
     'register': {'ar': 'إنشاء حساب', 'en': 'Register'},
     'welcome_back': {'ar': 'مرحباً بعودتك', 'en': 'Welcome Back'},
-    'login_subtitle': {'ar': 'سجّل دخولك للمتابعة', 'en': 'Sign in to continue'},
+    'login_subtitle': {
+      'ar': 'سجّل دخولك للمتابعة',
+      'en': 'Sign in to continue'
+    },
     'phone_number': {'ar': 'رقم الهاتف', 'en': 'Phone Number'},
     'email': {'ar': 'البريد الإلكتروني', 'en': 'Email'},
     'password': {'ar': 'كلمة المرور', 'en': 'Password'},
@@ -56,15 +78,24 @@ class AppStrings {
     'no_account': {'ar': 'ليس لديك حساب؟', 'en': "Don't have an account?"},
     'have_account': {'ar': 'لديك حساب؟', 'en': 'Already have an account?'},
     'create_account': {'ar': 'إنشاء حساب جديد', 'en': 'Create New Account'},
-    'or_continue_with': {'ar': 'أو الاستمرار باستخدام', 'en': 'Or continue with'},
+    'or_continue_with': {
+      'ar': 'أو الاستمرار باستخدام',
+      'en': 'Or continue with'
+    },
     'continue_as_guest': {'ar': 'الاستمرار كزائر', 'en': 'Continue as Guest'},
 
     // ===== Home =====
     'home': {'ar': 'الرئيسية', 'en': 'Home'},
     'hello': {'ar': 'مرحباً', 'en': 'Hello'},
     'hello_guest': {'ar': 'مرحبًا بك', 'en': 'Welcome'},
-    'where_to': {'ar': 'أين ترغب في الإقامة؟', 'en': 'Where would you like to stay?'},
-    'search_destination': {'ar': 'ابحث عن مدينة أو وحدة أو عقار', 'en': 'Search city, unit or property'},
+    'where_to': {
+      'ar': 'أين ترغب في الإقامة؟',
+      'en': 'Where would you like to stay?'
+    },
+    'search_destination': {
+      'ar': 'ابحث عن مدينة أو وحدة أو عقار',
+      'en': 'Search city, unit or property'
+    },
     'check_in': {'ar': 'تاريخ الوصول', 'en': 'Check-in'},
     'check_out': {'ar': 'تاريخ المغادرة', 'en': 'Check-out'},
     'categories': {'ar': 'التصنيفات', 'en': 'Categories'},
@@ -74,32 +105,145 @@ class AppStrings {
     'chalets': {'ar': 'شاليهات', 'en': 'Chalets'},
     'properties': {'ar': 'عقارات', 'en': 'Properties'},
     'owner_units': {'ar': 'وحدات الملاك', 'en': "Owners' Units"},
-    'hotels_with_owner_units': {'ar': 'فنادق بوحدات ملاك', 'en': 'Hotels with Owner Units'},
-    'units_available_count': {'ar': 'وحدة متاحة للحجز', 'en': 'units available for booking'},
+    'hotels_with_owner_units': {
+      'ar': 'فنادق بوحدات ملاك',
+      'en': 'Hotels with Owner Units'
+    },
+    'units_available_count': {
+      'ar': 'وحدة متاحة للحجز',
+      'en': 'units available for booking'
+    },
     'featured_deals': {'ar': 'عروض مميزة', 'en': 'Featured Deals'},
     'newest_suites': {'ar': 'أحدث الوحدات', 'en': 'Newest Units'},
     'my_commission': {'ar': 'عمولتي', 'en': 'My Commission'},
-    'commission_setting': {'ar': 'إعداد العمولة الحالي', 'en': 'Current commission setting'},
-    'set_by_admin_only': {'ar': 'يحدّدها الأدمن فقط', 'en': 'set by admin only'},
+    'commission_reports': {'ar': 'تقارير العمولات', 'en': 'Commission Reports'},
+    'commission_setting': {
+      'ar': 'إعداد العمولة الحالي',
+      'en': 'Current commission setting'
+    },
+    'set_by_admin_only': {
+      'ar': 'يحدّدها الأدمن فقط',
+      'en': 'set by admin only'
+    },
     'total_bookings': {'ar': 'إجمالي الحجوزات', 'en': 'Total Bookings'},
     'total_commission': {'ar': 'إجمالي العمولة', 'en': 'Total Commission'},
     'paid': {'ar': 'مدفوعة', 'en': 'Paid'},
     'unpaid': {'ar': 'غير مدفوعة', 'en': 'Unpaid'},
     'commission_history': {'ar': 'سجل العمولات', 'en': 'Commission History'},
     'any': {'ar': 'أي عدد', 'en': 'Any'},
-    'change_password_optional': {'ar': 'تغيير كلمة المرور (اختياري)', 'en': 'Change password (optional)'},
+    'change_password_optional': {
+      'ar': 'تغيير كلمة المرور (اختياري)',
+      'en': 'Change password (optional)'
+    },
     'current_password': {'ar': 'كلمة المرور الحالية', 'en': 'Current password'},
     'new_password': {'ar': 'كلمة المرور الجديدة', 'en': 'New password'},
     'phone': {'ar': 'رقم الجوال', 'en': 'Phone'},
-    'availability_periods': {'ar': 'فترات الإتاحة للحجز', 'en': 'Availability Periods'},
+    'availability_periods': {
+      'ar': 'فترات الإتاحة للحجز',
+      'en': 'Availability Periods'
+    },
     'add_period': {'ar': 'إضافة فترة', 'en': 'Add period'},
-    'no_periods_yet': {'ar': 'ما في فترات إتاحة محددة بعد', 'en': 'No availability periods set yet'},
+    'no_periods_yet': {
+      'ar': 'ما في فترات إتاحة محددة بعد',
+      'en': 'No availability periods set yet'
+    },
     'sort_newest': {'ar': 'الأحدث', 'en': 'Newest'},
     'sort_price_asc': {'ar': 'الأقل سعراً', 'en': 'Lowest Price'},
     'sort_capacity': {'ar': 'الأكبر سعة', 'en': 'Largest'},
     'popular_destinations': {'ar': 'وجهات شائعة', 'en': 'Popular Destinations'},
     'recommended_for_you': {'ar': 'موصى به لك', 'en': 'Recommended for You'},
     'per_night': {'ar': '/ليلة', 'en': '/night'},
+
+    // ===== الصفحة الرئيسية (النسخة الجديدة) =====
+    'retry': {'ar': 'إعادة المحاولة', 'en': 'Retry'},
+    'featured_hotels': {'ar': 'فنادق مميزة', 'en': 'Featured Hotels'},
+    'featured_destinations': {
+      'ar': 'وجهات مميزة',
+      'en': 'Featured Destinations'
+    },
+    'recently_added_units': {
+      'ar': 'أحدث الوحدات المضافة',
+      'en': 'Recently Added Units'
+    },
+    'browse_by_category': {'ar': 'اكتشف حسب النوع', 'en': 'Discover by Type'},
+    'hotels_in_city': {'ar': 'فنادق في', 'en': 'Hotels in'},
+    'units_in_city': {'ar': 'وحدات في', 'en': 'Units in'},
+    'search_city_or_hotel': {
+      'ar': 'ابحث عن مدينة أو فندق أو وحدة',
+      'en': 'Search city, hotel or unit'
+    },
+    'search_hotels_tab': {'ar': 'الفنادق', 'en': 'Hotels'},
+    'search_units_tab': {'ar': 'الوحدات', 'en': 'Units'},
+    'all_categories': {'ar': 'كل التصنيفات', 'en': 'All Categories'},
+    'clear_search': {'ar': 'مسح البحث', 'en': 'Clear search'},
+    'price_on_request': {'ar': 'السعر عند الطلب', 'en': 'Price on request'},
+    'no_description': {
+      'ar': 'لا يوجد وصف مضاف لهذا العقار',
+      'en': 'No description has been added for this property'
+    },
+    'no_amenities': {
+      'ar': 'لا توجد مرافق مضافة لهذا العقار',
+      'en': 'No amenities added for this property'
+    },
+    'amenities_from_backend': {
+      'ar': 'المرافق المضافة لهذا العقار',
+      'en': 'Amenities listed for this property'
+    },
+
+    // ===== تفاصيل الوحدة =====
+    'about_unit': {'ar': 'عن الوحدة', 'en': 'About this unit'},
+    'unit_facilities': {'ar': 'مرافق الوحدة', 'en': 'Unit facilities'},
+    'hotel_shared_facilities': {
+      'ar': 'مرافق الفندق المشتركة',
+      'en': 'Shared hotel facilities'
+    },
+    'hotel_shared_facilities_note': {
+      'ar': 'متاحة لجميع ضيوف الفندق',
+      'en': 'Available to all guests of the hotel'
+    },
+    // المتطلب 76: تصنيفات خدمات الوحدة الخمسة (مفارش/طعام/حمام/وسائط/معدات).
+    'unit_services': {'ar': 'خدمات الوحدة', 'en': 'Unit services'},
+    'svc_cat_bedding': {'ar': 'المفارش', 'en': 'Bedding'},
+    'svc_cat_food': {'ar': 'الطعام والمشروبات', 'en': 'Food & beverages'},
+    'svc_cat_bathroom': {'ar': 'الحمام', 'en': 'Bathroom'},
+    'svc_cat_media': {'ar': 'الوسائط والتكنولوجيا', 'en': 'Media & technology'},
+    'svc_cat_equipment': {'ar': 'الخدمة والمعدات', 'en': 'Service & equipment'},
+    'svc_cat_other': {'ar': 'خدمات أخرى', 'en': 'Other services'},
+    'unit_services_empty_note': {
+      'ar': 'لم تُضف خدمات خاصة لهذه الوحدة — راجع مرافق الفندق المشتركة أدناه',
+      'en':
+          'No unit-specific services were added — see the shared hotel facilities below'
+    },
+    'unit_facilities_empty_note': {
+      'ar': 'لم تُضف مرافق خاصة لهذه الوحدة — راجع مرافق الفندق المشتركة أدناه',
+      'en':
+          'No unit-specific facilities were added — see the shared hotel facilities below'
+    },
+    'availability_period': {'ar': 'فترة الإتاحة', 'en': 'Availability period'},
+    'no_availability_info': {
+      'ar': 'لا توجد فترة إتاحة محددة — تواصل مع الفندق للتأكد',
+      'en': 'No availability period set — contact the property to confirm'
+    },
+    'dates_outside_availability': {
+      'ar': 'التواريخ المختارة خارج فترات إتاحة الوحدة — اختر تواريخ أخرى',
+      'en': 'Selected dates are outside the unit availability periods'
+    },
+    'unit_number_label': {'ar': 'رقم الوحدة', 'en': 'Unit number'},
+    'capacity_label': {'ar': 'السعة', 'en': 'Capacity'},
+    'beds_label': {'ar': 'الأسرّة', 'en': 'Beds'},
+    'price_per_week_short': {'ar': 'أسبوع', 'en': 'week'},
+    'price_per_month_short': {'ar': 'شهر', 'en': 'month'},
+    'not_available': {'ar': 'غير متاح حاليًا', 'en': 'Currently unavailable'},
+    'hotel_label': {'ar': 'الفندق', 'en': 'Hotel'},
+    'view_hotel': {'ar': 'عرض الفندق', 'en': 'View hotel'},
+    'load_failed_title': {
+      'ar': 'تعذّر تحميل البيانات',
+      'en': 'Could not load the data'
+    },
+    'session_expired': {
+      'ar': 'انتهت الجلسة، الرجاء تسجيل الدخول من جديد',
+      'en': 'Session expired, please log in again'
+    },
 
     // ===== Search & Filters =====
     'search_results': {'ar': 'نتائج البحث', 'en': 'Search Results'},
@@ -113,8 +257,14 @@ class AppStrings {
     'apply_filters': {'ar': 'تطبيق الفلاتر', 'en': 'Apply Filters'},
     'reset': {'ar': 'إعادة تعيين', 'en': 'Reset'},
     'no_results': {'ar': 'لا توجد نتائج مطابقة', 'en': 'No matching results'},
-    'price_low_high': {'ar': 'السعر: من الأقل للأعلى', 'en': 'Price: Low to High'},
-    'price_high_low': {'ar': 'السعر: من الأعلى للأقل', 'en': 'Price: High to Low'},
+    'price_low_high': {
+      'ar': 'السعر: من الأقل للأعلى',
+      'en': 'Price: Low to High'
+    },
+    'price_high_low': {
+      'ar': 'السعر: من الأعلى للأقل',
+      'en': 'Price: High to Low'
+    },
     'top_rated': {'ar': 'الأعلى تقييماً', 'en': 'Top Rated'},
     'distance': {'ar': 'الأقرب', 'en': 'Nearest'},
 
@@ -130,7 +280,10 @@ class AppStrings {
     'select_room': {'ar': 'اختر الغرفة', 'en': 'Select Room'},
     'free_cancellation': {'ar': 'إلغاء مجاني', 'en': 'Free cancellation'},
     'breakfast_included': {'ar': 'الإفطار مشمول', 'en': 'Breakfast included'},
-    'pay_at_property': {'ar': 'الدفع بالفندق متاح', 'en': 'Pay at the property'},
+    'pay_at_property': {
+      'ar': 'الدفع بالفندق متاح',
+      'en': 'Pay at the property'
+    },
     'view_on_map': {'ar': 'عرض على الخريطة', 'en': 'View on map'},
     'guest_reviews': {'ar': 'تقييمات الضيوف', 'en': 'Guest Reviews'},
     'see_all_reviews': {'ar': 'عرض كل التقييمات', 'en': 'See all reviews'},
@@ -143,18 +296,84 @@ class AppStrings {
     'guest_details': {'ar': 'بيانات الضيف', 'en': 'Guest Details'},
     'payment_method': {'ar': 'طريقة الدفع', 'en': 'Payment Method'},
     'pay_online': {'ar': 'الدفع الإلكتروني الآن', 'en': 'Pay Online Now'},
-    'pay_at_hotel': {'ar': 'الدفع عند الوصول بالفندق', 'en': 'Pay at the Hotel'},
-    'pay_owner_transfer': {'ar': 'تحويل مباشر لحساب المالك', 'en': 'Direct Transfer to Owner'},
-    'card_number': {'ar': 'رقم البطاقة', 'en': 'Card Number'},
-    'expiry_date': {'ar': 'تاريخ الانتهاء', 'en': 'Expiry Date'},
-    'cvv': {'ar': 'رمز الأمان CVV', 'en': 'CVV'},
-    'cardholder_name': {'ar': 'اسم حامل البطاقة', 'en': 'Cardholder Name'},
+    'pay_at_hotel': {
+      'ar': 'الدفع عند الوصول بالفندق',
+      'en': 'Pay at the Hotel'
+    },
+    'pay_owner_transfer': {
+      'ar': 'تحويل مباشر لحساب المالك',
+      'en': 'Direct Transfer to Owner'
+    },
+    'owner_account_title': {
+      'ar': 'حساب المالك للتحويل',
+      'en': 'Owner Account for Transfer'
+    },
+    'owner_bank_name': {'ar': 'البنك', 'en': 'Bank'},
+    'owner_bank_account_name': {
+      'ar': 'اسم صاحب الحساب',
+      'en': 'Account Holder'
+    },
+    'owner_bank_account_number': {'ar': 'رقم الحساب', 'en': 'Account Number'},
+    'owner_bank_iban': {'ar': 'رقم الآيبان IBAN', 'en': 'IBAN'},
+    'owner_bank_title': {
+      'ar': 'بيانات الحساب البنكي',
+      'en': 'Bank Account Details'
+    },
+    'owner_bank_help': {
+      'ar':
+          'هذه البيانات تظهر للضيف عند اختيار «تحويل مباشر لحساب المالك»، وتُستخدم لتحويل مستحقاتك.',
+      'en':
+          'These details are shown to the guest when they choose a direct transfer to the owner, and are used to pay out your dues.'
+    },
+    'bank_fields_required': {
+      'ar': 'يرجى إدخال اسم البنك واسم صاحب الحساب ورقم الحساب',
+      'en': 'Please enter the bank name, account holder and account number'
+    },
+    'bank_saved': {
+      'ar': 'تم حفظ بيانات الحساب البنكي',
+      'en': 'Bank account details saved'
+    },
+    'nav_bank': {'ar': 'الحساب البنكي', 'en': 'Bank Account'},
+    'no_service_prices': {
+      'ar': 'لم يضبط الفندق أسعار خدمات بعد',
+      'en': 'The hotel has not set any service prices yet'
+    },
+    'booked_by_guest': {'ar': 'حجز من الضيف', 'en': 'Booked by guest'},
+    'booked_by_agent': {'ar': 'حجز من وكيل الحجوزات', 'en': 'Booked by agent'},
+    'booked_by_owner': {'ar': 'حجز من المالك', 'en': 'Booked by owner'},
+    'attach_image': {
+      'ar': 'إرفاق صورة (اختياري)',
+      'en': 'Attach Image (optional)'
+    },
+    'image_attached': {'ar': 'تم إرفاق صورة ✓', 'en': 'Image attached ✓'},
+    'owner_bank_missing': {
+      'ar':
+          'لم يسجّل المالك بيانات حسابه البنكي بعد. يمكنك الحجز والدفع عند الوصول أو التواصل مع الدعم.',
+      'en':
+          'The owner has not added bank details yet. You can book and pay at the hotel or contact support.'
+    },
+    // أمان الدفع: التطبيق لا يجمع بيانات البطاقة؛ الدفع في صفحة مستضافة.
+    'online_payment_unavailable': {
+      'ar':
+          'الدفع الإلكتروني غير مُفعَّل حاليًا. اختر «الدفع عند الوصول» أو تواصل مع الدعم.',
+      'en':
+          'Online payment is not enabled yet. Choose "Pay at hotel" or contact support.'
+    },
+    'online_payment_redirect_notice': {
+      'ar':
+          'سيُفتح بعد التأكيد صفحة دفع آمنة عند مزوّد مرخّص. لا نطلب بيانات بطاقتك ولا نخزّنها.',
+      'en':
+          'After confirming, a secure checkout page from a licensed provider will open. We never ask for or store your card details.'
+    },
     'price_details': {'ar': 'تفاصيل السعر', 'en': 'Price Details'},
     'room_price': {'ar': 'سعر الغرفة', 'en': 'Room Price'},
     'taxes_fees': {'ar': 'الضرائب والرسوم', 'en': 'Taxes & Fees'},
     'total_price': {'ar': 'الإجمالي', 'en': 'Total Price'},
     'confirm_booking': {'ar': 'تأكيد الحجز', 'en': 'Confirm Booking'},
-    'booking_success': {'ar': 'تم تأكيد حجزك بنجاح', 'en': 'Your booking is confirmed'},
+    'booking_success': {
+      'ar': 'تم تأكيد حجزك بنجاح',
+      'en': 'Your booking is confirmed'
+    },
     'booking_success_desc': {
       'ar': 'تفاصيل حجزك جاهزة، نتمنى لك رحلة سعيدة',
       'en': 'Your booking details are ready. Have a great trip!'
@@ -167,16 +386,33 @@ class AppStrings {
     'upcoming': {'ar': 'القادمة', 'en': 'Upcoming'},
     'past': {'ar': 'السابقة', 'en': 'Past'},
     'cancelled': {'ar': 'ملغية', 'en': 'Cancelled'},
-    'no_bookings_yet': {'ar': 'لا توجد حجوزات حتى الآن', 'en': 'No bookings yet'},
+    'no_bookings_yet': {
+      'ar': 'لا توجد حجوزات حتى الآن',
+      'en': 'No bookings yet'
+    },
     'cancel_booking': {'ar': 'إلغاء الحجز', 'en': 'Cancel Booking'},
-    'confirm_cancel_booking': {'ar': 'هل أنت متأكد من إلغاء هذا الحجز؟', 'en': 'Are you sure you want to cancel this booking?'},
+    'confirm_cancel_booking': {
+      'ar': 'هل أنت متأكد من إلغاء هذا الحجز؟',
+      'en': 'Are you sure you want to cancel this booking?'
+    },
     'booking_details': {'ar': 'تفاصيل الحجز', 'en': 'Booking Details'},
-    'confirm_booking_dialog_title': {'ar': 'تأكيد الحجز', 'en': 'Confirm Booking'},
+    'city': {'ar': 'المدينة', 'en': 'City'},
+    'hotel_name': {'ar': 'الفندق', 'en': 'Hotel'},
+    'unit_name': {'ar': 'الوحدة', 'en': 'Unit'},
+    'view_details': {'ar': 'عرض التفاصيل', 'en': 'View Details'},
+    'confirm_booking_dialog_title': {
+      'ar': 'تأكيد الحجز',
+      'en': 'Confirm Booking'
+    },
     'confirm_booking_dialog_body': {
       'ar': 'سيتم تأكيد الحجز وإبلاغ الفندق والعميل تلقائياً بالإيميل.',
-      'en': 'The booking will be confirmed and the hotel and guest will be notified automatically by email.'
+      'en':
+          'The booking will be confirmed and the hotel and guest will be notified automatically by email.'
     },
-    'booking_confirmed_notified': {'ar': 'تم تأكيد الحجز وإبلاغ الأطراف', 'en': 'Booking confirmed — everyone notified'},
+    'booking_confirmed_notified': {
+      'ar': 'تم تأكيد الحجز وإبلاغ الأطراف',
+      'en': 'Booking confirmed — everyone notified'
+    },
     'edit_booking': {'ar': 'تعديل الحجز', 'en': 'Edit Booking'},
     'guest_name': {'ar': 'اسم الضيف', 'en': 'Guest Name'},
     'guest_phone': {'ar': 'جوال الضيف', 'en': 'Guest Phone'},
@@ -187,7 +423,10 @@ class AppStrings {
 
     // ===== Favorites =====
     'favorites': {'ar': 'المفضلة', 'en': 'Favorites'},
-    'no_favorites_yet': {'ar': 'لم تضف أي فندق للمفضلة بعد', 'en': 'No favorites yet'},
+    'no_favorites_yet': {
+      'ar': 'لم تضف أي فندق للمفضلة بعد',
+      'en': 'No favorites yet'
+    },
 
     // ===== Profile =====
     'profile': {'ar': 'حسابي', 'en': 'Profile'},
@@ -197,11 +436,44 @@ class AppStrings {
     'language': {'ar': 'اللغة', 'en': 'Language'},
     'settings': {'ar': 'الإعدادات', 'en': 'Settings'},
     'help_support': {'ar': 'المساعدة والدعم', 'en': 'Help & Support'},
-    'help_support_intro': {'ar': 'تواصل معنا بأي وقت عبر إحدى الطرق التالية:', 'en': 'Reach us anytime through one of the following:'},
+    'help_support_intro': {
+      'ar': 'تواصل معنا بأي وقت عبر إحدى الطرق التالية:',
+      'en': 'Reach us anytime through one of the following:'
+    },
     'contact_whatsapp': {'ar': 'واتساب', 'en': 'WhatsApp'},
     'contact_call': {'ar': 'اتصال', 'en': 'Call'},
     'contact_email': {'ar': 'البريد الإلكتروني', 'en': 'Email'},
     'about_us': {'ar': 'عن التطبيق', 'en': 'About Us'},
+    // المتطلبات 3 و4 و5: نص الوصف والتعريف مطابق حرفيًا لما ورد في مستند
+    // المتطلبات (صفحة «تعريف تطبيق All Owners»).
+    'app_description_title': {
+      'ar': 'تعريف تطبيق All Owners',
+      'en': 'About the All Owners app'
+    },
+    'app_description_intro': {
+      'ar':
+          'All Owners هي المنصة الموثوقة لملاك الوحدات والعقارات، وتجربة حجز ذكية للضيوف.',
+      'en':
+          'All Owners is the trusted platform for owners of hotel units and properties, with a smart booking experience for guests.'
+    },
+    'app_description_body': {
+      'ar':
+          'توفر المنصة حلولًا متكاملة لإدارة الوحدات والعقارات، والحجوزات، والإيرادات، والعقود، والصيانة والنظافة والخدمات، مع إمكانية التواصل بين الملاك وإدارات الفنادق وشركات التشغيل في منصة واحدة آمنة وذكية.\n\nكما تتيح للضيوف ووكلاء الحجز البحث عن الوحدات المتاحة، وإجراء الحجوزات، والدفع الإلكتروني، وإدارة الإقامة بكل سهولة وأمان.',
+      'en':
+          'The platform provides integrated solutions for managing units and properties, bookings, revenues, contracts, maintenance, housekeeping and services, with communication between owners, hotel management and operating companies in one secure and smart platform.\n\nIt also allows guests and booking agents to search for available units, make reservations, complete secure online payments, and manage their stays with ease and confidence.'
+    },
+    'app_description_closing': {
+      'ar':
+          'All Owners — كل ما تحتاجه لإدارة ممتلكاتك أو حجز إقامتك، في منصة واحدة.',
+      'en':
+          'All Owners — everything you need to manage your property or book your stay, in one platform.'
+    },
+    'app_tagline_full': {
+      'ar':
+          'المنصة الموثوقة لملاك الوحدات الفندقية والعقارات، وتجربة حجز ذكية للضيوف.',
+      'en':
+          'The Trusted Platform for Hotel Unit & Property Owners, with a Smart Booking Experience for Guests.'
+    },
     'logout': {'ar': 'تسجيل الخروج', 'en': 'Logout'},
 
     // ===== Navigation =====
@@ -231,14 +503,23 @@ class AppStrings {
     },
     'room_number': {'ar': 'رقم الغرفة', 'en': 'Room Number'},
     'request_details': {'ar': 'تفاصيل الطلب', 'en': 'Request Details'},
-    'describe_request': {'ar': 'اكتب تفاصيل طلبك هنا...', 'en': 'Describe your request here...'},
+    'describe_request': {
+      'ar': 'اكتب تفاصيل طلبك هنا...',
+      'en': 'Describe your request here...'
+    },
     'submit_request': {'ar': 'إرسال الطلب', 'en': 'Submit Request'},
-    'request_submitted_title': {'ar': 'تم استلام طلبك', 'en': 'Request Received'},
+    'request_submitted_title': {
+      'ar': 'تم استلام طلبك',
+      'en': 'Request Received'
+    },
     'request_submitted_desc': {
       'ar': 'سيقوم فريق الفندق بمتابعة طلبك في أقرب وقت ممكن',
       'en': 'The hotel team will follow up on your request as soon as possible'
     },
-    'room_number_required': {'ar': 'الرجاء إدخال رقم الغرفة', 'en': 'Please enter your room number'},
+    'room_number_required': {
+      'ar': 'الرجاء إدخال رقم الغرفة',
+      'en': 'Please enter your room number'
+    },
     'ok': {'ar': 'حسناً', 'en': 'OK'},
     'order_meal': {'ar': 'طلب وجبة', 'en': 'Order a Meal'},
     'order_meal_desc': {
@@ -247,7 +528,10 @@ class AppStrings {
     },
     'meal_type': {'ar': 'نوع الوجبة', 'en': 'Meal Type'},
     'meal_option_none': {'ar': 'بدون وجبات', 'en': 'No meals'},
-    'meal_multi_select_hint': {'ar': 'تقدر تختار أكثر من وجبة (فطور + غداء مثلاً)', 'en': 'You can select more than one meal (e.g. breakfast + lunch)'},
+    'meal_multi_select_hint': {
+      'ar': 'تقدر تختار أكثر من وجبة (فطور + غداء مثلاً)',
+      'en': 'You can select more than one meal (e.g. breakfast + lunch)'
+    },
     'meal_option_breakfast': {'ar': 'فطور', 'en': 'Breakfast'},
     'meal_option_lunch': {'ar': 'غداء', 'en': 'Lunch'},
     'meal_option_dinner': {'ar': 'عشاء', 'en': 'Dinner'},
@@ -257,7 +541,10 @@ class AppStrings {
     'breakfast': {'ar': 'فطور', 'en': 'Breakfast'},
     'lunch': {'ar': 'غداء', 'en': 'Lunch'},
     'dinner': {'ar': 'عشاء', 'en': 'Dinner'},
-    'meal_type_required': {'ar': 'الرجاء اختيار نوع الوجبة', 'en': 'Please select a meal type'},
+    'meal_type_required': {
+      'ar': 'الرجاء اختيار نوع الوجبة',
+      'en': 'Please select a meal type'
+    },
     'notes': {'ar': 'ملاحظات', 'en': 'Notes'},
     'notes_hint': {
       'ar': 'اكتب ملاحظاتك هنا... (مثال: بدون سكر، حساسية من المكسرات)',
@@ -268,10 +555,6 @@ class AppStrings {
     'account_type': {'ar': 'نوع الحساب', 'en': 'Account Type'},
     'role_owner': {'ar': 'مالك', 'en': 'Owner'},
     'role_guest': {'ar': 'ضيف', 'en': 'Guest'},
-    'coming_soon_desc': {
-      'ar': 'هذه الميزة قيد التطوير وستكون متوفرة قريباً',
-      'en': 'This feature is under development and will be available soon'
-    },
     'nav_units': {'ar': 'وحداتي', 'en': 'My Units'},
     'nav_revenue': {'ar': 'الإيرادات', 'en': 'Revenue'},
     'quick_links': {'ar': 'روابط سريعة', 'en': 'Quick Links'},
@@ -279,31 +562,49 @@ class AppStrings {
     'hotel_requests': {'ar': 'الطلبات', 'en': 'Requests'},
     'service_prices': {'ar': 'الأسعار', 'en': 'Prices'},
     'financial_reports': {'ar': 'التقارير المالية', 'en': 'Financial Reports'},
-    'contracts_docs': {'ar': 'العقود والمستندات', 'en': 'Contracts & Documents'},
-    'maintenance_requests': {'ar': 'طلبات الصيانة', 'en': 'Maintenance Requests'},
+    'contracts_docs': {
+      'ar': 'العقود والمستندات',
+      'en': 'Contracts & Documents'
+    },
+    'maintenance_requests': {
+      'ar': 'طلبات الصيانة',
+      'en': 'Maintenance Requests'
+    },
     'voting_decisions': {'ar': 'التصويت والقرارات', 'en': 'Voting & Decisions'},
     'owners_community': {'ar': 'مجتمع الملاك', 'en': 'Owners Community'},
     'units_marketplace': {'ar': 'سوق الوحدات', 'en': 'Units Marketplace'},
     'units_marketplace_subtitle': {
-      'ar': 'لعرض وحدة موجودة أصلاً للبيع أو الإيجار بين الملاك — مش لإضافة وحدة جديدة',
-      'en': 'List an existing unit for sale/rent among owners — not for adding a new unit'
+      'ar':
+          'لعرض وحدة موجودة أصلاً للبيع أو الإيجار بين الملاك — مش لإضافة وحدة جديدة',
+      'en':
+          'List an existing unit for sale/rent among owners — not for adding a new unit'
     },
     'messages': {'ar': 'الرسائل', 'en': 'Messages'},
     'staff': {'ar': 'الموظفون', 'en': 'Staff'},
     'staff_desc': {
-      'ar': 'أضف مدير وحدة يدخل التطبيق باسمه، يستقبل بلاغات النظافة والصيانة، ويقدر يبدّل حالة الوحدة فقط',
-      'en': 'Add a unit manager who logs in with their own account, receives housekeeping/maintenance reports, and can only toggle unit status'
+      'ar':
+          'أضف مدير وحدة يدخل التطبيق باسمه، يستقبل بلاغات النظافة والصيانة، ويقدر يبدّل حالة الوحدة فقط',
+      'en':
+          'Add a unit manager who logs in with their own account, receives housekeeping/maintenance reports, and can only toggle unit status'
     },
     'add_unit_manager': {'ar': 'إضافة مدير وحدة', 'en': 'Add Unit Manager'},
     'role_unit_manager': {'ar': 'مدير الوحدة', 'en': 'Unit Manager'},
     'role_hotel_manager': {'ar': 'إدارة الفندق', 'en': 'Hotel Management'},
     'role_booking_agent': {'ar': 'وكيل الحجوزات', 'en': 'Booking Agent'},
     'staff_permissions_note': {
-      'ar': 'صلاحياته تلقائياً: مشاهدة الوحدات وتبديل حالتها، واستقبال بلاغات الصيانة والتنظيف. بدون حذف، وبدون أي وصول للمحفظة أو الإيرادات أو التقارير.',
-      'en': 'Automatic permissions: view units and toggle their status, and receive maintenance/housekeeping reports. No delete, and no access to wallet, revenue, or reports.'
+      'ar':
+          'صلاحياته تلقائياً: مشاهدة الوحدات وتبديل حالتها، واستقبال بلاغات الصيانة والتنظيف. بدون حذف، وبدون أي وصول للمحفظة أو الإيرادات أو التقارير.',
+      'en':
+          'Automatic permissions: view units and toggle their status, and receive maintenance/housekeeping reports. No delete, and no access to wallet, revenue, or reports.'
     },
-    'password_hint_min6': {'ar': '6 أحرف على الأقل', 'en': 'At least 6 characters'},
-    'no_staff_yet': {'ar': 'ما في موظفين مضافين بعد', 'en': 'No staff added yet'},
+    'password_hint_min6': {
+      'ar': '6 أحرف على الأقل',
+      'en': 'At least 6 characters'
+    },
+    'no_staff_yet': {
+      'ar': 'ما في موظفين مضافين بعد',
+      'en': 'No staff added yet'
+    },
     'suspended': {'ar': 'موقوف', 'en': 'Suspended'},
     'suspend': {'ar': 'إيقاف', 'en': 'Suspend'},
     'activate': {'ar': 'تفعيل', 'en': 'Activate'},
@@ -311,16 +612,34 @@ class AppStrings {
     'occupied': {'ar': 'مؤجرة', 'en': 'Occupied'},
     'vacant': {'ar': 'متاحة', 'en': 'Vacant'},
     'monthly_revenue': {'ar': 'الإيراد الشهري', 'en': 'Monthly Revenue'},
-    'total_revenue_month': {'ar': 'إجمالي إيرادات هذا الشهر', 'en': 'Total Revenue This Month'},
+    'total_revenue_month': {
+      'ar': 'إجمالي إيرادات هذا الشهر',
+      'en': 'Total Revenue This Month'
+    },
     'revenue_history': {'ar': 'سجل الإيرادات', 'en': 'Revenue History'},
-    'retry': {'ar': 'إعادة المحاولة', 'en': 'Retry'},
+    // المتطلبات 126–129: تقارير المبيعات والمصروفات الشهرية والسنوية.
+    'yearly_totals': {'ar': 'الإجمالي السنوي', 'en': 'Yearly totals'},
+    'maintenance_expense': {
+      'ar': 'مصروفات الصيانة',
+      'en': 'Maintenance expenses'
+    },
+    'cleaning_expense': {'ar': 'مصروفات النظافة', 'en': 'Cleaning expenses'},
+    'commission': {'ar': 'العمولة', 'en': 'Commission'},
+    'net_revenue': {'ar': 'صافي الإيراد', 'en': 'Net revenue'},
+    'expenses_unavailable': {
+      'ar': 'لا تُرجع الخدمة تفصيل المصروفات بعد',
+      'en': 'The service does not return the expense breakdown yet'
+    },
     'hotel_dashboard': {'ar': 'لوحة الفندق', 'en': 'Hotel Dashboard'},
     'arrivals_today': {'ar': 'وصول اليوم', 'en': 'Arrivals Today'},
     'departures_today': {'ar': 'مغادرة اليوم', 'en': 'Departures Today'},
     'in_house_now': {'ar': 'مقيمون حالياً', 'en': 'In House Now'},
     'open_requests': {'ar': 'طلبات مفتوحة', 'en': 'Open Requests'},
     'no_data': {'ar': 'لا توجد بيانات بعد', 'en': 'No data yet'},
-    'error_loading': {'ar': 'حدث خطأ أثناء تحميل البيانات', 'en': 'Something went wrong loading the data'},
+    'error_loading': {
+      'ar': 'حدث خطأ أثناء تحميل البيانات',
+      'en': 'Something went wrong loading the data'
+    },
     'new_request': {'ar': 'طلب جديد', 'en': 'New Request'},
     'request_title': {'ar': 'عنوان الطلب', 'en': 'Request Title'},
     'description': {'ar': 'الوصف', 'en': 'Description'},
@@ -333,9 +652,20 @@ class AppStrings {
     'my_clients': {'ar': 'عملائي', 'en': 'My Clients'},
     'add_client': {'ar': 'إضافة عميل', 'en': 'Add Client'},
     'edit_client': {'ar': 'تعديل العميل', 'en': 'Edit Client'},
-    'client_email_optional': {'ar': 'البريد الإلكتروني (اختياري)', 'en': 'Email (optional)'},
-    'confirm_delete_client': {'ar': 'هل أنت متأكد من حذف هذا العميل؟', 'en': 'Delete this client?'},
-    'no_clients_yet': {'ar': 'ما أضفت أي عميل بعد — اضغط زر الإضافة أو احجز لعميل جديد وبينضاف تلقائيًا', 'en': 'No clients yet — tap add, or book for a new client and they will be added automatically'},
+    'client_email_optional': {
+      'ar': 'البريد الإلكتروني (اختياري)',
+      'en': 'Email (optional)'
+    },
+    'confirm_delete_client': {
+      'ar': 'هل أنت متأكد من حذف هذا العميل؟',
+      'en': 'Delete this client?'
+    },
+    'no_clients_yet': {
+      'ar':
+          'ما أضفت أي عميل بعد — اضغط زر الإضافة أو احجز لعميل جديد وبينضاف تلقائيًا',
+      'en':
+          'No clients yet — tap add, or book for a new client and they will be added automatically'
+    },
     'bookings_word': {'ar': 'حجز', 'en': 'bookings'},
     'book_for_client': {'ar': 'احجز لهذا العميل', 'en': 'Book for this client'},
     'delete': {'ar': 'حذف', 'en': 'Delete'},
@@ -347,7 +677,10 @@ class AppStrings {
     'commission_remaining': {'ar': 'المتبقي لك', 'en': 'Remaining'},
     'booking_status_label': {'ar': 'حالة الحجز', 'en': 'Booking status'},
     'booking_details_title': {'ar': 'تفاصيل الحجز', 'en': 'Booking details'},
-    'view_booking_details': {'ar': 'عرض تفاصيل الحجز', 'en': 'View booking details'},
+    'view_booking_details': {
+      'ar': 'عرض تفاصيل الحجز',
+      'en': 'View booking details'
+    },
     'stay_dates': {'ar': 'فترة الإقامة', 'en': 'Stay dates'},
     'unit_label': {'ar': 'الوحدة', 'en': 'Unit'},
     'customer_label': {'ar': 'بيانات العميل', 'en': 'Customer'},
@@ -355,23 +688,55 @@ class AppStrings {
     'payment_method_label': {'ar': 'طريقة الدفع', 'en': 'Payment method'},
     'pay_method_online': {'ar': 'دفع إلكتروني', 'en': 'Online payment'},
     'pay_method_at_hotel': {'ar': 'الدفع عند الوصول', 'en': 'Pay at hotel'},
-    'pay_method_owner_transfer': {'ar': 'تحويل مباشر للمالك', 'en': 'Direct transfer to owner'},
+    'pay_method_owner_transfer': {
+      'ar': 'تحويل مباشر للمالك',
+      'en': 'Direct transfer to owner'
+    },
     'saved_client': {'ar': 'عميل محفوظ', 'en': 'Saved client'},
     'new_client': {'ar': 'عميل جديد', 'en': 'New client'},
     'book_new_stay': {'ar': 'حجز جديد لعميل', 'en': 'New Booking for Client'},
     'select_booking': {'ar': 'اختر الحجز', 'en': 'Select Booking'},
-    'no_confirmed_bookings': {'ar': 'ما فيه حجوزات مؤكدة حاليًا — الخدمة تتوفر بعد تأكيد الحجز', 'en': 'No confirmed bookings yet — services become available once a booking is confirmed'},
+    'no_confirmed_bookings': {
+      'ar': 'ما فيه حجوزات مؤكدة حاليًا — الخدمة تتوفر بعد تأكيد الحجز',
+      'en':
+          'No confirmed bookings yet — services become available once a booking is confirmed'
+    },
     'active_now': {'ar': 'الحالية', 'en': 'Active Now'},
     'history': {'ar': 'السجل', 'en': 'History'},
-    'confirm_check_in': {'ar': 'تأكيد دخول الضيف', 'en': 'Confirm Guest Check-in'},
-    'confirm_check_out': {'ar': 'تأكيد خروج الضيف', 'en': 'Confirm Guest Check-out'},
+    'confirm_check_in': {
+      'ar': 'تأكيد دخول الضيف',
+      'en': 'Confirm Guest Check-in'
+    },
+    'confirm_check_out': {
+      'ar': 'تأكيد خروج الضيف',
+      'en': 'Confirm Guest Check-out'
+    },
     'confirm_request': {'ar': 'تأكيد الطلب', 'en': 'Confirm Request'},
     'mark_done': {'ar': 'تم التنفيذ', 'en': 'Mark Done'},
     'reject_request': {'ar': 'رفض الطلب', 'en': 'Reject Request'},
     'price_optional': {'ar': 'السعر (اختياري)', 'en': 'Price (optional)'},
+    'maintenance_settlement': {
+      'ar': 'طريقة تسوية تكلفة الصيانة',
+      'en': 'Maintenance settlement'
+    },
+    'settle_unit_balance': {
+      'ar': 'خصم من رصيد الوحدة',
+      'en': 'Deduct from unit balance'
+    },
+    'settle_whatsapp_link': {
+      'ar': 'إرسال رابط الدفع عبر واتساب',
+      'en': 'Send payment link via WhatsApp'
+    },
+    'whatsapp_no_number': {
+      'ar': 'لا يوجد رقم هاتف صالح لإرسال رابط الدفع',
+      'en': 'No valid phone number to send the payment link'
+    },
     'note_optional': {'ar': 'ملاحظة (اختياري)', 'en': 'Note (optional)'},
     'reject_reason': {'ar': 'سبب الرفض', 'en': 'Rejection reason'},
-    'no_open_requests': {'ar': 'لا توجد طلبات حالياً', 'en': 'No requests right now'},
+    'no_open_requests': {
+      'ar': 'لا توجد طلبات حالياً',
+      'en': 'No requests right now'
+    },
     'req_type_cleaning': {'ar': 'النظافة', 'en': 'Cleaning'},
     'req_type_maintenance': {'ar': 'الصيانة', 'en': 'Maintenance'},
     'req_type_meal': {'ar': 'الوجبات', 'en': 'Meals'},
@@ -381,18 +746,36 @@ class AppStrings {
     'service_type': {'ar': 'نوع الخدمة', 'en': 'Service Type'},
     'unit_optional': {'ar': 'الجناح (اختياري)', 'en': 'Unit (optional)'},
     'all_units': {'ar': 'كل الأجنحة', 'en': 'All Units'},
-    'no_prices_yet': {'ar': 'لم تضِف أسعار خدمات بعد', 'en': 'No service prices added yet'},
+    'no_prices_yet': {
+      'ar': 'لم تضِف أسعار خدمات بعد',
+      'en': 'No service prices added yet'
+    },
     'no_units': {'ar': 'لا توجد وحدات بعد', 'en': 'No units yet'},
     'available_units': {'ar': 'الأجنحة المتاحة', 'en': 'Available Units'},
-    'guest_id_number': {'ar': 'رقم الهوية / الجواز', 'en': 'ID / Passport number'},
+    'guest_id_number': {
+      'ar': 'رقم الهوية / الجواز',
+      'en': 'ID / Passport number'
+    },
     'unit_type_ar': {'ar': 'نوع الوحدة (عربي)', 'en': 'Unit type (Arabic)'},
     'unit_type_en': {'ar': 'نوع الوحدة (إنجليزي)', 'en': 'Unit type (English)'},
     'bed_count': {'ar': 'عدد الأسرّة', 'en': 'Beds'},
-    'guest_id_number_required': {'ar': 'الرجاء تعبئة رقم الهوية/الجواز', 'en': 'Please fill in the ID/passport number'},
-    'customer_name_phone_required': {'ar': 'الرجاء إدخال اسم العميل ورقم جواله', 'en': 'Please enter the customer name and phone'},
-    'no_maintenance': {'ar': 'لا توجد طلبات صيانة', 'en': 'No maintenance requests'},
+    'guest_id_number_required': {
+      'ar': 'الرجاء تعبئة رقم الهوية/الجواز',
+      'en': 'Please fill in the ID/passport number'
+    },
+    'customer_name_phone_required': {
+      'ar': 'الرجاء إدخال اسم العميل ورقم جواله',
+      'en': 'Please enter the customer name and phone'
+    },
+    'no_maintenance': {
+      'ar': 'لا توجد طلبات صيانة',
+      'en': 'No maintenance requests'
+    },
     'meal_requests': {'ar': 'طلبات الوجبات', 'en': 'Meal Requests'},
-    'no_meal_requests': {'ar': 'لا توجد طلبات وجبات حالياً', 'en': 'No meal requests yet'},
+    'no_meal_requests': {
+      'ar': 'لا توجد طلبات وجبات حالياً',
+      'en': 'No meal requests yet'
+    },
     'meal_breakfast': {'ar': 'فطور', 'en': 'Breakfast'},
     'meal_lunch': {'ar': 'غداء', 'en': 'Lunch'},
     'meal_dinner': {'ar': 'عشاء', 'en': 'Dinner'},
@@ -405,7 +788,10 @@ class AppStrings {
     'mark_delivered': {'ar': 'تم التسليم', 'en': 'Mark Delivered'},
     'guest': {'ar': 'الضيف', 'en': 'Guest'},
     'total_amount': {'ar': 'الإجمالي', 'en': 'Total'},
-    'request_sent': {'ar': 'تم إرسال الطلب بنجاح', 'en': 'Request sent successfully'},
+    'request_sent': {
+      'ar': 'تم إرسال الطلب بنجاح',
+      'en': 'Request sent successfully'
+    },
     'by_unit': {'ar': 'حسب الوحدة', 'en': 'By Unit'},
     'pending_bookings': {'ar': 'حجوزات قيد الانتظار', 'en': 'Pending Bookings'},
     'status_open': {'ar': 'مفتوح', 'en': 'Open'},
@@ -418,9 +804,27 @@ class AppStrings {
     'status_checked_in': {'ar': 'تم تسجيل الدخول', 'en': 'Checked In'},
     'status_done': {'ar': 'تم التنفيذ', 'en': 'Done'},
     'status_rejected': {'ar': 'مرفوض', 'en': 'Rejected'},
-    'new_cleaning_request': {'ar': 'طلب نظافة جديد', 'en': 'New Cleaning Request'},
+    'new_cleaning_request': {
+      'ar': 'طلب نظافة جديد',
+      'en': 'New Cleaning Request'
+    },
     'no_units_yet': {'ar': 'ما عندك وحدات بعد', 'en': 'You have no units yet'},
-    'no_cleaning_requests': {'ar': 'لا توجد طلبات نظافة', 'en': 'No cleaning requests'},
+    'no_cleaning_requests': {
+      'ar': 'لا توجد طلبات نظافة',
+      'en': 'No cleaning requests'
+    },
+    'extra_bed_requests': {
+      'ar': 'طلبات السرير الإضافي',
+      'en': 'Extra bed requests'
+    },
+    'new_extra_bed_request': {
+      'ar': 'طلب سرير إضافي جديد',
+      'en': 'New extra bed request'
+    },
+    'no_extra_bed_requests': {
+      'ar': 'لا توجد طلبات سرير إضافي',
+      'en': 'No extra bed requests'
+    },
     'hotel_note': {'ar': 'ملاحظة الفندق', 'en': 'Hotel note'},
     'cancel_request': {'ar': 'إلغاء الطلب', 'en': 'Cancel Request'},
 
@@ -430,27 +834,49 @@ class AppStrings {
     'general': {'ar': 'عام', 'en': 'General'},
 
     // ===== Decisions (Voting) =====
-    'no_decisions': {'ar': 'لا توجد قرارات مطروحة للتصويت', 'en': 'No decisions open for voting'},
+    'no_decisions': {
+      'ar': 'لا توجد قرارات مطروحة للتصويت',
+      'en': 'No decisions open for voting'
+    },
     'vote_now': {'ar': 'صوّت الآن', 'en': 'Vote Now'},
     'you_voted': {'ar': 'لقد صوّتّ', 'en': 'You voted'},
     'votes_count': {'ar': 'صوت', 'en': 'votes'},
     'decision_open': {'ar': 'مفتوح للتصويت', 'en': 'Open for voting'},
     'decision_closed': {'ar': 'انتهى التصويت', 'en': 'Voting closed'},
-    'vote_submitted': {'ar': 'تم تسجيل صوتك', 'en': 'Your vote has been recorded'},
+    'vote_submitted': {
+      'ar': 'تم تسجيل صوتك',
+      'en': 'Your vote has been recorded'
+    },
     'new_decision': {'ar': 'قرار جديد للتصويت', 'en': 'New Decision'},
     'decision_title': {'ar': 'عنوان القرار', 'en': 'Decision Title'},
     'voting_options': {'ar': 'خيارات التصويت', 'en': 'Voting Options'},
     'option_label': {'ar': 'خيار', 'en': 'Option'},
     'add_option': {'ar': 'إضافة خيار', 'en': 'Add option'},
-    'decision_created': {'ar': 'تم إنشاء القرار للتصويت', 'en': 'Decision created for voting'},
-    'no_hotels_linked': {'ar': 'ما في فنادق مرتبطة بحسابك حالياً', 'en': 'No hotels linked to your account yet'},
-    'no_units_available': {'ar': 'ما في وحدات مسجّلة بحسابك بعد لعرضها', 'en': 'You have no units yet to list'},
-    'nightly_rental_hint': {'ar': 'اختر إحدى وحداتك وحدد سعر الليلة، بيقدر باقي الملاك يشوفوها ويحجزوها', 'en': "Pick one of your units and set a nightly rate for other owners to book"},
+    'decision_created': {
+      'ar': 'تم إنشاء القرار للتصويت',
+      'en': 'Decision created for voting'
+    },
+    'no_hotels_linked': {
+      'ar': 'ما في فنادق مرتبطة بحسابك حالياً',
+      'en': 'No hotels linked to your account yet'
+    },
+    'no_units_available': {
+      'ar': 'ما في وحدات مسجّلة بحسابك بعد لعرضها',
+      'en': 'You have no units yet to list'
+    },
+    'nightly_rental_hint': {
+      'ar':
+          'اختر إحدى وحداتك وحدد سعر الليلة، بيقدر باقي الملاك يشوفوها ويحجزوها',
+      'en':
+          "Pick one of your units and set a nightly rate for other owners to book"
+    },
     'select_unit': {'ar': 'اختر الوحدة', 'en': 'Select Unit'},
     'price_per_night': {'ar': 'السعر بالليلة', 'en': 'Price per night'},
     'no_hotel_linked': {
-      'ar': 'لا يوجد فندق مربوط بحسابك بعد. تواصل مع الإدارة لربط فندقك بحسابك.',
-      'en': 'No hotel is linked to your account yet. Contact the admin to link your hotel.'
+      'ar':
+          'لا يوجد فندق مربوط بحسابك بعد. تواصل مع الإدارة لربط فندقك بحسابك.',
+      'en':
+          'No hotel is linked to your account yet. Contact the admin to link your hotel.'
     },
     'add_unit': {'ar': 'إضافة وحدة', 'en': 'Add Unit'},
     'unit_name_ar': {'ar': 'اسم الوحدة (عربي)', 'en': 'Unit Name (Arabic)'},
@@ -459,37 +885,81 @@ class AppStrings {
     'description_ar': {'ar': 'الوصف (عربي)', 'en': 'Description (Arabic)'},
     'description_en': {'ar': 'الوصف (إنجليزي)', 'en': 'Description (English)'},
     'capacity': {'ar': 'السعة', 'en': 'Capacity'},
-    'price_per_week_optional': {'ar': 'السعر بالأسبوع (اختياري)', 'en': 'Price / week (optional)'},
-    'price_per_month_optional': {'ar': 'السعر بالشهر (اختياري)', 'en': 'Price / month (optional)'},
+    'price_per_week_optional': {
+      'ar': 'السعر بالأسبوع (اختياري)',
+      'en': 'Price / week (optional)'
+    },
+    'price_per_month_optional': {
+      'ar': 'السعر بالشهر (اختياري)',
+      'en': 'Price / month (optional)'
+    },
     'cover_image': {'ar': 'الصورة الرئيسية', 'en': 'Cover image'},
     'hotel': {'ar': 'الفندق', 'en': 'Hotel'},
     'required_field': {'ar': 'هاد الحقل مطلوب', 'en': 'This field is required'},
     'add_unit_more_options_web': {
-      'ar': 'تقدر تضيف صور إضافية، فترات إتاحة، وخيارات (سرير إضافي/وجبات) لهالوحدة لاحقاً من موقع الويب.',
-      'en': 'You can add more photos, availability periods, and add-ons (extra bed/meals) for this unit later from the website.'
+      'ar':
+          'تقدر تضيف صور إضافية، فترات إتاحة، وخيارات (سرير إضافي/وجبات) لهالوحدة لاحقاً من موقع الويب.',
+      'en':
+          'You can add more photos, availability periods, and add-ons (extra bed/meals) for this unit later from the website.'
     },
-    'unit_added_success': {'ar': 'تمت إضافة الوحدة بنجاح', 'en': 'Unit added successfully'},
-    'unit_addons_title': {'ar': 'الإضافات (سرير إضافي / خطط وجبات)', 'en': 'Add-ons (extra bed / meal plans)'},
+    'unit_added_success': {
+      'ar': 'تمت إضافة الوحدة بنجاح',
+      'en': 'Unit added successfully'
+    },
+    'unit_addons_title': {
+      'ar': 'الإضافات (سرير إضافي / خطط وجبات)',
+      'en': 'Add-ons (extra bed / meal plans)'
+    },
+    'meals_total': {'ar': 'إجمالي الوجبات', 'en': 'Meals total'},
+    'new_meal_request': {'ar': 'طلب وجبات جديد', 'en': 'New meal request'},
+    'city_label': {'ar': 'المدينة', 'en': 'City'},
+    'address_label': {'ar': 'العنوان', 'en': 'Address'},
+    'search_unit_number': {
+      'ar': 'ابحث برقم الوحدة',
+      'en': 'Search by unit number'
+    },
+    'unit_no': {'ar': 'وحدة رقم', 'en': 'Unit'},
+    'no_matching_bookings': {
+      'ar': 'لا توجد حجوزات مطابقة',
+      'en': 'No matching bookings'
+    },
     'add_unit_addon': {'ar': 'إضافة خيار', 'en': 'Add option'},
     'addon_type': {'ar': 'النوع', 'en': 'Type'},
     'billed': {'ar': 'يُحسب', 'en': 'Billed'},
-    'no_addons_yet': {'ar': 'ما في إضافات لهالوحدة بعد', 'en': 'No add-ons for this unit yet'},
+    'no_addons_yet': {
+      'ar': 'ما في إضافات لهالوحدة بعد',
+      'en': 'No add-ons for this unit yet'
+    },
     'gallery_images': {'ar': 'معرض الصور', 'en': 'Photo Gallery'},
     'add_photos': {'ar': 'إضافة صور', 'en': 'Add photos'},
     'add_unit_availability_web': {
       'ar': 'تقدر تحدد فترات الإتاحة لهالوحدة لاحقاً من موقع الويب.',
-      'en': 'You can set availability periods for this unit later from the website.'
+      'en':
+          'You can set availability periods for this unit later from the website.'
     },
     'add_unit_gallery_availability_web': {
       'ar': 'تقدر تضيف صور إضافية وفترات إتاحة لهالوحدة لاحقاً من موقع الويب.',
-      'en': 'You can add more photos and availability periods for this unit later from the website.'
+      'en':
+          'You can add more photos and availability periods for this unit later from the website.'
     },
-    'extra_note': {'ar': 'ملاحظة إضافية (اختياري)', 'en': 'Extra note (optional)'},
-    'price_prefilled_hint': {'ar': 'مُعبّى تلقائياً من سعر الوحدة، تقدر تعدله', 'en': 'Auto-filled from the unit price, you can edit it'},
-    'fill_required_fields': {'ar': 'الرجاء تعبئة العنوان وخيارين على الأقل', 'en': 'Please fill the title and at least 2 options'},
+    'extra_note': {
+      'ar': 'ملاحظة إضافية (اختياري)',
+      'en': 'Extra note (optional)'
+    },
+    'price_prefilled_hint': {
+      'ar': 'مُعبّى تلقائياً من سعر الوحدة، تقدر تعدله',
+      'en': 'Auto-filled from the unit price, you can edit it'
+    },
+    'fill_required_fields': {
+      'ar': 'الرجاء تعبئة العنوان وخيارين على الأقل',
+      'en': 'Please fill the title and at least 2 options'
+    },
 
     // ===== Community =====
-    'no_posts': {'ar': 'لا توجد منشورات بعد، كن أول من ينشر', 'en': 'No posts yet — be the first to share'},
+    'no_posts': {
+      'ar': 'لا توجد منشورات بعد، كن أول من ينشر',
+      'en': 'No posts yet — be the first to share'
+    },
     'write_post': {'ar': 'اكتب منشوراً...', 'en': 'Write a post...'},
     'post': {'ar': 'نشر', 'en': 'Post'},
     'comments': {'ar': 'تعليقات', 'en': 'Comments'},
@@ -497,7 +967,10 @@ class AppStrings {
     'like': {'ar': 'إعجاب', 'en': 'Like'},
 
     // ===== Marketplace =====
-    'no_listings': {'ar': 'لا توجد وحدات معروضة حالياً', 'en': 'No listings yet'},
+    'no_listings': {
+      'ar': 'لا توجد وحدات معروضة حالياً',
+      'en': 'No listings yet'
+    },
     'add_listing': {'ar': 'أضف عرضاً', 'en': 'Add Listing'},
     'listing_title': {'ar': 'عنوان العرض', 'en': 'Listing Title'},
     'listing_type': {'ar': 'نوع العرض', 'en': 'Listing Type'},
@@ -505,7 +978,10 @@ class AppStrings {
     'for_rent': {'ar': 'للإيجار', 'en': 'For Rent'},
     'price': {'ar': 'السعر', 'en': 'Price'},
     'im_interested': {'ar': 'أنا مهتم', 'en': "I'm Interested"},
-    'interest_sent': {'ar': 'تم إرسال اهتمامك للمالك', 'en': 'Your interest was sent to the owner'},
+    'interest_sent': {
+      'ar': 'تم إرسال اهتمامك للمالك',
+      'en': 'Your interest was sent to the owner'
+    },
     'property_apartment': {'ar': 'شقة', 'en': 'Apartment'},
     'property_studio': {'ar': 'استوديو', 'en': 'Studio'},
     'property_villa': {'ar': 'فيلا', 'en': 'Villa'},
@@ -521,16 +997,180 @@ class AppStrings {
     'furnished': {'ar': 'مفروش', 'en': 'Furnished'},
     'negotiable': {'ar': 'السعر قابل للتفاوض', 'en': 'Price negotiable'},
     'location_area': {'ar': 'الموقع / الحي', 'en': 'Location / Area'},
-    'contact_number': {'ar': 'رقم التواصل (اختياري)', 'en': 'Contact number (optional)'},
+    'contact_number': {
+      'ar': 'رقم التواصل (اختياري)',
+      'en': 'Contact number (optional)'
+    },
     'sqm_short': {'ar': 'م²', 'en': 'sqm'},
     'more_details': {'ar': 'تفاصيل إضافية', 'en': 'More details'},
     'basic_info': {'ar': 'معلومات أساسية', 'en': 'Basic info'},
 
     // ===== Messages =====
-    'no_conversations': {'ar': 'لا توجد محادثات بعد', 'en': 'No conversations yet'},
+    'no_conversations': {
+      'ar': 'لا توجد محادثات بعد',
+      'en': 'No conversations yet'
+    },
     'type_message': {'ar': 'اكتب رسالة...', 'en': 'Type a message...'},
     'new_message': {'ar': 'رسالة جديدة', 'en': 'New Message'},
     'select_recipient': {'ar': 'اختر المستلم', 'en': 'Select Recipient'},
+
+    // ===== الاشتراك السنوي للمالك (121–125) =====
+    'subscription_title': {
+      'ar': 'الاشتراك السنوي',
+      'en': 'Annual Subscription'
+    },
+    'subscription_active': {
+      'ar': 'الاشتراك مُفعَّل',
+      'en': 'Subscription active'
+    },
+    'subscription_inactive': {
+      'ar': 'الاشتراك غير مُفعَّل',
+      'en': 'Subscription inactive'
+    },
+    'subscription_unknown': {
+      'ar': 'حالة الاشتراك غير معلنة من السيرفر',
+      'en': 'Subscription status not reported by the server'
+    },
+    'subscription_browse_only': {
+      'ar': 'أنت في وضع الاستعراض فقط حتى تفعيل الاشتراك السنوي.',
+      'en':
+          'You are in browse-only mode until the annual subscription is activated.'
+    },
+    'subscription_required_to_operate': {
+      'ar': 'تفعيل الاشتراك السنوي مطلوب لإضافة الوحدات أو إرسال الطلبات.',
+      'en':
+          'An active annual subscription is required to add units or submit requests.'
+    },
+    'subscription_fee': {'ar': 'رسم الاشتراك السنوي', 'en': 'Annual fee'},
+    'subscription_expires_at': {'ar': 'ينتهي في', 'en': 'Expires on'},
+    'subscription_fee_unknown': {
+      'ar': 'الرسم غير معلن من السيرفر',
+      'en': 'Fee not reported by the server'
+    },
+    'subscription_terms': {'ar': 'شروط الاشتراك', 'en': 'Subscription terms'},
+    'subscription_terms_body': {
+      'ar':
+          'الاشتراك سنوي ومخصص للمالك فقط. لا يُسمح بإضافة الوحدات أو إرسال الطلبات قبل تفعيله، ويبقى الاستعراض متاحًا.',
+      'en':
+          'The subscription is annual and for owners only. Adding units or submitting requests requires activation; browsing stays available.'
+    },
+    'commission_percent_label': {
+      'ar': 'نسبة عمولة المنصة',
+      'en': 'Platform commission rate'
+    },
+    'commission_percent_unknown': {
+      'ar': 'النسبة غير معلنة من السيرفر',
+      'en': 'Rate not reported by the server'
+    },
+    'activate_subscription': {
+      'ar': 'تفعيل الاشتراك',
+      'en': 'Activate subscription'
+    },
+    'subscription_payment_pending': {
+      'ar': 'دفع الاشتراك يتم عبر صفحة الدفع المستضافة عند تفعيلها من الإدارة.',
+      'en':
+          'Subscription payment goes through the hosted checkout page once the admin enables it.'
+    },
+    'subscription_checkout_ready': {
+      'ar': 'سيُفتح رابط الدفع المستضاف لإتمام تفعيل الاشتراك.',
+      'en': 'The hosted checkout page will open to complete activation.'
+    },
+    'subscription_checkout_not_declared': {
+      'ar':
+          'الرسم معلن لكن رابط الدفع المستضاف لم يُعلن بعد من الإدارة، لذا الزر معطّل.',
+      'en':
+          'The fee is published but the hosted checkout link is not declared yet, so the button stays disabled.'
+    },
+
+    // ===== محفظة المالك والمستحقات (132–143) =====
+    'wallet_title': {'ar': 'المحفظة', 'en': 'Wallet'},
+    'wallet_balance': {'ar': 'الرصيد', 'en': 'Balance'},
+    'wallet_commission': {'ar': 'العمولة', 'en': 'Commission'},
+    'wallet_expenses': {'ar': 'المصروفات', 'en': 'Expenses'},
+    'wallet_reserved': {'ar': 'المحجوز', 'en': 'Reserved'},
+    'wallet_withdrawable': {'ar': 'القابل للتحويل', 'en': 'Withdrawable'},
+    'wallet_unavailable': {
+      'ar': 'المحفظة غير مُفعَّلة على السيرفر بعد',
+      'en': 'The wallet is not enabled on the server yet'
+    },
+    'wallet_ledger': {'ar': 'كشف الحساب', 'en': 'Ledger'},
+    'wallet_no_ledger': {'ar': 'لا حركات بعد', 'en': 'No entries yet'},
+    'ledger_booking': {'ar': 'حجز', 'en': 'Booking'},
+    'ledger_commission': {'ar': 'عمولة', 'en': 'Commission'},
+    'ledger_refund': {'ar': 'استرداد', 'en': 'Refund'},
+    'ledger_settlement': {'ar': 'تسوية', 'en': 'Settlement'},
+    'ledger_payout': {'ar': 'دفعة', 'en': 'Payout'},
+    'ledger_expense': {'ar': 'مصروف', 'en': 'Expense'},
+    'ledger_subscription': {'ar': 'اشتراك', 'en': 'Subscription'},
+    'ledger_other': {'ar': 'حركة أخرى', 'en': 'Other'},
+    'request_transfer': {'ar': 'طلب تحويل المستحقات', 'en': 'Request transfer'},
+    'transfer_amount': {'ar': 'المبلغ', 'en': 'Amount'},
+    'transfer_invalid_amount': {
+      'ar': 'أدخل مبلغًا صحيحًا لا يتجاوز القابل للتحويل.',
+      'en': 'Enter a valid amount within the withdrawable balance.'
+    },
+    'transfer_requested': {
+      'ar': 'تم إرسال طلب التحويل للمراجعة.',
+      'en': 'Transfer request submitted for review.'
+    },
+    'transfer_requires_server': {
+      'ar': 'تنفيذ التحويل الفعلي يتم على السيرفر بعد المراجعة.',
+      'en': 'The actual transfer is executed on the server after review.'
+    },
+    'payout_weekly_note': {
+      'ar': 'تُدفع المستحقات أسبوعيًا بعد التسوية.',
+      'en': 'Payouts are settled weekly.'
+    },
+    'commission_rate_note': {
+      'ar': 'تُحتسب عمولة المنصة على المالك عند التسوية.',
+      'en': 'The platform commission is charged to the owner at settlement.'
+    },
+    'settlement_after_stay': {
+      'ar': 'تُجرى التسوية بعد انتهاء الإقامة.',
+      'en': 'Settlement runs after the stay ends.'
+    },
+    'final_price': {'ar': 'السعر النهائي', 'en': 'Final price'},
+
+    // ===== استعادة كلمة المرور (110) =====
+    'reset_request_title': {
+      'ar': 'استعادة كلمة المرور',
+      'en': 'Reset your password'
+    },
+    'reset_request_body': {
+      'ar':
+          'أدخل بريدك المسجّل وسنرسل رابط إعادة التعيين. هذه الخدمة تعتمد على نقطة نهاية على السيرفر.',
+      'en':
+          'Enter your registered email and we will send a reset link. This service depends on a server endpoint.'
+    },
+    'reset_send_link': {'ar': 'إرسال رابط الإعادة', 'en': 'Send reset link'},
+    'reset_unavailable': {
+      'ar':
+          'خدمة استعادة كلمة المرور غير مُفعَّلة على السيرفر بعد. يمكنك التواصل مع الدعم.',
+      'en':
+          'Password reset is not enabled on the server yet. You can contact support.'
+    },
+    'reset_sent': {
+      'ar': 'تم إرسال الطلب. تحقّق من بريدك.',
+      'en': 'Request sent. Please check your email.'
+    },
+    'contact_support': {'ar': 'التواصل مع الدعم', 'en': 'Contact support'},
+
+    // ===== وكيل الحجوزات: بيانات البنك والعمولات (108–109) =====
+    'agent_bank_title': {
+      'ar': 'حساب استلام العمولات',
+      'en': 'Commission payout account'
+    },
+    'agent_bank_help': {
+      'ar':
+          'أدخل بياناتك البنكية لاستلام عمولاتك. تحويل العمولات غير المدفوعة يتم على السيرفر بعد المراجعة.',
+      'en':
+          'Enter your bank details to receive your commissions. Unpaid commission transfers are executed on the server after review.'
+    },
+    'agent_commission_transfer_note': {
+      'ar': 'طلبات تحويل العمولات تُنفَّذ على السيرفر؛ لا يظهر رصيد مُخترع.',
+      'en':
+          'Commission transfer requests are executed on the server; no balance is invented.'
+    },
   };
 
   static String t(bool isArabic, String key) {

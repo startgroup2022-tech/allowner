@@ -11,7 +11,8 @@ class OwnerCommissionScreen extends ConsumerStatefulWidget {
   const OwnerCommissionScreen({super.key});
 
   @override
-  ConsumerState<OwnerCommissionScreen> createState() => _OwnerCommissionScreenState();
+  ConsumerState<OwnerCommissionScreen> createState() =>
+      _OwnerCommissionScreenState();
 }
 
 class _OwnerCommissionScreenState extends ConsumerState<OwnerCommissionScreen> {
@@ -24,7 +25,9 @@ class _OwnerCommissionScreenState extends ConsumerState<OwnerCommissionScreen> {
     _future = _service.getMyCommission();
   }
 
-  void _reload() => setState(() => _future = _service.getMyCommission());
+  void _reload() => setState(() {
+        _future = _service.getMyCommission();
+      });
 
   String _statusLabel(bool isArabic, String status) {
     switch (status) {
@@ -74,18 +77,24 @@ class _OwnerCommissionScreenState extends ConsumerState<OwnerCommissionScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 32),
+                    Icon(Icons.error_outline_rounded,
+                        color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
-                    Text(AppStrings.t(isArabic, 'error_loading'), textAlign: TextAlign.center),
+                    Text(AppStrings.t(isArabic, 'error_loading'),
+                        textAlign: TextAlign.center),
                     const SizedBox(height: AppDimens.sm),
-                    Center(child: OutlinedButton(onPressed: _reload, child: Text(AppStrings.t(isArabic, 'retry')))),
+                    Center(
+                        child: OutlinedButton(
+                            onPressed: _reload,
+                            child: Text(AppStrings.t(isArabic, 'retry')))),
                   ],
                 );
               }
 
               final data = snapshot.data ?? {};
-              final items = (data['items'] as List?)?.cast<Map<String, dynamic>>() ?? [];
-              final commissionType = data['commission_type']?.toString() ?? 'percentage';
+              final items = asMapList(data['items']);
+              final commissionType =
+                  data['commission_type']?.toString() ?? 'percentage';
               final rateLabel = commissionType == 'fixed'
                   ? '${asDouble(data['commission_fixed']).toStringAsFixed(0)} ${AppStrings.t(isArabic, "sar")} / ${isArabic ? "لكل حجز" : "per booking"}'
                   : '${asDouble(data['commission_rate']).toStringAsFixed(1)}%';
@@ -102,12 +111,14 @@ class _OwnerCommissionScreenState extends ConsumerState<OwnerCommissionScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline_rounded, size: 18, color: AppColors.textMuted),
+                        const Icon(Icons.info_outline_rounded,
+                            size: 18, color: AppColors.textMuted),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             '${AppStrings.t(isArabic, "commission_setting")}: $rateLabel  ·  ${AppStrings.t(isArabic, "set_by_admin_only")}',
-                            style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
+                            style: textTheme.bodySmall
+                                ?.copyWith(color: AppColors.textMuted),
                           ),
                         ),
                       ],
@@ -116,26 +127,41 @@ class _OwnerCommissionScreenState extends ConsumerState<OwnerCommissionScreen> {
                   const SizedBox(height: AppDimens.md),
                   Row(
                     children: [
-                      Expanded(child: _StatCard(label: AppStrings.t(isArabic, 'total_bookings'), value: '${data['total_bookings'] ?? 0}')),
+                      Expanded(
+                          child: _StatCard(
+                              label: AppStrings.t(isArabic, 'total_bookings'),
+                              value: '${data['total_bookings'] ?? 0}')),
                       const SizedBox(width: AppDimens.sm),
-                      Expanded(child: _StatCard(label: AppStrings.t(isArabic, 'total_commission'), value: money(data['total_commission'], isArabic), gold: true)),
+                      Expanded(
+                          child: _StatCard(
+                              label: AppStrings.t(isArabic, 'total_commission'),
+                              value: money(data['total_commission'], isArabic),
+                              gold: true)),
                     ],
                   ),
                   const SizedBox(height: AppDimens.sm),
                   Row(
                     children: [
-                      Expanded(child: _StatCard(label: AppStrings.t(isArabic, 'paid'), value: money(data['paid'], isArabic))),
+                      Expanded(
+                          child: _StatCard(
+                              label: AppStrings.t(isArabic, 'paid'),
+                              value: money(data['paid'], isArabic))),
                       const SizedBox(width: AppDimens.sm),
-                      Expanded(child: _StatCard(label: AppStrings.t(isArabic, 'unpaid'), value: money(data['unpaid'], isArabic))),
+                      Expanded(
+                          child: _StatCard(
+                              label: AppStrings.t(isArabic, 'unpaid'),
+                              value: money(data['unpaid'], isArabic))),
                     ],
                   ),
                   const SizedBox(height: AppDimens.lg),
-                  Text(AppStrings.t(isArabic, 'commission_history'), style: textTheme.titleMedium),
+                  Text(AppStrings.t(isArabic, 'commission_history'),
+                      style: textTheme.titleMedium),
                   const SizedBox(height: AppDimens.sm),
                   if (items.isEmpty)
                     Padding(
                       padding: const EdgeInsets.all(AppDimens.xl),
-                      child: Center(child: Text(AppStrings.t(isArabic, 'no_bookings'))),
+                      child: Center(
+                          child: Text(AppStrings.t(isArabic, 'no_bookings'))),
                     )
                   else
                     ...items.map((r) => Container(
@@ -143,7 +169,8 @@ class _OwnerCommissionScreenState extends ConsumerState<OwnerCommissionScreen> {
                           padding: const EdgeInsets.all(AppDimens.md),
                           decoration: BoxDecoration(
                             color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+                            borderRadius:
+                                BorderRadius.circular(AppDimens.radiusLg),
                             border: Border.all(color: AppColors.cardBorder),
                           ),
                           child: Column(
@@ -152,37 +179,63 @@ class _OwnerCommissionScreenState extends ConsumerState<OwnerCommissionScreen> {
                               Row(
                                 children: [
                                   Expanded(
-                                    child: Text('#${r['booking_ref']}', style: textTheme.titleSmall),
+                                    child: Text('#${r['booking_ref']}',
+                                        style: textTheme.titleSmall),
                                   ),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: _statusColor(r['status'].toString()).withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(AppDimens.radiusSm),
+                                      color:
+                                          _statusColor(r['status'].toString())
+                                              .withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(
+                                          AppDimens.radiusSm),
                                     ),
                                     child: Text(
-                                      _statusLabel(isArabic, r['status'].toString()),
-                                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: _statusColor(r['status'].toString())),
+                                      _statusLabel(
+                                          isArabic, r['status'].toString()),
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: _statusColor(
+                                              r['status'].toString())),
                                     ),
                                   ),
                                 ],
                               ),
-                              Text(r['hotel_name']?.toString() ?? '', style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                              Text(r['hotel_name']?.toString() ?? '',
+                                  style: textTheme.bodySmall
+                                      ?.copyWith(color: AppColors.textMuted)),
                               if ((r['guest_name'] ?? '').toString().isNotEmpty)
-                                Text('${AppStrings.t(isArabic, 'customer_name')}: ${r['guest_name']}', style: textTheme.bodySmall),
-                              if ((r['booking_status'] ?? '').toString().isNotEmpty)
-                                Text('${AppStrings.t(isArabic, 'booking_status_label')}: ${AppStrings.t(isArabic, 'status_${r['booking_status']}')}', style: textTheme.bodySmall),
+                                Text(
+                                    '${AppStrings.t(isArabic, 'customer_name')}: ${r['guest_name']}',
+                                    style: textTheme.bodySmall),
+                              if ((r['booking_status'] ?? '')
+                                  .toString()
+                                  .isNotEmpty)
+                                Text(
+                                    '${AppStrings.t(isArabic, 'booking_status_label')}: ${AppStrings.t(isArabic, 'status_${r['booking_status']}')}',
+                                    style: textTheme.bodySmall),
                               const SizedBox(height: 6),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    '${isArabic ? "قيمة الحجز" : "Booking total"}: ${money(r['booking_total'], isArabic)}',
-                                    style: textTheme.bodySmall,
+                                  Expanded(
+                                    child: Text(
+                                      '${isArabic ? "قيمة الحجز" : "Booking total"}: ${money(r['booking_total'], isArabic)}',
+                                      style: textTheme.bodySmall,
+                                    ),
                                   ),
+                                  const SizedBox(width: AppDimens.sm),
                                   Text(
                                     money(r['amount'], isArabic),
-                                    style: textTheme.titleSmall?.copyWith(color: AppColors.goldDark, fontWeight: FontWeight.w700),
+                                    softWrap: false,
+                                    overflow: TextOverflow.visible,
+                                    style: textTheme.titleSmall?.copyWith(
+                                        color: AppColors.goldDark,
+                                        fontWeight: FontWeight.w700),
                                   ),
                                 ],
                               ),
@@ -208,7 +261,8 @@ class _StatCard extends StatelessWidget {
   final String label;
   final String value;
   final bool gold;
-  const _StatCard({required this.label, required this.value, this.gold = false});
+  const _StatCard(
+      {required this.label, required this.value, this.gold = false});
 
   @override
   Widget build(BuildContext context) {
@@ -222,11 +276,15 @@ class _StatCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+          Text(label,
+              style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
           const SizedBox(height: 4),
           Text(
             value,
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: gold ? AppColors.goldDark : AppColors.ink),
+            style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: gold ? AppColors.goldDark : AppColors.ink),
           ),
         ],
       ),

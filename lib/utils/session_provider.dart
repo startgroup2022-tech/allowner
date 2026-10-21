@@ -11,7 +11,8 @@ class SessionState {
 
   bool get isLoggedIn => user != null;
 
-  SessionState copyWith({AppUser? user, bool? isLoading, String? error, bool clearUser = false}) {
+  SessionState copyWith(
+      {AppUser? user, bool? isLoading, String? error, bool clearUser = false}) {
     return SessionState(
       user: clearUser ? null : (user ?? this.user),
       isLoading: isLoading ?? this.isLoading,
@@ -96,8 +97,10 @@ class SessionNotifier extends StateNotifier<SessionState> {
     );
     updateLocalUser(user);
   }
+
   Future<void> updateAvatar({String? filePath, bool remove = false}) async {
-    final user = await _authService.updateAvatar(filePath: filePath, remove: remove);
+    final user =
+        await _authService.updateAvatar(filePath: filePath, remove: remove);
     updateLocalUser(user);
   }
 }

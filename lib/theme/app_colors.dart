@@ -19,7 +19,8 @@ class AppColors {
   // ===== الوظيفية =====
   static const Color primary = ink;
   static const Color accent = gold;
-  static const Color secondary = Color(0xFF2B6CB0); // أزرق ثانوي (روابط، معلومات)
+  static const Color secondary =
+      Color(0xFF2B6CB0); // أزرق ثانوي (روابط، معلومات)
 
   static const Color success = Color(0xFF2E9E5B);
   static const Color warning = Color(0xFFE8A33D);

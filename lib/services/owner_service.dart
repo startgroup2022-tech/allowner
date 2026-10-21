@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import '../utils/safe_parse.dart';
+import '../utils/service_request_payload.dart';
 import 'api_client.dart';
 
 /// كل استدعاءات الـ API الخاصة بلوحة المالك (الوحدات، الحجوزات، الإيرادات، الصيانة)
@@ -9,7 +11,7 @@ class OwnerService {
   Future<Map<String, dynamic>> getDashboard() async {
     try {
       final res = await _dio.get('/user/owner-dashboard.php');
-      return (res.data['stats'] as Map).cast<String, dynamic>();
+      return asMap(res.data['stats']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -18,7 +20,7 @@ class OwnerService {
   Future<List<Map<String, dynamic>>> getHotels() async {
     try {
       final res = await _dio.get('/user/owner-dashboard.php');
-      return (res.data['hotels'] as List).cast<Map<String, dynamic>>();
+      return asMapList(res.data['hotels']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -27,7 +29,7 @@ class OwnerService {
   Future<List<Map<String, dynamic>>> getUnits() async {
     try {
       final res = await _dio.get('/user/owner-units.php');
-      return (res.data['units'] as List).cast<Map<String, dynamic>>();
+      return asMapList(res.data['units']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -37,8 +39,8 @@ class OwnerService {
     try {
       final res = await _dio.get('/user/owner-bookings.php');
       return {
-        'bookings': (res.data['bookings'] as List).cast<Map<String, dynamic>>(),
-        'revenue': (res.data['revenue'] as num).toDouble(),
+        'bookings': asMapList(res.data['bookings']),
+        'revenue': asDouble(res.data['revenue']),
       };
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
@@ -47,7 +49,8 @@ class OwnerService {
 
   Future<void> cancelBooking(int bookingId) async {
     try {
-      await _dio.post('/user/owner-bookings.php', data: {'booking_id': bookingId, 'action': 'cancel'});
+      await _dio.post('/user/owner-bookings.php',
+          data: {'booking_id': bookingId, 'action': 'cancel'});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -56,7 +59,8 @@ class OwnerService {
   /// تأكيد حجز بانتظار المالك — يُبلَّغ الفندق والعميل تلقائياً بإيميل
   Future<void> confirmBooking(int bookingId) async {
     try {
-      await _dio.post('/user/owner-bookings.php', data: {'booking_id': bookingId, 'action': 'confirm'});
+      await _dio.post('/user/owner-bookings.php',
+          data: {'booking_id': bookingId, 'action': 'confirm'});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -96,10 +100,12 @@ class OwnerService {
   // ===== طلبات المالك للفندق: النظافة + السرير الإضافي =====
   // type: cleaning | extra_bed
 
-  Future<List<Map<String, dynamic>>> getOwnerHotelRequests({required String type}) async {
+  Future<List<Map<String, dynamic>>> getOwnerHotelRequests(
+      {required String type}) async {
     try {
-      final res = await _dio.get('/user/owner-requests.php', queryParameters: {'type': type});
-      return (res.data['requests'] as List).cast<Map<String, dynamic>>();
+      final res = await _dio
+          .get('/user/owner-requests.php', queryParameters: {'type': type});
+      return asMapList(res.data['requests']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -112,12 +118,13 @@ class OwnerService {
     String? description,
   }) async {
     try {
-      await _dio.post('/user/owner-requests.php', data: {
-        'type': type,
-        'hotel_id': hotelId,
-        'unit_id': unitId,
-        if (description != null) 'description': description,
-      });
+      await _dio.post('/user/owner-requests.php',
+          data: buildOwnerRequestPayload(
+            type: type,
+            hotelId: hotelId,
+            unitId: unitId,
+            description: description,
+          ));
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -125,7 +132,8 @@ class OwnerService {
 
   Future<void> cancelOwnerHotelRequest(int id) async {
     try {
-      await _dio.post('/user/owner-requests.php', data: {'action': 'cancel', 'id': id});
+      await _dio.post('/user/owner-requests.php',
+          data: {'action': 'cancel', 'id': id});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -134,7 +142,7 @@ class OwnerService {
   Future<Map<String, dynamic>> getRevenue() async {
     try {
       final res = await _dio.get('/user/owner-revenue.php');
-      return res.data as Map<String, dynamic>;
+      return asMap(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -145,7 +153,7 @@ class OwnerService {
   Future<List<Map<String, dynamic>>> getAgentClients() async {
     try {
       final res = await _dio.get('/user/agent-clients.php');
-      return (res.data['clients'] as List).cast<Map<String, dynamic>>();
+      return asMapList(res.data['clients']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -153,10 +161,11 @@ class OwnerService {
 
   Future<Map<String, dynamic>> getAgentClientDetail(int id) async {
     try {
-      final res = await _dio.get('/user/agent-clients.php', queryParameters: {'id': id});
+      final res = await _dio
+          .get('/user/agent-clients.php', queryParameters: {'id': id});
       return {
-        'client': (res.data['client'] as Map).cast<String, dynamic>(),
-        'bookings': (res.data['bookings'] as List).cast<Map<String, dynamic>>(),
+        'client': asMap(res.data['client']),
+        'bookings': asMapList(res.data['bookings']),
       };
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
@@ -188,7 +197,59 @@ class OwnerService {
 
   Future<void> deleteAgentClient(int id) async {
     try {
-      await _dio.post('/user/agent-clients.php', data: {'action': 'delete', 'id': id});
+      await _dio.post('/user/agent-clients.php',
+          data: {'action': 'delete', 'id': id});
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  // ===== بيانات حساب المالك البنكي (المتطلب 118) =====
+  // `/user/owner-bank.php` موجود على السيرفر (يرد 401 بدون توكن). القراءة
+  // متسامحة: نقبل `bank` أو الجذر مباشرة، وأي حقل ناقص يبقى نصًا فارغًا.
+
+  Future<Map<String, dynamic>> getOwnerBank() async {
+    try {
+      final res = await _dio.get('/user/owner-bank.php');
+      final root = asMap(res.data);
+      final nested = root['bank'];
+      return nested is Map ? Map<String, dynamic>.from(nested) : root;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  Future<void> saveOwnerBank({
+    required String bankName,
+    required String accountName,
+    required String accountNumber,
+    String? iban,
+  }) async {
+    try {
+      await _dio.post('/user/owner-bank.php', data: {
+        'action': 'save',
+        'bank_name': bankName,
+        'account_name': accountName,
+        'account_number': accountNumber,
+        if (iban != null && iban.isNotEmpty) 'iban': iban,
+      });
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  // ===== المتطلب 68: عرض أسعار خدمات الفندق للمالك (قراءة فقط) =====
+  // الفندق يُسعّر الخدمات عبر `/hotel/prices.php`، والمالك يحتاج أن يراها.
+  // نستخدم نفس نقطة النهاية (متاحة للدور المصرّح له) ونعرضها للقراءة فقط.
+
+  Future<Map<String, dynamic>> getOwnerServicePrices() async {
+    try {
+      final res = await _dio.get('/hotel/prices.php');
+      return {
+        'prices': asMapList(res.data['prices']),
+        'units': asMapList(res.data['units']),
+        'hotels': asMapList(res.data['hotels']),
+      };
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -197,7 +258,7 @@ class OwnerService {
   Future<Map<String, dynamic>> getMyCommission() async {
     try {
       final res = await _dio.get('/user/agent-commission.php');
-      return res.data as Map<String, dynamic>;
+      return asMap(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -206,7 +267,7 @@ class OwnerService {
   Future<List<Map<String, dynamic>>> getMaintenanceRequests() async {
     try {
       final res = await _dio.get('/user/owner-maintenance.php');
-      return (res.data['requests'] as List).cast<Map<String, dynamic>>();
+      return asMapList(res.data['requests']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -215,15 +276,17 @@ class OwnerService {
   Future<List<Map<String, dynamic>>> getMealRequests() async {
     try {
       final res = await _dio.get('/user/owner-meals.php');
-      return (res.data['requests'] as List).cast<Map<String, dynamic>>();
+      return asMapList(res.data['requests']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
   }
 
-  Future<void> updateMealRequestStatus({required int requestId, required String status}) async {
+  Future<void> updateMealRequestStatus(
+      {required int requestId, required String status}) async {
     try {
-      await _dio.post('/user/owner-meals.php', data: {'request_id': requestId, 'status': status});
+      await _dio.post('/user/owner-meals.php',
+          data: {'request_id': requestId, 'status': status});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -234,14 +297,28 @@ class OwnerService {
     int? unitId,
     required String title,
     String? description,
+    String? imagePath,
   }) async {
     try {
-      await _dio.post('/user/owner-maintenance.php', data: {
-        'hotel_id': hotelId,
-        if (unitId != null) 'unit_id': unitId,
-        'title': title,
-        if (description != null) 'description': description,
-      });
+      // المتطلب 72: إرفاق صورة اختيارية بالطلب — multipart فقط عند وجود صورة،
+      // وإلا نُرسل JSON كما كان حتى لا نغيّر العقد بلا داعٍ.
+      if (imagePath != null) {
+        final form = FormData.fromMap({
+          'hotel_id': hotelId.toString(),
+          if (unitId != null) 'unit_id': unitId.toString(),
+          'title': title,
+          if (description != null) 'description': description,
+          'image': await MultipartFile.fromFile(imagePath),
+        });
+        await _dio.post('/user/owner-maintenance.php', data: form);
+      } else {
+        await _dio.post('/user/owner-maintenance.php', data: {
+          'hotel_id': hotelId,
+          if (unitId != null) 'unit_id': unitId,
+          'title': title,
+          if (description != null) 'description': description,
+        });
+      }
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -250,7 +327,7 @@ class OwnerService {
   Future<List<Map<String, dynamic>>> getDocuments() async {
     try {
       final res = await _dio.get('/documents/list.php');
-      return (res.data['documents'] as List).cast<Map<String, dynamic>>();
+      return asMapList(res.data['documents']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -259,15 +336,17 @@ class OwnerService {
   Future<List<Map<String, dynamic>>> getDecisions() async {
     try {
       final res = await _dio.get('/decisions/list.php');
-      return (res.data['decisions'] as List).cast<Map<String, dynamic>>();
+      return asMapList(res.data['decisions']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
   }
 
-  Future<void> castVote({required int decisionId, required int optionId}) async {
+  Future<void> castVote(
+      {required int decisionId, required int optionId}) async {
     try {
-      await _dio.post('/decisions/vote.php', data: {'decision_id': decisionId, 'option_id': optionId});
+      await _dio.post('/decisions/vote.php',
+          data: {'decision_id': decisionId, 'option_id': optionId});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -294,7 +373,7 @@ class OwnerService {
   Future<List<Map<String, dynamic>>> getCommunityPosts() async {
     try {
       final res = await _dio.get('/community/list.php');
-      return (res.data['posts'] as List).cast<Map<String, dynamic>>();
+      return asMapList(res.data['posts']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -318,8 +397,9 @@ class OwnerService {
 
   Future<List<Map<String, dynamic>>> getPostComments(int postId) async {
     try {
-      final res = await _dio.get('/community/comments.php', queryParameters: {'post_id': postId});
-      return (res.data['comments'] as List).cast<Map<String, dynamic>>();
+      final res = await _dio
+          .get('/community/comments.php', queryParameters: {'post_id': postId});
+      return asMapList(res.data['comments']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -327,7 +407,8 @@ class OwnerService {
 
   Future<void> addComment(int postId, String content) async {
     try {
-      await _dio.post('/community/comments.php', data: {'post_id': postId, 'content': content});
+      await _dio.post('/community/comments.php',
+          data: {'post_id': postId, 'content': content});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -336,7 +417,7 @@ class OwnerService {
   Future<List<Map<String, dynamic>>> getMarketplaceListings() async {
     try {
       final res = await _dio.get('/marketplace/list.php');
-      return (res.data['listings'] as List).cast<Map<String, dynamic>>();
+      return asMapList(res.data['listings']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -352,8 +433,10 @@ class OwnerService {
       await _dio.post('/marketplace/create.php', data: {
         'unit_id': unitId,
         'price': price,
-        if (description != null && description.isNotEmpty) 'description': description,
-        if (contactPhone != null && contactPhone.isNotEmpty) 'contact_phone': contactPhone,
+        if (description != null && description.isNotEmpty)
+          'description': description,
+        if (contactPhone != null && contactPhone.isNotEmpty)
+          'contact_phone': contactPhone,
       });
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
@@ -362,7 +445,10 @@ class OwnerService {
 
   Future<void> expressInterest(int listingId, {String? message}) async {
     try {
-      await _dio.post('/marketplace/interest.php', data: {'listing_id': listingId, if (message != null) 'message': message});
+      await _dio.post('/marketplace/interest.php', data: {
+        'listing_id': listingId,
+        if (message != null) 'message': message
+      });
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -371,7 +457,7 @@ class OwnerService {
   Future<List<Map<String, dynamic>>> getConversations() async {
     try {
       final res = await _dio.get('/messages/conversations.php');
-      return (res.data['conversations'] as List).cast<Map<String, dynamic>>();
+      return asMapList(res.data['conversations']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -380,7 +466,7 @@ class OwnerService {
   Future<List<Map<String, dynamic>>> getOwnerDirectory() async {
     try {
       final res = await _dio.get('/messages/directory.php');
-      return (res.data['owners'] as List).cast<Map<String, dynamic>>();
+      return asMapList(res.data['owners']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -388,21 +474,23 @@ class OwnerService {
 
   Future<List<Map<String, dynamic>>> getThread(int conversationId) async {
     try {
-      final res = await _dio.get('/messages/thread.php', queryParameters: {'conversation_id': conversationId});
-      return (res.data['messages'] as List).cast<Map<String, dynamic>>();
+      final res = await _dio.get('/messages/thread.php',
+          queryParameters: {'conversation_id': conversationId});
+      return asMapList(res.data['messages']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
   }
 
-  Future<int> sendMessage({int? conversationId, int? recipientId, required String body}) async {
+  Future<int> sendMessage(
+      {int? conversationId, int? recipientId, required String body}) async {
     try {
       final res = await _dio.post('/messages/send.php', data: {
         if (conversationId != null) 'conversation_id': conversationId,
         if (recipientId != null) 'recipient_id': recipientId,
         'body': body,
       });
-      return res.data['conversation_id'] as int;
+      return asInt(res.data['conversation_id']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -411,7 +499,7 @@ class OwnerService {
   Future<List<Map<String, dynamic>>> getNotifications() async {
     try {
       final res = await _dio.get('/user/notifications.php');
-      return (res.data['notifications'] as List).cast<Map<String, dynamic>>();
+      return asMapList(res.data['notifications']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -430,7 +518,7 @@ class OwnerService {
   Future<List<Map<String, dynamic>>> getStaff() async {
     try {
       final res = await _dio.get('/user/owner-staff.php');
-      return (res.data['staff'] as List).cast<Map<String, dynamic>>();
+      return asMapList(res.data['staff']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -457,7 +545,8 @@ class OwnerService {
 
   Future<void> toggleStaffStatus(int staffId) async {
     try {
-      await _dio.post('/user/owner-staff.php', data: {'action': 'toggle_status', 'id': staffId});
+      await _dio.post('/user/owner-staff.php',
+          data: {'action': 'toggle_status', 'id': staffId});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -481,8 +570,8 @@ class OwnerService {
     try {
       final res = await _dio.get('/user/owner-units.php');
       return {
-        'units': (res.data['units'] as List).cast<Map<String, dynamic>>(),
-        'hotels': (res.data['hotels'] as List).cast<Map<String, dynamic>>(),
+        'units': asMapList(res.data['units']),
+        'hotels': asMapList(res.data['hotels']),
         'can_create': res.data['can_create'] == true,
       };
     } on DioException catch (e) {
@@ -525,9 +614,12 @@ class OwnerService {
         'price_per_night': pricePerNight.toString(),
         if (pricePerWeek != null) 'price_per_week': pricePerWeek.toString(),
         if (pricePerMonth != null) 'price_per_month': pricePerMonth.toString(),
-        if (coverImagePath != null) 'cover_image': await MultipartFile.fromFile(coverImagePath),
+        if (coverImagePath != null)
+          'cover_image': await MultipartFile.fromFile(coverImagePath),
         if (galleryPaths != null)
-          'gallery[]': [for (final p in galleryPaths) await MultipartFile.fromFile(p)],
+          'gallery[]': [
+            for (final p in galleryPaths) await MultipartFile.fromFile(p)
+          ],
         if (addons != null && addons.isNotEmpty) 'addons': jsonEncode(addons),
         if (availabilityPeriods != null && availabilityPeriods.isNotEmpty)
           'avail_from[]': [for (final p in availabilityPeriods) p['from']!],
@@ -545,6 +637,42 @@ class OwnerService {
   Future<void> toggleUnitStatus(int unitId) async {
     try {
       await _dio.post('/user/owner-units.php', data: {'unit_id': unitId});
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  // ===== المحفظة والمستحقات (المتطلبات 132–143) =====
+  //
+  // لا يوجد endpoint للمحفظة على السيرفر (تم فحص شجرة `/api/` كاملة). لذلك
+  // نجرّب `/user/owner-wallet.php`، وإن أعاد 404 نُعيد خطأً صريحًا من نوع
+  // `notFound` لتعرض الشاشة حالة «غير مُفعَّلة على السيرفر» بدل أصفار مضلِّلة.
+
+  Future<Map<String, dynamic>> getOwnerWallet() async {
+    try {
+      final res = await _dio.get('/user/owner-wallet.php');
+      return asMap(res.data);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  /// يرسل طلب تحويل المستحقات. السيرفر هو من يتحقق من الرصيد ويُسجّل الطلب.
+  Future<void> requestTransfer(Map<String, dynamic> payload) async {
+    try {
+      await _dio.post('/user/owner-wallet.php', data: payload);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  // ===== الاشتراك السنوي للمالك (المتطلبات 121–125) =====
+  // لا يوجد endpoint للاشتراك؛ نقرأ الإعلان من إعدادات الموقع الحقيقية.
+
+  Future<Map<String, dynamic>> getSubscription() async {
+    try {
+      final res = await _dio.get('/content/settings.php');
+      return asMap(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }

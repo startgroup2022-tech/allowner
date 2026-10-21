@@ -11,7 +11,8 @@ class OwnerDocumentsScreen extends ConsumerStatefulWidget {
   const OwnerDocumentsScreen({super.key});
 
   @override
-  ConsumerState<OwnerDocumentsScreen> createState() => _OwnerDocumentsScreenState();
+  ConsumerState<OwnerDocumentsScreen> createState() =>
+      _OwnerDocumentsScreenState();
 }
 
 class _OwnerDocumentsScreenState extends ConsumerState<OwnerDocumentsScreen> {
@@ -24,7 +25,9 @@ class _OwnerDocumentsScreenState extends ConsumerState<OwnerDocumentsScreen> {
     _future = _service.getDocuments();
   }
 
-  void _reload() => setState(() => _future = _service.getDocuments());
+  void _reload() => setState(() {
+        _future = _service.getDocuments();
+      });
 
   IconData _iconFor(String type) {
     switch (type) {
@@ -64,11 +67,16 @@ class _OwnerDocumentsScreenState extends ConsumerState<OwnerDocumentsScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 32),
+                    Icon(Icons.error_outline_rounded,
+                        color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
-                    Text(AppStrings.t(isArabic, 'error_loading'), textAlign: TextAlign.center),
+                    Text(AppStrings.t(isArabic, 'error_loading'),
+                        textAlign: TextAlign.center),
                     const SizedBox(height: AppDimens.sm),
-                    Center(child: OutlinedButton(onPressed: _reload, child: Text(AppStrings.t(isArabic, 'retry')))),
+                    Center(
+                        child: OutlinedButton(
+                            onPressed: _reload,
+                            child: Text(AppStrings.t(isArabic, 'retry')))),
                   ],
                 );
               }
@@ -80,7 +88,8 @@ class _OwnerDocumentsScreenState extends ConsumerState<OwnerDocumentsScreen> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(AppDimens.xl),
-                      child: Center(child: Text(AppStrings.t(isArabic, 'no_documents'))),
+                      child: Center(
+                          child: Text(AppStrings.t(isArabic, 'no_documents'))),
                     ),
                   ],
                 );
@@ -89,7 +98,8 @@ class _OwnerDocumentsScreenState extends ConsumerState<OwnerDocumentsScreen> {
               return ListView.separated(
                 padding: const EdgeInsets.all(AppDimens.pagePadding),
                 itemCount: docs.length,
-                separatorBuilder: (context, index) => const SizedBox(height: AppDimens.md),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: AppDimens.md),
                 itemBuilder: (context, index) {
                   final d = docs[index];
                   return Container(
@@ -106,20 +116,26 @@ class _OwnerDocumentsScreenState extends ConsumerState<OwnerDocumentsScreen> {
                           height: 44,
                           decoration: BoxDecoration(
                             color: AppColors.gold.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                            borderRadius:
+                                BorderRadius.circular(AppDimens.radiusMd),
                           ),
-                          child: Icon(_iconFor(d['file_type'].toString()), color: AppColors.goldDark),
+                          child: Icon(_iconFor(d['file_type'].toString()),
+                              color: AppColors.goldDark),
                         ),
                         const SizedBox(width: AppDimens.md),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(d['title'].toString(), style: textTheme.titleSmall),
+                              Text(d['title'].toString(),
+                                  style: textTheme.titleSmall),
                               const SizedBox(height: 2),
                               Text(
-                                (d['hotel_name'] ?? AppStrings.t(isArabic, 'general')).toString(),
-                                style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
+                                (d['hotel_name'] ??
+                                        AppStrings.t(isArabic, 'general'))
+                                    .toString(),
+                                style: textTheme.bodySmall
+                                    ?.copyWith(color: AppColors.textMuted),
                               ),
                             ],
                           ),
@@ -130,7 +146,8 @@ class _OwnerDocumentsScreenState extends ConsumerState<OwnerDocumentsScreen> {
                           onPressed: () async {
                             final url = Uri.parse(d['file_url'].toString());
                             if (await canLaunchUrl(url)) {
-                              await launchUrl(url, mode: LaunchMode.externalApplication);
+                              await launchUrl(url,
+                                  mode: LaunchMode.externalApplication);
                             }
                           },
                         ),

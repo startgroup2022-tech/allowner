@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_colors.dart';
+import '../utils/app_strings.dart';
+import '../utils/locale_provider.dart';
 import '../widgets/app_logo.dart';
 import 'onboarding/onboarding_screen.dart';
 
@@ -30,7 +32,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
     );
     _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0, 0.7, curve: Curves.easeOut)),
+      CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0, 0.7, curve: Curves.easeOut)),
     );
 
     _controller.forward();
@@ -57,6 +61,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isArabic = ref.watch(localeProvider).languageCode == 'ar';
     return Scaffold(
       backgroundColor: AppColors.ink,
       body: SafeArea(
@@ -75,7 +80,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                 const AppLogo(width: 280, full: true),
                 const SizedBox(height: 14),
                 Text(
-                  'فندقك، أينما كنت',
+                  AppStrings.t(isArabic, 'app_tagline'),
+                  textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 14, color: AppColors.goldLight),
                 ),
               ],

@@ -10,6 +10,7 @@ import '../owner/owner_navigation_screen.dart';
 import '../hotel_staff/hotel_staff_navigation_screen.dart';
 import '../../widgets/app_logo.dart';
 import 'register_screen.dart';
+import 'reset_password_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -80,7 +81,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
+          padding:
+              const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
           child: Form(
             key: _formKey,
             child: Column(
@@ -88,7 +90,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               children: [
                 const SizedBox(height: AppDimens.xl),
                 Container(
-                  padding: const EdgeInsets.symmetric(vertical: AppDimens.lg, horizontal: AppDimens.md),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: AppDimens.lg, horizontal: AppDimens.md),
                   decoration: BoxDecoration(
                     color: AppColors.ink,
                     borderRadius: BorderRadius.circular(AppDimens.radiusLg),
@@ -105,11 +108,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Text(
                   AppStrings.t(isArabic, 'login_subtitle'),
                   textAlign: TextAlign.center,
-                  style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                  style: textTheme.bodyMedium
+                      ?.copyWith(color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: AppDimens.xl),
-
-                Text(isArabic ? 'البريد الإلكتروني' : 'Email', style: textTheme.titleSmall),
+                Text(isArabic ? 'البريد الإلكتروني' : 'Email',
+                    style: textTheme.titleSmall),
                 const SizedBox(height: AppDimens.sm),
                 TextFormField(
                   controller: _emailController,
@@ -121,17 +125,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) {
-                      return isArabic ? 'هذا الحقل مطلوب' : 'This field is required';
+                      return isArabic
+                          ? 'هذا الحقل مطلوب'
+                          : 'This field is required';
                     }
                     if (!v.contains('@')) {
-                      return isArabic ? 'بريد إلكتروني غير صحيح' : 'Invalid email';
+                      return isArabic
+                          ? 'بريد إلكتروني غير صحيح'
+                          : 'Invalid email';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: AppDimens.md),
-
-                Text(AppStrings.t(isArabic, 'password'), style: textTheme.titleSmall),
+                Text(AppStrings.t(isArabic, 'password'),
+                    style: textTheme.titleSmall),
                 const SizedBox(height: AppDimens.sm),
                 TextFormField(
                   controller: _passwordController,
@@ -143,25 +151,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       icon: Icon(_obscurePassword
                           ? Icons.visibility_off_outlined
                           : Icons.visibility_outlined),
-                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
                   ),
                   validator: (v) {
                     if (v == null || v.isEmpty) {
-                      return isArabic ? 'هذا الحقل مطلوب' : 'This field is required';
+                      return isArabic
+                          ? 'هذا الحقل مطلوب'
+                          : 'This field is required';
                     }
                     return null;
                   },
                 ),
                 Align(
-                  alignment: isArabic ? Alignment.centerLeft : Alignment.centerRight,
+                  alignment:
+                      isArabic ? Alignment.centerLeft : Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {},
+                    // الخدمة غير مُنفَّذة على السيرفر (كل مسارات auth/forgot*
+                    // ترجع 404)، فبدلًا من زر لا يعمل نفتح شاشة الاستعادة التي
+                    // تشرح الحالة وتوفّر مسار الدعم الحقيقي.
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const ResetPasswordScreen()),
+                    ),
                     child: Text(AppStrings.t(isArabic, 'forgot_password')),
                   ),
                 ),
                 const SizedBox(height: AppDimens.md),
-
                 SizedBox(
                   height: AppDimens.buttonHeight,
                   child: ElevatedButton(
@@ -170,13 +187,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ? const SizedBox(
                             width: 22,
                             height: 22,
-                            child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2.4, color: Colors.white),
                           )
                         : Text(AppStrings.t(isArabic, 'login')),
                   ),
                 ),
                 const SizedBox(height: AppDimens.md),
-
                 SizedBox(
                   height: AppDimens.buttonHeight,
                   child: OutlinedButton(
@@ -185,16 +202,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: AppDimens.xl),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(AppStrings.t(isArabic, 'no_account'),
-                        style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
+                        style: textTheme.bodyMedium
+                            ?.copyWith(color: AppColors.textSecondary)),
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context)
-                            .push(MaterialPageRoute(builder: (_) => const RegisterScreen()));
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => const RegisterScreen()));
                       },
                       child: Text(AppStrings.t(isArabic, 'create_account')),
                     ),

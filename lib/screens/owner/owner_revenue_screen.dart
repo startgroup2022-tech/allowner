@@ -5,6 +5,7 @@ import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
+import '../../utils/revenue_reports.dart';
 import '../../utils/safe_parse.dart';
 
 class OwnerRevenueScreen extends ConsumerStatefulWidget {
@@ -24,13 +25,43 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
     _future = _service.getRevenue();
   }
 
-  void _reload() => setState(() => _future = _service.getRevenue());
+  void _reload() => setState(() {
+        _future = _service.getRevenue();
+      });
 
   String _monthLabel(String ym, bool isArabic) {
     final parts = ym.split('-');
     if (parts.length != 2) return ym;
-    final monthsAr = ['', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-    final monthsEn = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    final monthsAr = [
+      '',
+      'يناير',
+      'فبراير',
+      'مارس',
+      'أبريل',
+      'مايو',
+      'يونيو',
+      'يوليو',
+      'أغسطس',
+      'سبتمبر',
+      'أكتوبر',
+      'نوفمبر',
+      'ديسمبر'
+    ];
+    final monthsEn = [
+      '',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ];
     final m = int.tryParse(parts[1]) ?? 1;
     return isArabic ? monthsAr[m] : monthsEn[m];
   }
@@ -61,19 +92,28 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 32),
+                    Icon(Icons.error_outline_rounded,
+                        color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
-                    Text(AppStrings.t(isArabic, 'error_loading'), textAlign: TextAlign.center),
+                    Text(AppStrings.t(isArabic, 'error_loading'),
+                        textAlign: TextAlign.center),
                     const SizedBox(height: AppDimens.sm),
-                    Center(child: OutlinedButton(onPressed: _reload, child: Text(AppStrings.t(isArabic, 'retry')))),
+                    Center(
+                        child: OutlinedButton(
+                            onPressed: _reload,
+                            child: Text(AppStrings.t(isArabic, 'retry')))),
                   ],
                 );
               }
 
               final data = snapshot.data ?? {};
-              final totalRevenue = (data['total_revenue'] is num) ? (data['total_revenue'] as num).toStringAsFixed(0) : '0';
-              final monthly = (data['monthly'] as List?)?.cast<Map<String, dynamic>>() ?? const [];
-              final byUnit = (data['by_unit'] as List?)?.cast<Map<String, dynamic>>() ?? const [];
+              final grossRevenue = asDouble(data['total_revenue']);
+              final totalRevenue = grossRevenue.toStringAsFixed(0);
+              final monthly = asMapList(data['monthly']);
+              final byUnit = asMapList(data['by_unit'] ?? data['units']);
+              final years = RevenueReports.yearTotals(monthly);
+              final expenses = RevenueReports.expenses(data);
+              final net = RevenueReports.netRevenue(grossRevenue, expenses);
 
               return ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -89,21 +129,100 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(AppStrings.t(isArabic, 'total_revenue_month'),
-                            style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
+                            style: textTheme.bodyMedium
+                                ?.copyWith(color: AppColors.textSecondary)),
                         const SizedBox(height: 6),
                         Text('$totalRevenue ${AppStrings.t(isArabic, 'sar')}',
-                            style: textTheme.headlineMedium?.copyWith(color: AppColors.goldDark)),
+                            style: textTheme.headlineMedium
+                                ?.copyWith(color: AppColors.goldDark)),
                       ],
                     ),
                   ),
-                  const SizedBox(height: AppDimens.xl),
+                  // المتطلبات 127–129: عرض المصروفات والصافي فقط عند إرجاع
+                  // الـ API لها؛ وإن لم تُرجَع نُبلّغ بغيابها بدل صفر مضلّل.
+                  const SizedBox(height: AppDimens.md),
+                  if (expenses.isEmpty)
+                    Text(
+                      AppStrings.t(isArabic, 'expenses_unavailable'),
+                      style: textTheme.bodySmall
+                          ?.copyWith(color: AppColors.textMuted),
+                    )
+                  else ...[
+                    ...expenses.map((e) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(AppStrings.t(isArabic, e.labelKey),
+                                    style: textTheme.bodyMedium),
+                              ),
+                              Text(
+                                  '- ${e.total.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                                  softWrap: false,
+                                  overflow: TextOverflow.visible,
+                                  style: textTheme.bodyMedium?.copyWith(
+                                      color: AppColors.danger,
+                                      fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        )),
+                    const Divider(height: AppDimens.lg),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(AppStrings.t(isArabic, 'net_revenue'),
+                              style: textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w700)),
+                        ),
+                        Text(
+                            '${net.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                            softWrap: false,
+                            overflow: TextOverflow.visible,
+                            style: textTheme.bodyMedium?.copyWith(
+                                color: AppColors.goldDark,
+                                fontWeight: FontWeight.w700)),
+                      ],
+                    ),
+                  ],
 
-                  Text(AppStrings.t(isArabic, 'revenue_history'), style: textTheme.titleMedium),
+                  const SizedBox(height: AppDimens.xl),
+                  if (years.length > 1) ...[
+                    Text(AppStrings.t(isArabic, 'yearly_totals'),
+                        style: textTheme.titleMedium),
+                    const SizedBox(height: AppDimens.md),
+                    ...years.map((y) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text('${y.year}',
+                                    style: textTheme.bodyMedium),
+                              ),
+                              Text(
+                                  '${y.total.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                                  softWrap: false,
+                                  overflow: TextOverflow.visible,
+                                  style: textTheme.bodyMedium
+                                      ?.copyWith(fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        )),
+                    const SizedBox(height: AppDimens.xl),
+                  ],
+
+                  Text(AppStrings.t(isArabic, 'revenue_history'),
+                      style: textTheme.titleMedium),
                   const SizedBox(height: AppDimens.md),
                   if (monthly.isEmpty)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: AppDimens.md),
-                      child: Text(AppStrings.t(isArabic, 'no_data'), style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                      padding:
+                          const EdgeInsets.symmetric(vertical: AppDimens.md),
+                      child: Text(AppStrings.t(isArabic, 'no_data'),
+                          style: textTheme.bodySmall
+                              ?.copyWith(color: AppColors.textMuted)),
                     )
                   else
                     ...monthly.map((m) => Padding(
@@ -111,20 +230,34 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(_monthLabel(m['ym'].toString(), isArabic), style: textTheme.bodyMedium),
-                              Text('${asDouble(m['total']).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
-                                  style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                              Expanded(
+                                child: Text(
+                                    _monthLabel(
+                                        RevenueReports.monthKey(m) ?? '',
+                                        isArabic),
+                                    style: textTheme.bodyMedium),
+                              ),
+                              Text(
+                                  '${asDouble(m['total']).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                                  softWrap: false,
+                                  overflow: TextOverflow.visible,
+                                  style: textTheme.bodyMedium
+                                      ?.copyWith(fontWeight: FontWeight.w600)),
                             ],
                           ),
                         )),
 
                   const SizedBox(height: AppDimens.xl),
-                  Text(AppStrings.t(isArabic, 'by_unit'), style: textTheme.titleMedium),
+                  Text(AppStrings.t(isArabic, 'by_unit'),
+                      style: textTheme.titleMedium),
                   const SizedBox(height: AppDimens.md),
                   if (byUnit.isEmpty)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: AppDimens.md),
-                      child: Text(AppStrings.t(isArabic, 'no_data'), style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                      padding:
+                          const EdgeInsets.symmetric(vertical: AppDimens.md),
+                      child: Text(AppStrings.t(isArabic, 'no_data'),
+                          style: textTheme.bodySmall
+                              ?.copyWith(color: AppColors.textMuted)),
                     )
                   else
                     ...byUnit.map((u) => Container(
@@ -132,7 +265,8 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                           padding: const EdgeInsets.all(AppDimens.md),
                           decoration: BoxDecoration(
                             color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                            borderRadius:
+                                BorderRadius.circular(AppDimens.radiusMd),
                             border: Border.all(color: AppColors.cardBorder),
                           ),
                           child: Row(
@@ -140,12 +274,24 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  isArabic ? (u['name_ar'] ?? '') : (u['name_en'] ?? u['name_ar'] ?? ''),
+                                  isArabic
+                                      ? (u['name_ar'] ??
+                                          u['unit_name_ar'] ??
+                                          u['unit_name'] ??
+                                          '')
+                                      : (u['name_en'] ??
+                                          u['unit_name_en'] ??
+                                          u['unit_name'] ??
+                                          u['name_ar'] ??
+                                          ''),
                                   style: textTheme.bodyMedium,
                                 ),
                               ),
-                              Text('${asDouble(u['revenue']).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
-                                  style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: AppColors.goldDark)),
+                              Text(
+                                  '${asDouble(u['revenue']).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                                  style: textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.goldDark)),
                             ],
                           ),
                         )),

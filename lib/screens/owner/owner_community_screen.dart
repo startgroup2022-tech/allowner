@@ -6,12 +6,15 @@ import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
 import '../../services/api_client.dart';
+import '../../utils/safe_parse.dart';
+import '../../widgets/state_views.dart';
 
 class OwnerCommunityScreen extends ConsumerStatefulWidget {
   const OwnerCommunityScreen({super.key});
 
   @override
-  ConsumerState<OwnerCommunityScreen> createState() => _OwnerCommunityScreenState();
+  ConsumerState<OwnerCommunityScreen> createState() =>
+      _OwnerCommunityScreenState();
 }
 
 class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
@@ -26,7 +29,9 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
     _future = _service.getCommunityPosts();
   }
 
-  void _reload() => setState(() => _future = _service.getCommunityPosts());
+  void _reload() => setState(() {
+        _future = _service.getCommunityPosts();
+      });
 
   Future<void> _submitPost(bool isArabic) async {
     final text = _postCtrl.text.trim();
@@ -37,7 +42,9 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
       _postCtrl.clear();
       _reload();
     } on ApiException catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
     } finally {
       if (mounted) setState(() => _posting = false);
     }
@@ -45,7 +52,7 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
 
   Future<void> _toggleLike(Map<String, dynamic> post) async {
     try {
-      await _service.toggleCommunityLike(post['id'] as int);
+      await _service.toggleCommunityLike(asInt(post['id']));
       _reload();
     } on ApiException catch (_) {}
   }
@@ -54,7 +61,7 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
     final commentCtrl = TextEditingController();
     List<Map<String, dynamic>> comments = [];
     try {
-      comments = await _service.getPostComments(post['id'] as int);
+      comments = await _service.getPostComments(asInt(post['id']));
     } catch (_) {}
     if (!mounted) return;
 
@@ -67,14 +74,16 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
             left: AppDimens.pagePadding,
             right: AppDimens.pagePadding,
             top: AppDimens.pagePadding,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + AppDimens.pagePadding,
+            bottom:
+                MediaQuery.of(ctx).viewInsets.bottom + AppDimens.pagePadding,
           ),
           child: StatefulBuilder(
             builder: (ctx, setSheetState) => SizedBox(
               height: 420,
               child: Column(
                 children: [
-                  Text(AppStrings.t(isArabic, 'comments'), style: Theme.of(ctx).textTheme.titleMedium),
+                  Text(AppStrings.t(isArabic, 'comments'),
+                      style: Theme.of(ctx).textTheme.titleMedium),
                   const SizedBox(height: AppDimens.sm),
                   Expanded(
                     child: comments.isEmpty
@@ -84,12 +93,16 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
                             itemBuilder: (context, i) {
                               final c = comments[i];
                               return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 6),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 6),
                                 child: RichText(
                                   text: TextSpan(
                                     style: DefaultTextStyle.of(context).style,
                                     children: [
-                                      TextSpan(text: '${c['full_name']}: ', style: const TextStyle(fontWeight: FontWeight.w700)),
+                                      TextSpan(
+                                          text: '${c['full_name']}: ',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w700)),
                                       TextSpan(text: c['content'].toString()),
                                     ],
                                   ),
@@ -103,18 +116,22 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
                       Expanded(
                         child: TextField(
                           controller: commentCtrl,
-                          decoration: InputDecoration(hintText: AppStrings.t(isArabic, 'write_comment')),
+                          decoration: InputDecoration(
+                              hintText:
+                                  AppStrings.t(isArabic, 'write_comment')),
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.send_rounded, color: AppColors.goldDark),
+                        icon: const Icon(Icons.send_rounded,
+                            color: AppColors.goldDark),
                         onPressed: () async {
                           final text = commentCtrl.text.trim();
                           if (text.isEmpty) return;
                           try {
-                            await _service.addComment(post['id'] as int, text);
+                            await _service.addComment(asInt(post['id']), text);
                             commentCtrl.clear();
-                            final refreshed = await _service.getPostComments(post['id'] as int);
+                            final refreshed = await _service
+                                .getPostComments(asInt(post['id']));
                             setSheetState(() => comments = refreshed);
                             _reload();
                           } catch (_) {}
@@ -167,13 +184,15 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
                         TextField(
                           controller: _postCtrl,
                           maxLines: 3,
-                          decoration: InputDecoration(hintText: AppStrings.t(isArabic, 'write_post')),
+                          decoration: InputDecoration(
+                              hintText: AppStrings.t(isArabic, 'write_post')),
                         ),
                         const SizedBox(height: AppDimens.sm),
                         Align(
                           alignment: Alignment.centerLeft,
                           child: ElevatedButton(
-                            onPressed: _posting ? null : () => _submitPost(isArabic),
+                            onPressed:
+                                _posting ? null : () => _submitPost(isArabic),
                             child: Text(AppStrings.t(isArabic, 'post')),
                           ),
                         ),
@@ -188,8 +207,10 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
                     )
                   else if (posts.isEmpty)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: AppDimens.xl),
-                      child: Center(child: Text(AppStrings.t(isArabic, 'no_posts'))),
+                      padding:
+                          const EdgeInsets.symmetric(vertical: AppDimens.xl),
+                      child: Center(
+                          child: Text(AppStrings.t(isArabic, 'no_posts'))),
                     )
                   else
                     ...posts.map((p) => Container(
@@ -197,7 +218,8 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
                           padding: const EdgeInsets.all(AppDimens.md),
                           decoration: BoxDecoration(
                             color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+                            borderRadius:
+                                BorderRadius.circular(AppDimens.radiusLg),
                             border: Border.all(color: AppColors.cardBorder),
                           ),
                           child: Column(
@@ -206,23 +228,40 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
                               Row(
                                 children: [
                                   CircleAvatar(
-                                    backgroundColor: AppColors.gold.withOpacity(0.2),
-                                    child: Text((p['full_name'] ?? '?').toString().substring(0, 1),
-                                        style: const TextStyle(color: AppColors.goldDark, fontWeight: FontWeight.w700)),
+                                    backgroundColor:
+                                        AppColors.gold.withOpacity(0.2),
+                                    child: Text(
+                                        (p['full_name'] ?? '?')
+                                            .toString()
+                                            .substring(0, 1),
+                                        style: const TextStyle(
+                                            color: AppColors.goldDark,
+                                            fontWeight: FontWeight.w700)),
                                   ),
                                   const SizedBox(width: AppDimens.sm),
                                   Expanded(
-                                    child: Text(p['full_name'].toString(), style: textTheme.titleSmall),
+                                    child: Text(p['full_name'].toString(),
+                                        style: textTheme.titleSmall),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: AppDimens.sm),
-                              Text(p['content'].toString(), style: textTheme.bodyMedium),
-                              if (p['image_url'] != null) ...[
+                              Text(p['content'].toString(),
+                                  style: textTheme.bodyMedium),
+                              // `AppNetworkImage` يتعامل مع الحقل الفارغ/غير الصالح
+                              // برسم بديل، بينما `Image.network("")` يرمي استثناء
+                              // تحميل لكل منشور بلا صورة.
+                              if ((p['image_url'] ?? '')
+                                  .toString()
+                                  .trim()
+                                  .isNotEmpty) ...[
                                 const SizedBox(height: AppDimens.sm),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-                                  child: Image.network(p['image_url'].toString(), fit: BoxFit.cover),
+                                AppNetworkImage(
+                                  url: p['image_url'].toString(),
+                                  height: 180,
+                                  fit: BoxFit.cover,
+                                  borderRadius:
+                                      BorderRadius.circular(AppDimens.radiusMd),
                                 ),
                               ],
                               const SizedBox(height: AppDimens.sm),
@@ -231,15 +270,22 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
                                   TextButton.icon(
                                     onPressed: () => _toggleLike(p),
                                     icon: Icon(
-                                      p['liked_by_me'] == true ? Icons.thumb_up_rounded : Icons.thumb_up_outlined,
+                                      p['liked_by_me'] == true
+                                          ? Icons.thumb_up_rounded
+                                          : Icons.thumb_up_outlined,
                                       size: 18,
-                                      color: p['liked_by_me'] == true ? AppColors.goldDark : AppColors.textMuted,
+                                      color: p['liked_by_me'] == true
+                                          ? AppColors.goldDark
+                                          : AppColors.textMuted,
                                     ),
                                     label: Text('${p['like_count']}'),
                                   ),
                                   TextButton.icon(
                                     onPressed: () => _openComments(isArabic, p),
-                                    icon: const Icon(Icons.mode_comment_outlined, size: 18, color: AppColors.textMuted),
+                                    icon: const Icon(
+                                        Icons.mode_comment_outlined,
+                                        size: 18,
+                                        color: AppColors.textMuted),
                                     label: Text('${p['comment_count']}'),
                                   ),
                                 ],
