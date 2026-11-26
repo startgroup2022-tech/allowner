@@ -312,3 +312,27 @@ Implemented and documented in `docs/DOCUMENT_06_GROUP_02.md`. Invariants:
   reference there; it belongs to the separate `booking_reference_internal` row.
 - `RadioListTile.groupValue/onChanged` are deprecated on Flutter 3.47; use a
   `RadioGroup` ancestor (done in `hotel_requests_screen.dart`).
+
+## Document 05/06 final sweep (commit 97bce9e)
+
+- **Home order lives in one place:** `lib/utils/home_sections.dart`
+  (`kHomeSectionOrder`, `kFeaturedCityOrder`). `home_screen` iterates it; the
+  widget test in `test/screens_render_test.dart` asserts the rendered `dy`
+  ordering (categories last). Cities: Makkah → Madinah → Jeddah → Riyadh
+  (Riyadh kept per Doc 05 item 18; owner decision C2).
+- **Extra bed** = `qty × nightly price × nights` (`computeExtraBedCharge`),
+  payload key `extra_bed_qty` (only when > 1). Do not regress to a one-time fee.
+- **Availability:** `isDaySelectable` drives `selectableDayPredicate`, and
+  `_confirmBooking` refuses `AvailabilityVerdict.outside`. Server-side double
+  booking prevention is still pending (backend master §1).
+- **Hotel dashboard:** all four cards navigate (arrivals → `HotelArrivalsScreen`,
+  departures → `HotelDeparturesScreen`, in-house → `HotelBookingsScreen`,
+  open requests → `HotelRequestsScreen`). Both movement screens share
+  `utils/unit_search.dart` + `utils/arrivals.dart` / `utils/departures.dart`.
+- **Push notifications:** `utils/notification_routing.dart` (pure routing/texts/
+  dedupe) + `services/notification_service.dart` (pluggable `PushProvider`,
+  default `UnavailablePushProvider`). Never claim live push until Firebase is
+  configured and verified on a real device (owner decision C5).
+- **Final matrices/docs are generated or explicit:** `tools/gen_final_matrix.py`
+  regenerates `docs/ALL_OWNERS_FINAL_REQUIREMENTS_MATRIX.md` from the official
+  inventory — edit the status map there, not the markdown.
