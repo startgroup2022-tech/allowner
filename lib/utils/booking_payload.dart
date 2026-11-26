@@ -27,6 +27,7 @@ Map<String, dynamic> buildBookingPayload({
   required String paymentMethod,
   List<String> mealTypes = const [],
   bool extraBed = false,
+  int? extraBedQty,
   List<int>? addonIds,
   String? guestIdNumber,
   String? customerName,
@@ -41,6 +42,9 @@ Map<String, dynamic> buildBookingPayload({
     'payment_method': paymentMethod,
     'meal_types': mealTypes,
     'extra_bed': extraBed,
+    // المستند 06 §B: العدد يُرسل ليحسب السيرفر العدد × السعر × الليالي.
+    if (extraBed && extraBedQty != null && extraBedQty > 1)
+      'extra_bed_qty': extraBedQty,
     if (addonIds != null && addonIds.isNotEmpty) 'addon_ids': addonIds,
     'guest_id_number': guestIdNumber ?? '',
     if (customerName != null && customerName.trim().isNotEmpty)

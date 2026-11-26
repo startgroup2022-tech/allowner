@@ -728,6 +728,35 @@ class AppStrings {
     },
     'active_now': {'ar': 'الحالية', 'en': 'Active Now'},
     'history': {'ar': 'السجل', 'en': 'History'},
+    'notif_booking_created': {'ar': 'حجز جديد', 'en': 'New booking'},
+    'notif_booking_confirmed': {
+      'ar': 'تم تأكيد الحجز',
+      'en': 'Booking confirmed'
+    },
+    'notif_booking_rejected': {'ar': 'تم رفض الحجز', 'en': 'Booking rejected'},
+    'notif_booking_cancelled': {
+      'ar': 'تم إلغاء الحجز',
+      'en': 'Booking cancelled'
+    },
+    'notif_service_created': {
+      'ar': 'طلب خدمة جديد',
+      'en': 'New service request'
+    },
+    'notif_service_approved': {
+      'ar': 'تم اعتماد طلب الخدمة',
+      'en': 'Service request approved'
+    },
+    'notif_service_rejected': {
+      'ar': 'تم رفض طلب الخدمة',
+      'en': 'Service request rejected'
+    },
+    'notif_payment_received': {
+      'ar': 'تم استلام الدفع',
+      'en': 'Payment received'
+    },
+    'notif_payment_link': {'ar': 'رابط دفع جديد', 'en': 'New payment link'},
+    'arrivals_today_title': {'ar': 'وصول اليوم', 'en': 'Arrivals today'},
+    'no_arrivals': {'ar': 'لا وصولات اليوم', 'en': 'No arrivals today'},
     'confirm_check_in': {
       'ar': 'تأكيد دخول الضيف',
       'en': 'Confirm Guest Check-in'
@@ -1075,6 +1104,8 @@ class AppStrings {
       'ar': 'لا توجد طريقة دفع متاحة حاليًا. تواصل مع الدعم.',
       'en': 'No payment method is available right now. Contact support.'
     },
+    'extra_bed_quantity': {'ar': 'عدد الأسرّة الإضافية', 'en': 'Extra beds'},
+    'per_night_per_bed': {'ar': 'لكل ليلة لكل سرير', 'en': 'per night per bed'},
     'payment_method_required': {
       'ar': 'اختر طريقة دفع متاحة',
       'en': 'Select an available payment method'

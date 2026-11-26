@@ -12,6 +12,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_dimens.dart';
 import '../../utils/city_ordering.dart';
 import '../../utils/app_strings.dart';
+import '../../utils/home_sections.dart';
 import '../../utils/locale_provider.dart';
 import '../../utils/session_provider.dart';
 import '../../widgets/app_logo.dart';
@@ -192,14 +193,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ),
               ),
-              // ترتيب الأقسام المعتمد من المالك (يحسم المتطلب 27):
-              // البحث → الوجهات → الأنواع → فنادق بوحدات ملاك → أحدث الوحدات.
+              // ترتيب الأقسام في `kHomeSectionOrder` (المستند 06 §A): الوجهات
+              // ثم فنادق بوحدات ملاك ثم أحدث الوحدات ثم «اكتشف حسب النوع» آخرًا.
               // الفنادق المميزة لم تُطلب كقسم مستقل في المستند الأصلي، فتُعرض
               // فقط كبديل داخل قسم «فنادق بوحدات ملاك» عند عدم وجود وحدات ملاك.
-              ..._buildDestinations(isArabic, textTheme),
-              ..._buildCategories(isArabic, textTheme),
-              ..._buildOwnerUnits(isArabic, textTheme),
-              ..._buildRecentUnits(isArabic, textTheme),
+              for (final section in kHomeSectionOrder)
+                ...switch (section) {
+                  HomeSection.destinations =>
+                    _buildDestinations(isArabic, textTheme),
+                  HomeSection.categories =>
+                    _buildCategories(isArabic, textTheme),
+                  HomeSection.ownerHotels =>
+                    _buildOwnerUnits(isArabic, textTheme),
+                  HomeSection.recentUnits =>
+                    _buildRecentUnits(isArabic, textTheme),
+                },
               const SliverToBoxAdapter(child: SizedBox(height: AppDimens.xxl)),
             ],
           ),

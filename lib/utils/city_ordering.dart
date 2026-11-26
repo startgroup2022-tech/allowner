@@ -11,17 +11,13 @@
 library;
 
 import 'arabic_text.dart';
+import 'home_sections.dart';
 
 class CityOrdering {
   CityOrdering._();
 
   /// المدن التي يطلب المستند إبرازها، بترتيب الظهور المطلوب.
-  static const List<String> featuredOrder = [
-    'مكة',
-    'المدينة',
-    'جدة',
-    'الرياض',
-  ];
+  static const List<String> featuredOrder = kFeaturedCityOrder;
 
   /// يُعيد قائمة جديدة: المدن المطلوبة أولًا (بترتيب [featuredOrder])، ثم بقية
   /// المدن بترتيبها الأصلي. لا يحذف ولا يُضيف أي عنصر.

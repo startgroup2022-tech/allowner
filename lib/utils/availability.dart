@@ -51,6 +51,26 @@ AvailabilityVerdict checkAvailability({
   return AvailabilityVerdict.outside;
 }
 
+/// هل يجوز للضيف اختيار هذا اليوم في منتقي التاريخ؟
+///
+/// يمنع اختيار أي يوم خارج كل فترات الإتاحة المُعلنة للوحدة. إن لم يُعلن
+/// السيرفر أي فترة (أو كانت كلها غير صالحة) فلا قيد محلي، تمامًا مثل
+/// [checkAvailability] — لا نخترع قيودًا من عندنا.
+bool isDaySelectable({
+  required DateTime day,
+  required List<UnitAvailabilityModel> periods,
+}) {
+  final valid = periods.where((p) => p.isValid).toList();
+  if (valid.isEmpty) return true;
+  final target = DateTime(day.year, day.month, day.day);
+  for (final p in valid) {
+    final from = DateTime(p.from!.year, p.from!.month, p.from!.day);
+    final to = DateTime(p.to!.year, p.to!.month, p.to!.day);
+    if (!target.isBefore(from) && !target.isAfter(to)) return true;
+  }
+  return false;
+}
+
 /// مفتاح الترجمة للتحذير المعروض، أو null إذا لا حاجة لتحذير.
 String? availabilityWarningKey(AvailabilityVerdict verdict) {
   switch (verdict) {

@@ -5,6 +5,7 @@ import 'package:allowners/models/hotel_model.dart';
 import 'package:allowners/screens/booking/booking_screen.dart';
 import 'package:allowners/screens/hotel/hotel_details_screen.dart';
 import 'package:allowners/screens/home/home_screen.dart';
+import 'package:allowners/utils/app_strings.dart';
 import 'package:allowners/screens/search/search_screen.dart';
 import 'package:allowners/screens/unit/unit_details_screen.dart';
 import 'package:allowners/services/api_client.dart';
@@ -276,9 +277,36 @@ void main() {
         expect(find.text('مكة المكرمة'), findsWidgets);
         // التصنيف يعرض التسمية المعتمدة للمتطلب 13 («الوحدات الفندقية») لا
         // الاسم الحرفي من قاعدة البيانات — الاثنان من نفس الصف الحقيقي.
+        // صار قسم التصنيفات آخر الصفحة (المستند 06 §A) فنمرّ إليه بالتمرير.
+        await tester.scrollUntilVisible(find.text('الوحدات الفندقية'), 300,
+            scrollable: find.byType(Scrollable).first);
         expect(find.text('الوحدات الفندقية'), findsWidgets);
       });
     }
+
+    testWidgets('ترتيب أقسام الرئيسية: اكتشف حسب النوع آخرًا (المستند 06 §A)',
+        (tester) async {
+      tester.view.physicalSize = const Size(390, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(_wrap(const HomeScreen(), width: 390));
+      await tester.pumpAndSettle();
+
+      double dyOf(String key) =>
+          tester.getTopLeft(find.text(AppStrings.t(true, key)).first).dy;
+
+      final destinations = dyOf('featured_destinations');
+      final ownerHotels = dyOf('hotels_with_owner_units');
+      final recent = dyOf('recently_added_units');
+      final categories = dyOf('browse_by_category');
+
+      expect(destinations, lessThan(ownerHotels));
+      expect(ownerHotels, lessThan(recent));
+      // «اكتشف حسب النوع» أنزل قسم في الصفحة.
+      expect(recent, lessThan(categories));
+    });
 
     testWidgets('الرئيسية الإنجليزية تُرسم LTR بلا تجاوز', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
@@ -295,6 +323,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);
+      await tester.scrollUntilVisible(find.text('Hotel units'), 300,
+          scrollable: find.byType(Scrollable).first);
       expect(find.text('Hotel units'), findsWidgets);
     });
   });

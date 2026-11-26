@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:allowners/screens/hotel_staff/hotel_bookings_screen.dart';
+import 'package:allowners/screens/hotel_staff/hotel_arrivals_screen.dart';
 import 'package:allowners/screens/hotel_staff/hotel_dashboard_screen.dart';
 import 'package:allowners/screens/hotel_staff/hotel_meal_pricing_screen.dart';
 import 'package:allowners/screens/hotel_staff/hotel_prices_screen.dart';
@@ -286,6 +287,55 @@ void main() {
         expect(tester.takeException(), isNull);
       });
     }
+  });
+
+  group('بطاقات اللوحة قابلة للنقر (المتطلبان 80 و81، المستند 06 §F)', () {
+    testWidgets('بطاقة الوصولات تفتح شاشة الوصولات', (tester) async {
+      await _pump(tester, const HotelDashboardScreen());
+      await tester.tap(find.text(AppStrings.t(true, 'arrivals_today')));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(
+          find.text(AppStrings.t(true, 'arrivals_today_title')), findsWidgets);
+      // بيانات الضيف ورقم الوحدة ظاهرة داخل شاشة الوصولات.
+      expect(find.textContaining('محمد علي'), findsWidgets);
+      expect(find.textContaining('402'), findsWidgets);
+    });
+
+    testWidgets('بطاقة الطلبات المفتوحة تفتح شاشة الطلبات', (tester) async {
+      await _pump(tester, const HotelDashboardScreen());
+      await tester.tap(find.text(AppStrings.t(true, 'open_requests')));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('بطاقة المغادرات تفتح شاشة المغادرات', (tester) async {
+      await _pump(tester, const HotelDashboardScreen());
+      await tester.tap(find.text(AppStrings.t(true, 'departures_today')));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text(AppStrings.t(true, 'departures_today_title')),
+          findsWidgets);
+    });
+
+    testWidgets('البحث برقم الوحدة في الوصولات يرشّح ويُفرّغ', (tester) async {
+      await _pump(tester, const HotelArrivalsScreen());
+      expect(tester.takeException(), isNull);
+      expect(find.textContaining('محمد علي'), findsWidgets);
+
+      await tester.enterText(find.byType(TextField).first, '402');
+      await tester.pumpAndSettle();
+      expect(find.textContaining('محمد علي'), findsWidgets);
+
+      await tester.enterText(find.byType(TextField).first, '9999');
+      await tester.pumpAndSettle();
+      expect(find.textContaining('محمد علي'), findsNothing);
+      expect(find.text(AppStrings.t(true, 'no_arrivals')), findsWidgets);
+
+      await tester.tap(find.byTooltip(AppStrings.t(true, 'clear_search')));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('محمد علي'), findsWidgets);
+    });
   });
 
   group('حجوزات الفندق (المتطلبات 57، 58)', () {

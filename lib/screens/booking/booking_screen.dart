@@ -29,10 +29,26 @@ import 'booking_success_screen.dart';
 /// (`!hasAddonsSelected && _extraBed`)، فيظهر السرير الإضافي بلا تكلفة في
 /// الإجمالي. تُحتسب الآن متى اختار الضيف السرير الإضافي وكان للفندق سعر
 /// (السعر 0 يعني «مجاني» فيبقى صفرًا).
-double computeExtraBedCharge({required bool extraBed, double? extraBedPrice}) =>
-    extraBed && extraBedPrice != null && extraBedPrice > 0
-        ? extraBedPrice
-        : 0.0;
+double computeExtraBedCharge({
+  required bool extraBed,
+  double? extraBedPrice,
+  int quantity = 1,
+  int? nights,
+}) {
+  if (!extraBed || extraBedPrice == null || extraBedPrice <= 0) return 0.0;
+  final beds = quantity < 1 ? 1 : quantity;
+  // المستند 06 §B: السعر لليلة لكل سرير، والتكلفة = العدد × السعر × الليالي.
+  final stayNights = nights == null || nights < 1 ? 1 : nights;
+  return extraBedPrice * beds * stayNights;
+}
+
+/// سطر شرح حسابية السرير الإضافي (عدد × سعر × ليالٍ) كما يظهر للضيف.
+String extraBedChargeFormula({
+  required int quantity,
+  required double nightlyPrice,
+  required int nights,
+}) =>
+    '$quantity × ${nightlyPrice.toStringAsFixed(0)} × $nights';
 
 /// إجمالي سطر الإضافة الواحدة (المتطلبان 31 و48). دالة نقية لأن السعر قد يكون
 /// لليلة أو لكل إقامة أو لكل شخص/ليلة حسب `price_unit` القادم من الـ API.
@@ -113,6 +129,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   final Set<String> _selectedLegacyMeals =
       {}; // للحجز العام: يسمح باختيار أكثر من وجبة
   bool _extraBed = false;
+  int _extraBedQty = 1;
   final _guestIdNumberController = TextEditingController();
   final _customerNameController = TextEditingController();
   final _customerPhoneController = TextEditingController();
@@ -214,6 +231,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     final firstDate =
         isCheckIn ? DateTime.now() : _checkIn.add(const Duration(days: 1));
     final picked = await showDatePicker(
+      selectableDayPredicate: (day) =>
+          isDaySelectable(day: day, periods: widget.unitAvailability),
       context: context,
       initialDate: initial.isBefore(firstDate) ? firstDate : initial,
       firstDate: firstDate,
@@ -275,7 +294,10 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
           nights: _nights,
           addonsTotal: _addonsTotal,
           extraBedCharge: computeExtraBedCharge(
-              extraBed: _extraBed, extraBedPrice: widget.hotel.extraBedPrice),
+              extraBed: _extraBed,
+              extraBedPrice: widget.hotel.extraBedPrice,
+              quantity: _extraBedQty,
+              nights: _nights),
         );
         final roomPrice = totals.roomPrice;
         final addonsTotal = totals.addonsTotal;
@@ -408,6 +430,16 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       return;
     }
 
+    // المستند 06 §B: لا يُسمح باختيار تواريخ خارج فترات إتاحة الوحدة المعلنة.
+    if (_availabilityVerdict == AvailabilityVerdict.outside) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(AppStrings.t(isArabic,
+                _availabilityWarningKey ?? 'dates_outside_availability'))),
+      );
+      return;
+    }
+
     if (method == PaymentMethodKey.online) {
       // لا نجمع بيانات البطاقة ولا نرسلها. الدفع الإلكتروني لا يعمل إلا عبر
       // صفحة دفع مستضافة عند مزوّد مرخّص؛ وإن لم تُعلن الإعدادات رابطها بعد
@@ -456,6 +488,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         paymentMethod: method.wireName,
         mealTypes: _selectedLegacyMeals.toList(),
         extraBed: _extraBed,
+        extraBedQty: _extraBed ? _extraBedQty : null,
         addonIds: addonIds.isNotEmpty ? addonIds : null,
         guestIdNumber: _guestIdNumberController.text.trim(),
         customerName: _isAgent ? _customerNameController.text.trim() : null,
@@ -563,7 +596,10 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       nights: _nights,
       addonsTotal: _addonsTotal,
       extraBedCharge: computeExtraBedCharge(
-          extraBed: _extraBed, extraBedPrice: widget.hotel.extraBedPrice),
+          extraBed: _extraBed,
+          extraBedPrice: widget.hotel.extraBedPrice,
+          quantity: _extraBedQty,
+          nights: _nights),
     );
     final roomPrice = totals.roomPrice;
     final addonsTotal = totals.addonsTotal;
@@ -1019,7 +1055,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                                         Text(
                                           widget.hotel.extraBedPrice == 0
                                               ? AppStrings.t(isArabic, 'free')
-                                              : '+${widget.hotel.extraBedPrice!.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')} (${AppStrings.t(isArabic, 'one_time_fee')})',
+                                              : '+${widget.hotel.extraBedPrice!.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')} × '
+                                                  '${AppStrings.t(isArabic, 'per_night_per_bed')}',
                                           style: textTheme.bodySmall?.copyWith(
                                               color: AppColors.textMuted),
                                         ),
@@ -1029,12 +1066,37 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                                   Switch(
                                     value: _extraBed,
                                     activeColor: AppColors.gold,
-                                    onChanged: (v) =>
-                                        setState(() => _extraBed = v),
+                                    onChanged: (v) => setState(() {
+                                      _extraBed = v;
+                                      if (!v) _extraBedQty = 1;
+                                    }),
                                   ),
                                 ],
                               ),
                             ),
+                            if (_extraBed &&
+                                widget.hotel.extraBedPrice != null &&
+                                widget.hotel.extraBedPrice! > 0) ...[
+                              const SizedBox(height: AppDimens.sm),
+                              _StepperBox(
+                                label: AppStrings.t(
+                                    isArabic, 'extra_bed_quantity'),
+                                value: _extraBedQty,
+                                onMinus: _extraBedQty <= 1
+                                    ? null
+                                    : () => setState(() => _extraBedQty--),
+                                onPlus: _extraBedQty >= 4
+                                    ? null
+                                    : () => setState(() => _extraBedQty++),
+                              ),
+                              const SizedBox(height: AppDimens.xs),
+                              Text(
+                                '${extraBedChargeFormula(quantity: _extraBedQty, nightlyPrice: widget.hotel.extraBedPrice!, nights: _nights)} = '
+                                '${computeExtraBedCharge(extraBed: true, extraBedPrice: widget.hotel.extraBedPrice, quantity: _extraBedQty, nights: _nights).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                                style: textTheme.bodySmall
+                                    ?.copyWith(color: AppColors.textMuted),
+                              ),
+                            ],
                           ],
                         ],
                         const SizedBox(height: AppDimens.lg),
@@ -1228,8 +1290,8 @@ class _InfoBox extends StatelessWidget {
 class _StepperBox extends StatelessWidget {
   final String label;
   final int value;
-  final VoidCallback onMinus;
-  final VoidCallback onPlus;
+  final VoidCallback? onMinus;
+  final VoidCallback? onPlus;
 
   const _StepperBox(
       {required this.label,

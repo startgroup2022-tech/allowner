@@ -6,7 +6,10 @@ import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/hotel_staff_service.dart';
 import '../../utils/safe_parse.dart';
+import 'hotel_arrivals_screen.dart';
+import 'hotel_bookings_screen.dart';
 import 'hotel_departures_screen.dart';
+import 'hotel_requests_screen.dart';
 import 'hotel_meal_pricing_screen.dart';
 import 'hotel_unit_pricing_screen.dart';
 
@@ -85,7 +88,9 @@ class _HotelDashboardScreenState extends ConsumerState<HotelDashboardScreen> {
                   data['arrivals_today'] ?? 0,
                   Icons.login_rounded,
                   AppColors.success,
-                  null
+                  // المتطلبان 80 و81: الوصولات مفتوحة وفيها بحث برقم الوحدة.
+                  () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const HotelArrivalsScreen()))
                 ),
                 (
                   AppStrings.t(isArabic, 'departures_today'),
@@ -101,14 +106,18 @@ class _HotelDashboardScreenState extends ConsumerState<HotelDashboardScreen> {
                   data['in_house'] ?? 0,
                   Icons.event_available_rounded,
                   AppColors.ink,
-                  null
+                  // المتطلب 80: البطاقة تفتح قائمة حجوزات الفندق النشطة.
+                  () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const HotelBookingsScreen()))
                 ),
                 (
                   AppStrings.t(isArabic, 'open_requests'),
                   openRequests,
                   Icons.pending_actions_rounded,
                   AppColors.warning,
-                  null
+                  // المتطلب 80: البطاقة تفتح طلبات الخدمة المفتوحة.
+                  () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const HotelRequestsScreen()))
                 ),
               ];
 

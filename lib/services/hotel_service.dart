@@ -384,6 +384,7 @@ class HotelService {
     required String paymentMethod, // online | at_hotel | owner_transfer
     List<String> mealTypes = const [], // يمكن اختيار أكثر من وجبة
     bool extraBed = false,
+    int? extraBedQty,
     List<int>? addonIds,
     String? guestIdNumber,
     String? customerName,
@@ -399,6 +400,7 @@ class HotelService {
         paymentMethod: paymentMethod,
         mealTypes: mealTypes,
         extraBed: extraBed,
+        extraBedQty: extraBedQty,
         addonIds: addonIds,
         guestIdNumber: guestIdNumber,
         customerName: customerName,
