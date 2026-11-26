@@ -336,3 +336,17 @@ Implemented and documented in `docs/DOCUMENT_06_GROUP_02.md`. Invariants:
 - **Final matrices/docs are generated or explicit:** `tools/gen_final_matrix.py`
   regenerates `docs/ALL_OWNERS_FINAL_REQUIREMENTS_MATRIX.md` from the official
   inventory — edit the status map there, not the markdown.
+
+## Screenshot evidence harness (Doc 05/06)
+
+- Real rendered screenshots (no mockups) live in `docs/evidence/final-acceptance/`.
+- Generate with `flutter test test/screenshot_export_test.dart --update-goldens`
+  and `flutter test test/screenshot_export_roles_test.dart --update-goldens`.
+- The harness (`test/screenshot_support.dart`) needs three things to work:
+  bundled fonts under `test/screenshot_assets/fonts/`,
+  `AppTheme.light(fontFamilyOverride: ...)` (production default stays GoogleFonts),
+  and mocked `path_provider` + Dio `HttpClientAdapter`.
+- `units/addons.php` fixtures must use category `meal_plan` for meal rows and
+  hotel-level payloads need `extra_bed_price`, otherwise booking sections stay hidden.
+- The extra-bed card only renders on the hotel-level booking path today
+  (`unitId == null`); unit-level booking lacks it — tracked as an open defect.
