@@ -72,7 +72,7 @@ class _OwnerDecisionsScreenState extends ConsumerState<OwnerDecisionsScreen> {
                       style: Theme.of(ctx).textTheme.titleMedium),
                   const SizedBox(height: AppDimens.md),
                   DropdownButtonFormField<int>(
-                    value: selectedHotelId,
+                    initialValue: selectedHotelId,
                     decoration: InputDecoration(
                         labelText: AppStrings.t(isArabic, 'select_hotel')),
                     items: hotels
@@ -160,9 +160,10 @@ class _OwnerDecisionsScreenState extends ConsumerState<OwnerDecisionsScreen> {
                                               isArabic, 'decision_created'))));
                                 }
                               } on ApiException catch (e) {
-                                if (mounted)
+                                if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(content: Text(e.message)));
+                                }
                               } finally {
                                 setSheetState(() => submitting = false);
                               }
@@ -199,9 +200,10 @@ class _OwnerDecisionsScreenState extends ConsumerState<OwnerDecisionsScreen> {
             SnackBar(content: Text(AppStrings.t(isArabic, 'vote_submitted'))));
       }
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     } finally {
       if (mounted) setState(() => _votingOn = null);
     }
@@ -238,7 +240,7 @@ class _OwnerDecisionsScreenState extends ConsumerState<OwnerDecisionsScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded,
+                    const Icon(Icons.error_outline_rounded,
                         color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
                     Text(AppStrings.t(isArabic, 'error_loading'),
@@ -300,7 +302,7 @@ class _OwnerDecisionsScreenState extends ConsumerState<OwnerDecisionsScreen> {
                                 color: (isOpen
                                         ? AppColors.success
                                         : AppColors.textMuted)
-                                    .withOpacity(0.1),
+                                    .withValues(alpha: 0.1),
                                 borderRadius:
                                     BorderRadius.circular(AppDimens.radiusSm),
                               ),

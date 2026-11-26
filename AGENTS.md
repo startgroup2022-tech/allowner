@@ -366,3 +366,37 @@ Implemented and documented in `docs/DOCUMENT_06_GROUP_02.md`. Invariants:
   stepper; scope finders to the `Row` that contains the label.
 - Screenshot taps on cards below the fold need `ensureVisible`/`scrollUntilVisible`
   first, otherwise the tap silently lands outside the viewport.
+
+## Analyzer zero and the `dart fix` trap (2026-11-26)
+
+- The project must report `No issues found!`. Before this round it carried 143
+  infos (62 `withOpacity`, 36 curly-brace, 31 `prefer_const*`, 10 local underscores,
+  1 `use_build_context_synchronously`).
+- `withOpacity(x)` → `withValues(alpha: x)`. Regenerate screenshots afterwards:
+  the alpha rounding changes pixels, so golden comparisons fail until
+  `--update-goldens` runs.
+- `dart fix --apply` also "fixed" a test helper by deleting a defaulted
+  constructor parameter (`this.staffBody = _staffJson`), turning a passing test
+  file into a compile error. Never trust it blindly: run `flutter analyze` and the
+  full `flutter test` right after, and read the diff of `test/` files.
+
+## Translation gate (why `AppStrings.hasKey` exists)
+
+- `AppStrings.t` returns the key itself when a key is missing, so a missing key is
+  invisible in English and glaring in Arabic (`owner_staff_screen` printed the raw
+  word `active`; hotel bookings printed `status_checked_out`).
+- `test/app_strings_coverage_test.dart` parses every `AppStrings.t(...)` call in
+  `lib/`, strips `${...}` interpolations and `['field']` subscripts, and asserts
+  every remaining literal key has Arabic and English text. It also checks the
+  dynamic families `status_*` and `req_type_*` explicitly.
+- When adding a screen string: add the key to `app_strings.dart` first, then the UI.
+  A key whose Arabic value equals the key fails the test on purpose.
+
+## Screenshot matrix file
+
+- `test/screenshot_export_matrix_test.dart` holds the bilingual coverage batch
+  (onboarding, about, help, owner EN, agent EN, employee EN, plus the staff
+  permissions and commission transfer sheets). 86 PNGs total, 53 requirements
+  carry a screenshot.
+- Sheet screenshots use the `interact` callback: tap the button text, then
+  `pumpAndSettle`, otherwise the sheet is not in the frame.

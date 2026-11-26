@@ -234,19 +234,19 @@ Widget _wrap(Widget child, {bool isArabic = true}) => ProviderScope(
     );
 
 void main() {
-  late HttpClientAdapter _originalAdapter;
+  late HttpClientAdapter originalAdapter;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    _originalAdapter = ApiClient.instance.dio.httpClientAdapter;
+    originalAdapter = ApiClient.instance.dio.httpClientAdapter;
     ApiClient.instance.dio.httpClientAdapter = _Adapter();
   });
 
   tearDown(() {
-    ApiClient.instance.dio.httpClientAdapter = _originalAdapter;
+    ApiClient.instance.dio.httpClientAdapter = originalAdapter;
   });
 
-  Future<void> _pump(WidgetTester tester, Widget screen,
+  Future<void> pump(WidgetTester tester, Widget screen,
       {double width = 390, bool isArabic = true, String? role}) async {
     tester.view.physicalSize = Size(width, 844);
     tester.view.devicePixelRatio = 1.0;
@@ -272,7 +272,7 @@ void main() {
   group('لوحة إدارة الفندق (المتطلبات 29–33، 80)', () {
     testWidgets('تعرض أرقام الوصول والمغادرة والنزلاء (المتطلب 80)',
         (tester) async {
-      await _pump(tester, const HotelDashboardScreen());
+      await pump(tester, const HotelDashboardScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('فندق فيرمونت مكه'), findsWidgets);
       // المتطلب 80: أقسام اللوحة مفتوحة وتُعرض أرقامها الحقيقية.
@@ -283,7 +283,7 @@ void main() {
 
     for (final w in const [360.0, 768.0]) {
       testWidgets('بلا تجاوز على ${w.toInt()}px', (tester) async {
-        await _pump(tester, const HotelDashboardScreen(), width: w);
+        await pump(tester, const HotelDashboardScreen(), width: w);
         expect(tester.takeException(), isNull);
       });
     }
@@ -291,7 +291,7 @@ void main() {
 
   group('بطاقات اللوحة قابلة للنقر (المتطلبان 80 و81، المستند 06 §F)', () {
     testWidgets('بطاقة الوصولات تفتح شاشة الوصولات', (tester) async {
-      await _pump(tester, const HotelDashboardScreen());
+      await pump(tester, const HotelDashboardScreen());
       await tester.tap(find.text(AppStrings.t(true, 'arrivals_today')));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
@@ -303,14 +303,14 @@ void main() {
     });
 
     testWidgets('بطاقة الطلبات المفتوحة تفتح شاشة الطلبات', (tester) async {
-      await _pump(tester, const HotelDashboardScreen());
+      await pump(tester, const HotelDashboardScreen());
       await tester.tap(find.text(AppStrings.t(true, 'open_requests')));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     });
 
     testWidgets('بطاقة المغادرات تفتح شاشة المغادرات', (tester) async {
-      await _pump(tester, const HotelDashboardScreen());
+      await pump(tester, const HotelDashboardScreen());
       await tester.tap(find.text(AppStrings.t(true, 'departures_today')));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
@@ -319,7 +319,7 @@ void main() {
     });
 
     testWidgets('البحث برقم الوحدة في الوصولات يرشّح ويُفرّغ', (tester) async {
-      await _pump(tester, const HotelArrivalsScreen());
+      await pump(tester, const HotelArrivalsScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('محمد علي'), findsWidgets);
 
@@ -340,7 +340,7 @@ void main() {
 
   group('حجوزات الفندق (المتطلبات 57، 58)', () {
     testWidgets('تعرض الضيف والوحدة وحالة الوصول', (tester) async {
-      await _pump(tester, const HotelBookingsScreen());
+      await pump(tester, const HotelBookingsScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('محمد علي'), findsWidgets);
     });
@@ -348,7 +348,7 @@ void main() {
 
   group('طلبات الفندق (المتطلب 62)', () {
     testWidgets('تبويبات الطلبات تُرسم ببياناتها', (tester) async {
-      await _pump(tester, const HotelRequestsScreen());
+      await pump(tester, const HotelRequestsScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('تنظيف الغرفة 402'), findsWidgets);
     });
@@ -356,7 +356,7 @@ void main() {
 
   group('أسعار خدمات الفندق', () {
     testWidgets('تعرض الخدمة والسعر', (tester) async {
-      await _pump(tester, const HotelPricesScreen());
+      await pump(tester, const HotelPricesScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('تنظيف'), findsWidgets);
     });
@@ -364,7 +364,7 @@ void main() {
 
   group('تسعير الوحدات (المتطلبات 13–15 من المستند 06)', () {
     testWidgets('ستة صفوف أنواع وحدات وأسعار من بيانات الفندق', (tester) async {
-      await _pump(tester, const HotelUnitPricingScreen());
+      await pump(tester, const HotelUnitPricingScreen());
       expect(tester.takeException(), isNull);
       // العنوان والتاريخ مطلوبان في النموذج.
       expect(find.text('العنوان'), findsOneWidget);
@@ -382,14 +382,14 @@ void main() {
 
     for (final w in const [360.0, 768.0]) {
       testWidgets('بلا تجاوز على ${w.toInt()}px', (tester) async {
-        await _pump(tester, const HotelUnitPricingScreen(), width: w);
+        await pump(tester, const HotelUnitPricingScreen(), width: w);
         expect(tester.takeException(), isNull);
       });
     }
 
     testWidgets('الإنجليزية LTR', (tester) async {
       SharedPreferences.setMockInitialValues({'app_locale': 'en'});
-      await _pump(tester, const HotelUnitPricingScreen(), isArabic: false);
+      await pump(tester, const HotelUnitPricingScreen(), isArabic: false);
       expect(tester.takeException(), isNull);
       expect(find.text('Unit pricing'), findsOneWidget);
       expect(find.text('Six unit-type and price rows'), findsOneWidget);
@@ -398,7 +398,7 @@ void main() {
 
   group('تسعير الوجبات (المتطلب 16 من المستند 06)', () {
     testWidgets('ثلاث وجبات وأسعارها مع العنوان والتاريخ', (tester) async {
-      await _pump(tester, const HotelMealPricingScreen());
+      await pump(tester, const HotelMealPricingScreen());
       expect(tester.takeException(), isNull);
       expect(find.text('تسعير الوجبات'), findsWidgets);
       expect(find.text('ثلاث وجبات وأسعارها'), findsOneWidget);
@@ -410,7 +410,7 @@ void main() {
     });
 
     testWidgets('بلا تجاوز على 360px', (tester) async {
-      await _pump(tester, const HotelMealPricingScreen(), width: 360);
+      await pump(tester, const HotelMealPricingScreen(), width: 360);
       expect(tester.takeException(), isNull);
     });
   });
@@ -418,7 +418,7 @@ void main() {
   group('طلبات الوجبات والسرير الإضافي (المتطلبان 11 و12 من المستند 06)', () {
     testWidgets('بطاقة الوجبات تعرض السعر المعتمد وأنواع الوجبات',
         (tester) async {
-      await _pump(tester, const HotelRequestsScreen());
+      await pump(tester, const HotelRequestsScreen());
       await tester.tap(find.text('الوجبات').first);
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
@@ -428,7 +428,7 @@ void main() {
 
     testWidgets('بطاقة السرير الإضافي تعرض الأسرّة والليالي والإجمالي',
         (tester) async {
-      await _pump(tester, const HotelRequestsScreen(), width: 768);
+      await pump(tester, const HotelRequestsScreen(), width: 768);
       await tester.tap(find.text('السرير الإضافي').first);
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
@@ -438,7 +438,7 @@ void main() {
     });
 
     testWidgets('نافذة تأكيد الوجبات تعرض وسيلتي السداد', (tester) async {
-      await _pump(tester, const HotelRequestsScreen(), role: 'hotel_manager');
+      await pump(tester, const HotelRequestsScreen(), role: 'hotel_manager');
       await tester.tap(find.text('الوجبات').first);
       await tester.pumpAndSettle();
       await tester.tap(find.text('تأكيد الطلب').first);
@@ -449,7 +449,7 @@ void main() {
     });
 
     testWidgets('التأكيد بلا اختيار وسيلة يوقف الإرسال', (tester) async {
-      await _pump(tester, const HotelRequestsScreen(), role: 'hotel_manager');
+      await pump(tester, const HotelRequestsScreen(), role: 'hotel_manager');
       await tester.tap(find.text('الوجبات').first);
       await tester.pumpAndSettle();
       await tester.tap(find.text('تأكيد الطلب').first);
@@ -462,7 +462,7 @@ void main() {
     });
 
     testWidgets('دور غير مصرّح لا يستطيع تأكيد الوجبات', (tester) async {
-      await _pump(tester, const HotelRequestsScreen(), role: 'customer');
+      await pump(tester, const HotelRequestsScreen(), role: 'customer');
       await tester.tap(find.text('الوجبات').first);
       await tester.pumpAndSettle();
       await tester.tap(find.text('تأكيد الطلب').first);
@@ -478,7 +478,7 @@ void main() {
   group('اللغة الإنجليزية (LTR)', () {
     testWidgets('لوحة الإدارة تُرسم LTR بلا تجاوز', (tester) async {
       SharedPreferences.setMockInitialValues({'app_locale': 'en'});
-      await _pump(tester, const HotelDashboardScreen(), isArabic: false);
+      await pump(tester, const HotelDashboardScreen(), isArabic: false);
       expect(tester.takeException(), isNull);
     });
   });

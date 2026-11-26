@@ -51,9 +51,10 @@ class _OwnerCleaningScreenState extends ConsumerState<OwnerCleaningScreen> {
       await _service.cancelOwnerHotelRequest(id);
       _reload();
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     }
   }
 
@@ -104,7 +105,7 @@ class _OwnerCleaningScreenState extends ConsumerState<OwnerCleaningScreen> {
                   const SizedBox(height: AppDimens.md),
                   if (units.isNotEmpty)
                     DropdownButtonFormField<int>(
-                      value: selectedUnitId,
+                      initialValue: selectedUnitId,
                       decoration: InputDecoration(
                           labelText: AppStrings.t(isArabic, 'select_unit')),
                       items: units
@@ -125,7 +126,7 @@ class _OwnerCleaningScreenState extends ConsumerState<OwnerCleaningScreen> {
                     )
                   else
                     Text(AppStrings.t(isArabic, 'no_units_yet'),
-                        style: TextStyle(color: AppColors.textMuted)),
+                        style: const TextStyle(color: AppColors.textMuted)),
                   const SizedBox(height: AppDimens.md),
                   TextField(
                     controller: descCtrl,
@@ -208,7 +209,7 @@ class _OwnerCleaningScreenState extends ConsumerState<OwnerCleaningScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded,
+                    const Icon(Icons.error_outline_rounded,
                         color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
                     Text(AppStrings.t(isArabic, 'error_loading'),
@@ -268,7 +269,8 @@ class _OwnerCleaningScreenState extends ConsumerState<OwnerCleaningScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: _statusColor(status).withOpacity(0.1),
+                                color:
+                                    _statusColor(status).withValues(alpha: 0.1),
                                 borderRadius:
                                     BorderRadius.circular(AppDimens.radiusSm),
                               ),

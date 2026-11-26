@@ -1995,7 +1995,7 @@ void main() {
     });
 
     test('رابط الدفع يحمل رقم الحجز فقط بلا مبلغ ولا بيانات بطاقة', () {
-      final cfg = HostedCheckoutConfig(
+      const cfg = HostedCheckoutConfig(
           checkoutUrl: 'https://pay.moyasar.com/checkout/abc?x=1');
       final uri = buildCheckoutUri(cfg, bookingRef: 'BK-2026-0001');
       expect(uri.queryParameters['ref'], 'BK-2026-0001');

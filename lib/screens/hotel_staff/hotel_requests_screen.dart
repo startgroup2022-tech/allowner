@@ -550,7 +550,8 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: _statusColor(status).withOpacity(0.1),
+                                color:
+                                    _statusColor(status).withValues(alpha: 0.1),
                                 borderRadius:
                                     BorderRadius.circular(AppDimens.radiusSm),
                               ),

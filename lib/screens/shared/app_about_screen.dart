@@ -31,7 +31,7 @@ class AppAboutScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.all(AppDimens.pagePadding),
           children: [
-            Center(child: const AppLogo(width: 200, full: true)),
+            const Center(child: AppLogo(width: 200, full: true)),
             const SizedBox(height: AppDimens.lg),
             Text(
               AppStrings.t(isArabic, 'app_tagline_full'),

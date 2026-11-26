@@ -137,7 +137,7 @@ class EmptyView extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(AppDimens.pagePadding),
+        padding: const EdgeInsets.all(AppDimens.pagePadding),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

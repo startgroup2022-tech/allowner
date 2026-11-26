@@ -109,7 +109,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               width: 160,
                               height: 160,
                               decoration: BoxDecoration(
-                                color: page.iconColor.withOpacity(0.07),
+                                color: page.iconColor.withValues(alpha: 0.07),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(page.icon,

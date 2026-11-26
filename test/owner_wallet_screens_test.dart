@@ -105,15 +105,15 @@ Widget _wrap(Widget child, {bool isArabic = true}) {
 }
 
 void main() {
-  late HttpClientAdapter _original;
+  late HttpClientAdapter original;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    _original = ApiClient.instance.dio.httpClientAdapter;
+    original = ApiClient.instance.dio.httpClientAdapter;
   });
 
   tearDown(() {
-    ApiClient.instance.dio.httpClientAdapter = _original;
+    ApiClient.instance.dio.httpClientAdapter = original;
   });
 
   void useAdapter(HttpClientAdapter a) =>

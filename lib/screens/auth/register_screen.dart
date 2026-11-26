@@ -245,8 +245,9 @@ class _RoleOption extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: AppDimens.md),
         decoration: BoxDecoration(
-          color:
-              isSelected ? AppColors.gold.withOpacity(0.12) : AppColors.surface,
+          color: isSelected
+              ? AppColors.gold.withValues(alpha: 0.12)
+              : AppColors.surface,
           borderRadius: BorderRadius.circular(AppDimens.radiusMd),
           border: Border.all(
             color: isSelected ? AppColors.goldDark : AppColors.cardBorder,

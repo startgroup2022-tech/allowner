@@ -62,7 +62,7 @@ class AppColors {
   // ===== ظلال =====
   static List<BoxShadow> cardShadow = [
     BoxShadow(
-      color: ink.withOpacity(0.05),
+      color: ink.withValues(alpha: 0.05),
       blurRadius: 18,
       offset: const Offset(0, 6),
     ),
@@ -70,7 +70,7 @@ class AppColors {
 
   static List<BoxShadow> elevatedShadow = [
     BoxShadow(
-      color: ink.withOpacity(0.10),
+      color: ink.withValues(alpha: 0.10),
       blurRadius: 24,
       offset: const Offset(0, 10),
     ),
@@ -78,7 +78,7 @@ class AppColors {
 
   static List<BoxShadow> goldGlow = [
     BoxShadow(
-      color: gold.withOpacity(0.25),
+      color: gold.withValues(alpha: 0.25),
       blurRadius: 16,
       offset: const Offset(0, 6),
     ),

@@ -291,6 +291,20 @@ class OwnerService {
     }
   }
 
+  /// طلب تحويل العمولات غير المدفوعة (المتطلب 108).
+  ///
+  /// التطبيق لا ينفّذ التحويل ولا يخصم أرقامًا؛ يرسل الطلب فقط ويُظهر رد
+  /// السيرفر كما هو. إن لم يعرف السيرفر الإجراء يُرجع خطأ ويُعرض للمستخدم.
+  Future<Map<String, dynamic>> requestCommissionTransfer(double amount) async {
+    try {
+      final res = await _dio.post('/user/agent-commission.php',
+          data: {'action': 'request_transfer', 'amount': amount});
+      return asMap(res.data);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getMaintenanceRequests() async {
     try {
       final res = await _dio.get('/user/owner-maintenance.php');
@@ -574,6 +588,18 @@ class OwnerService {
     try {
       await _dio.post('/user/owner-staff.php',
           data: {'action': 'toggle_status', 'id': staffId});
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  /// حفظ صلاحيات الموظف (المتطلب 74). الحمولة تأتي من
+  /// `staffPermissionsPayload` كي تبقى أسماء الحقول في مكان واحد.
+  Future<Map<String, dynamic>> setStaffPermissions(
+      Map<String, dynamic> payload) async {
+    try {
+      final res = await _dio.post('/user/owner-staff.php', data: payload);
+      return asMap(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }

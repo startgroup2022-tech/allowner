@@ -38,8 +38,9 @@ class _OwnerChatThreadScreenState extends ConsumerState<OwnerChatThreadScreen> {
       _future = _service.getThread(widget.conversationId);
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollCtrl.hasClients)
+      if (_scrollCtrl.hasClients) {
         _scrollCtrl.jumpTo(_scrollCtrl.position.maxScrollExtent);
+      }
     });
   }
 
@@ -53,9 +54,10 @@ class _OwnerChatThreadScreenState extends ConsumerState<OwnerChatThreadScreen> {
       _msgCtrl.clear();
       _reload();
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     } finally {
       if (mounted) setState(() => _sending = false);
     }
@@ -90,8 +92,9 @@ class _OwnerChatThreadScreenState extends ConsumerState<OwnerChatThreadScreen> {
                         child: Text(AppStrings.t(isArabic, 'no_data')));
                   }
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (_scrollCtrl.hasClients)
+                    if (_scrollCtrl.hasClients) {
                       _scrollCtrl.jumpTo(_scrollCtrl.position.maxScrollExtent);
+                    }
                   });
                   return ListView.builder(
                     controller: _scrollCtrl,
@@ -114,7 +117,7 @@ class _OwnerChatThreadScreenState extends ConsumerState<OwnerChatThreadScreen> {
                                   MediaQuery.of(context).size.width * 0.7),
                           decoration: BoxDecoration(
                             color: isMine
-                                ? AppColors.gold.withOpacity(0.18)
+                                ? AppColors.gold.withValues(alpha: 0.18)
                                 : AppColors.surfaceMuted,
                             borderRadius:
                                 BorderRadius.circular(AppDimens.radiusMd),

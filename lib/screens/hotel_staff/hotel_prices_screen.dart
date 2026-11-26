@@ -37,9 +37,10 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
       await _service.deletePrice(id);
       _reload();
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     }
   }
 
@@ -79,7 +80,7 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
                     style: Theme.of(ctx).textTheme.titleMedium),
                 const SizedBox(height: AppDimens.md),
                 DropdownButtonFormField<String>(
-                  value: type,
+                  initialValue: type,
                   decoration: InputDecoration(
                       labelText: AppStrings.t(isArabic, 'service_type')),
                   items: _types
@@ -92,7 +93,7 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
                 const SizedBox(height: AppDimens.md),
                 if (hotels.length > 1)
                   DropdownButtonFormField<int>(
-                    value: hotelId,
+                    initialValue: hotelId,
                     decoration: InputDecoration(
                         labelText: AppStrings.t(isArabic, 'select_hotel')),
                     items: hotels
@@ -104,7 +105,7 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
                   ),
                 const SizedBox(height: AppDimens.md),
                 DropdownButtonFormField<int?>(
-                  value: unitId,
+                  initialValue: unitId,
                   decoration: InputDecoration(
                       labelText: AppStrings.t(isArabic, 'unit_optional')),
                   items: [
@@ -165,9 +166,10 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
                         if (ctx.mounted) Navigator.of(ctx).pop();
                         _reload();
                       } on ApiException catch (e) {
-                        if (mounted)
+                        if (mounted) {
                           ScaffoldMessenger.of(context)
                               .showSnackBar(SnackBar(content: Text(e.message)));
+                        }
                       }
                     },
                     child: Text(AppStrings.t(isArabic, 'save_changes')),
@@ -300,7 +302,7 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
                                     existing: p),
                               ),
                               IconButton(
-                                icon: Icon(Icons.delete_outline_rounded,
+                                icon: const Icon(Icons.delete_outline_rounded,
                                     size: 20, color: AppColors.danger),
                                 onPressed: () => _deletePrice(asInt(p['id'])),
                               ),

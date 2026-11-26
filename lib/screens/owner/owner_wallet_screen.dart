@@ -280,7 +280,7 @@ class _OwnerWalletScreenState extends ConsumerState<OwnerWalletScreen> {
     return Container(
       padding: const EdgeInsets.all(AppDimens.lg),
       decoration: BoxDecoration(
-        color: AppColors.gold.withOpacity(0.12),
+        color: AppColors.gold.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AppDimens.radiusLg),
       ),
       child: Column(

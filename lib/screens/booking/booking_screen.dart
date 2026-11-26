@@ -516,6 +516,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         }
       }
 
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => BookingSuccessScreen(
@@ -689,7 +690,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
           padding: const EdgeInsets.symmetric(
               horizontal: AppDimens.md, vertical: AppDimens.sm),
           decoration: BoxDecoration(
-            color: AppColors.gold.withOpacity(0.08),
+            color: AppColors.gold.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(AppDimens.radiusSm),
           ),
           child: Row(
@@ -748,7 +749,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               ),
               Switch(
                 value: selected,
-                activeColor: AppColors.gold,
+                activeThumbColor: AppColors.gold,
                 onChanged: (v) => setState(() {
                   if (v) {
                     _selectedOtherAddonIds.add(id);
@@ -785,7 +786,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 _selectedLegacyMeals.remove(m);
               }
             }),
-            selectedColor: AppColors.gold.withOpacity(0.2),
+            selectedColor: AppColors.gold.withValues(alpha: 0.2),
             labelStyle: TextStyle(
                 color: selected ? AppColors.goldDark : AppColors.textMuted,
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w400),
@@ -857,8 +858,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                Colors.black.withOpacity(0.05),
-                                Colors.black.withOpacity(0.75)
+                                Colors.black.withValues(alpha: 0.05),
+                                Colors.black.withValues(alpha: 0.75)
                               ],
                               stops: const [0.4, 1.0],
                             ),
@@ -946,11 +947,12 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                             width: double.infinity,
                             padding: const EdgeInsets.all(AppDimens.sm),
                             decoration: BoxDecoration(
-                              color: AppColors.warning.withOpacity(0.1),
+                              color: AppColors.warning.withValues(alpha: 0.1),
                               borderRadius:
                                   BorderRadius.circular(AppDimens.radiusSm),
                               border: Border.all(
-                                  color: AppColors.warning.withOpacity(0.4)),
+                                  color:
+                                      AppColors.warning.withValues(alpha: 0.4)),
                             ),
                             child: Row(
                               children: [
@@ -1001,7 +1003,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                           if (_agentClients.isNotEmpty) ...[
                             const SizedBox(height: AppDimens.md),
                             DropdownButtonFormField<int?>(
-                              value: _selectedClientId,
+                              initialValue: _selectedClientId,
                               decoration: InputDecoration(
                                   labelText:
                                       AppStrings.t(isArabic, 'saved_client')),
@@ -1304,7 +1306,7 @@ class _ExtraBedCard extends StatelessWidget {
               ),
               Switch(
                 value: enabled,
-                activeColor: AppColors.gold,
+                activeThumbColor: AppColors.gold,
                 onChanged: onToggle,
               ),
             ],
@@ -1394,7 +1396,9 @@ class _PaymentOption extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(AppDimens.md),
         decoration: BoxDecoration(
-          color: selected ? AppColors.ink.withOpacity(0.04) : AppColors.surface,
+          color: selected
+              ? AppColors.ink.withValues(alpha: 0.04)
+              : AppColors.surface,
           borderRadius: BorderRadius.circular(AppDimens.radiusMd),
           border: Border.all(
               color: selected ? AppColors.ink : AppColors.cardBorder,
@@ -1477,8 +1481,9 @@ class _MealOptionTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: AppDimens.sm),
         padding: const EdgeInsets.all(AppDimens.md),
         decoration: BoxDecoration(
-          color:
-              selected ? AppColors.gold.withOpacity(0.08) : AppColors.surface,
+          color: selected
+              ? AppColors.gold.withValues(alpha: 0.08)
+              : AppColors.surface,
           borderRadius: BorderRadius.circular(AppDimens.radiusMd),
           border: Border.all(
               color: selected ? AppColors.gold : AppColors.cardBorder,

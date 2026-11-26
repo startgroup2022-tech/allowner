@@ -36,9 +36,10 @@ class _OwnerMessagesScreenState extends ConsumerState<OwnerMessagesScreen> {
     try {
       owners = await _service.getOwnerDirectory();
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
       return;
     }
     if (!mounted) return;
@@ -89,8 +90,9 @@ class _OwnerMessagesScreenState extends ConsumerState<OwnerMessagesScreen> {
                     height: AppDimens.buttonHeight,
                     child: ElevatedButton(
                       onPressed: () async {
-                        if (selectedId == null || msgCtrl.text.trim().isEmpty)
+                        if (selectedId == null || msgCtrl.text.trim().isEmpty) {
                           return;
+                        }
                         try {
                           await _service.sendMessage(
                               recipientId: selectedId,
@@ -98,9 +100,10 @@ class _OwnerMessagesScreenState extends ConsumerState<OwnerMessagesScreen> {
                           if (ctx.mounted) Navigator.of(ctx).pop();
                           _reload();
                         } on ApiException catch (e) {
-                          if (mounted)
+                          if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text(e.message)));
+                          }
                         }
                       },
                       child: Text(AppStrings.t(isArabic, 'send')),
@@ -146,7 +149,7 @@ class _OwnerMessagesScreenState extends ConsumerState<OwnerMessagesScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded,
+                    const Icon(Icons.error_outline_rounded,
                         color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
                     Text(AppStrings.t(isArabic, 'error_loading'),
@@ -185,7 +188,7 @@ class _OwnerMessagesScreenState extends ConsumerState<OwnerMessagesScreen> {
                   final unread = asInt(c['unread_count']);
                   return ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: AppColors.gold.withOpacity(0.2),
+                      backgroundColor: AppColors.gold.withValues(alpha: 0.2),
                       child: Text(
                           (c['other_name'] ?? '?').toString().substring(0, 1),
                           style: const TextStyle(

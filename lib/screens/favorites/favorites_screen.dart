@@ -157,8 +157,9 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                                             child: CachedNetworkImage(
                                               imageUrl: hotel.imageUrl,
                                               fit: BoxFit.cover,
-                                              errorWidget:
-                                                  (context, url, error) => Icon(
+                                              errorWidget: (context, url,
+                                                      error) =>
+                                                  const Icon(
                                                       Icons.image_outlined,
                                                       color:
                                                           AppColors.textMuted),

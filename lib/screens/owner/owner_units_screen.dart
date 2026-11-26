@@ -177,7 +177,7 @@ class _OwnerUnitsScreenState extends ConsumerState<OwnerUnitsScreen> {
                                       color: (active
                                               ? AppColors.success
                                               : AppColors.textMuted)
-                                          .withOpacity(0.1),
+                                          .withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(
                                           AppDimens.radiusSm),
                                     ),
@@ -260,7 +260,8 @@ class _ErrorBox extends StatelessWidget {
       padding: const EdgeInsets.all(AppDimens.xl),
       child: Column(
         children: [
-          Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 32),
+          const Icon(Icons.error_outline_rounded,
+              color: AppColors.danger, size: 32),
           const SizedBox(height: AppDimens.sm),
           Text(AppStrings.t(isArabic, 'error_loading'),
               textAlign: TextAlign.center),

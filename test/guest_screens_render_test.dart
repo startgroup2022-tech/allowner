@@ -100,26 +100,25 @@ Widget _wrap(Widget child, SessionNotifier session, {bool isArabic = true}) =>
     );
 
 void main() {
-  late HttpClientAdapter _originalAdapter;
+  late HttpClientAdapter originalAdapter;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    _originalAdapter = ApiClient.instance.dio.httpClientAdapter;
+    originalAdapter = ApiClient.instance.dio.httpClientAdapter;
     ApiClient.instance.dio.httpClientAdapter = _Adapter();
   });
 
   tearDown(() {
-    ApiClient.instance.dio.httpClientAdapter = _originalAdapter;
+    ApiClient.instance.dio.httpClientAdapter = originalAdapter;
   });
 
-  Future<SessionNotifier> _loggedIn() async {
+  Future<SessionNotifier> loggedIn() async {
     return SessionNotifier();
   }
 
   /// `SessionNotifier` يستدعي `_restore()` بعد البناء فيعيد الحالة إلى غير
   /// مسجَّلة؛ لذلك نزرع الجلسة بعد أول رسم ثم نُعيد الرسم.
-  Future<void> _pump(
-      WidgetTester tester, Widget screen, SessionNotifier session,
+  Future<void> pump(WidgetTester tester, Widget screen, SessionNotifier session,
       {double width = 390, bool isArabic = true}) async {
     tester.view.physicalSize = Size(width, 844);
     tester.view.devicePixelRatio = 1.0;
@@ -141,16 +140,16 @@ void main() {
 
   group('حجوزاتي (المتطلبات 45، 46)', () {
     testWidgets('تعرض الحجز الحقيقي من bookings/my.php', (tester) async {
-      final session = await _loggedIn();
-      await _pump(tester, const MyBookingsScreen(), session);
+      final session = await loggedIn();
+      await pump(tester, const MyBookingsScreen(), session);
       expect(tester.takeException(), isNull);
       expect(find.textContaining('فندق فيرمونت مكه'), findsWidgets);
     });
 
     for (final w in const [360.0, 768.0]) {
       testWidgets('بلا تجاوز على ${w.toInt()}px', (tester) async {
-        final session = await _loggedIn();
-        await _pump(tester, const MyBookingsScreen(), session, width: w);
+        final session = await loggedIn();
+        await pump(tester, const MyBookingsScreen(), session, width: w);
         expect(tester.takeException(), isNull);
       });
     }
@@ -158,16 +157,16 @@ void main() {
 
   group('المفضلة (المتطلبات 18، 19، 20)', () {
     testWidgets('تعرض الفندق المفضل الحقيقي', (tester) async {
-      final session = await _loggedIn();
-      await _pump(tester, const FavoritesScreen(), session);
+      final session = await loggedIn();
+      await pump(tester, const FavoritesScreen(), session);
       expect(tester.takeException(), isNull);
       expect(find.textContaining('فندق فيرمونت مكه'), findsWidgets);
     });
 
     for (final w in const [360.0, 768.0]) {
       testWidgets('بلا تجاوز على ${w.toInt()}px', (tester) async {
-        final session = await _loggedIn();
-        await _pump(tester, const FavoritesScreen(), session, width: w);
+        final session = await loggedIn();
+        await pump(tester, const FavoritesScreen(), session, width: w);
         expect(tester.takeException(), isNull);
       });
     }
@@ -175,15 +174,15 @@ void main() {
 
   group('الملف الشخصي (المتطلبات 4، 6، 27، 28)', () {
     testWidgets('يعرض اسم المستخدم ودوره', (tester) async {
-      final session = await _loggedIn();
-      await _pump(tester, const ProfileScreen(), session);
+      final session = await loggedIn();
+      await pump(tester, const ProfileScreen(), session);
       expect(tester.takeException(), isNull);
       expect(find.textContaining('ضيف تجريبي'), findsWidgets);
     });
 
     testWidgets('يُرسم LTR بالإنجليزية بلا تجاوز', (tester) async {
-      final session = await _loggedIn();
-      await _pump(tester, const ProfileScreen(), session, isArabic: false);
+      final session = await loggedIn();
+      await pump(tester, const ProfileScreen(), session, isArabic: false);
       expect(tester.takeException(), isNull);
     });
   });

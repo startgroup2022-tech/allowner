@@ -410,19 +410,19 @@ Widget _wrap(Widget child, {bool isArabic = true, double width = 390}) {
 }
 
 void main() {
-  late HttpClientAdapter _originalAdapter;
+  late HttpClientAdapter originalAdapter;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    _originalAdapter = ApiClient.instance.dio.httpClientAdapter;
+    originalAdapter = ApiClient.instance.dio.httpClientAdapter;
     ApiClient.instance.dio.httpClientAdapter = _Adapter();
   });
 
   tearDown(() {
-    ApiClient.instance.dio.httpClientAdapter = _originalAdapter;
+    ApiClient.instance.dio.httpClientAdapter = originalAdapter;
   });
 
-  Future<void> _pump(WidgetTester tester, Widget screen,
+  Future<void> pump(WidgetTester tester, Widget screen,
       {double width = 390, bool isArabic = true}) async {
     tester.view.physicalSize = Size(width, 844);
     tester.view.devicePixelRatio = 1.0;
@@ -434,7 +434,7 @@ void main() {
 
   group('شاشات الطلبات (المتطلبات 60، 69، 70، 72)', () {
     testWidgets('الصيانة تعرض العنوان والسعر وملاحظة الفندق', (tester) async {
-      await _pump(tester, const OwnerMaintenanceScreen());
+      await pump(tester, const OwnerMaintenanceScreen());
       expect(tester.takeException(), isNull);
       expect(find.text('تسريب ماء'), findsWidgets);
       expect(find.textContaining('250'), findsWidgets);
@@ -443,7 +443,7 @@ void main() {
 
     testWidgets('النظافة تعرض السعر وملاحظة الفندق (المتطلب 70)',
         (tester) async {
-      await _pump(tester, const OwnerCleaningScreen());
+      await pump(tester, const OwnerCleaningScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('120'), findsWidgets);
       expect(find.textContaining('تم التنظيف'), findsWidgets);
@@ -451,19 +451,19 @@ void main() {
 
     testWidgets('الوجبات تعرض الضيف والغرفة والنوع (المتطلب 71)',
         (tester) async {
-      await _pump(tester, const OwnerMealRequestsScreen());
+      await pump(tester, const OwnerMealRequestsScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('محمد علي'), findsWidgets);
     });
 
     testWidgets('السرير الإضافي تُرسم ببياناتها', (tester) async {
-      await _pump(tester, const OwnerExtraBedScreen());
+      await pump(tester, const OwnerExtraBedScreen());
       expect(tester.takeException(), isNull);
     });
 
     for (final w in const [360.0, 768.0]) {
       testWidgets('الصيانة بلا تجاوز على ${w.toInt()}px', (tester) async {
-        await _pump(tester, const OwnerMaintenanceScreen(), width: w);
+        await pump(tester, const OwnerMaintenanceScreen(), width: w);
         expect(tester.takeException(), isNull);
       });
     }
@@ -471,7 +471,7 @@ void main() {
 
   group('حجوزات المالك (المتطلبات 35، 37، 38، 73)', () {
     testWidgets('البطاقة تعرض الضيف والإضافات ومصدر الحجز', (tester) async {
-      await _pump(tester, const OwnerBookingsScreen());
+      await pump(tester, const OwnerBookingsScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('محمد علي'), findsWidgets);
       // المتطلب 73: الإضافات تظهر من الحقول الحقيقية
@@ -479,7 +479,7 @@ void main() {
     });
 
     testWidgets('زر الإلغاء يظهر عند can_cancel من السيرفر', (tester) async {
-      await _pump(tester, const OwnerBookingsScreen());
+      await pump(tester, const OwnerBookingsScreen());
       expect(tester.takeException(), isNull);
       expect(find.text('إلغاء الحجز'), findsWidgets);
     });
@@ -487,7 +487,7 @@ void main() {
 
   group('الإشعارات (المتطلب 71)', () {
     testWidgets('نص الإشعار يظهر من body_ar الحقيقي', (tester) async {
-      await _pump(tester, const OwnerNotificationsScreen());
+      await pump(tester, const OwnerNotificationsScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('طلب صيانة جديد'), findsWidgets);
     });
@@ -496,7 +496,7 @@ void main() {
   group('تقارير الإيرادات (المتطلبات 126–129)', () {
     testWidgets('الصافي والمصروفات والسنة تظهر من الحقول الحقيقية',
         (tester) async {
-      await _pump(tester, const OwnerRevenueScreen());
+      await pump(tester, const OwnerRevenueScreen());
       expect(tester.takeException(), isNull);
       // المتطلب 126: الإجمالي والسنة من سطور monthly الحقيقية.
       expect(find.textContaining('12000'), findsWidgets);
@@ -515,7 +515,7 @@ void main() {
     testWidgets(
         'شاشة العمولة تعرض الإجمالي والمدفوع وغير المدفوع (المتطلب 108)',
         (tester) async {
-      await _pump(tester, const OwnerCommissionScreen());
+      await pump(tester, const OwnerCommissionScreen());
       expect(tester.takeException(), isNull);
       // الإجمالي والمدفوع وغير المدفوع من حقول الـ API الحقيقية.
       expect(find.textContaining('600'), findsWidgets);
@@ -525,7 +525,7 @@ void main() {
     });
 
     testWidgets('شاشة البنك تعرض الآيبان المسجّل', (tester) async {
-      await _pump(tester, const OwnerBankScreen());
+      await pump(tester, const OwnerBankScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('SA0000000000000000000000'), findsWidgets);
     });
@@ -534,7 +534,7 @@ void main() {
   group('عملاء الوكيل (المتطلبات 93، 99)', () {
     testWidgets('قائمة العملاء تُرسم بعدد الحجوزات والإجمالي (المتطلب 99)',
         (tester) async {
-      await _pump(tester, const OwnerClientsScreen());
+      await pump(tester, const OwnerClientsScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('عميل الوكيل'), findsWidgets);
       // المتطلب 99: يرى الوكيل عدد حجوزات عميله وإجمالي ما دفعه.
@@ -545,7 +545,7 @@ void main() {
 
   group('وحدات المالك (المتطلبات 74، 123)', () {
     testWidgets('الوحدات تُرسم ببياناتها', (tester) async {
-      await _pump(tester, const OwnerUnitsScreen());
+      await pump(tester, const OwnerUnitsScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('جناح عائلي'), findsWidgets);
     });
@@ -554,56 +554,56 @@ void main() {
   group('اللغة الإنجليزية (LTR)', () {
     testWidgets('الصيانة بالإنجليزية تُرسم LTR بلا تجاوز', (tester) async {
       SharedPreferences.setMockInitialValues({'app_locale': 'en'});
-      await _pump(tester, const OwnerMaintenanceScreen(), isArabic: false);
+      await pump(tester, const OwnerMaintenanceScreen(), isArabic: false);
       expect(tester.takeException(), isNull);
     });
   });
 
   group('الشاشات المساندة (المتطلبات 61، 75، 77، 78، 79، 80، 84، 86)', () {
     testWidgets('لوحة المالك تعرض الإحصاءات الحقيقية', (tester) async {
-      await _pump(tester, const OwnerHomeScreen());
+      await pump(tester, const OwnerHomeScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('12000'), findsWidgets);
     });
 
     testWidgets('المستندات تعرض العنوان الحقيقي', (tester) async {
-      await _pump(tester, const OwnerDocumentsScreen());
+      await pump(tester, const OwnerDocumentsScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('عقد الوحدة 402'), findsWidgets);
     });
 
     testWidgets('المجتمع يعرض المنشور الحقيقي', (tester) async {
-      await _pump(tester, const OwnerCommunityScreen());
+      await pump(tester, const OwnerCommunityScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('عرض جديد للوحدات في مكة'), findsWidgets);
     });
 
     testWidgets('القرارات تعرض عنوان القرار', (tester) async {
-      await _pump(tester, const OwnerDecisionsScreen());
+      await pump(tester, const OwnerDecisionsScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('تحديث لائحة الرسوم'), findsWidgets);
     });
 
     testWidgets('سوق التنازل يعرض الوحدة الحقيقية', (tester) async {
-      await _pump(tester, const OwnerMarketplaceScreen());
+      await pump(tester, const OwnerMarketplaceScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('جناح عائلي للتنازل'), findsWidgets);
     });
 
     testWidgets('الرسائل تعرض آخر نص حقيقي', (tester) async {
-      await _pump(tester, const OwnerMessagesScreen());
+      await pump(tester, const OwnerMessagesScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('تم تأكيد الحجز'), findsWidgets);
     });
 
     testWidgets('موظفو المالك يعرضون الاسم والدور', (tester) async {
-      await _pump(tester, const OwnerStaffScreen());
+      await pump(tester, const OwnerStaffScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('مدير الوحدات'), findsWidgets);
     });
 
     testWidgets('أسعار الخدمات تعرض الخدمة الحقيقية', (tester) async {
-      await _pump(tester, const OwnerServicePricesScreen());
+      await pump(tester, const OwnerServicePricesScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('تنظيف'), findsWidgets);
     });
@@ -621,7 +621,7 @@ void main() {
       for (final w in const [360.0, 768.0]) {
         testWidgets('${screen.runtimeType} بلا تجاوز على ${w.toInt()}px',
             (tester) async {
-          await _pump(tester, screen, width: w);
+          await pump(tester, screen, width: w);
           expect(tester.takeException(), isNull);
         });
       }

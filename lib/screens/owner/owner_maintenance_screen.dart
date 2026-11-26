@@ -92,7 +92,7 @@ class _OwnerMaintenanceScreenState
                   const SizedBox(height: AppDimens.md),
                   if (hotels.isNotEmpty)
                     DropdownButtonFormField<int>(
-                      value: selectedHotelId,
+                      initialValue: selectedHotelId,
                       decoration: InputDecoration(
                           labelText: AppStrings.t(isArabic, 'select_hotel')),
                       items: hotels
@@ -215,7 +215,7 @@ class _OwnerMaintenanceScreenState
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded,
+                    const Icon(Icons.error_outline_rounded,
                         color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
                     Text(AppStrings.t(isArabic, 'error_loading'),
@@ -271,7 +271,8 @@ class _OwnerMaintenanceScreenState
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: _statusColor(status).withOpacity(0.1),
+                                color:
+                                    _statusColor(status).withValues(alpha: 0.1),
                                 borderRadius:
                                     BorderRadius.circular(AppDimens.radiusSm),
                               ),

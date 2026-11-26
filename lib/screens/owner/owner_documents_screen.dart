@@ -67,7 +67,7 @@ class _OwnerDocumentsScreenState extends ConsumerState<OwnerDocumentsScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded,
+                    const Icon(Icons.error_outline_rounded,
                         color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
                     Text(AppStrings.t(isArabic, 'error_loading'),
@@ -115,7 +115,7 @@ class _OwnerDocumentsScreenState extends ConsumerState<OwnerDocumentsScreen> {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: AppColors.gold.withOpacity(0.12),
+                            color: AppColors.gold.withValues(alpha: 0.12),
                             borderRadius:
                                 BorderRadius.circular(AppDimens.radiusMd),
                           ),

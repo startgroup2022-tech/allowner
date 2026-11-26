@@ -82,7 +82,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                 Text(
                   AppStrings.t(isArabic, 'app_tagline'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: AppColors.goldLight),
+                  style:
+                      const TextStyle(fontSize: 14, color: AppColors.goldLight),
                 ),
               ],
             ),

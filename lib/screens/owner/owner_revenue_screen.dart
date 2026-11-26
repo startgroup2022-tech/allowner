@@ -92,7 +92,7 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded,
+                    const Icon(Icons.error_outline_rounded,
                         color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
                     Text(AppStrings.t(isArabic, 'error_loading'),
@@ -122,7 +122,7 @@ class _OwnerRevenueScreenState extends ConsumerState<OwnerRevenueScreen> {
                   Container(
                     padding: const EdgeInsets.all(AppDimens.lg),
                     decoration: BoxDecoration(
-                      color: AppColors.gold.withOpacity(0.12),
+                      color: AppColors.gold.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(AppDimens.radiusLg),
                     ),
                     child: Column(

@@ -77,9 +77,10 @@ class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen>
       await _service.checkIn(id);
       _reload();
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     } finally {
       if (mounted) setState(() => _busyId = null);
     }
@@ -91,9 +92,10 @@ class _HotelBookingsScreenState extends ConsumerState<HotelBookingsScreen>
       await _service.checkOut(id);
       _reload();
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     } finally {
       if (mounted) setState(() => _busyId = null);
     }

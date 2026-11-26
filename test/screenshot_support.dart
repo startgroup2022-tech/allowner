@@ -11,7 +11,6 @@ library;
 
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:allowners/services/api_client.dart';
 import 'package:allowners/theme/app_theme.dart';

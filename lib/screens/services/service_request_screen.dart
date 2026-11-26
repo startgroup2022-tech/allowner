@@ -86,7 +86,7 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                    color: AppColors.success.withOpacity(0.1),
+                    color: AppColors.success.withValues(alpha: 0.1),
                     shape: BoxShape.circle),
                 child: const Icon(Icons.check_circle_rounded,
                     color: AppColors.success, size: 32),
@@ -145,7 +145,7 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: AppColors.gold.withOpacity(0.12),
+                  color: AppColors.gold.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(AppDimens.radiusLg),
                 ),
                 child: Icon(widget.icon, color: AppColors.goldDark, size: 30),
@@ -171,7 +171,7 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
                           style: textTheme.titleSmall),
                       const SizedBox(height: AppDimens.sm),
                       DropdownButtonFormField<int>(
-                        value: _selectedBookingId,
+                        initialValue: _selectedBookingId,
                         items: bookings
                             .map((b) => DropdownMenuItem<int>(
                                   value: asInt(b['id']),

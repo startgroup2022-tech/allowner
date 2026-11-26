@@ -93,7 +93,7 @@ class _OwnerMarketplaceScreenState
                           ?.copyWith(color: AppColors.textMuted)),
                   const SizedBox(height: AppDimens.md),
                   DropdownButtonFormField<int>(
-                    value: selectedUnitId,
+                    initialValue: selectedUnitId,
                     decoration: InputDecoration(
                         labelText: AppStrings.t(isArabic, 'select_unit')),
                     items: units
@@ -170,9 +170,10 @@ class _OwnerMarketplaceScreenState
                                 if (ctx.mounted) Navigator.of(ctx).pop();
                                 _reload();
                               } on ApiException catch (e) {
-                                if (mounted)
+                                if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(content: Text(e.message)));
+                                }
                               } finally {
                                 setSheetState(() => submitting = false);
                               }
@@ -192,13 +193,15 @@ class _OwnerMarketplaceScreenState
   Future<void> _expressInterest(bool isArabic, int listingId) async {
     try {
       await _service.expressInterest(listingId);
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(AppStrings.t(isArabic, 'interest_sent'))));
+      }
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     }
   }
 
@@ -243,7 +246,7 @@ class _OwnerMarketplaceScreenState
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded,
+                    const Icon(Icons.error_outline_rounded,
                         color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
                     Text(AppStrings.t(isArabic, 'error_loading'),

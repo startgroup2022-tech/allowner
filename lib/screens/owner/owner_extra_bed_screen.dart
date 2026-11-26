@@ -108,7 +108,7 @@ class _OwnerExtraBedScreenState extends ConsumerState<OwnerExtraBedScreen> {
                   const SizedBox(height: AppDimens.md),
                   if (units.isNotEmpty)
                     DropdownButtonFormField<int>(
-                      value: selectedUnitId,
+                      initialValue: selectedUnitId,
                       decoration: InputDecoration(
                           labelText: AppStrings.t(isArabic, 'select_unit')),
                       items: units
@@ -274,7 +274,8 @@ class _OwnerExtraBedScreenState extends ConsumerState<OwnerExtraBedScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: _statusColor(status).withOpacity(0.1),
+                                color:
+                                    _statusColor(status).withValues(alpha: 0.1),
                                 borderRadius:
                                     BorderRadius.circular(AppDimens.radiusSm),
                               ),

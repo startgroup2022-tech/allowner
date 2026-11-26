@@ -42,9 +42,10 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
       _postCtrl.clear();
       _reload();
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     } finally {
       if (mounted) setState(() => _posting = false);
     }
@@ -229,7 +230,7 @@ class _OwnerCommunityScreenState extends ConsumerState<OwnerCommunityScreen> {
                                 children: [
                                   CircleAvatar(
                                     backgroundColor:
-                                        AppColors.gold.withOpacity(0.2),
+                                        AppColors.gold.withValues(alpha: 0.2),
                                     child: Text(
                                         (p['full_name'] ?? '?')
                                             .toString()

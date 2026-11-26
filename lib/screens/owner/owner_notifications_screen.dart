@@ -75,7 +75,7 @@ class _OwnerNotificationsScreenState
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded,
+                    const Icon(Icons.error_outline_rounded,
                         color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
                     Text(AppStrings.t(isArabic, 'error_loading'),
@@ -133,7 +133,7 @@ class _OwnerNotificationsScreenState
                     decoration: BoxDecoration(
                       color: isRead
                           ? AppColors.surface
-                          : AppColors.gold.withOpacity(0.06),
+                          : AppColors.gold.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(AppDimens.radiusLg),
                       border: Border.all(color: AppColors.cardBorder),
                     ),
@@ -143,7 +143,7 @@ class _OwnerNotificationsScreenState
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: AppColors.gold.withOpacity(0.12),
+                            color: AppColors.gold.withValues(alpha: 0.12),
                             borderRadius:
                                 BorderRadius.circular(AppDimens.radiusMd),
                           ),

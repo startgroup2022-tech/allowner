@@ -142,9 +142,10 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
       await _service.cancelBooking(bookingId);
       _reload();
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     } finally {
       if (mounted) setState(() => _busyId = null);
     }
@@ -180,9 +181,10 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
       }
       _reload();
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     } finally {
       if (mounted) setState(() => _busyId = null);
     }
@@ -238,8 +240,9 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
                             lastDate:
                                 DateTime.now().add(const Duration(days: 730)),
                           );
-                          if (picked != null)
+                          if (picked != null) {
                             setSheetState(() => checkIn = picked);
+                          }
                         },
                         child: Text(checkIn != null
                             ? '${AppStrings.t(isArabic, 'check_in')}: ${checkIn!.toIso8601String().split('T').first}'
@@ -259,8 +262,9 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
                             lastDate:
                                 DateTime.now().add(const Duration(days: 730)),
                           );
-                          if (picked != null)
+                          if (picked != null) {
                             setSheetState(() => checkOut = picked);
+                          }
                         },
                         child: Text(checkOut != null
                             ? '${AppStrings.t(isArabic, 'check_out')}: ${checkOut!.toIso8601String().split('T').first}'
@@ -303,9 +307,10 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
       }
       _reload();
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     } finally {
       if (mounted) setState(() => _busyId = null);
     }
@@ -357,7 +362,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded,
+                    const Icon(Icons.error_outline_rounded,
                         color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
                     Text(AppStrings.t(isArabic, 'error_loading'),
@@ -421,7 +426,8 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: _statusColor(status).withOpacity(0.1),
+                                color:
+                                    _statusColor(status).withValues(alpha: 0.1),
                                 borderRadius:
                                     BorderRadius.circular(AppDimens.radiusSm),
                               ),

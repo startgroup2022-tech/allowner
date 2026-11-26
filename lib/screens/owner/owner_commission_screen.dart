@@ -4,6 +4,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
+import '../../services/api_client.dart';
 import '../../services/owner_service.dart';
 import '../../utils/safe_parse.dart';
 
@@ -51,6 +52,108 @@ class _OwnerCommissionScreenState extends ConsumerState<OwnerCommissionScreen> {
     }
   }
 
+  /// طلب تحويل العمولات غير المدفوعة (المتطلب 108).
+  ///
+  /// لا يُخفى المبلغ ولا يُعاد حسابه: يُرسل المبلغ الذي أعلنه السيرفر في
+  /// `unpaid`، وتُعرض رسالة السيرفر بعد الإرسال بدل رسالة نجاح مُصطنعة.
+  Future<void> _openTransferRequest(bool isArabic, double amount) async {
+    String? error;
+    bool submitting = false;
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) => Padding(
+          padding: EdgeInsets.only(
+            left: AppDimens.pagePadding,
+            right: AppDimens.pagePadding,
+            top: AppDimens.pagePadding,
+            bottom:
+                MediaQuery.of(ctx).viewInsets.bottom + AppDimens.pagePadding,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(AppStrings.t(isArabic, 'request_transfer'),
+                  style: Theme.of(ctx).textTheme.titleMedium),
+              const SizedBox(height: AppDimens.sm),
+              Row(
+                children: [
+                  Expanded(
+                      child: Text(
+                          AppStrings.t(isArabic, 'commission_unpaid_amount'),
+                          style: Theme.of(ctx).textTheme.bodySmall)),
+                  Text(money(amount, isArabic),
+                      style: Theme.of(ctx).textTheme.titleSmall),
+                ],
+              ),
+              const SizedBox(height: AppDimens.sm),
+              Text(AppStrings.t(isArabic, 'commission_transfer_hint'),
+                  style: Theme.of(ctx)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: AppColors.textMuted)),
+              const SizedBox(height: AppDimens.sm),
+              Text(AppStrings.t(isArabic, 'transfer_requires_server'),
+                  style: Theme.of(ctx).textTheme.bodySmall),
+              if (error != null) ...[
+                const SizedBox(height: AppDimens.sm),
+                Text(error!,
+                    style: Theme.of(ctx)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: AppColors.danger)),
+              ],
+              const SizedBox(height: AppDimens.lg),
+              SizedBox(
+                width: double.infinity,
+                height: AppDimens.buttonHeight,
+                child: ElevatedButton(
+                  onPressed: submitting
+                      ? null
+                      : () async {
+                          setSheet(() {
+                            error = null;
+                            submitting = true;
+                          });
+                          try {
+                            final res = await _service
+                                .requestCommissionTransfer(amount);
+                            if (ctx.mounted) Navigator.of(ctx).pop();
+                            if (mounted) {
+                              _reload();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(res['message']?.toString() ??
+                                      AppStrings.t(
+                                          isArabic, 'transfer_requested')),
+                                ),
+                              );
+                            }
+                          } on ApiException catch (e) {
+                            setSheet(() {
+                              submitting = false;
+                              error = e.message;
+                            });
+                          }
+                        },
+                  child: submitting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white))
+                      : Text(AppStrings.t(isArabic, 'request_transfer')),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isArabic = ref.watch(localeProvider).languageCode == 'ar';
@@ -77,7 +180,7 @@ class _OwnerCommissionScreenState extends ConsumerState<OwnerCommissionScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded,
+                    const Icon(Icons.error_outline_rounded,
                         color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
                     Text(AppStrings.t(isArabic, 'error_loading'),
@@ -153,6 +256,17 @@ class _OwnerCommissionScreenState extends ConsumerState<OwnerCommissionScreen> {
                               value: money(data['unpaid'], isArabic))),
                     ],
                   ),
+                  if (asDouble(data['unpaid']) > 0) ...[
+                    const SizedBox(height: AppDimens.md),
+                    _TransferRequestCard(
+                      isArabic: isArabic,
+                      amount: money(asDouble(data['unpaid']), isArabic),
+                      hint: AppStrings.t(isArabic, 'transfer_requires_server'),
+                      buttonLabel: AppStrings.t(isArabic, 'request_transfer'),
+                      onPressed: () => _openTransferRequest(
+                          isArabic, asDouble(data['unpaid'])),
+                    ),
+                  ],
                   const SizedBox(height: AppDimens.lg),
                   Text(AppStrings.t(isArabic, 'commission_history'),
                       style: textTheme.titleMedium),
@@ -188,7 +302,7 @@ class _OwnerCommissionScreenState extends ConsumerState<OwnerCommissionScreen> {
                                     decoration: BoxDecoration(
                                       color:
                                           _statusColor(r['status'].toString())
-                                              .withOpacity(0.1),
+                                              .withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(
                                           AppDimens.radiusSm),
                                     ),
@@ -285,6 +399,64 @@ class _StatCard extends StatelessWidget {
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
                 color: gold ? AppColors.goldDark : AppColors.ink),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// بطاقة طلب التحويل — تفصل «الطلب» عن «التنفيذ» بصريًا.
+class _TransferRequestCard extends StatelessWidget {
+  final bool isArabic;
+  final String amount;
+  final String hint;
+  final String buttonLabel;
+  final VoidCallback onPressed;
+
+  const _TransferRequestCard({
+    required this.isArabic,
+    required this.amount,
+    required this.hint,
+    required this.buttonLabel,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.all(AppDimens.md),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                  child: Text(
+                      AppStrings.t(isArabic, 'commission_unpaid_amount'),
+                      style: textTheme.titleSmall)),
+              Text(amount,
+                  style: textTheme.titleSmall?.copyWith(
+                      color: AppColors.goldDark, fontWeight: FontWeight.w700)),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(hint,
+              style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+          const SizedBox(height: AppDimens.sm),
+          SizedBox(
+            width: double.infinity,
+            height: AppDimens.buttonHeight,
+            child: OutlinedButton(
+              onPressed: onPressed,
+              child: Text(buttonLabel),
+            ),
           ),
         ],
       ),

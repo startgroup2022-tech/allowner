@@ -121,7 +121,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                 padding: const EdgeInsets.all(AppDimens.md),
                 decoration: BoxDecoration(
                   color: (_unavailable ? AppColors.warning : AppColors.success)
-                      .withOpacity(0.10),
+                      .withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(AppDimens.radiusMd),
                 ),
                 child: Row(

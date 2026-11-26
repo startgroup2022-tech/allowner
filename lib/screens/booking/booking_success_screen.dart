@@ -161,7 +161,7 @@ class BookingSuccessScreen extends ConsumerWidget {
                 width: 96,
                 height: 96,
                 decoration: BoxDecoration(
-                    color: AppColors.success.withOpacity(0.1),
+                    color: AppColors.success.withValues(alpha: 0.1),
                     shape: BoxShape.circle),
                 child: const Icon(Icons.check_rounded,
                     color: AppColors.success, size: 52),

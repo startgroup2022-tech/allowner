@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:allowners/models/hotel_model.dart';
 import 'package:allowners/screens/booking/booking_screen.dart';
 import 'package:allowners/screens/booking/booking_success_screen.dart';

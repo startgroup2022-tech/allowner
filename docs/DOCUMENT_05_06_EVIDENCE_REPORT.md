@@ -19,10 +19,10 @@
 ## 1. الملخّص
 
 - متطلبات المستند 05 المرصودة في المصفوفة: **148**
-- متطلبات لها لقطة شاشة حقيقية: **46**
-- متطلبات لها اختبار يحمل معرّفها: **46**
+- متطلبات لها لقطة شاشة حقيقية: **53**
+- متطلبات لها اختبار يحمل معرّفها: **53**
 - متطلبات لها اعتماد API (خارج قدرة التطبيق وحده): **133**
-- لقطات الشاشة المنشورة: **61**
+- لقطات الشاشة المنشورة: **86**
 
 | الحالة | العدد |
 |---|---|
@@ -35,14 +35,14 @@
 
 | # | المتطلب | الحالة | اعتماد الـ API | اختبار يحمل المعرّف | لقطة الشاشة |
 |---|---|---|---|---|---|
-| 1 | نص الترحيب العربي داخل التطبيق | VERIFIED PASS | — | — | — |
-| 2 | نص الترحيب الإنجليزي داخل التطبيق | VERIFIED PASS | — | — | — |
-| 3 | الوصف العربي للتطبيق | VERIFIED PASS | — | — | — |
-| 4 | الوصف الإنجليزي للتطبيق | VERIFIED PASS | — | — | — |
-| 5 | العبارة التعريفية العربية والإنجليزية | VERIFIED PASS | — | — | — |
+| 1 | نص الترحيب العربي داخل التطبيق | VERIFIED PASS | — | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-001-002) | `docs/evidence/final-acceptance/customer/arabic/DOC05-REQ-001-002-onboarding-ar.png`<br>`docs/evidence/final-acceptance/customer/english/DOC05-REQ-001-002-onboarding-en.png` |
+| 2 | نص الترحيب الإنجليزي داخل التطبيق | VERIFIED PASS | — | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-001-002) | `docs/evidence/final-acceptance/customer/arabic/DOC05-REQ-001-002-onboarding-ar.png`<br>`docs/evidence/final-acceptance/customer/english/DOC05-REQ-001-002-onboarding-en.png` |
+| 3 | الوصف العربي للتطبيق | VERIFIED PASS | — | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-003-005) | `docs/evidence/final-acceptance/customer/arabic/DOC05-REQ-003-005-about-app-ar.png`<br>`docs/evidence/final-acceptance/customer/english/DOC05-REQ-003-005-about-app-en.png` |
+| 4 | الوصف الإنجليزي للتطبيق | VERIFIED PASS | — | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-003-005) | `docs/evidence/final-acceptance/customer/arabic/DOC05-REQ-003-005-about-app-ar.png`<br>`docs/evidence/final-acceptance/customer/english/DOC05-REQ-003-005-about-app-en.png` |
+| 5 | العبارة التعريفية العربية والإنجليزية | VERIFIED PASS | — | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-003-005) | `docs/evidence/final-acceptance/customer/arabic/DOC05-REQ-003-005-about-app-ar.png`<br>`docs/evidence/final-acceptance/customer/english/DOC05-REQ-003-005-about-app-en.png` |
 | 6 | استبدال شعارات التطبيق بالشعارات الجديدة | VERIFIED PASS | /content/settings.php | — | — |
 | 7 | تكبير شعار AO في الترحيب | VERIFIED PASS | — | — | — |
-| 8 | إضافة بيانات المساعدة والدعم | VERIFIED PASS | /content/settings.php (مُتحقَّق حيًّا: info@assetsaxis.com / +966555634615 / whatsapp) | — | — |
+| 8 | إضافة بيانات المساعدة والدعم | VERIFIED PASS | /content/settings.php (مُتحقَّق حيًّا: info@assetsaxis.com / +966555634615 / whatsapp) | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-008) | `docs/evidence/final-acceptance/customer/arabic/DOC05-REQ-008-help-support-ar.png`<br>`docs/evidence/final-acceptance/customer/english/DOC05-REQ-008-help-support-en.png` |
 | 9 | تغيير الصورة الشخصية لكل الأدوار | VERIFIED PASS | /user/avatar.php | — | — |
 | 10 | ترحيب مخصص باسم المستخدم | VERIFIED PASS | /auth/me.php | `test/screenshot_export_test.dart` (DOC05-REQ-010-018) | `docs/evidence/final-acceptance/customer/arabic/DOC05-REQ-010-018-home-ar.png` |
 | 11 | ترحيب خاص بحساب المالك | VERIFIED PASS | /user/owner-dashboard.php | `test/screenshot_export_test.dart` (DOC05-REQ-010-018) | `docs/evidence/final-acceptance/customer/arabic/DOC05-REQ-010-018-home-ar.png` |
@@ -94,8 +94,8 @@
 | 57 | تمكين الضيف من طلب النظافة | VERIFIED PASS | /services/request.php | — | — |
 | 58 | تمكين الضيف من طلب الصيانة | VERIFIED PASS | /services/request.php | — | — |
 | 59 | إظهار حالة طلبات الخدمات للضيف | BACKEND BLOCKED | غير موجود — لا توجد نقطة GET لعرض طلبات الضيف: /services/my-requests.php و/services/requests.php و/services/my_service_requests.php كلها 404 (مُتحقَّق) | — | — |
-| 60 | قائمة طلب النظافة في حساب المالك | VERIFIED PASS | /user/owner-requests.php?type=cleaning | `test/screenshot_export_roles_test.dart` (DOC05-REQ-060) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-060-owner-cleaning-ar.png`<br>`docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-060-owner-home-ar.png`<br>`docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-060-owner-navigation-ar.png` |
-| 61 | تغيير هاوس كيبنج إلى النظافة | VERIFIED PASS | — | `test/screenshot_export_roles_test.dart` (DOC05-REQ-061) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-061-owner-units-ar.png` |
+| 60 | قائمة طلب النظافة في حساب المالك | VERIFIED PASS | /user/owner-requests.php?type=cleaning | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-060)<br>`test/screenshot_export_roles_test.dart` (DOC05-REQ-060) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-060-owner-cleaning-ar.png`<br>`docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-060-owner-home-ar.png`<br>`docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-060-owner-navigation-ar.png`<br>`docs/evidence/final-acceptance/owner/english/DOC05-REQ-060-owner-home-en.png`<br>`docs/evidence/final-acceptance/owner/english/DOC05-REQ-060-owner-navigation-en.png` |
+| 61 | تغيير هاوس كيبنج إلى النظافة | VERIFIED PASS | — | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-061)<br>`test/screenshot_export_roles_test.dart` (DOC05-REQ-061) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-061-owner-units-ar.png`<br>`docs/evidence/final-acceptance/owner/english/DOC05-REQ-061-owner-units-en.png` |
 | 62 | إنشاء طلب نظافة من تطبيق المالك | VERIFIED PASS | /user/owner-requests.php | — | — |
 | 63 | إنشاء طلب نظافة من لوحة المالك | BACKEND BLOCKED | لوحة المالك | — | — |
 | 64 | إرسال طلب النظافة من المالك للفندق | BACKEND BLOCKED | /user/owner-requests.php | — | — |
@@ -103,13 +103,13 @@
 | 66 | تمرير طلب وجبات الضيف أو الوكيل من المالك للفندق | BACKEND BLOCKED | /user/owner-meals.php | — | — |
 | 67 | إنشاء طلب سرير إضافي من تطبيق المالك ولوحته | VERIFIED PASS | /user/owner-requests.php (type=extra_bed) | — | — |
 | 68 | عرض أسعار خدمات الفندق للمالك | VERIFIED PASS | /hotel/prices.php (نفس نقطة الفندق، 401 بدون توكن) | `test/screenshot_export_roles_test.dart` (DOC05-REQ-068) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-068-owner-service-prices-ar.png` |
-| 69 | عرض تكلفة الصيانة المؤكدة للمالك | VERIFIED PASS | /user/owner-maintenance.php | `test/screenshot_export_roles_test.dart` (DOC05-REQ-069) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-069-owner-meal-requests-ar.png` |
+| 69 | عرض تكلفة الصيانة المؤكدة للمالك | VERIFIED PASS | /user/owner-maintenance.php | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-069)<br>`test/screenshot_export_roles_test.dart` (DOC05-REQ-069) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-069-owner-meal-requests-ar.png`<br>`docs/evidence/final-acceptance/owner/english/DOC05-REQ-069-owner-meal-requests-en.png` |
 | 70 | عرض تكلفة النظافة المؤكدة للمالك | VERIFIED PASS | /user/owner-requests.php | `test/screenshot_export_roles_test.dart` (DOC05-REQ-070) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-070-owner-extra-bed-ar.png` |
 | 71 | عرض محتوى إشعارات طلبات الضيف وتفاصيل الخدمة | VERIFIED PASS | /user/notifications.php | — | — |
-| 72 | إضافة صورة إلى طلب الصيانة في حساب المالك | VERIFIED PASS | /user/owner-maintenance.php (multipart image) | `test/screenshot_export_roles_test.dart` (DOC05-REQ-072) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-072-owner-maintenance-ar.png` |
+| 72 | إضافة صورة إلى طلب الصيانة في حساب المالك | VERIFIED PASS | /user/owner-maintenance.php (multipart image) | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-072)<br>`test/screenshot_export_roles_test.dart` (DOC05-REQ-072) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-072-owner-maintenance-ar.png`<br>`docs/evidence/final-acceptance/owner/english/DOC05-REQ-072-owner-maintenance-en.png` |
 | 73 | إظهار تفاصيل إضافات الوجبات والسرير في حجوزات المالك | VERIFIED PASS | /user/owner-bookings.php (حقول addons/meal_types/extra_bed_count/extra_bed_price/notes) | — | — |
-| 74 | إدارة صلاحيات موظفي المالك كاملة | PARTIAL | لوحة التحكم (الموقع) لفتح كل خانات الصلاحيات + owner-staff.php | `test/screenshot_export_roles_test.dart` (DOC05-REQ-074) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-074-owner-staff-ar.png` |
-| 75 | تصحيح توجيه حساب موظف المالك إلى واجهته المناسبة | VERIFIED PASS | — | `test/screenshot_export_roles_test.dart` (DOC05-REQ-075) | `docs/evidence/final-acceptance/owner-employee/arabic/DOC05-REQ-075-employee-staff-navigation-ar.png` |
+| 74 | إدارة صلاحيات موظفي المالك كاملة | PARTIAL | owner-staff.php action=set_permissions (حفظ الخريطة) + إرجاع permissions في GET owner-staff.php | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-074)<br>`test/screenshot_export_roles_test.dart` (DOC05-REQ-074) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-074-owner-staff-ar.png`<br>`docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-074-staff-permissions-sheet-ar.png`<br>`docs/evidence/final-acceptance/owner/english/DOC05-REQ-074-owner-staff-en.png`<br>`docs/evidence/final-acceptance/owner/english/DOC05-REQ-074-staff-permissions-sheet-en.png` |
+| 75 | تصحيح توجيه حساب موظف المالك إلى واجهته المناسبة | VERIFIED PASS | — | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-075)<br>`test/screenshot_export_roles_test.dart` (DOC05-REQ-075) | `docs/evidence/final-acceptance/owner-employee/arabic/DOC05-REQ-075-employee-staff-navigation-ar.png`<br>`docs/evidence/final-acceptance/owner-employee/english/DOC05-REQ-075-employee-navigation-en.png` |
 | 76 | إضافة تصنيفات خدمات الوحدة المفارش والطعام والحمام والوسائط والمعدات مع التفاصيل | VERIFIED PASS | /units/detail.php (facilities/amenities) — غير مُرجَع حاليًا | — | — |
 | 77 | استقبال رسائل الطلبات بالبريد الإلكتروني | BACKEND BLOCKED | بريد السيرفر | — | — |
 | 78 | تأكيد دخول الضيف Check-in | VERIFIED PASS | /hotel/bookings.php action=check_in | — | — |
@@ -127,14 +127,14 @@
 | 90 | تأكيد طلب السرير الإضافي | VERIFIED PASS | /hotel/requests.php action=confirm | — | — |
 | 91 | استقبال الطلبات المرسلة من المالك | VERIFIED PASS | /hotel/requests.php | — | — |
 | 92 | إضافة صورة لطلب الصيانة من حساب إدارة الفندق | VERIFIED PASS | /hotel/requests.php (multipart image) | — | — |
-| 93 | إصلاح إضافة عملاء الوكيل | VERIFIED PASS | /user/agent-clients.php | `test/screenshot_export_roles_test.dart` (DOC05-REQ-093) | `docs/evidence/final-acceptance/booking-agent/arabic/DOC05-REQ-093-agent-home-ar.png` |
+| 93 | إصلاح إضافة عملاء الوكيل | VERIFIED PASS | /user/agent-clients.php | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-093)<br>`test/screenshot_export_roles_test.dart` (DOC05-REQ-093) | `docs/evidence/final-acceptance/booking-agent/arabic/DOC05-REQ-093-agent-home-ar.png`<br>`docs/evidence/final-acceptance/booking-agent/english/DOC05-REQ-093-agent-home-en.png` |
 | 94 | إضافة حقل اسم العميل عند الحجز | VERIFIED PASS | /bookings/create.php customer_name | — | — |
 | 95 | اختيار فندق عند إنشاء حجز للعميل | VERIFIED PASS | /hotels/list.php | — | — |
 | 96 | عرض وحدات الفندق المختار للوكيل | VERIFIED PASS | /units/list.php | — | — |
-| 97 | عرض تفاصيل حجز الوكيل | VERIFIED PASS | /bookings/my.php | `test/screenshot_export_roles_test.dart` (DOC05-REQ-097) | `docs/evidence/final-acceptance/booking-agent/arabic/DOC05-REQ-097-agent-clients-ar.png` |
+| 97 | عرض تفاصيل حجز الوكيل | VERIFIED PASS | /bookings/my.php | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-097)<br>`test/screenshot_export_roles_test.dart` (DOC05-REQ-097) | `docs/evidence/final-acceptance/booking-agent/arabic/DOC05-REQ-097-agent-clients-ar.png`<br>`docs/evidence/final-acceptance/booking-agent/english/DOC05-REQ-097-agent-clients-en.png` |
 | 98 | تغيير وحداتي إلى حجوزاتي | VERIFIED PASS | — | — | — |
 | 99 | عرض جميع حجوزات عملاء الوكيل | VERIFIED PASS | /user/agent-clients.php | — | — |
-| 100 | تغيير التقارير المالية إلى تقارير عمولات | VERIFIED PASS | /user/agent-commission.php | `test/screenshot_export_roles_test.dart` (DOC05-REQ-100) | `docs/evidence/final-acceptance/booking-agent/arabic/DOC05-REQ-100-agent-commission-ar.png` |
+| 100 | تغيير التقارير المالية إلى تقارير عمولات | VERIFIED PASS | /user/agent-commission.php | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-100)<br>`test/screenshot_export_roles_test.dart` (DOC05-REQ-100) | `docs/evidence/final-acceptance/booking-agent/arabic/DOC05-REQ-100-agent-commission-ar.png`<br>`docs/evidence/final-acceptance/booking-agent/english/DOC05-REQ-100-agent-commission-en.png` |
 | 101 | إزالة العقود والمستندات من قائمة الوكيل | VERIFIED PASS | — | — | — |
 | 102 | إزالة مجتمع الملاك من قائمة الوكيل | VERIFIED PASS | — | — | — |
 | 103 | إزالة التصويت من قائمة الوكيل | VERIFIED PASS | — | — | — |
@@ -142,8 +142,8 @@
 | 105 | إضافة طلب الوجبات في قائمة الوكيل | VERIFIED PASS | /services/meal-request.php | — | — |
 | 106 | إضافة طلب النظافة في قائمة الوكيل | VERIFIED PASS | /services/request.php | — | — |
 | 107 | إضافة طلب سرير إضافي في قائمة الوكيل | VERIFIED PASS | /services/request.php | — | — |
-| 108 | تحويل العمولات غير المدفوعة | PARTIAL | /user/agent-commission.php + /user/owner-bank.php | — | — |
-| 109 | إدخال بيانات حساب الوكيل البنكي لاستلام العمولات | VERIFIED PASS | /user/owner-bank.php | `test/screenshot_export_roles_test.dart` (DOC05-REQ-109) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-109-owner-bank-ar.png` |
+| 108 | تحويل العمولات غير المدفوعة | PARTIAL | /user/agent-commission.php action=request_transfer + /user/owner-bank.php | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-108) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-108-commission-transfer-sheet-ar.png`<br>`docs/evidence/final-acceptance/owner/english/DOC05-REQ-108-commission-transfer-sheet-en.png` |
+| 109 | إدخال بيانات حساب الوكيل البنكي لاستلام العمولات | VERIFIED PASS | /user/owner-bank.php | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-109)<br>`test/screenshot_export_roles_test.dart` (DOC05-REQ-109) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-109-owner-bank-ar.png`<br>`docs/evidence/final-acceptance/owner/english/DOC05-REQ-109-owner-bank-en.png` |
 | 110 | إصلاح نسيت كلمة المرور | PARTIAL | غير موجود — كل مسارات auth/forgot* و reset-password.php تُرجع 404 (مُتحقَّق) | — | — |
 | 111 | إضافة طلبات الصيانة إلى لوحة الأدمن | BACKEND BLOCKED | لوحة الأدمن | — | — |
 | 112 | إضافة إدارة وسائل الدفع والصلاحيات للأدمن | BACKEND BLOCKED | لوحة الأدمن | — | — |
@@ -155,20 +155,20 @@
 | 118 | تسجيل بيانات حساب المالك البنكي | VERIFIED PASS | /user/owner-bank.php | — | — |
 | 119 | خيار تحويل مباشر إلى حساب المالك في الحجز | VERIFIED PASS | /bookings/create.php owner_transfer | — | — |
 | 120 | عرض حساب مالك الوحدة الصحيح عند التحويل المباشر | VERIFIED PASS | /units/detail.php owner_bank | — | — |
-| 121 | تفعيل اشتراك سنوي للمالك فقط | PARTIAL | /content/settings.php (قراءة الإعلان) | `test/screenshot_export_roles_test.dart` (DOC05-REQ-121) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-121-owner-subscription-ar.png` |
+| 121 | تفعيل اشتراك سنوي للمالك فقط | PARTIAL | /content/settings.php (قراءة الإعلان) | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-121)<br>`test/screenshot_export_roles_test.dart` (DOC05-REQ-121) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-121-owner-subscription-ar.png`<br>`docs/evidence/final-acceptance/owner/english/DOC05-REQ-121-owner-subscription-en.png` |
 | 122 | السماح للمالك غير المشترك بالاستعراض دون عمليات | PARTIAL | /content/settings.php | — | — |
 | 123 | منع إضافة الوحدات والطلبات حتى الاشتراك | PARTIAL | /content/settings.php + قيد can_create في owner-units.php | — | — |
 | 124 | صفحة تفعيل ودفع الاشتراك في حسابي | PARTIAL | غير موجود — لا مزوّد دفع اشتراك على السيرفر | — | — |
 | 125 | عرض شروط الاشتراك ونسبة العمولة | VERIFIED PASS | /content/settings.php | — | — |
-| 126 | تقارير مبيعات المالك الشهرية والسنوية | PARTIAL | /user/owner-revenue.php monthly[] | `test/screenshot_export_roles_test.dart` (DOC05-REQ-126-129) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-126-129-owner-revenue-ar.png` |
-| 127 | خصم الصيانة والنظافة من صافي الإيرادات | PARTIAL | /user/owner-revenue.php حقول المصروفات | `test/screenshot_export_roles_test.dart` (DOC05-REQ-126-129) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-126-129-owner-revenue-ar.png` |
-| 128 | تقارير مصروفات الصيانة الشهرية والسنوية | PARTIAL | /user/owner-revenue.php maintenance_expense | `test/screenshot_export_roles_test.dart` (DOC05-REQ-126-129) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-126-129-owner-revenue-ar.png` |
-| 129 | تقارير مصروفات النظافة الشهرية والسنوية | PARTIAL | /user/owner-revenue.php cleaning_expense | `test/screenshot_export_roles_test.dart` (DOC05-REQ-126-129) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-126-129-owner-revenue-ar.png` |
+| 126 | تقارير مبيعات المالك الشهرية والسنوية | PARTIAL | /user/owner-revenue.php monthly[] | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-126-129)<br>`test/screenshot_export_roles_test.dart` (DOC05-REQ-126-129) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-126-129-owner-revenue-ar.png`<br>`docs/evidence/final-acceptance/owner/english/DOC05-REQ-126-129-owner-revenue-en.png` |
+| 127 | خصم الصيانة والنظافة من صافي الإيرادات | PARTIAL | /user/owner-revenue.php حقول المصروفات | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-126-129)<br>`test/screenshot_export_roles_test.dart` (DOC05-REQ-126-129) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-126-129-owner-revenue-ar.png`<br>`docs/evidence/final-acceptance/owner/english/DOC05-REQ-126-129-owner-revenue-en.png` |
+| 128 | تقارير مصروفات الصيانة الشهرية والسنوية | PARTIAL | /user/owner-revenue.php maintenance_expense | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-126-129)<br>`test/screenshot_export_roles_test.dart` (DOC05-REQ-126-129) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-126-129-owner-revenue-ar.png`<br>`docs/evidence/final-acceptance/owner/english/DOC05-REQ-126-129-owner-revenue-en.png` |
+| 129 | تقارير مصروفات النظافة الشهرية والسنوية | PARTIAL | /user/owner-revenue.php cleaning_expense | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-126-129)<br>`test/screenshot_export_roles_test.dart` (DOC05-REQ-126-129) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-126-129-owner-revenue-ar.png`<br>`docs/evidence/final-acceptance/owner/english/DOC05-REQ-126-129-owner-revenue-en.png` |
 | 130 | خيار خصم الصيانة من رصيد الوحدة | PARTIAL | /hotel/requests.php حقل settlement — لا يوجد endpoint للرصيد | — | — |
 | 131 | خيار إرسال رابط دفع الصيانة عبر واتساب | PARTIAL | /hotel/requests.php حقل settlement + رقم هاتف الطالب | — | — |
 | 132 | حساب تحصيل مركزي للمنصة | BACKEND BLOCKED | غير موجود — /user/owner-wallet.php تُرجع 404 (مُتحقَّق) | — | — |
-| 133 | حساب أستاذ مستقل لكل مالك Ledger | PARTIAL | غير موجود — يُتوقّع جدول ledger في owner-wallet.php | `test/screenshot_export_roles_test.dart` (DOC05-REQ-133) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-133-owner-wallet-ar.png` |
-| 134 | تسجيل الحجوزات والعمولات والاستردادات والتسويات | PARTIAL | ledger في owner-wallet.php | `test/screenshot_export_roles_test.dart` (DOC05-REQ-134) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-134-owner-notifications-ar.png` |
+| 133 | حساب أستاذ مستقل لكل مالك Ledger | PARTIAL | غير موجود — يُتوقّع جدول ledger في owner-wallet.php | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-133)<br>`test/screenshot_export_roles_test.dart` (DOC05-REQ-133) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-133-owner-wallet-ar.png`<br>`docs/evidence/final-acceptance/owner/english/DOC05-REQ-133-owner-wallet-en.png` |
+| 134 | تسجيل الحجوزات والعمولات والاستردادات والتسويات | PARTIAL | ledger في owner-wallet.php | `test/screenshot_export_matrix_test.dart` (DOC05-REQ-134)<br>`test/screenshot_export_roles_test.dart` (DOC05-REQ-134) | `docs/evidence/final-acceptance/owner/arabic/DOC05-REQ-134-owner-notifications-ar.png`<br>`docs/evidence/final-acceptance/owner/english/DOC05-REQ-134-owner-notifications-en.png` |
 | 135 | محفظة مالك تعرض الرصيد والحجوزات والعمولة والمصروفات والقابل للتحويل | PARTIAL | owner-wallet.php | — | — |
 | 136 | طلب تحويل مستحقات المالك | PARTIAL | owner-wallet.php (action=request_transfer) | — | — |
 | 137 | تسوية وتحويل مستحقات المالك إلى حسابه البنكي | BACKEND BLOCKED | غير موجود — يحتاج مزوّد دفع/تحويل | — | — |
@@ -207,9 +207,9 @@
 
 لا يوجد متطلب «مُهمَل»؛ إنما تُصنَّف المتطلبات بلا لقطة إلى ثلاث فئات، وكل فئة موثّقة أدناه بأرقامها:
 
-**أ) متطلب نصي/سلوكي غير مرئي (نص، ترتيب بيانات، صلاحية، نسخ ولصق):** 1, 2, 3, 4, 5, 7, 27, 98, 101, 102, 103, 104
+**أ) متطلب نصي/سلوكي غير مرئي (نص، ترتيب بيانات، صلاحية، نسخ ولصق):** 7, 27, 98, 101, 102, 103, 104
 
-**ب) متطلب يعتمد على السيرفر أو مزوّد دفع، فلا يمكن إثباته بلقطة عميل:** 6, 8, 9, 20, 21, 22, 23, 24, 25, 26, 35, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 62, 63, 64, 65, 66, 67, 71, 73, 76, 77, 78, 79, 84, 85, 86, 87, 88, 89, 90, 91, 92, 94, 95, 96, 99, 105, 106, 107, 108, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 122, 123, 124, 125, 130, 131, 132, 135, 136, 137, 138, 139, 140, 141, 142, 143, 145, 146, 147, 148
+**ب) متطلب يعتمد على السيرفر أو مزوّد دفع، فلا يمكن إثباته بلقطة عميل:** 6, 9, 20, 21, 22, 23, 24, 25, 26, 35, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 62, 63, 64, 65, 66, 67, 71, 73, 76, 77, 78, 79, 84, 85, 86, 87, 88, 89, 90, 91, 92, 94, 95, 96, 99, 105, 106, 107, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 122, 123, 124, 125, 130, 131, 132, 135, 136, 137, 138, 139, 140, 141, 142, 143, 145, 146, 147, 148
 
 هذان السردان يُظهران أن غياب اللقطة ليس إغفالًا بل حدود إثبات.
 

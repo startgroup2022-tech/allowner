@@ -613,9 +613,9 @@ class AppStrings {
     'role_booking_agent': {'ar': 'وكيل الحجوزات', 'en': 'Booking Agent'},
     'staff_permissions_note': {
       'ar':
-          'صلاحياته تلقائياً: مشاهدة الوحدات وتبديل حالتها، واستقبال بلاغات الصيانة والتنظيف. بدون حذف، وبدون أي وصول للمحفظة أو الإيرادات أو التقارير.',
+          'الصلاحيات المحددة أعلاه تُحفظ على السيرفر. بلا صلاحية مالية لا يصل الموظف إلى المحفظة أو الإيرادات أو التقارير، ولا يستطيع الحذف.',
       'en':
-          'Automatic permissions: view units and toggle their status, and receive maintenance/housekeeping reports. No delete, and no access to wallet, revenue, or reports.'
+          'The permissions above are saved on the server. Without the financial permission the employee cannot reach the wallet, revenue, or reports, and cannot delete anything.'
     },
     'password_hint_min6': {
       'ar': '6 أحرف على الأقل',
@@ -625,6 +625,7 @@ class AppStrings {
       'ar': 'ما في موظفين مضافين بعد',
       'en': 'No staff added yet'
     },
+    'active': {'ar': 'نشط', 'en': 'Active'},
     'suspended': {'ar': 'موقوف', 'en': 'Suspended'},
     'suspend': {'ar': 'إيقاف', 'en': 'Suspend'},
     'activate': {'ar': 'تفعيل', 'en': 'Activate'},
@@ -959,6 +960,7 @@ class AppStrings {
     'status_completed': {'ar': 'مكتمل', 'en': 'Completed'},
     'status_cancelled': {'ar': 'ملغى', 'en': 'Cancelled'},
     'status_checked_in': {'ar': 'تم تسجيل الدخول', 'en': 'Checked In'},
+    'status_checked_out': {'ar': 'تم تسجيل الخروج', 'en': 'Checked Out'},
     'status_done': {'ar': 'تم التنفيذ', 'en': 'Done'},
     'status_rejected': {'ar': 'مرفوض', 'en': 'Rejected'},
     'new_cleaning_request': {
@@ -1305,6 +1307,30 @@ class AppStrings {
       'ar': 'تم إرسال طلب التحويل للمراجعة.',
       'en': 'Transfer request submitted for review.'
     },
+    'commission_transfer_hint': {
+      'ar':
+          'طلب التحويل يُرسل للمراجعة فقط، ولا يُنفَّذ أي تحويل مالي من التطبيق. تظهر النتيجة كما يعيدها السيرفر.',
+      'en':
+          'The transfer request is only submitted for review; no money moves from the app. The result shown is exactly what the server returns.',
+    },
+    'commission_unpaid_amount': {
+      'ar': 'العمولات غير المدفوعة',
+      'en': 'Unpaid commission',
+    },
+    'staff_permissions': {'ar': 'الصلاحيات', 'en': 'Permissions'},
+    'staff_permissions_saved': {
+      'ar': 'تم حفظ الصلاحيات.',
+      'en': 'Permissions saved.',
+    },
+    'staff_permissions_unchanged': {
+      'ar': 'لم تتغيّر أي صلاحية.',
+      'en': 'No permission was changed.',
+    },
+    'staff_finance_needs_subscription': {
+      'ar': 'لا يمكن منح صلاحية البيانات المالية قبل تفعيل اشتراك المالك.',
+      'en':
+          'Financial access cannot be granted before the owner subscription is active.',
+    },
     'transfer_requires_server': {
       'ar': 'تنفيذ التحويل الفعلي يتم على السيرفر بعد المراجعة.',
       'en': 'The actual transfer is executed on the server after review.'
@@ -1364,6 +1390,12 @@ class AppStrings {
           'Commission transfer requests are executed on the server; no balance is invented.'
     },
   };
+
+  /// هل يوجد نص لهذا المفتاح؟ يُستخدم في اختبار التغطية الذي يمنع ظهور
+  /// مفتاح خام (مثل «active») في واجهة عربية.
+  static bool hasKey(String key) => _strings.containsKey(key);
+
+  static Set<String> get keys => _strings.keys.toSet();
 
   static String t(bool isArabic, String key) {
     final entry = _strings[key];

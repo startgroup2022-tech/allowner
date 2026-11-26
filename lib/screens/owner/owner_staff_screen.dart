@@ -7,6 +7,8 @@ import '../../utils/locale_provider.dart';
 import '../../services/owner_service.dart';
 import '../../services/api_client.dart';
 import '../../utils/safe_parse.dart';
+import '../../utils/staff_permissions.dart';
+import '../../utils/subscription.dart';
 
 class OwnerStaffScreen extends ConsumerStatefulWidget {
   const OwnerStaffScreen({super.key});
@@ -47,10 +49,149 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
       await _service.toggleStaffStatus(asInt(staff['id']));
       _reload();
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     }
+  }
+
+  /// تحرير صلاحيات الموظف (المتطلب 74).
+  ///
+  /// الشاشة كانت تعرض ملاحظة ثابتة «صلاحياته تلقائياً» ولا تتيح للمالك تغيير
+  /// شيء. الآن تُقرأ الصلاحيات من السيرفر وتُعدَّل وتُحفظ، مع رفض محلي لصلاحية
+  /// البيانات المالية قبل تفعيل اشتراك المالك.
+  Future<void> _openPermissionsSheet(
+      bool isArabic, Map<String, dynamic> staff) async {
+    final role = staff['role']?.toString() ?? 'unit_manager';
+    final current = parseStaffPermissions(staff['permissions'], role: role);
+    final draft = Map<String, bool>.from(current);
+    var ownerSubscribed = true;
+    try {
+      final settings = await _service.getSubscription();
+      ownerSubscribed =
+          !SubscriptionState.fromMap(settings).isExplicitlyInactive;
+    } on ApiException {
+      // تعذّر التحقق: نُكمل ونترك القرار للسيرفر بدل تعطيل الحفظ.
+    }
+    if (!mounted) return;
+
+    String? error;
+    bool saving = false;
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) => Padding(
+          padding: EdgeInsets.only(
+            left: AppDimens.pagePadding,
+            right: AppDimens.pagePadding,
+            top: AppDimens.pagePadding,
+            bottom:
+                MediaQuery.of(ctx).viewInsets.bottom + AppDimens.pagePadding,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                    '${AppStrings.t(isArabic, 'staff_permissions')} — ${staff['full_name']}',
+                    style: Theme.of(ctx).textTheme.titleMedium),
+                const SizedBox(height: AppDimens.sm),
+                ...kStaffPermissionKeys.map((key) => SwitchListTile.adaptive(
+                      contentPadding: EdgeInsets.zero,
+                      value: draft[key] ?? false,
+                      title: Text(staffPermissionLabel(isArabic, key),
+                          style: Theme.of(ctx).textTheme.bodyMedium),
+                      onChanged: (value) {
+                        setSheet(() {
+                          error = null;
+                          draft[key] = value;
+                        });
+                      },
+                    )),
+                const SizedBox(height: AppDimens.sm),
+                Text(AppStrings.t(isArabic, 'staff_permissions_note'),
+                    style: Theme.of(ctx)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: AppColors.textMuted)),
+                if (error != null) ...[
+                  const SizedBox(height: AppDimens.sm),
+                  Text(error!,
+                      style: Theme.of(ctx)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: AppColors.danger)),
+                ],
+                const SizedBox(height: AppDimens.lg),
+                SizedBox(
+                  width: double.infinity,
+                  height: AppDimens.buttonHeight,
+                  child: ElevatedButton(
+                    onPressed: saving
+                        ? null
+                        : () async {
+                            if (!staffPermissionsChanged(current, draft)) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text(AppStrings.t(isArabic,
+                                        'staff_permissions_unchanged'))),
+                              );
+                              return;
+                            }
+                            final blocked = staffPermissionBlockReason(
+                              permissions: draft,
+                              ownerSubscriptionActive: ownerSubscribed,
+                            );
+                            if (blocked != null) {
+                              setSheet(() =>
+                                  error = AppStrings.t(isArabic, blocked));
+                              return;
+                            }
+                            setSheet(() {
+                              error = null;
+                              saving = true;
+                            });
+                            try {
+                              await _service.setStaffPermissions(
+                                staffPermissionsPayload(
+                                  staffId: asInt(staff['id']),
+                                  permissions: draft,
+                                ),
+                              );
+                              if (ctx.mounted) Navigator.of(ctx).pop();
+                              if (mounted) {
+                                _reload();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(AppStrings.t(isArabic,
+                                          'staff_permissions_saved'))),
+                                );
+                              }
+                            } on ApiException catch (e) {
+                              setSheet(() {
+                                saving = false;
+                                error = e.message;
+                              });
+                            }
+                          },
+                    child: saving
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white))
+                        : Text(AppStrings.t(isArabic, 'save')),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _openResetPasswordSheet(
@@ -102,9 +243,10 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
                                 content: Text(AppStrings.t(isArabic, 'save'))));
                           }
                         } on ApiException catch (e) {
-                          if (mounted)
+                          if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text(e.message)));
+                          }
                         }
                       },
                       child: Text(AppStrings.t(isArabic, 'save')),
@@ -275,7 +417,7 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded,
+                    const Icon(Icons.error_outline_rounded,
                         color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
                     Text(AppStrings.t(isArabic, 'error_loading'),
@@ -342,7 +484,7 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
                                     color: (isActive
                                             ? AppColors.success
                                             : AppColors.danger)
-                                        .withOpacity(0.1),
+                                        .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(
                                         AppDimens.radiusSm),
                                   ),
@@ -374,6 +516,37 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
                               Text(s['phone'].toString(),
                                   style: textTheme.bodySmall
                                       ?.copyWith(color: AppColors.textMuted)),
+                            const SizedBox(height: 6),
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
+                              children: () {
+                                final perms = parseStaffPermissions(
+                                    s['permissions'],
+                                    role: s['role']?.toString() ??
+                                        'unit_manager');
+                                final enabled = kStaffPermissionKeys
+                                    .where((k) => perms[k] == true)
+                                    .map((k) =>
+                                        staffPermissionLabel(isArabic, k))
+                                    .toList();
+                                return enabled
+                                    .map((label) => Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 3),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.surfaceMuted,
+                                            borderRadius: BorderRadius.circular(
+                                                AppDimens.radiusSm),
+                                          ),
+                                          child: Text(label,
+                                              style: const TextStyle(
+                                                  fontSize: 11,
+                                                  color: AppColors.textMuted)),
+                                        ))
+                                    .toList();
+                              }(),
+                            ),
                             const SizedBox(height: AppDimens.sm),
                             Row(
                               children: [
@@ -394,6 +567,20 @@ class _OwnerStaffScreenState extends ConsumerState<OwnerStaffScreen> {
                                   ),
                                 ),
                               ],
+                            ),
+                            const SizedBox(height: AppDimens.sm),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.gold,
+                                  foregroundColor: AppColors.textOnGold,
+                                ),
+                                onPressed: () =>
+                                    _openPermissionsSheet(isArabic, s),
+                                child: Text(AppStrings.t(
+                                    isArabic, 'staff_permissions')),
+                              ),
                             ),
                           ],
                         ),

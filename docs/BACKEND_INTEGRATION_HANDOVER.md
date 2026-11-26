@@ -188,6 +188,59 @@ authoritative — the server must enforce it (unique index on
 | POST | `/user/owner-requests.php` | owner-side service requests |
 | GET/POST | `/user/agent-clients.php` | agent's clients, `client_id` |
 | GET | `/user/agent-commission.php` | `total`, `pending`, `paid`, `entries[]` |
+| POST | `/user/agent-commission.php` | `action=request_transfer` + `amount` (request only, see 3.8) |
+| POST | `/user/owner-staff.php` | `action=set_permissions` + `id` + `permissions{}` (see 3.8) |
+
+### 3.8 Contracts added by Document 06 group 01 (Flutter side already shipped)
+
+Both calls are already implemented and tested in the app. They fail loudly
+until PHP handles them; the app never fakes success.
+
+**(a) Staff permissions — requirement 74**
+
+```http
+POST /user/owner-staff.php
+Content-Type: application/json
+
+{
+  "action": "set_permissions",
+  "id": 12,
+  "permissions": {
+    "can_manage_bookings": true,
+    "can_manage_services": true,
+    "can_check_in_out": false,
+    "can_view_finance": false
+  }
+}
+```
+
+* The app always sends all four keys (no partial diffs) so PHP can treat the
+  body as the full authoritative state.
+* `GET /user/owner-staff.php` should return `permissions` per employee, either
+  as that same object or as a list of enabled key names. When the field is
+  absent the app falls back to role defaults, so an old response cannot lock
+  anyone out.
+* Server must reject `can_view_finance=true` for an owner without an active
+  subscription, and must enforce each permission on every endpoint — the app
+  hides UI, PHP must refuse the request.
+
+**(b) Commission transfer request — requirement 108**
+
+```http
+POST /user/agent-commission.php
+Content-Type: application/json
+
+{ "action": "request_transfer", "amount": 200 }
+```
+
+* `amount` is exactly the `unpaid` value the server itself returned moments
+  earlier; the client never computes or edits it.
+* Expected reply on success: `{"success": true, "message": "..."}`. Any
+  `message` is displayed verbatim. A non-2xx or `success: false` is shown as an
+  error and the sheet stays open.
+* No money moves from the app: the transfer, its ledger entries, and its status
+  machine belong to PHP. Idempotency (one pending request per agent per period)
+  must be enforced server-side.
 
 ---
 

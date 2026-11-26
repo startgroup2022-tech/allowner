@@ -83,7 +83,7 @@ class _MealRequestScreenState extends ConsumerState<MealRequestScreen> {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                    color: AppColors.success.withOpacity(0.1),
+                    color: AppColors.success.withValues(alpha: 0.1),
                     shape: BoxShape.circle),
                 child: const Icon(Icons.check_circle_rounded,
                     color: AppColors.success, size: 32),
@@ -162,7 +162,7 @@ class _MealRequestScreenState extends ConsumerState<MealRequestScreen> {
                     width: 64,
                     height: 64,
                     decoration: BoxDecoration(
-                        color: AppColors.gold.withOpacity(0.12),
+                        color: AppColors.gold.withValues(alpha: 0.12),
                         borderRadius:
                             BorderRadius.circular(AppDimens.radiusLg)),
                     child: const Icon(Icons.restaurant_outlined,
@@ -180,7 +180,7 @@ class _MealRequestScreenState extends ConsumerState<MealRequestScreen> {
                       style: textTheme.titleSmall),
                   const SizedBox(height: AppDimens.sm),
                   DropdownButtonFormField<int>(
-                    value: _selectedBookingId,
+                    initialValue: _selectedBookingId,
                     items: bookings
                         .map((b) => DropdownMenuItem<int>(
                               value: asInt(b['id']),
@@ -297,8 +297,9 @@ class _MealOption extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: AppDimens.md),
         decoration: BoxDecoration(
-          color:
-              isSelected ? AppColors.gold.withOpacity(0.12) : AppColors.surface,
+          color: isSelected
+              ? AppColors.gold.withValues(alpha: 0.12)
+              : AppColors.surface,
           borderRadius: BorderRadius.circular(AppDimens.radiusMd),
           border: Border.all(
               color: isSelected ? AppColors.goldDark : AppColors.cardBorder,

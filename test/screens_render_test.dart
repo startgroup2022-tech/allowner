@@ -248,16 +248,16 @@ Widget _wrap(Widget child, {bool isArabic = true, double width = 390}) {
 }
 
 void main() {
-  late HttpClientAdapter _originalAdapter;
+  late HttpClientAdapter originalAdapter;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    _originalAdapter = ApiClient.instance.dio.httpClientAdapter;
+    originalAdapter = ApiClient.instance.dio.httpClientAdapter;
     ApiClient.instance.dio.httpClientAdapter = _FixtureAdapter();
   });
 
   tearDown(() {
-    ApiClient.instance.dio.httpClientAdapter = _originalAdapter;
+    ApiClient.instance.dio.httpClientAdapter = originalAdapter;
   });
 
   group('عرض الصفحة الرئيسية ببيانات حقيقية', () {

@@ -38,8 +38,9 @@ List<(String, String)> buildBookingDetailRows(
   add('check_in', b['check_in']?.toString());
   add('check_out', b['check_out']?.toString());
   final nights = asInt(b['nights'] ?? b['nights_count'], 0);
-  if (nights > 0)
+  if (nights > 0) {
     rows.add((AppStrings.t(isArabic, 'nights'), nights.toString()));
+  }
   final guests = asInt(b['guests'] ?? b['guests_count'], 0);
   if (guests > 0) {
     rows.add((AppStrings.t(isArabic, 'guests'), guests.toString()));
@@ -295,9 +296,10 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
       await _hotelService.cancelMyBooking(bookingId);
       await _loadBookings();
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     } finally {
       if (mounted) setState(() => _busyId = null);
     }
@@ -415,9 +417,10 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
       }
       await _loadBookings();
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     } finally {
       if (mounted) setState(() => _busyId = null);
     }
@@ -426,8 +429,9 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
   /// رقم/اسم الوحدة للحجز (المتطلب 52). يُرجع null إن لم يُرجع الـ API أي منهما.
   String? _unitNumberLabel(bool isArabic, Map<String, dynamic> b) {
     final number = (b['unit_number'] ?? '').toString().trim();
-    if (number.isNotEmpty)
+    if (number.isNotEmpty) {
       return '${AppStrings.t(isArabic, 'unit_no')} $number';
+    }
     final name =
         (isArabic ? b['unit_name_ar'] : b['unit_name_en']) ?? b['unit_name'];
     final text = (name ?? '').toString().trim();
@@ -447,7 +451,7 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.calendar_today_outlined,
+                  const Icon(Icons.calendar_today_outlined,
                       size: 56, color: AppColors.textMuted),
                   const SizedBox(height: AppDimens.md),
                   Text(
@@ -495,7 +499,7 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
                       child: CachedNetworkImage(
                         imageUrl: b['cover_image']?.toString() ?? '',
                         fit: BoxFit.cover,
-                        errorWidget: (context, url, error) => Icon(
+                        errorWidget: (context, url, error) => const Icon(
                             Icons.image_outlined,
                             color: AppColors.textMuted),
                       ),
@@ -542,7 +546,7 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: _statusColor(status).withOpacity(0.1),
+                        color: _statusColor(status).withValues(alpha: 0.1),
                         borderRadius:
                             BorderRadius.circular(AppDimens.radiusFull),
                       ),

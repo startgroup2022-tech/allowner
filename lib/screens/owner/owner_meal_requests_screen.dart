@@ -111,7 +111,7 @@ class _OwnerMealRequestsScreenState
                   const SizedBox(height: AppDimens.md),
                   if (units.isNotEmpty)
                     DropdownButtonFormField<int>(
-                      value: selectedUnitId,
+                      initialValue: selectedUnitId,
                       decoration: InputDecoration(
                           labelText: AppStrings.t(isArabic, 'select_unit')),
                       items: units
@@ -145,7 +145,7 @@ class _OwnerMealRequestsScreenState
                       return FilterChip(
                         label: Text(AppStrings.t(isArabic, 'meal_option_$m')),
                         selected: selected,
-                        selectedColor: AppColors.gold.withOpacity(0.2),
+                        selectedColor: AppColors.gold.withValues(alpha: 0.2),
                         onSelected: (v) => setSheetState(() {
                           if (v) {
                             selectedMeals.add(m);
@@ -222,9 +222,10 @@ class _OwnerMealRequestsScreenState
       await _service.updateMealRequestStatus(requestId: id, status: nextStatus);
       _reload();
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     } finally {
       if (mounted) setState(() => _updatingId = null);
     }
@@ -261,7 +262,7 @@ class _OwnerMealRequestsScreenState
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded,
+                    const Icon(Icons.error_outline_rounded,
                         color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
                     Text(AppStrings.t(isArabic, 'error_loading'),
@@ -323,7 +324,8 @@ class _OwnerMealRequestsScreenState
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: _statusColor(status).withOpacity(0.1),
+                                color:
+                                    _statusColor(status).withValues(alpha: 0.1),
                                 borderRadius:
                                     BorderRadius.circular(AppDimens.radiusSm),
                               ),

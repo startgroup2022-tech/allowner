@@ -54,15 +54,15 @@ Widget _wrap(Widget child) => ProviderScope(
     );
 
 void main() {
-  late HttpClientAdapter _original;
+  late HttpClientAdapter original;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    _original = ApiClient.instance.dio.httpClientAdapter;
+    original = ApiClient.instance.dio.httpClientAdapter;
   });
 
   tearDown(() {
-    ApiClient.instance.dio.httpClientAdapter = _original;
+    ApiClient.instance.dio.httpClientAdapter = original;
   });
 
   testWidgets('ترفض البريد الفارغ وغير الصحيح قبل الإرسال', (tester) async {

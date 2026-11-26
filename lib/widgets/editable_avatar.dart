@@ -40,10 +40,10 @@ class _EditableAvatarState extends ConsumerState<EditableAvatar> {
             ),
             if (isCurrentlySet)
               ListTile(
-                leading:
-                    Icon(Icons.delete_outline_rounded, color: AppColors.danger),
+                leading: const Icon(Icons.delete_outline_rounded,
+                    color: AppColors.danger),
                 title: Text(AppStrings.t(isArabic, 'remove_photo'),
-                    style: TextStyle(color: AppColors.danger)),
+                    style: const TextStyle(color: AppColors.danger)),
                 onTap: () => Navigator.pop(ctx, 'remove'),
               ),
           ],
@@ -57,9 +57,10 @@ class _EditableAvatarState extends ConsumerState<EditableAvatar> {
       try {
         await ref.read(sessionProvider.notifier).updateAvatar(remove: true);
       } catch (_) {
-        if (mounted)
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(AppStrings.t(isArabic, 'avatar_update_failed'))));
+        }
       } finally {
         if (mounted) setState(() => _uploading = false);
       }
@@ -80,9 +81,10 @@ class _EditableAvatarState extends ConsumerState<EditableAvatar> {
           .read(sessionProvider.notifier)
           .updateAvatar(filePath: file.path);
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(AppStrings.t(isArabic, 'avatar_update_failed'))));
+      }
     } finally {
       if (mounted) setState(() => _uploading = false);
     }

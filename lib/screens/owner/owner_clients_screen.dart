@@ -181,9 +181,10 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
       await _service.deleteAgentClient(id);
       _reload();
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     }
   }
 
@@ -219,7 +220,7 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppDimens.xl),
                   children: [
-                    Icon(Icons.error_outline_rounded,
+                    const Icon(Icons.error_outline_rounded,
                         color: AppColors.danger, size: 32),
                     const SizedBox(height: AppDimens.sm),
                     Text(AppStrings.t(isArabic, 'error_loading'),
@@ -272,7 +273,8 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
                       child: Row(
                         children: [
                           CircleAvatar(
-                            backgroundColor: AppColors.gold.withOpacity(0.15),
+                            backgroundColor:
+                                AppColors.gold.withValues(alpha: 0.15),
                             child: const Icon(Icons.person_rounded,
                                 color: AppColors.goldDark),
                           ),
@@ -299,10 +301,12 @@ class _OwnerClientsScreenState extends ConsumerState<OwnerClientsScreen> {
                           ),
                           PopupMenuButton<String>(
                             onSelected: (v) {
-                              if (v == 'edit')
+                              if (v == 'edit') {
                                 _openEditor(isArabic, existing: c);
-                              if (v == 'delete')
+                              }
+                              if (v == 'delete') {
                                 _delete(isArabic, asInt(c['id']));
+                              }
                               if (v == 'book') {
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (_) =>
@@ -385,11 +389,13 @@ class _ClientDetailScreenState extends ConsumerState<_ClientDetailScreen> {
         child: FutureBuilder<Map<String, dynamic>>(
           future: _future,
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting)
+            if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
-            if (snapshot.hasError)
+            }
+            if (snapshot.hasError) {
               return Center(
                   child: Text(AppStrings.t(isArabic, 'error_loading')));
+            }
             final client = asMap(snapshot.data!['client']);
             final bookings = asMapList(snapshot.data!['bookings']);
 
@@ -443,7 +449,8 @@ class _ClientDetailScreenState extends ConsumerState<_ClientDetailScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: _statusColor(status).withOpacity(0.1),
+                                color:
+                                    _statusColor(status).withValues(alpha: 0.1),
                                 borderRadius:
                                     BorderRadius.circular(AppDimens.radiusSm),
                               ),

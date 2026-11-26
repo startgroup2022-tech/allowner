@@ -92,7 +92,7 @@ class HotelServicesScreen extends ConsumerWidget {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: AppColors.gold.withOpacity(0.12),
+                        color: AppColors.gold.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(AppDimens.radiusMd),
                       ),
                       child: Icon(service.icon,
@@ -113,7 +113,7 @@ class HotelServicesScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    Icon(
+                    const Icon(
                       Icons.chevron_right_rounded,
                       color: AppColors.textMuted,
                     ),

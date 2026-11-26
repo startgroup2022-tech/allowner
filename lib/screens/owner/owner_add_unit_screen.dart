@@ -337,7 +337,7 @@ class _OwnerAddUnitScreenState extends ConsumerState<OwnerAddUnitScreen> {
                   padding: const EdgeInsets.all(AppDimens.md),
                   margin: const EdgeInsets.only(bottom: AppDimens.md),
                   decoration: BoxDecoration(
-                    color: AppColors.warning.withOpacity(0.1),
+                    color: AppColors.warning.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(AppDimens.radiusLg),
                   ),
                   child: Text(

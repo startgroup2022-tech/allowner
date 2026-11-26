@@ -344,7 +344,8 @@ class _ErrorRetry extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: AppDimens.lg),
       child: Column(
         children: [
-          Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 32),
+          const Icon(Icons.error_outline_rounded,
+              color: AppColors.danger, size: 32),
           const SizedBox(height: AppDimens.sm),
           Text(AppStrings.t(isArabic, 'error_loading'),
               textAlign: TextAlign.center),

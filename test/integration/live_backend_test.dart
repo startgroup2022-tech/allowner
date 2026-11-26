@@ -25,7 +25,7 @@ const bool kRunLive =
     bool.fromEnvironment('RUN_LIVE_TESTS', defaultValue: false);
 
 void main() {
-  final live = kRunLive ? test : _skipAll;
+  const live = kRunLive ? test : _skipAll;
 
   setUp(() {
     // العميل المركزي يقرأ التوكن من SharedPreferences في كل طلب؛ في بيئة
@@ -133,7 +133,7 @@ void main() {
         () async {
       final hotels = await HotelService().listHotels();
       expect(hotels, isNotEmpty);
-      final detail = await HotelService().getHotelDetail('${hotels.first.id}');
+      final detail = await HotelService().getHotelDetail(hotels.first.id);
       expect(detail.hotel.id, hotels.first.id);
       expect(detail.hotel.name, isNotEmpty);
       // amenities قد تكون فارغة لكن يجب أن تُقرأ كقائمة لا أن تفشل

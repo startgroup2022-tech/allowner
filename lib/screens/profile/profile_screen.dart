@@ -33,10 +33,10 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: AppDimens.md),
               user != null
                   ? EditableAvatar(avatarUrl: user.avatarUrl, radius: 44)
-                  : CircleAvatar(
+                  : const CircleAvatar(
                       radius: 44,
                       backgroundColor: AppColors.surfaceMuted,
-                      child: const Icon(Icons.person_rounded,
+                      child: Icon(Icons.person_rounded,
                           color: AppColors.textMuted, size: 46),
                     ),
               const SizedBox(height: AppDimens.md),
