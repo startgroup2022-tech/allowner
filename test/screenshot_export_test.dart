@@ -40,6 +40,58 @@ void main() {
   final hotel = HotelModel.fromJson(
       Map<String, dynamic>.from(hotelDetailJson['hotel'] as Map));
 
+  /// يفعّل السرير الإضافي ويضبط عدد الأسرّة — يُستخدم في لقطات المسارين.
+  ///
+  /// يبحث عن مفتاح التشغيل داخل صفّ البطاقة تحديدًا (لا مفتاح أي إضافة أخرى)،
+  /// ثم يستخدم عدّاد «عدد الأسرّة الإضافية» لا عدّاد الضيوف الذي يستخدم
+  /// الأيقونة نفسها.
+  Future<void> enableExtraBed(
+    WidgetTester tester, {
+    required bool isArabic,
+    int quantity = 2,
+  }) async {
+    final labels = find.text(AppStrings.t(isArabic, 'add_extra_bed'));
+    if (labels.evaluate().isEmpty) {
+      await tester.scrollUntilVisible(labels.first, 160,
+          scrollable: find.byType(Scrollable).first);
+      await tester.pumpAndSettle();
+    }
+    expect(labels, findsWidgets,
+        reason: 'بطاقة السرير الإضافي يجب أن تُبنى في هذا المسار');
+
+    Finder? toggle;
+    for (var i = 0; i < labels.evaluate().length; i++) {
+      final row =
+          find.ancestor(of: labels.at(i), matching: find.byType(Row)).first;
+      final sw = find.descendant(of: row, matching: find.byType(Switch));
+      if (sw.evaluate().isNotEmpty) {
+        toggle = sw;
+        break;
+      }
+    }
+    expect(toggle, isNotNull, reason: 'البطاقة تحتاج مفتاح تشغيل');
+    await tester.ensureVisible(toggle!);
+    await tester.pumpAndSettle();
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+
+    final quantityLabel =
+        find.text(AppStrings.t(isArabic, 'extra_bed_quantity'));
+    await tester.ensureVisible(quantityLabel);
+    await tester.pumpAndSettle();
+    final stepperRow =
+        find.ancestor(of: quantityLabel, matching: find.byType(Row)).first;
+    final plus = find.descendant(
+        of: stepperRow,
+        matching: find.byIcon(Icons.add_circle_outline_rounded));
+    for (var i = 1; i < quantity; i++) {
+      await tester.tap(plus);
+      await tester.pumpAndSettle();
+    }
+    expect(find.textContaining('$quantity × 150 × 2'), findsOneWidget,
+        reason: 'سطر الحساب يعرض العدد × السعر × الليالي');
+  }
+
   group('الرئيسية', () {
     testWidgets('DOC05-REQ-010-018-home-ar', (tester) async {
       await capture(tester, const HomeScreen(),
@@ -160,39 +212,55 @@ void main() {
           isArabic: false);
     });
 
-    testWidgets('DOC06-REQ-B-002-booking-extra-bed-ar', (tester) async {
-      // مسار الحجز على مستوى الفندق (بلا وحدة محددة) هو المسار الذي يعرض
-      // بطاقة السرير الإضافي مع عدّاد الكمية وسطر الحساب.
+    // المستند 06 §B — لقطات السرير الإضافي في مساري الحجز.
+    // مسار الوحدة (`unitId != null`) كان لا يبني البطاقة إطلاقًا؛ هذه اللقطات
+    // تُثبت أنه يعرضها ويحسبها مثل مسار الفندق.
+    testWidgets('DOC06-REQ-B-002-booking-extra-bed-hotel-ar', (tester) async {
+      expect(hotel.extraBedPrice, 150,
+          reason: 'سعر السرير الإضافي يُقرأ من حمولة الفندق');
       await capture(
         tester,
         BookingScreen(hotel: hotel),
-        'customer/arabic/DOC06-REQ-B-002-booking-extra-bed-ar.png',
+        'customer/arabic/DOC06-REQ-B-002-booking-extra-bed-hotel-ar.png',
         height: 2600,
+        interact: (t) => enableExtraBed(t, isArabic: true, quantity: 2),
+      );
+    });
+
+    testWidgets('DOC06-REQ-B-002-booking-extra-bed-unit-ar', (tester) async {
+      await capture(
+        tester,
+        BookingScreen(hotel: hotel, unitId: 13),
+        'customer/arabic/DOC06-REQ-B-002-booking-extra-bed-unit-ar.png',
+        height: 2600,
+        interact: (t) => enableExtraBed(t, isArabic: true, quantity: 2),
+      );
+    });
+
+    testWidgets('DOC06-REQ-B-002-booking-extra-bed-unit-en', (tester) async {
+      setSession(locale: 'en');
+      await capture(
+        tester,
+        BookingScreen(hotel: hotel, unitId: 13),
+        'customer/english/DOC06-REQ-B-002-booking-extra-bed-unit-en.png',
+        isArabic: false,
+        height: 2600,
+        interact: (t) => enableExtraBed(t, isArabic: false, quantity: 2),
+      );
+    });
+
+    testWidgets('DOC06-REQ-B-002-booking-extra-bed-summary-ar', (tester) async {
+      await capture(
+        tester,
+        BookingScreen(hotel: hotel, unitId: 13),
+        'customer/arabic/DOC06-REQ-B-002-booking-extra-bed-summary-ar.png',
+        height: 844,
         interact: (t) async {
-          expect(hotel.extraBedPrice, 150,
-              reason: 'سعر السرير الإضافي يجب أن يُقرأ من حمولة الفندق');
-          final labels = find.text(AppStrings.t(true, 'add_extra_bed'));
-          for (var i = 0; i < 8 && labels.evaluate().isEmpty; i++) {
-            await t.drag(find.byType(Scrollable).first, const Offset(0, -260));
-            await t.pumpAndSettle();
-          }
-          expect(labels, findsWidgets,
-              reason: 'بطاقة السرير الإضافي يجب أن تُبنى داخل صفحة الحجز');
-          Finder? switchFinder;
-          for (var i = 0; i < labels.evaluate().length; i++) {
-            final row = find
-                .ancestor(of: labels.at(i), matching: find.byType(Row))
-                .first;
-            final sw = find.descendant(of: row, matching: find.byType(Switch));
-            if (sw.evaluate().isNotEmpty) {
-              switchFinder = sw;
-              break;
-            }
-          }
-          expect(switchFinder, isNotNull);
-          await t.tap(switchFinder!);
-          await t.pumpAndSettle();
-          await t.tap(find.byIcon(Icons.add_circle_outline_rounded).first);
+          await enableExtraBed(t, isArabic: true, quantity: 2);
+          // نُمرّر إلى «تفاصيل السعر» لتظهر إضافة السرير داخل الإجمالي.
+          await t.scrollUntilVisible(
+              find.text(AppStrings.t(true, 'price_details')), 200,
+              scrollable: find.byType(Scrollable).first);
           await t.pumpAndSettle();
         },
       );
@@ -292,9 +360,9 @@ void main() {
           height: 1400);
     });
 
-    testWidgets('DOC05-REQ-020-favorites-empty-ar', (tester) async {
+    testWidgets('DOC05-EXTRA-favorites-empty-ar', (tester) async {
       await capture(tester, const FavoritesScreen(),
-          'customer/arabic/DOC05-REQ-020-favorites-empty-ar.png');
+          'customer/arabic/DOC05-EXTRA-favorites-empty-ar.png');
     });
   });
 }

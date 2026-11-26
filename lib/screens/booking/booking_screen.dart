@@ -42,6 +42,9 @@ double computeExtraBedCharge({
   return extraBedPrice * beds * stayNights;
 }
 
+/// الحد الأعلى لعدد الأسرّة الإضافية في الحجز الواحد.
+const int kMaxExtraBeds = 4;
+
 /// سطر شرح حسابية السرير الإضافي (عدد × سعر × ليالٍ) كما يظهر للضيف.
 String extraBedChargeFormula({
   required int quantity,
@@ -584,6 +587,220 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         : '${monthsEn[d.month - 1]} ${d.day}';
   }
 
+  /// السعر معرّف على الفندق لا على الوحدة، فإن عرّف المالك «سرير إضافي»
+  /// كإضافة وحدة (category == 'extra_bed') لا نعرض البطاقة حتى لا يُحتسب مرتين.
+  bool get _showsExtraBedCard =>
+      widget.hotel.extraBedPrice != null &&
+      !_otherAddons.any((a) => a.category == 'extra_bed');
+
+  /// قسم الإضافات في شاشة الحجز (المستند 06 §B).
+  ///
+  /// كانت بطاقة السرير الإضافي مبنية داخل فرع «الحجز على مستوى الفندق» فقط،
+  /// فكانت تختفي عند الحجز المباشر لوحدة (`unitId != null`) رغم أن السعر
+  /// معرف على الفندق والإجمالي يُحسب في المسارين. تُبنى الآن بعد الفرعين
+  /// فيظهر خيار السرير الإضافي والعدّاد في الحالتين.
+  List<Widget> _buildExtrasSection(BuildContext context, bool isArabic) {
+    final textTheme = Theme.of(context).textTheme;
+    final widgets = <Widget>[];
+
+    if (widget.unitId != null) {
+      if (_loadingAddons) {
+        widgets.add(const Padding(
+          padding: EdgeInsets.symmetric(vertical: AppDimens.md),
+          child: Center(child: CircularProgressIndicator()),
+        ));
+      } else {
+        if (_mealAddons.isNotEmpty) {
+          widgets.addAll(_buildMealAddonOptions(textTheme, isArabic));
+        }
+        if (_otherAddons.isNotEmpty) {
+          widgets.addAll(_buildUnitAddonOptions(textTheme, isArabic));
+        }
+        if (_mealAddons.isEmpty && _otherAddons.isEmpty) {
+          widgets.add(Padding(
+            padding: const EdgeInsets.only(bottom: AppDimens.md),
+            child: Text(AppStrings.t(isArabic, 'no_addons_yet'),
+                style:
+                    textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+          ));
+        }
+      }
+    } else {
+      widgets.addAll(_buildHotelLevelMeals(textTheme, isArabic));
+    }
+
+    final extraBedPrice = widget.hotel.extraBedPrice;
+    if (_showsExtraBedCard) {
+      widgets.add(_ExtraBedCard(
+        isArabic: isArabic,
+        price: extraBedPrice!,
+        enabled: _extraBed,
+        quantity: _extraBedQty,
+        nights: _nights,
+        onToggle: (v) => setState(() {
+          _extraBed = v;
+          if (!v) _extraBedQty = 1;
+        }),
+        onMinus:
+            _extraBedQty <= 1 ? null : () => setState(() => _extraBedQty--),
+        onPlus: _extraBedQty >= kMaxExtraBeds
+            ? null
+            : () => setState(() => _extraBedQty++),
+      ));
+    }
+    return widgets;
+  }
+
+  /// وجبات الوحدة بأسعار الـ API الحقيقية (متعدد الاختيار).
+  List<Widget> _buildMealAddonOptions(TextTheme textTheme, bool isArabic) {
+    return [
+      Text(AppStrings.t(isArabic, 'meal_type'), style: textTheme.titleMedium),
+      Text(AppStrings.t(isArabic, 'meal_multi_select_hint'),
+          style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+      const SizedBox(height: AppDimens.sm),
+      _MealOptionTile(
+        label: AppStrings.t(isArabic, 'meal_option_none'),
+        priceLabel: AppStrings.t(isArabic, 'free'),
+        selected: _selectedMealAddonIds.isEmpty,
+        onTap: () => setState(() => _selectedMealAddonIds.clear()),
+      ),
+      ..._mealAddons.map((m) {
+        final id = m.id;
+        final selected = _selectedMealAddonIds.contains(id);
+        return _MealOptionTile(
+          label: m.name(isArabic),
+          priceLabel:
+              '+${_addonLineTotal(m).toStringAsFixed(0)} ${AppStrings.t(isArabic, "sar")}',
+          selected: selected,
+          onTap: () => setState(() {
+            if (selected) {
+              _selectedMealAddonIds.remove(id);
+            } else {
+              _selectedMealAddonIds.add(id);
+            }
+          }),
+        );
+      }),
+      // المتطلب 51: إظهار قيمة إجمالي الوجبات المختارة (بأسعار الإضافات
+      // الحقيقية من الـ API) بدل الاكتفاء بملاحظة نصية.
+      if (_selectedMealAddonIds.isNotEmpty)
+        Container(
+          margin: const EdgeInsets.only(top: AppDimens.sm),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppDimens.md, vertical: AppDimens.sm),
+          decoration: BoxDecoration(
+            color: AppColors.gold.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(AppDimens.radiusSm),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(AppStrings.t(isArabic, 'meals_total'),
+                  style: textTheme.bodyMedium
+                      ?.copyWith(fontWeight: FontWeight.w600)),
+              Text(
+                '${_mealsSubtotal.toStringAsFixed(0)} ${AppStrings.t(isArabic, "sar")}',
+                style: textTheme.bodyMedium?.copyWith(
+                    color: AppColors.goldDark, fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
+        ),
+      const SizedBox(height: AppDimens.lg),
+    ];
+  }
+
+  /// إضافات الوحدة الأخرى (خدمات، سرير إضافي كإضافة، …).
+  List<Widget> _buildUnitAddonOptions(TextTheme textTheme, bool isArabic) {
+    return [
+      Text(AppStrings.t(isArabic, 'unit_addons_title'),
+          style: textTheme.titleMedium),
+      const SizedBox(height: AppDimens.sm),
+      ..._otherAddons.map((a) {
+        final id = a.id;
+        final selected = _selectedOtherAddonIds.contains(id);
+        return Container(
+          margin: const EdgeInsets.only(bottom: AppDimens.sm),
+          padding: const EdgeInsets.all(AppDimens.md),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${a.category == 'extra_bed' ? '🛏️ ' : '✨ '}${a.name(isArabic)}',
+                      style: textTheme.bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    Text(
+                      '+${_addonLineTotal(a).toStringAsFixed(0)} ${AppStrings.t(isArabic, "sar")}',
+                      style: textTheme.bodySmall
+                          ?.copyWith(color: AppColors.textMuted),
+                    ),
+                  ],
+                ),
+              ),
+              Switch(
+                value: selected,
+                activeColor: AppColors.gold,
+                onChanged: (v) => setState(() {
+                  if (v) {
+                    _selectedOtherAddonIds.add(id);
+                  } else {
+                    _selectedOtherAddonIds.remove(id);
+                  }
+                }),
+              ),
+            ],
+          ),
+        );
+      }),
+      const SizedBox(height: AppDimens.md),
+    ];
+  }
+
+  /// وجبات الحجز على مستوى الفندق (بلا وحدة محددة) — توافق النظام القديم.
+  List<Widget> _buildHotelLevelMeals(TextTheme textTheme, bool isArabic) {
+    return [
+      Text(AppStrings.t(isArabic, 'meal_type'), style: textTheme.titleMedium),
+      const SizedBox(height: AppDimens.sm),
+      Wrap(
+        spacing: AppDimens.sm,
+        runSpacing: AppDimens.sm,
+        children: ['breakfast', 'lunch', 'dinner'].map((m) {
+          final selected = _selectedLegacyMeals.contains(m);
+          return FilterChip(
+            label: Text(AppStrings.t(isArabic, 'meal_option_$m')),
+            selected: selected,
+            onSelected: (v) => setState(() {
+              if (v) {
+                _selectedLegacyMeals.add(m);
+              } else {
+                _selectedLegacyMeals.remove(m);
+              }
+            }),
+            selectedColor: AppColors.gold.withOpacity(0.2),
+            labelStyle: TextStyle(
+                color: selected ? AppColors.goldDark : AppColors.textMuted,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w400),
+          );
+        }).toList(),
+      ),
+      if (_selectedLegacyMeals.isEmpty)
+        Padding(
+          padding: const EdgeInsets.only(top: AppDimens.sm),
+          child: Text(AppStrings.t(isArabic, 'meal_option_none'),
+              style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+        ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final isArabic = ref.watch(localeProvider).languageCode == 'ar';
@@ -839,266 +1056,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                         ],
                         const SizedBox(height: AppDimens.lg),
 
-                        if (widget.unitId != null) ...[
-                          // إضافات الوحدة الحقيقية يلي حددها المالك (وجبات: فطور/غداء/عشاء + سرير إضافي + إضافات أخرى)
-                          if (_loadingAddons)
-                            const Padding(
-                              padding:
-                                  EdgeInsets.symmetric(vertical: AppDimens.md),
-                              child: Center(child: CircularProgressIndicator()),
-                            )
-                          else ...[
-                            if (_mealAddons.isNotEmpty) ...[
-                              Text(AppStrings.t(isArabic, 'meal_type'),
-                                  style: textTheme.titleMedium),
-                              Text(
-                                  AppStrings.t(
-                                      isArabic, 'meal_multi_select_hint'),
-                                  style: textTheme.bodySmall
-                                      ?.copyWith(color: AppColors.textMuted)),
-                              const SizedBox(height: AppDimens.sm),
-                              _MealOptionTile(
-                                label:
-                                    AppStrings.t(isArabic, 'meal_option_none'),
-                                priceLabel: AppStrings.t(isArabic, 'free'),
-                                selected: _selectedMealAddonIds.isEmpty,
-                                onTap: () => setState(
-                                    () => _selectedMealAddonIds.clear()),
-                              ),
-                              ..._mealAddons.map((m) {
-                                final id = m.id;
-                                final selected =
-                                    _selectedMealAddonIds.contains(id);
-                                return _MealOptionTile(
-                                  label: m.name(isArabic),
-                                  priceLabel:
-                                      '+${_addonLineTotal(m).toStringAsFixed(0)} ${AppStrings.t(isArabic, "sar")}',
-                                  selected: selected,
-                                  onTap: () => setState(() {
-                                    if (selected) {
-                                      _selectedMealAddonIds.remove(id);
-                                    } else {
-                                      _selectedMealAddonIds.add(id);
-                                    }
-                                  }),
-                                );
-                              }),
-                              // المتطلب 51: إظهار قيمة إجمالي الوجبات المختارة (بأسعار الإضافات
-                              // الحقيقية من الـ API) بدل الاكتفاء بملاحظة نصية.
-                              if (_selectedMealAddonIds.isNotEmpty)
-                                Container(
-                                  margin:
-                                      const EdgeInsets.only(top: AppDimens.sm),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: AppDimens.md,
-                                      vertical: AppDimens.sm),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.gold.withOpacity(0.08),
-                                    borderRadius: BorderRadius.circular(
-                                        AppDimens.radiusSm),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                          AppStrings.t(isArabic, 'meals_total'),
-                                          style: textTheme.bodyMedium?.copyWith(
-                                              fontWeight: FontWeight.w600)),
-                                      Text(
-                                        '${_mealsSubtotal.toStringAsFixed(0)} ${AppStrings.t(isArabic, "sar")}',
-                                        style: textTheme.bodyMedium?.copyWith(
-                                            color: AppColors.goldDark,
-                                            fontWeight: FontWeight.w700),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              const SizedBox(height: AppDimens.lg),
-                            ],
-                            if (_otherAddons.isNotEmpty) ...[
-                              Text(AppStrings.t(isArabic, 'unit_addons_title'),
-                                  style: textTheme.titleMedium),
-                              const SizedBox(height: AppDimens.sm),
-                              ..._otherAddons.map((a) {
-                                final id = a.id;
-                                final selected =
-                                    _selectedOtherAddonIds.contains(id);
-                                return Container(
-                                  margin: const EdgeInsets.only(
-                                      bottom: AppDimens.sm),
-                                  padding: const EdgeInsets.all(AppDimens.md),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.surface,
-                                    borderRadius: BorderRadius.circular(
-                                        AppDimens.radiusLg),
-                                    border:
-                                        Border.all(color: AppColors.cardBorder),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              '${a.category == 'extra_bed' ? '🛏️ ' : '✨ '}${a.name(isArabic)}',
-                                              style: textTheme.bodyMedium
-                                                  ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.w600),
-                                            ),
-                                            Text(
-                                              '+${_addonLineTotal(a).toStringAsFixed(0)} ${AppStrings.t(isArabic, "sar")}',
-                                              style: textTheme.bodySmall
-                                                  ?.copyWith(
-                                                      color:
-                                                          AppColors.textMuted),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Switch(
-                                        value: selected,
-                                        activeColor: AppColors.gold,
-                                        onChanged: (v) => setState(() {
-                                          if (v) {
-                                            _selectedOtherAddonIds.add(id);
-                                          } else {
-                                            _selectedOtherAddonIds.remove(id);
-                                          }
-                                        }),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }),
-                              const SizedBox(height: AppDimens.md),
-                            ],
-                            if (_mealAddons.isEmpty && _otherAddons.isEmpty)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(bottom: AppDimens.md),
-                                child: Text(
-                                  AppStrings.t(isArabic, 'no_addons_yet'),
-                                  style: textTheme.bodySmall
-                                      ?.copyWith(color: AppColors.textMuted),
-                                ),
-                              ),
-                          ],
-                        ] else ...[
-                          // مافي وحدة محددة (حجز على مستوى الفندق العام) — النظام القديم كتوافق
-                          Text(AppStrings.t(isArabic, 'meal_type'),
-                              style: textTheme.titleMedium),
-                          const SizedBox(height: AppDimens.sm),
-                          Wrap(
-                            spacing: AppDimens.sm,
-                            runSpacing: AppDimens.sm,
-                            children: ['breakfast', 'lunch', 'dinner'].map((m) {
-                              final selected = _selectedLegacyMeals.contains(m);
-                              return FilterChip(
-                                label: Text(
-                                    AppStrings.t(isArabic, 'meal_option_$m')),
-                                selected: selected,
-                                onSelected: (v) => setState(() {
-                                  if (v) {
-                                    _selectedLegacyMeals.add(m);
-                                  } else {
-                                    _selectedLegacyMeals.remove(m);
-                                  }
-                                }),
-                                selectedColor: AppColors.gold.withOpacity(0.2),
-                                labelStyle: TextStyle(
-                                    color: selected
-                                        ? AppColors.goldDark
-                                        : AppColors.textMuted,
-                                    fontWeight: selected
-                                        ? FontWeight.w700
-                                        : FontWeight.w400),
-                              );
-                            }).toList(),
-                          ),
-                          if (_selectedLegacyMeals.isEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: AppDimens.sm),
-                              child: Text(
-                                  AppStrings.t(isArabic, 'meal_option_none'),
-                                  style: textTheme.bodySmall
-                                      ?.copyWith(color: AppColors.textMuted)),
-                            ),
-
-                          if (widget.hotel.extraBedPrice != null) ...[
-                            const SizedBox(height: AppDimens.lg),
-                            Container(
-                              padding: const EdgeInsets.all(AppDimens.md),
-                              decoration: BoxDecoration(
-                                color: AppColors.surface,
-                                borderRadius:
-                                    BorderRadius.circular(AppDimens.radiusLg),
-                                border: Border.all(color: AppColors.cardBorder),
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                            AppStrings.t(
-                                                isArabic, 'add_extra_bed'),
-                                            style: textTheme.bodyMedium
-                                                ?.copyWith(
-                                                    fontWeight:
-                                                        FontWeight.w600)),
-                                        Text(
-                                          widget.hotel.extraBedPrice == 0
-                                              ? AppStrings.t(isArabic, 'free')
-                                              : '+${widget.hotel.extraBedPrice!.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')} × '
-                                                  '${AppStrings.t(isArabic, 'per_night_per_bed')}',
-                                          style: textTheme.bodySmall?.copyWith(
-                                              color: AppColors.textMuted),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Switch(
-                                    value: _extraBed,
-                                    activeColor: AppColors.gold,
-                                    onChanged: (v) => setState(() {
-                                      _extraBed = v;
-                                      if (!v) _extraBedQty = 1;
-                                    }),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (_extraBed &&
-                                widget.hotel.extraBedPrice != null &&
-                                widget.hotel.extraBedPrice! > 0) ...[
-                              const SizedBox(height: AppDimens.sm),
-                              _StepperBox(
-                                label: AppStrings.t(
-                                    isArabic, 'extra_bed_quantity'),
-                                value: _extraBedQty,
-                                onMinus: _extraBedQty <= 1
-                                    ? null
-                                    : () => setState(() => _extraBedQty--),
-                                onPlus: _extraBedQty >= 4
-                                    ? null
-                                    : () => setState(() => _extraBedQty++),
-                              ),
-                              const SizedBox(height: AppDimens.xs),
-                              Text(
-                                '${extraBedChargeFormula(quantity: _extraBedQty, nightlyPrice: widget.hotel.extraBedPrice!, nights: _nights)} = '
-                                '${computeExtraBedCharge(extraBed: true, extraBedPrice: widget.hotel.extraBedPrice, quantity: _extraBedQty, nights: _nights).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
-                                style: textTheme.bodySmall
-                                    ?.copyWith(color: AppColors.textMuted),
-                              ),
-                            ],
-                          ],
-                        ],
+                        ..._buildExtrasSection(context, isArabic),
                         const SizedBox(height: AppDimens.lg),
 
                         Text(AppStrings.t(isArabic, 'payment_method'),
@@ -1283,6 +1241,91 @@ class _InfoBox extends StatelessWidget {
           Text(value, style: Theme.of(context).textTheme.titleSmall),
         ],
       ),
+    );
+  }
+}
+
+/// بطاقة اختيار السرير الإضافي مع عدّاد الكمية وسطر الحساب
+/// (العدد × سعر الليلة × الليالي) — تُستخدم في مساري الحجز.
+class _ExtraBedCard extends StatelessWidget {
+  final bool isArabic;
+  final double price;
+  final bool enabled;
+  final int quantity;
+  final int nights;
+  final ValueChanged<bool> onToggle;
+  final VoidCallback? onMinus;
+  final VoidCallback? onPlus;
+
+  const _ExtraBedCard({
+    required this.isArabic,
+    required this.price,
+    required this.enabled,
+    required this.quantity,
+    required this.nights,
+    required this.onToggle,
+    required this.onMinus,
+    required this.onPlus,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: AppDimens.lg),
+        Container(
+          padding: const EdgeInsets.all(AppDimens.md),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(AppStrings.t(isArabic, 'add_extra_bed'),
+                        style: textTheme.bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.w600)),
+                    Text(
+                      price == 0
+                          ? AppStrings.t(isArabic, 'free')
+                          : '+${price.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')} × '
+                              '${AppStrings.t(isArabic, 'per_night_per_bed')}',
+                      style: textTheme.bodySmall
+                          ?.copyWith(color: AppColors.textMuted),
+                    ),
+                  ],
+                ),
+              ),
+              Switch(
+                value: enabled,
+                activeColor: AppColors.gold,
+                onChanged: onToggle,
+              ),
+            ],
+          ),
+        ),
+        if (enabled && price > 0) ...[
+          const SizedBox(height: AppDimens.sm),
+          _StepperBox(
+            label: AppStrings.t(isArabic, 'extra_bed_quantity'),
+            value: quantity,
+            onMinus: onMinus,
+            onPlus: onPlus,
+          ),
+          const SizedBox(height: AppDimens.xs),
+          Text(
+            '${extraBedChargeFormula(quantity: quantity, nightlyPrice: price, nights: nights)} = '
+            '${computeExtraBedCharge(extraBed: true, extraBedPrice: price, quantity: quantity, nights: nights).toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+            style: textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
+          ),
+        ],
+      ],
     );
   }
 }

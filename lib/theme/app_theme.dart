@@ -19,6 +19,9 @@ class AppTheme {
       if (fontFamilyOverride != null) {
         return TextStyle(
           fontFamily: fontFamilyOverride,
+          // أسماء الفنادق والوحدات تصل عربية دائمًا؛ عند تصوير الواجهة
+          // الإنجليزية نُبقي خطًا عربيًا كخط بديل حتى لا تظهر مربّعات فارغة.
+          fontFamilyFallback: const ['IBM Plex Sans Arabic', 'Inter'],
           fontSize: fontSize,
           fontWeight: fontWeight,
           color: color,
