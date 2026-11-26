@@ -159,4 +159,45 @@ class HotelStaffService {
       throw ApiException.fromDioError(e);
     }
   }
+
+  // ===== تسعير الوحدات وتسعير الوجبات (المتطلبات 13–16 من المستند 06) =====
+
+  /// سجلات تسعير الوحدات المحفوظة وأنواع الوحدات الحقيقية في الفندق.
+  Future<Map<String, dynamic>> getUnitPricing() async {
+    try {
+      final res = await _dio.get('/hotel/unit-pricing.php');
+      return {
+        'records': asMapList(res.data['records']),
+        'units': asMapList(res.data['units']),
+      };
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  Future<void> saveUnitPricing(Map<String, dynamic> payload) async {
+    try {
+      await _dio.post('/hotel/unit-pricing.php', data: payload);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  /// سجلات تسعير الوجبات المحفوظة (عنوان + تاريخ + ثلاث وجبات بأسعارها).
+  Future<Map<String, dynamic>> getMealPricing() async {
+    try {
+      final res = await _dio.get('/hotel/meal-pricing.php');
+      return {'records': asMapList(res.data['records'])};
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  Future<void> saveMealPricing(Map<String, dynamic> payload) async {
+    try {
+      await _dio.post('/hotel/meal-pricing.php', data: payload);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
 }

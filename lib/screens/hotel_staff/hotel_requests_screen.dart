@@ -6,8 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
-import '../../utils/housekeeping_settlement.dart';
 import '../../utils/maintenance_settlement.dart';
+import '../../utils/request_settlement.dart';
 import '../../utils/locale_provider.dart';
 import '../../utils/session_provider.dart';
 import '../../services/hotel_staff_service.dart';
@@ -53,8 +53,8 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
         _future = _service.getRequests(type: _types[_tab.index]);
       });
 
-  Future<void> _act(
-      bool isArabic, Map<String, dynamic> r, String action) async {
+  Future<void> _act(bool isArabic, Map<String, dynamic> r, String action,
+      String? role) async {
     final needsNote = action == 'reject';
     final noteCtrl = TextEditingController();
     final priceCtrl = TextEditingController(
@@ -67,14 +67,30 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
     final isMaintenanceConfirm = canAttachImage && action == 'confirm';
     MaintenanceSettlement settlement = MaintenanceSettlement.unitBalance;
 
-    // المتطلب 10 من المستند 06: تأكيد طلب النظافة يتطلب اختيار طريقة سداد
-    // (خصم من الرصيد أو رابط دفع عبر واتساب) بعد ظهور السعر المعتمد.
-    final isCleaningConfirm =
-        (r['type'] ?? '').toString() == 'cleaning' && action == 'confirm';
+    // المتطلبات 10–12 من المستند 06: تأكيد طلب النظافة أو الوجبات أو السرير
+    // الإضافي يتطلب اختيار طريقة سداد (خصم من الرصيد أو رابط دفع عبر واتساب)
+    // بعد ظهور السعر المعتمد. القواعد مشتركة في `request_settlement.dart`.
+    final settlementKind = action == 'confirm'
+        ? settlementKindForRequestType(r['type']?.toString())
+        : null;
+    final isServiceConfirm = settlementKind != null;
     final canSettle =
-        canConfirmHousekeepingSettlement(ref.read(sessionProvider).user?.role);
-    final approvedPrice = approvedHousekeepingPrice(r);
-    HousekeepingSettlement? housekeepingChoice;
+        canConfirmRequestSettlement(ref.read(sessionProvider).user?.role);
+    final approvedPrice = approvedRequestPrice(r);
+    final mealLabels = settlementKind == SettlementRequestKind.meal
+        ? requestMealLabels(r)
+        : const <String>[];
+    final bedCount = settlementKind == SettlementRequestKind.extraBed
+        ? extraBedCount(r)
+        : null;
+    final bedNights = settlementKind == SettlementRequestKind.extraBed
+        ? extraBedNights(r)
+        : null;
+    final bedTotal = settlementKind == SettlementRequestKind.extraBed
+        ? extraBedTotal(r, approvedPrice)
+        : null;
+    final recordedBefore = isRequestSettlementRecorded(r);
+    RequestSettlement? settlementChoice;
     String? dialogError;
 
     final confirmed = await showDialog<bool>(
@@ -107,13 +123,13 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
                       labelText: AppStrings.t(isArabic,
                           needsNote ? 'reject_reason' : 'note_optional')),
                 ),
-                if (isCleaningConfirm) ...[
+                if (isServiceConfirm) ...[
                   const SizedBox(height: AppDimens.sm),
                   Row(
                     children: [
                       Expanded(
                         child: Text(
-                          AppStrings.t(isArabic, 'approved_housekeeping_price'),
+                          AppStrings.t(isArabic, settlementKind.priceLabelKey),
                           style: Theme.of(ctx).textTheme.titleSmall,
                         ),
                       ),
@@ -128,25 +144,65 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
                       ),
                     ],
                   ),
+                  // المتطلب 11: أنواع الوجبات كما وردت في الطلب.
+                  if (settlementKind == SettlementRequestKind.meal &&
+                      mealLabels.isNotEmpty) ...[
+                    const SizedBox(height: AppDimens.sm),
+                    _DetailLine(
+                      label: AppStrings.t(isArabic, 'meal_types_label'),
+                      value: mealLabels.map((label) {
+                        final key = mealLabelKey(label);
+                        return key == null
+                            ? label
+                            : AppStrings.t(isArabic, key);
+                      }).join(' • '),
+                    ),
+                  ],
+                  // المتطلب 12: عدد الأسرّة والليالي والإجمالي.
+                  if (settlementKind == SettlementRequestKind.extraBed) ...[
+                    const SizedBox(height: AppDimens.sm),
+                    _DetailLine(
+                      label: AppStrings.t(isArabic, 'extra_bed_count'),
+                      value: bedCount?.toString() ?? '—',
+                    ),
+                    _DetailLine(
+                      label: AppStrings.t(isArabic, 'extra_bed_nights'),
+                      value: bedNights?.toString() ?? '—',
+                    ),
+                    _DetailLine(
+                      label: AppStrings.t(isArabic, 'extra_bed_total'),
+                      value: bedTotal == null
+                          ? '—'
+                          : '${bedTotal.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                    ),
+                  ],
                   const SizedBox(height: AppDimens.sm),
                   Align(
                     alignment: AlignmentDirectional.centerStart,
                     child: Text(
-                      AppStrings.t(isArabic, 'housekeeping_settlement'),
+                      AppStrings.t(isArabic, 'service_settlement'),
                       style: Theme.of(ctx).textTheme.titleSmall,
                     ),
                   ),
-                  for (final option in HousekeepingSettlement.values)
-                    RadioListTile<HousekeepingSettlement>(
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                      value: option,
-                      groupValue: housekeepingChoice,
-                      onChanged: (v) =>
-                          setDialogState(() => housekeepingChoice = v),
-                      title: Text(AppStrings.t(
-                          isArabic, housekeepingSettlementLabelKey(option))),
+                  RadioGroup<RequestSettlement>(
+                    groupValue: settlementChoice,
+                    onChanged: (v) => setDialogState(() {
+                      // الطلب المسوّى لا يقبل تغيير الوسيلة ولا إعادة الإرسال.
+                      if (!recordedBefore) settlementChoice = v;
+                    }),
+                    child: Column(
+                      children: [
+                        for (final option in RequestSettlement.values)
+                          RadioListTile<RequestSettlement>(
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                            value: option,
+                            title: Text(AppStrings.t(
+                                isArabic, requestSettlementLabelKey(option))),
+                          ),
+                      ],
                     ),
+                  ),
                 ],
                 if (isMaintenanceConfirm) ...[
                   const SizedBox(height: AppDimens.sm),
@@ -157,21 +213,29 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
                       style: Theme.of(ctx).textTheme.titleSmall,
                     ),
                   ),
-                  RadioListTile<MaintenanceSettlement>(
-                    dense: true,
-                    contentPadding: EdgeInsets.zero,
-                    value: MaintenanceSettlement.unitBalance,
+                  RadioGroup<MaintenanceSettlement>(
                     groupValue: settlement,
-                    onChanged: (v) => setDialogState(() => settlement = v!),
-                    title: Text(AppStrings.t(isArabic, 'settle_unit_balance')),
-                  ),
-                  RadioListTile<MaintenanceSettlement>(
-                    dense: true,
-                    contentPadding: EdgeInsets.zero,
-                    value: MaintenanceSettlement.whatsappLink,
-                    groupValue: settlement,
-                    onChanged: (v) => setDialogState(() => settlement = v!),
-                    title: Text(AppStrings.t(isArabic, 'settle_whatsapp_link')),
+                    onChanged: (v) => setDialogState(() {
+                      if (v != null) settlement = v;
+                    }),
+                    child: Column(
+                      children: [
+                        RadioListTile<MaintenanceSettlement>(
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                          value: MaintenanceSettlement.unitBalance,
+                          title: Text(
+                              AppStrings.t(isArabic, 'settle_unit_balance')),
+                        ),
+                        RadioListTile<MaintenanceSettlement>(
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                          value: MaintenanceSettlement.whatsappLink,
+                          title: Text(
+                              AppStrings.t(isArabic, 'settle_whatsapp_link')),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
                 if (canAttachImage) ...[
@@ -218,14 +282,15 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
             TextButton(
               onPressed: () {
                 if (needsNote && noteCtrl.text.trim().isEmpty) return;
-                if (isCleaningConfirm) {
+                if (isServiceConfirm) {
                   final typedPrice =
                       double.tryParse(priceCtrl.text.trim()) ?? approvedPrice;
-                  final error = validateHousekeepingSettlement(
+                  final error = validateRequestSettlement(
                     request: r,
-                    choice: housekeepingChoice,
+                    choice: settlementChoice,
                     price: typedPrice,
                     canConfirm: canSettle,
+                    kind: settlementKind,
                   );
                   if (error != null) {
                     setDialogState(() => dialogError = error);
@@ -249,12 +314,13 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
 
     // فحص نهائي قبل الإرسال: يمنع الخصم المزدوج وطلب الدفع المكرر، ويوقف أي
     // محاولة تجاوز للصلاحيات من واجهة الفندق.
-    if (isCleaningConfirm) {
-      final error = validateHousekeepingSettlement(
+    if (isServiceConfirm) {
+      final error = validateRequestSettlement(
         request: r,
-        choice: housekeepingChoice,
+        choice: settlementChoice,
         price: parsedPrice ?? approvedPrice,
         canConfirm: canSettle,
+        kind: settlementKind,
       );
       if (error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -274,8 +340,8 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
         imagePath: imageFile?.path,
         settlement: isMaintenanceConfirm
             ? settlementPayload(settlement)
-            : isCleaningConfirm
-                ? housekeepingSettlementPayload(housekeepingChoice!)
+            : isServiceConfirm
+                ? requestSettlementPayload(settlementChoice!)
                 : null,
       );
       if (!mounted) return;
@@ -303,9 +369,10 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
           if (!mounted) return;
         }
       }
-      // المتطلب 10 من المستند 06: رابط الدفع يُقرأ من استجابة السيرفر فقط.
-      if (isCleaningConfirm &&
-          housekeepingChoice == HousekeepingSettlement.whatsappLink) {
+      // المتطلبات 10–12 من المستند 06: رابط الدفع يُقرأ من استجابة السيرفر فقط،
+      // وتُفتح رسالة واتساب بالمبلغ وبيانات الطلب الحقيقية.
+      if (isServiceConfirm &&
+          settlementChoice == RequestSettlement.whatsappLink) {
         final paymentLink = extractServerPaymentLink(response);
         if (paymentLink == null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -316,14 +383,32 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
         }
         final unitName =
             (isArabic ? r['unit_name_ar'] : r['unit_name_en'])?.toString();
-        final uri = buildHousekeepingWhatsAppUri(
+        final details = <String>[
+          if (settlementKind == SettlementRequestKind.meal &&
+              mealLabels.isNotEmpty)
+            '${AppStrings.t(isArabic, 'meal_types_label')}: ${mealLabels.map((label) {
+              final key = mealLabelKey(label);
+              return key == null ? label : AppStrings.t(isArabic, key);
+            }).join(', ')}',
+          if (settlementKind == SettlementRequestKind.extraBed) ...[
+            if (bedCount != null)
+              '${AppStrings.t(isArabic, 'extra_bed_count')}: $bedCount',
+            if (bedNights != null)
+              '${AppStrings.t(isArabic, 'extra_bed_nights')}: $bedNights',
+            if (bedTotal != null)
+              '${AppStrings.t(isArabic, 'extra_bed_total')}: ${bedTotal.toStringAsFixed(0)} SAR',
+          ],
+        ];
+        final uri = buildSettlementWhatsAppUri(
           phone: (r['requester_phone'] ?? r['owner_phone'] ?? r['guest_phone'])
               ?.toString(),
           isArabic: isArabic,
+          kind: settlementKind,
           requestId: asInt(r['id']),
           unitName: unitName,
           amount: parsedPrice ?? approvedPrice,
           paymentLink: paymentLink,
+          details: details,
         );
         if (uri == null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -336,9 +421,10 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
       }
       _reload();
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     } finally {
       if (mounted) setState(() => _busyId = null);
     }
@@ -363,6 +449,8 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
   @override
   Widget build(BuildContext context) {
     final isArabic = ref.watch(localeProvider).languageCode == 'ar';
+    // دور المستخدم يُقرأ أثناء البناء: يحدد صلاحية تأكيد الطلبات وتسويتها.
+    final role = ref.watch(sessionProvider).user?.role;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -419,12 +507,28 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
                   final unitName =
                       isArabic ? r['unit_name_ar'] : r['unit_name_en'];
                   final busy = _busyId == r['id'];
-                  // المتطلب 10 من المستند 06: السعر المعتمد ظاهر لموظف الفندق،
-                  // والتأكيد معطّل إن سبق تسجيل سداد الطلب (منع التكرار).
-                  final isCleaning = (r['type'] ?? '').toString() == 'cleaning';
-                  final cleaningPrice = approvedHousekeepingPrice(r);
-                  final cleaningSettled =
-                      isCleaning && isHousekeepingSettlementRecorded(r);
+                  // المتطلبات 10–12 من المستند 06: السعر المعتمد ظاهر لموظف
+                  // الفندق، والتأكيد معطّل إن سبق تسجيل سداد الطلب (منع التكرار).
+                  final requestKind =
+                      settlementKindForRequestType(r['type']?.toString());
+                  final approvedPrice = approvedRequestPrice(r);
+                  final settled =
+                      requestKind != null && isRequestSettlementRecorded(r);
+                  final cardMealLabels =
+                      requestKind == SettlementRequestKind.meal
+                          ? requestMealLabels(r)
+                          : const <String>[];
+                  final cardBeds = requestKind == SettlementRequestKind.extraBed
+                      ? extraBedCount(r)
+                      : null;
+                  final cardNights =
+                      requestKind == SettlementRequestKind.extraBed
+                          ? extraBedNights(r)
+                          : null;
+                  final cardTotal =
+                      requestKind == SettlementRequestKind.extraBed
+                          ? extraBedTotal(r, approvedPrice)
+                          : null;
                   return Container(
                     padding: const EdgeInsets.all(AppDimens.md),
                     decoration: BoxDecoration(
@@ -476,15 +580,34 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
                                   color: AppColors.goldDark,
                                   fontWeight: FontWeight.w600)),
                         ],
-                        if (isCleaning && cleaningPrice != null) ...[
+                        if (requestKind != null && approvedPrice != null) ...[
                           const SizedBox(height: 4),
                           Text(
-                              '${AppStrings.t(isArabic, 'approved_housekeeping_price')}: ${cleaningPrice.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                              '${AppStrings.t(isArabic, requestKind.priceLabelKey)}: ${approvedPrice.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
                               style: textTheme.bodySmall?.copyWith(
                                   color: AppColors.goldDark,
                                   fontWeight: FontWeight.w600)),
                         ],
-                        if (cleaningSettled) ...[
+                        if (cardMealLabels.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                              '${AppStrings.t(isArabic, 'meal_types_label')}: ${cardMealLabels.map((label) {
+                                final key = mealLabelKey(label);
+                                return key == null
+                                    ? label
+                                    : AppStrings.t(isArabic, key);
+                              }).join(' • ')}',
+                              style: textTheme.bodySmall),
+                        ],
+                        if (requestKind == SettlementRequestKind.extraBed) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                              '${AppStrings.t(isArabic, 'extra_bed_count')}: ${cardBeds ?? '—'} · '
+                              '${AppStrings.t(isArabic, 'extra_bed_nights')}: ${cardNights ?? '—'} · '
+                              '${AppStrings.t(isArabic, 'extra_bed_total')}: ${cardTotal == null ? '—' : '${cardTotal.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}'}',
+                              style: textTheme.bodySmall),
+                        ],
+                        if (settled) ...[
                           const SizedBox(height: 4),
                           Text(
                               AppStrings.t(
@@ -501,9 +624,10 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor: AppColors.secondary),
-                                    onPressed: busy || cleaningSettled
+                                    onPressed: busy || settled
                                         ? null
-                                        : () => _act(isArabic, r, 'confirm'),
+                                        : () =>
+                                            _act(isArabic, r, 'confirm', role),
                                     child: Text(AppStrings.t(
                                         isArabic, 'confirm_request')),
                                   ),
@@ -516,7 +640,7 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
                                       backgroundColor: AppColors.success),
                                   onPressed: busy
                                       ? null
-                                      : () => _act(isArabic, r, 'done'),
+                                      : () => _act(isArabic, r, 'done', role),
                                   child:
                                       Text(AppStrings.t(isArabic, 'mark_done')),
                                 ),
@@ -531,7 +655,8 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
                                             color: AppColors.danger)),
                                     onPressed: busy
                                         ? null
-                                        : () => _act(isArabic, r, 'reject'),
+                                        : () =>
+                                            _act(isArabic, r, 'reject', role),
                                     child: Text(AppStrings.t(
                                         isArabic, 'reject_request')),
                                   ),
@@ -548,6 +673,37 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
             },
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// سطر تفصيلي داخل نافذة تأكيد الطلب (نوع الوجبة، عدد الأسرّة، الليالي).
+class _DetailLine extends StatelessWidget {
+  const _DetailLine({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(label,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: AppColors.textMuted)),
+          ),
+          Flexible(
+            child: Text(value,
+                textAlign: TextAlign.end,
+                style: Theme.of(context).textTheme.bodySmall),
+          ),
+        ],
       ),
     );
   }

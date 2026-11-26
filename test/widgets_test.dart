@@ -1250,7 +1250,10 @@ void main() {
     test('الحقول الأساسية تُعرض دائمًا', () {
       final r = rows();
       final labels = r.map((e) => e.$1).toList();
-      expect(r.first.$2, 'BK-100');
+      // بلا رقم وحدة حقيقي تُعرض حالة «غير متاح» لا رقم الحجز.
+      expect(r.first.$2, AppStrings.t(true, 'not_available'));
+      expect(labels.contains(AppStrings.t(true, 'booking_reference_internal')),
+          isTrue);
       expect(labels.contains(AppStrings.t(true, 'hotel')), isTrue);
       expect(labels.contains(AppStrings.t(true, 'stay_dates')), isTrue);
       expect(labels.contains(AppStrings.t(true, 'guests')), isTrue);
@@ -1300,9 +1303,17 @@ void main() {
     test('المتطلب 4 من المستند 06: يُعرض رقم الوحدة الفعلي بدل رقم الحجز', () {
       final r = rows(unitNumber: '4005');
       expect(r.first.$2, '4005');
-      // بلا رقم وحدة حقيقي نعرض رقم الحجز الحقيقي ولا نختلق رقمًا.
-      expect(rows().first.$2, 'BK-100');
-      expect(rows(unitNumber: '   ').first.$2, 'BK-100');
+      // بلا رقم وحدة حقيقي نعرض «غير متاح» ولا نضع رقم الحجز مكانه.
+      expect(rows().first.$2, AppStrings.t(true, 'not_available'));
+      expect(rows(unitNumber: '   ').first.$2,
+          AppStrings.t(true, 'not_available'));
+      // رقم الحجز يبقى في سطر منفصل بوصفه المرجع الداخلي.
+      expect(
+          rows()
+              .firstWhere((e) =>
+                  e.$1 == AppStrings.t(true, 'booking_reference_internal'))
+              .$2,
+          'BK-100');
     });
     test('الإجمالي يُعرض بالريال فقط عند وصوله من السيرفر', () {
       expect(rows().any((e) => e.$1 == AppStrings.t(true, 'total_price')),

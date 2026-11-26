@@ -245,7 +245,10 @@ void main() {
         bookingRef: 'BK-77',
       );
       expect(rows.first.$1, 'رقم الضيافة');
+      // المرجع الداخلي مسموح بتسمية مختلفة تمامًا عن «رقم الحجز».
       expect(rows.any((r) => r.$1 == 'رقم الحجز'), isFalse);
+      expect(
+          AppStrings.t(true, 'booking_reference_internal'), isNot('رقم الحجز'));
     });
   });
 
@@ -260,15 +263,22 @@ void main() {
       expect(rows.first.$2, '4005');
     });
     test('لا يختلق رقمًا حين لا يصل رقم وحدة', () {
+      // تصحيح قبول المجموعة 01: لا يُعرض رقم الحجز مكان رقم الوحدة.
       final rows = buildBookingSuccessRows(
         isArabic: false,
         hotelName: 'Hotel',
         bookingRef: 'BK-77',
       );
-      expect(rows.first.$2, 'BK-77');
+      expect(rows.first.$1, 'Stay Reference');
+      expect(rows.first.$2, AppStrings.t(false, 'not_available'));
+      expect(rows.first.$2, isNot('BK-77'));
+      // المرجع الداخلي يبقى محفوظًا في سطر منفصل.
+      final internal = rows.firstWhere(
+          (r) => r.$1 == AppStrings.t(false, 'booking_reference_internal'));
+      expect(internal.$2, 'BK-77');
       final noRef =
           buildBookingSuccessRows(isArabic: false, hotelName: 'Hotel');
-      expect(noRef.first.$2, '-');
+      expect(noRef.first.$2, AppStrings.t(false, 'not_available'));
     });
   });
 

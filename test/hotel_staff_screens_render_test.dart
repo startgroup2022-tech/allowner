@@ -3,10 +3,13 @@ import 'dart:typed_data';
 
 import 'package:allowners/screens/hotel_staff/hotel_bookings_screen.dart';
 import 'package:allowners/screens/hotel_staff/hotel_dashboard_screen.dart';
+import 'package:allowners/screens/hotel_staff/hotel_meal_pricing_screen.dart';
 import 'package:allowners/screens/hotel_staff/hotel_prices_screen.dart';
 import 'package:allowners/screens/hotel_staff/hotel_requests_screen.dart';
+import 'package:allowners/screens/hotel_staff/hotel_unit_pricing_screen.dart';
 import 'package:allowners/services/api_client.dart';
 import 'package:allowners/theme/app_theme.dart';
+import 'package:allowners/utils/app_strings.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -50,22 +53,104 @@ const _bookingsJson = {
   ],
 };
 
+const _cleaningRequest = {
+  'id': 7,
+  'type': 'cleaning',
+  'description': 'تنظيف الغرفة 402',
+  'status': 'open',
+  'hotel_name': 'فندق فيرمونت مكه',
+  'unit_name_ar': 'جناح عائلي',
+  'unit_name_en': 'Family Suite',
+  'requester_name': 'مالك الوحدة',
+  'requester_phone': '0500000000',
+  'owner_phone': '0500000000',
+  'guest_phone': '0511111111',
+  'price': '120',
+};
+
+const _mealRequest = {
+  'id': 8,
+  'type': 'meal',
+  'description': 'فطور لغرفة 402',
+  'status': 'pending',
+  'hotel_name': 'فندق فيرمونت مكه',
+  'unit_name_ar': 'جناح عائلي',
+  'unit_name_en': 'Family Suite',
+  'requester_name': 'مالك الوحدة',
+  'guest_phone': '0511111111',
+  'price': '150',
+  'meal_types': ['breakfast', 'dinner'],
+  'settlement': '',
+};
+
+const _extraBedRequest = {
+  'id': 9,
+  'type': 'extra_bed',
+  'description': 'سرير إضافي',
+  'status': 'pending',
+  'hotel_name': 'فندق فيرمونت مكه',
+  'unit_name_ar': 'جناح عائلي',
+  'unit_name_en': 'Family Suite',
+  'guest_phone': '0511111111',
+  'price': '100',
+  'beds': 2,
+  'nights': 3,
+};
+
 const _requestsJson = {
   'success': true,
-  'requests': [
+  'requests': [_cleaningRequest],
+};
+
+const _mealRequestsJson = {
+  'success': true,
+  'requests': [_mealRequest],
+};
+
+const _extraBedRequestsJson = {
+  'success': true,
+  'requests': [_extraBedRequest],
+};
+
+const _unitPricingJson = {
+  'success': true,
+  'units': [
     {
-      'id': 7,
-      'type': 'cleaning',
-      'description': 'تنظيف الغرفة 402',
-      'status': 'open',
-      'hotel_name': 'فندق فيرمونت مكه',
-      'unit_name_ar': 'جناح عائلي',
-      'unit_name_en': 'Family Suite',
-      'requester_name': 'مالك الوحدة',
-      'requester_phone': '0500000000',
-      'owner_phone': '0500000000',
-      'guest_phone': '0511111111',
-      'price': '120',
+      'id': 1,
+      'unit_type_ar': 'جناح',
+      'unit_type_en': 'Suite',
+    },
+    {
+      'id': 2,
+      'unit_type_ar': 'غرفة',
+      'unit_type_en': 'Room',
+    },
+  ],
+  'records': [
+    {
+      'id': 4,
+      'title': 'أسعار مارس',
+      'pricing_date': '2026-03-09',
+      'rows': [
+        {'unit_type_ar': 'جناح', 'price': 400},
+        {'unit_type_ar': 'غرفة', 'price': 250},
+      ],
+    },
+  ],
+};
+
+const _mealPricingJson = {
+  'success': true,
+  'records': [
+    {
+      'id': 3,
+      'title': 'وجبات مارس',
+      'pricing_date': '2026-03-09',
+      'meals': [
+        {'name': 'فطور', 'price': 35},
+        {'name': 'غداء', 'price': 60},
+        {'name': 'عشاء', 'price': 50},
+      ],
     },
   ],
 };
@@ -85,6 +170,14 @@ const _pricesJson = {
   ],
 };
 
+/// مستخدم `/auth/me.php` الذي تستهلكه استعادة الجلسة في الاختبارات.
+Map<String, dynamic> _meUser = const {
+  'id': 9,
+  'full_name': 'مستخدم تجريبي',
+  'email': 'user@example.com',
+  'role': 'guest',
+};
+
 class _Adapter implements HttpClientAdapter {
   @override
   void close({bool force = false}) {}
@@ -97,12 +190,23 @@ class _Adapter implements HttpClientAdapter {
   ) async {
     final path = options.path;
     Object body;
-    if (path.contains('hotel/dashboard')) {
+    if (path.contains('auth/me')) {
+      body = {'success': true, 'user': _meUser};
+    } else if (path.contains('hotel/dashboard')) {
       body = _dashboardJson;
     } else if (path.contains('hotel/bookings')) {
       body = _bookingsJson;
     } else if (path.contains('hotel/requests')) {
-      body = _requestsJson;
+      final type = options.uri.queryParameters['type'];
+      body = switch (type) {
+        'meal' => _mealRequestsJson,
+        'extra_bed' => _extraBedRequestsJson,
+        _ => _requestsJson,
+      };
+    } else if (path.contains('hotel/unit-pricing')) {
+      body = _unitPricingJson;
+    } else if (path.contains('hotel/meal-pricing')) {
+      body = _mealPricingJson;
     } else if (path.contains('hotel/prices')) {
       body = _pricesJson;
     } else {
@@ -142,11 +246,24 @@ void main() {
   });
 
   Future<void> _pump(WidgetTester tester, Widget screen,
-      {double width = 390, bool isArabic = true}) async {
+      {double width = 390, bool isArabic = true, String? role}) async {
     tester.view.physicalSize = Size(width, 844);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    if (role != null) {
+      // جلسة مخزّنة حقيقية حتى تستعيدها `SessionNotifier` بالدور المطلوب.
+      _meUser = {
+        'id': 9,
+        'full_name': 'مستخدم تجريبي',
+        'email': 'user@example.com',
+        'role': role,
+      };
+      SharedPreferences.setMockInitialValues({
+        'auth_token': 'test-token',
+        'user_json': jsonEncode(_meUser),
+      });
+    }
     await tester.pumpWidget(_wrap(screen, isArabic: isArabic));
     await tester.pumpAndSettle();
   }
@@ -192,6 +309,119 @@ void main() {
       await _pump(tester, const HotelPricesScreen());
       expect(tester.takeException(), isNull);
       expect(find.textContaining('تنظيف'), findsWidgets);
+    });
+  });
+
+  group('تسعير الوحدات (المتطلبات 13–15 من المستند 06)', () {
+    testWidgets('ستة صفوف أنواع وحدات وأسعار من بيانات الفندق', (tester) async {
+      await _pump(tester, const HotelUnitPricingScreen());
+      expect(tester.takeException(), isNull);
+      // العنوان والتاريخ مطلوبان في النموذج.
+      expect(find.text('العنوان'), findsOneWidget);
+      expect(find.text('التاريخ'), findsWidgets);
+      expect(find.text('ستة صفوف لأنواع الوحدات وأسعارها'), findsOneWidget);
+      // أنواع الوحدات الحقيقية ظاهرة، والسجل المحفوظ يُسترجع.
+      expect(find.text('جناح'), findsWidgets);
+      expect(find.text('غرفة'), findsWidgets);
+      expect(find.text('أسعار مارس'), findsWidgets);
+      // ستة صفوف إدخال للنوع والسعر.
+      final priceFields = find.byWidgetPredicate(
+          (w) => w is TextField && w.decoration?.labelText == 'السعر');
+      expect(tester.widgetList(priceFields).length, 6);
+    });
+
+    for (final w in const [360.0, 768.0]) {
+      testWidgets('بلا تجاوز على ${w.toInt()}px', (tester) async {
+        await _pump(tester, const HotelUnitPricingScreen(), width: w);
+        expect(tester.takeException(), isNull);
+      });
+    }
+
+    testWidgets('الإنجليزية LTR', (tester) async {
+      SharedPreferences.setMockInitialValues({'app_locale': 'en'});
+      await _pump(tester, const HotelUnitPricingScreen(), isArabic: false);
+      expect(tester.takeException(), isNull);
+      expect(find.text('Unit pricing'), findsOneWidget);
+      expect(find.text('Six unit-type and price rows'), findsOneWidget);
+    });
+  });
+
+  group('تسعير الوجبات (المتطلب 16 من المستند 06)', () {
+    testWidgets('ثلاث وجبات وأسعارها مع العنوان والتاريخ', (tester) async {
+      await _pump(tester, const HotelMealPricingScreen());
+      expect(tester.takeException(), isNull);
+      expect(find.text('تسعير الوجبات'), findsWidgets);
+      expect(find.text('ثلاث وجبات وأسعارها'), findsOneWidget);
+      expect(find.text('وجبات مارس'), findsWidgets);
+      final nameFields = find.byWidgetPredicate((w) =>
+          w is TextField &&
+          (w.decoration?.labelText ?? '').startsWith('اسم الوجبة'));
+      expect(tester.widgetList(nameFields).length, 3);
+    });
+
+    testWidgets('بلا تجاوز على 360px', (tester) async {
+      await _pump(tester, const HotelMealPricingScreen(), width: 360);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('طلبات الوجبات والسرير الإضافي (المتطلبان 11 و12 من المستند 06)', () {
+    testWidgets('بطاقة الوجبات تعرض السعر المعتمد وأنواع الوجبات',
+        (tester) async {
+      await _pump(tester, const HotelRequestsScreen());
+      await tester.tap(find.text('الوجبات').first);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.textContaining('سعر الوجبات المعتمد'), findsWidgets);
+      expect(find.textContaining('فطور'), findsWidgets);
+    });
+
+    testWidgets('بطاقة السرير الإضافي تعرض الأسرّة والليالي والإجمالي',
+        (tester) async {
+      await _pump(tester, const HotelRequestsScreen(), width: 768);
+      await tester.tap(find.text('السرير الإضافي').first);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.textContaining('عدد الأسرّة'), findsWidgets);
+      expect(find.textContaining('عدد الليالي'), findsWidgets);
+      expect(find.textContaining('الإجمالي'), findsWidgets);
+    });
+
+    testWidgets('نافذة تأكيد الوجبات تعرض وسيلتي السداد', (tester) async {
+      await _pump(tester, const HotelRequestsScreen(), role: 'hotel_manager');
+      await tester.tap(find.text('الوجبات').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('تأكيد الطلب').first);
+      await tester.pumpAndSettle();
+      expect(find.text('خصم من الرصيد'), findsWidgets);
+      expect(find.text('الدفع عبر رابط بالواتساب'), findsWidgets);
+      expect(find.text('طريقة سداد قيمة الطلب'), findsOneWidget);
+    });
+
+    testWidgets('التأكيد بلا اختيار وسيلة يوقف الإرسال', (tester) async {
+      await _pump(tester, const HotelRequestsScreen(), role: 'hotel_manager');
+      await tester.tap(find.text('الوجبات').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('تأكيد الطلب').first);
+      await tester.pumpAndSettle();
+      // زر التأكيد داخل النافذة (آخر «تأكيد» في الشجرة).
+      await tester.tap(find.text('تأكيد').last);
+      await tester.pumpAndSettle();
+      expect(find.text(AppStrings.t(true, 'payment_method_required')),
+          findsOneWidget);
+    });
+
+    testWidgets('دور غير مصرّح لا يستطيع تأكيد الوجبات', (tester) async {
+      await _pump(tester, const HotelRequestsScreen(), role: 'customer');
+      await tester.tap(find.text('الوجبات').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('تأكيد الطلب').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('خصم من الرصيد').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('تأكيد').last);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('لا تملك صلاحية'), findsOneWidget);
     });
   });
 

@@ -279,3 +279,36 @@ preserve:
   a server-issued `payment_link`.
 - `pubspec.lock` requires Flutter >= 3.47.0. Do not run `flutter pub get` with an
   older SDK and commit the lock: it silently downgrades ~50 packages.
+
+## Document 06 — Group 02 (requirements 11–17)
+
+Implemented and documented in `docs/DOCUMENT_06_GROUP_02.md`. Invariants:
+
+- `lib/utils/request_settlement.dart` is now the **single** implementation of the
+  service-request settlement flow (cleaning, meal, extra bed): two options only
+  (`wallet_balance` / `whatsapp_link`), approved price required, duplicate guard,
+  hotel-dashboard roles only, server-issued `https` payment links only.
+  `lib/utils/housekeeping_settlement.dart` is a thin compatibility wrapper over it
+  — keep both public APIs working (existing tests use the housekeeping names).
+- The hotel-requests screen reads the session **role during build** and passes it
+  into the confirm dialog. Do not move that read into the dialog: `sessionProvider`
+  is created lazily on first read, and reading it there yields a null role.
+- Extra-bed amounts are derived, never invented: `extraBedTotal` uses server
+  totals first, else `price × beds × nights` only when all three are real.
+- `lib/utils/pricing_forms.dart` owns both pricing sheets (pure logic, tested):
+  six unit-type rows (names come from the hotel's real `unit_type_ar/en`, never
+  hardcoded) and three meal rows, each with a required title and date.
+  `lib/widgets/pricing_widgets.dart` holds the shared form widgets.
+- Pricing endpoints (`/hotel/unit-pricing.php`, `/hotel/meal-pricing.php`) do not
+  exist yet: the screens degrade to an inline error and never drop existing
+  `/hotel/prices.php` data. Owner read-only access goes through
+  `OwnerService.getOwnerPricingSheets()`.
+- Requirement 17 (remove the nightly price from hotel creation) has no Flutter
+  surface — the form lives in the PHP admin dashboard. Do not add a Flutter hotel
+  creation screen "to satisfy" it, and do not touch `units.price_per_night` or
+  `hotel/prices.php`.
+- Corrected Group 01 requirement 4: when no real unit number arrives, the stay
+  reference row shows `not_available` («غير متاح حاليًا»). Never put the booking
+  reference there; it belongs to the separate `booking_reference_internal` row.
+- `RadioListTile.groupValue/onChanged` are deprecated on Flutter 3.47; use a
+  `RadioGroup` ancestor (done in `hotel_requests_screen.dart`).

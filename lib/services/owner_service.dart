@@ -255,6 +255,33 @@ class OwnerService {
     }
   }
 
+  // ===== المتطلبان 15 و16 من المستند 06: الأسعار المعتمدة للمالك (قراءة) =====
+  // المالك يرى تسعير الوحدات وتفعيل الوجبات الذي يعتمده الفندق عبر نفس نقاط
+  // النهاية المصرّح بها لإدارة الفندق. أي فشل (نقطة نهاية غير منشورة بعد) لا
+  // يُسقط الشاشة؛ تُعرض بقية الأسعار فقط.
+
+  Future<Map<String, dynamic>> getOwnerPricingSheets() async {
+    List<Map<String, dynamic>> recordsFor(Object? data) =>
+        asMapList(data is Map ? data['records'] : null);
+
+    Object? unitData;
+    Object? mealData;
+    try {
+      unitData = (await _dio.get('/hotel/unit-pricing.php')).data;
+    } on DioException {
+      unitData = null;
+    }
+    try {
+      mealData = (await _dio.get('/hotel/meal-pricing.php')).data;
+    } on DioException {
+      mealData = null;
+    }
+    return {
+      'unit_records': recordsFor(unitData),
+      'meal_records': recordsFor(mealData),
+    };
+  }
+
   Future<Map<String, dynamic>> getMyCommission() async {
     try {
       final res = await _dio.get('/user/agent-commission.php');

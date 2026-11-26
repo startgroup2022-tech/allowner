@@ -7,6 +7,8 @@ import '../../utils/locale_provider.dart';
 import '../../services/hotel_staff_service.dart';
 import '../../utils/safe_parse.dart';
 import 'hotel_departures_screen.dart';
+import 'hotel_meal_pricing_screen.dart';
+import 'hotel_unit_pricing_screen.dart';
 
 class HotelDashboardScreen extends ConsumerStatefulWidget {
   const HotelDashboardScreen({super.key});
@@ -160,6 +162,42 @@ class _HotelDashboardScreenState extends ConsumerState<HotelDashboardScreen> {
                               ),
                             ))
                         .toList(),
+                  ),
+                  // المتطلبات 13–16 من المستند 06: نماذج تسعير الوحدات والوجبات.
+                  const SizedBox(height: AppDimens.md),
+                  Text(AppStrings.t(isArabic, 'service_prices'),
+                      style: textTheme.titleMedium),
+                  const SizedBox(height: AppDimens.sm),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      const HotelUnitPricingScreen())),
+                          icon: const Icon(Icons.home_work_outlined, size: 18),
+                          label: Text(
+                              AppStrings.t(isArabic, 'unit_pricing_title'),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis),
+                        ),
+                      ),
+                      const SizedBox(width: AppDimens.sm),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      const HotelMealPricingScreen())),
+                          icon: const Icon(Icons.restaurant_outlined, size: 18),
+                          label: Text(
+                              AppStrings.t(isArabic, 'meal_pricing_title'),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               );

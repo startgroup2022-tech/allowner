@@ -381,6 +381,11 @@ class AppStrings {
     'booking_reference': {'ar': 'رقم الحجز', 'en': 'Booking Reference'},
     // المتطلب 3 من المستند 06: التسمية الموجّهة للضيف «رقم الضيافة».
     'stay_reference': {'ar': 'رقم الضيافة', 'en': 'Stay Reference'},
+    // المرجع الداخلي للحجز يبقى محفوظًا في سطر منفصل ولا يُعرض كرقم وحدة.
+    'booking_reference_internal': {
+      'ar': 'المرجع الداخلي للحجز',
+      'en': 'Internal booking reference'
+    },
     'view_booking': {'ar': 'عرض الحجز', 'en': 'View Booking'},
 
     // ===== My Bookings =====
@@ -763,6 +768,74 @@ class AppStrings {
     'approved_housekeeping_price': {
       'ar': 'سعر النظافة المعتمد',
       'en': 'Approved housekeeping price'
+    },
+    // ===== المستند 06 — المجموعة 02 (11–16) =====
+    'approved_meal_price': {
+      'ar': 'سعر الوجبات المعتمد',
+      'en': 'Approved meal price'
+    },
+    'approved_extra_bed_price': {
+      'ar': 'سعر السرير الإضافي المعتمد',
+      'en': 'Approved extra bed price'
+    },
+    'meal_price_missing': {
+      'ar': 'لا يوجد سعر معتمد لطلب الوجبات — حدّد السعر أولًا',
+      'en': 'No approved price for this meal request — set the price first'
+    },
+    'extra_bed_price_missing': {
+      'ar': 'لا يوجد سعر معتمد لطلب السرير الإضافي — حدّد السعر أولًا',
+      'en': 'No approved price for this extra-bed request — set the price first'
+    },
+    'service_settlement': {
+      'ar': 'طريقة سداد قيمة الطلب',
+      'en': 'Request payment method'
+    },
+    'meal_types_label': {'ar': 'أنواع الوجبات', 'en': 'Meal types'},
+    'extra_bed_count': {'ar': 'عدد الأسرّة', 'en': 'Extra beds'},
+    'extra_bed_nights': {'ar': 'عدد الليالي', 'en': 'Nights'},
+    'extra_bed_total': {'ar': 'الإجمالي', 'en': 'Total cost'},
+    'unit_pricing_title': {'ar': 'تسعير الوحدات', 'en': 'Unit pricing'},
+    'meal_pricing_title': {'ar': 'تسعير الوجبات', 'en': 'Meal pricing'},
+    'pricing_title_field': {'ar': 'العنوان', 'en': 'Title'},
+    'pricing_date_field': {'ar': 'التاريخ', 'en': 'Date'},
+    'pricing_date_required': {'ar': 'اختر التاريخ', 'en': 'Select a date'},
+    'unit_type_column': {'ar': 'نوع الوحدة', 'en': 'Unit type'},
+    'unit_price_column': {'ar': 'السعر', 'en': 'Price'},
+    'meal_name_column': {'ar': 'اسم الوجبة', 'en': 'Meal name'},
+    'pricing_title_required': {
+      'ar': 'أدخل عنوان التسعير',
+      'en': 'Enter the pricing title'
+    },
+    'pricing_price_invalid': {
+      'ar': 'أدخل سعرًا صحيحًا أكبر من صفر',
+      'en': 'Enter a valid price greater than zero'
+    },
+    'pricing_row_required': {
+      'ar': 'أدخل نوع الوحدة والسعر لكل صف مطلوب',
+      'en': 'Enter a unit type and price for every required row'
+    },
+    'pricing_saved': {'ar': 'تم حفظ التسعير', 'en': 'Pricing saved'},
+    'no_unit_types': {
+      'ar':
+          'لا توجد أنواع وحدات مسجّلة لهذا الفندق بعد. أضف أنواع الوحدات من بيانات الوحدة أولًا.',
+      'en':
+          'No unit types are registered for this hotel yet. Add unit types in the unit data first.'
+    },
+    'saved_pricing_records': {
+      'ar': 'الأسعار المحفوظة',
+      'en': 'Saved pricing records'
+    },
+    'no_saved_pricing': {
+      'ar': 'لا يوجد تسعير محفوظ بعد',
+      'en': 'No saved pricing yet'
+    },
+    'six_unit_price_rows': {
+      'ar': 'ستة صفوف لأنواع الوحدات وأسعارها',
+      'en': 'Six unit-type and price rows'
+    },
+    'meal_prices_three_rows': {
+      'ar': 'ثلاث وجبات وأسعارها',
+      'en': 'Three meals and their prices'
     },
     'housekeeping_price_missing': {
       'ar': 'لا يوجد سعر معتمد لهذا الطلب — حدّد السعر أولًا',

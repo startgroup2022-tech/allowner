@@ -7,6 +7,8 @@ import '../../utils/locale_provider.dart';
 import '../../services/hotel_staff_service.dart';
 import '../../services/api_client.dart';
 import '../../utils/safe_parse.dart';
+import 'hotel_meal_pricing_screen.dart';
+import 'hotel_unit_pricing_screen.dart';
 
 class HotelPricesScreen extends ConsumerStatefulWidget {
   const HotelPricesScreen({super.key});
@@ -190,6 +192,28 @@ class _HotelPricesScreenState extends ConsumerState<HotelPricesScreen> {
         backgroundColor: AppColors.surface,
         elevation: 0,
         title: Text(AppStrings.t(isArabic, 'service_prices')),
+        // المتطلبات 13–16 من المستند 06: نماذج تسعير الوحدات والوجبات.
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.sell_outlined),
+            onSelected: (value) {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => value == 'unit'
+                      ? const HotelUnitPricingScreen()
+                      : const HotelMealPricingScreen()));
+            },
+            itemBuilder: (ctx) => [
+              PopupMenuItem(
+                value: 'unit',
+                child: Text(AppStrings.t(isArabic, 'unit_pricing_title')),
+              ),
+              PopupMenuItem(
+                value: 'meal',
+                child: Text(AppStrings.t(isArabic, 'meal_pricing_title')),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SafeArea(
         child: RefreshIndicator(

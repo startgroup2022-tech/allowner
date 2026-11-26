@@ -118,9 +118,12 @@ for the hotel).
 **Test evidence**
 - `«رقم الضيافة» بدل «رقم الحجز»` → label values in both languages
 - first row of `buildBookingSuccessRows` is `رقم الضيافة`; `رقم الحجز` absent
+- the internal reference stays visible under its own label
+  `booking_reference_internal` («المرجع الداخلي للحجز»), which is deliberately
+  **not** the string «رقم الحجز»
 
 **Backend dependencies** — none.
-**Status:** **COMPLETE AND VERIFIED**
+**Status:** **COMPLETE AND VERIFIED** *(corrected in Group 02 — see §4 note)*
 
 ---
 
@@ -129,12 +132,17 @@ for the hotel).
 **Implementation**
 - `BookingScreen` now accepts `unitNumber` (from the chosen unit / booking
   response) and passes it to `BookingSuccessScreen`.
-- `buildBookingSuccessRows` shows `unitNumber` under the “Stay Reference” label;
-  if the API did not return a real unit number it falls back to the real booking
-  reference, and to `-` when neither exists. **No unit number is ever
-  fabricated.**
-- Booking IDs, `booking['id']`, edit/cancel paths and API relations are
-  unchanged; the change is display-only.
+- `buildBookingSuccessRows` shows the real `unitNumber` under the “Stay
+  Reference” label. **No unit number is ever fabricated.**
+- **Acceptance correction (Group 02):** when the API does not return a real unit
+  number, the row now shows the explicit `not_available` state
+  («غير متاح حاليًا» / “Currently unavailable”). It no longer substitutes the
+  booking reference, and it no longer shows `-`. The internal booking reference
+  is preserved separately in its own row labelled
+  `booking_reference_internal` («المرجع الداخلي للحجز» /
+  “Internal booking reference”). Internal IDs, `booking['id']`,
+  `booking['reference']`, edit/cancel paths and API relations are unchanged;
+  the change is display-only.
 
 **Modified files**
 - `lib/screens/booking/booking_screen.dart`
@@ -144,7 +152,11 @@ for the hotel).
 
 **Test evidence**
 - `يعرض رقم الوحدة القادم من الاستجابة` → `' 4005 '` renders `4005`
-- `لا يختلق رقمًا حين لا يصل رقم وحدة` → falls back to `BK-77`, then `-`
+- `لا يختلق رقمًا حين لا يصل رقم وحدة` → shows «غير متاح حاليًا» /
+  “Currently unavailable”, never `BK-77`
+- `المتطلب 4 … يُعرض رقم الوحدة الفعلي بدل رقم الحجز` (`widgets_test.dart`) →
+  `'4005'` when present, «غير متاح حاليًا» when absent, and `BK-100` only in the
+  separate internal-reference row
 - widget: `BookingSuccessScreen(unitNumber: '4005')` renders `4005`
 
 **Backend dependencies** — the booking response should include the unit number
@@ -510,7 +522,7 @@ needs nothing.
 | 1 | “ضيافاتي” / “My Stays” | **COMPLETE AND VERIFIED** |
 | 2 | Unit-number search in hotel details | **COMPLETE AND VERIFIED** |
 | 3 | “رقم الضيافة” / “Stay Reference” | **COMPLETE AND VERIFIED** |
-| 4 | Actual unit number on confirmation | **COMPLETE AND VERIFIED** |
+| 4 | Actual unit number on confirmation | **COMPLETE AND VERIFIED** (Group 02 correction: unavailable state instead of booking reference) |
 | 5 | Payment method removed from hospitality details | **COMPLETE AND VERIFIED** |
 | 6 | “عرض تفاصيل ضيافتي” / “View My Stay Details” | **COMPLETE AND VERIFIED** |
 | 7 | Pay-on-arrival and owner-transfer disabled by default | **FLUTTER COMPLETE — BACKEND PENDING** |

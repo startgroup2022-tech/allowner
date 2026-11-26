@@ -43,14 +43,17 @@ List<(String, String)> buildBookingSuccessRows({
   String t(String key) => AppStrings.t(isArabic, key);
 
   final actualUnitNumber = (unitNumber ?? '').trim();
-  final stayReference = actualUnitNumber.isNotEmpty
-      ? actualUnitNumber
-      : (bookingRef ?? '').trim().isNotEmpty
-          ? bookingRef!.trim()
-          : '-';
+  final internalReference = (bookingRef ?? '').trim();
+  // تصحيح قبول المجموعة 01: عند غياب رقم الوحدة الحقيقي نعرض حالة «غير متاح»
+  // صريحة، ولا نعرض رقم الحجز مكان رقم الوحدة. يبقى رقم الحجز محفوظًا في سطر
+  // منفصل بوصفه المرجع الداخلي.
+  final stayReference =
+      actualUnitNumber.isNotEmpty ? actualUnitNumber : t('not_available');
 
   final rows = <(String, String)>[
     (t('stay_reference'), stayReference),
+    if (internalReference.isNotEmpty)
+      (t('booking_reference_internal'), internalReference),
     (t('hotel'), hotelName),
     // المتطلب 46: بيانات وصول الضيف للوحدة — من بيانات الفندق الحقيقية فقط،
     // وتُخفى كليًا إن لم تُرجع.

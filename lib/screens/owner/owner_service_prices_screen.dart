@@ -26,15 +26,18 @@ class _OwnerServicePricesScreenState
     extends ConsumerState<OwnerServicePricesScreen> {
   final _service = OwnerService();
   late Future<Map<String, dynamic>> _future;
+  late Future<Map<String, dynamic>> _pricingFuture;
 
   @override
   void initState() {
     super.initState();
     _future = _service.getOwnerServicePrices();
+    _pricingFuture = _service.getOwnerPricingSheets();
   }
 
   void _reload() => setState(() {
         _future = _service.getOwnerServicePrices();
+        _pricingFuture = _service.getOwnerPricingSheets();
       });
 
   /// اسم الوحدة المرتبطة بالسعر — يُعرض «كل الوحدات» عندما يكون السعر عامًا.
@@ -82,17 +85,36 @@ class _OwnerServicePricesScreenState
             final prices = asMapList(snapshot.data?['prices']);
             final units = asMapList(snapshot.data?['units']);
             if (prices.isEmpty) {
-              return EmptyView(
-                message: AppStrings.t(isArabic, 'no_service_prices'),
+              // لا تُفرغ الشاشة: قسم الأسعار المعتمدة يبقى ظاهرًا.
+              return RefreshIndicator(
+                onRefresh: () async => _reload(),
+                child: ListView(
+                  padding: const EdgeInsets.all(AppDimens.pagePadding),
+                  children: [
+                    EmptyView(
+                      message: AppStrings.t(isArabic, 'no_service_prices'),
+                    ),
+                    _PricingSheetsSection(
+                      future: _pricingFuture,
+                      isArabic: isArabic,
+                    ),
+                  ],
+                ),
               );
             }
-
             return RefreshIndicator(
               onRefresh: () async => _reload(),
               child: ListView.builder(
                 padding: const EdgeInsets.all(AppDimens.pagePadding),
-                itemCount: prices.length,
+                // بطاقات أسعار الخدمات + قسم أسعار الوحدات والوجبات المعتمدة.
+                itemCount: prices.length + 1,
                 itemBuilder: (context, index) {
+                  if (index >= prices.length) {
+                    return _PricingSheetsSection(
+                      future: _pricingFuture,
+                      isArabic: isArabic,
+                    );
+                  }
                   final p = prices[index];
                   final type = p['service_type']?.toString() ?? '';
                   final title = (isArabic ? p['title_ar'] : p['title_en'])
@@ -156,6 +178,138 @@ class _OwnerServicePricesScreenState
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+/// المتطلبان 15 و16 من المستند 06: يعرض المالك أسعار الوحدات والوجبات المعتمدة
+/// من إدارة الفندق للقراءة فقط. تعذّر تحميل أحد القسمين لا يُسقط الشاشة.
+class _PricingSheetsSection extends StatelessWidget {
+  const _PricingSheetsSection({required this.future, required this.isArabic});
+
+  final Future<Map<String, dynamic>> future;
+  final bool isArabic;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return FutureBuilder<Map<String, dynamic>>(
+      future: future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Padding(
+            padding: EdgeInsets.all(AppDimens.md),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+        final data = snapshot.data ?? const <String, dynamic>{};
+        final unitRecords = asMapList(data['unit_records']);
+        final mealRecords = asMapList(data['meal_records']);
+        if (unitRecords.isEmpty && mealRecords.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: AppDimens.md),
+            Text(AppStrings.t(isArabic, 'saved_pricing_records'),
+                style: textTheme.titleMedium),
+            const SizedBox(height: AppDimens.sm),
+            for (final record in unitRecords)
+              _PricingCard(
+                isArabic: isArabic,
+                title: (record['title'] ?? record['title_ar'] ?? '').toString(),
+                section: AppStrings.t(isArabic, 'unit_pricing_title'),
+                date:
+                    (record['pricing_date'] ?? record['date'] ?? '').toString(),
+                lines: [
+                  for (final row in asMapList(record['rows']))
+                    (
+                      (row['unit_type'] ??
+                              row['unit_type_ar'] ??
+                              row['unit_type_en'] ??
+                              '')
+                          .toString(),
+                      (row['price'] ?? '—').toString(),
+                    ),
+                ],
+              ),
+            for (final record in mealRecords)
+              _PricingCard(
+                isArabic: isArabic,
+                title: (record['title'] ?? record['title_ar'] ?? '').toString(),
+                section: AppStrings.t(isArabic, 'meal_pricing_title'),
+                date:
+                    (record['pricing_date'] ?? record['date'] ?? '').toString(),
+                lines: [
+                  for (final meal in asMapList(record['meals']))
+                    (
+                      (meal['name'] ?? meal['name_ar'] ?? '').toString(),
+                      (meal['price'] ?? '—').toString(),
+                    ),
+                ],
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _PricingCard extends StatelessWidget {
+  const _PricingCard({
+    required this.isArabic,
+    required this.title,
+    required this.section,
+    required this.date,
+    required this.lines,
+  });
+
+  final bool isArabic;
+  final String title;
+  final String section;
+  final String date;
+  final List<(String, String)> lines;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppDimens.md),
+      child: Container(
+        padding: const EdgeInsets.all(AppDimens.md),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+          border: Border.all(color: AppColors.cardBorder),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('$section · $title', style: textTheme.titleSmall),
+            if (date.trim().isNotEmpty)
+              Text(date,
+                  style: textTheme.bodySmall
+                      ?.copyWith(color: AppColors.textMuted)),
+            for (final line in lines)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(line.$1,
+                          style: textTheme.bodySmall
+                              ?.copyWith(color: AppColors.textSecondary)),
+                    ),
+                    Text('${line.$2} ${AppStrings.t(isArabic, 'sar')}',
+                        style: textTheme.bodySmall
+                            ?.copyWith(color: AppColors.goldDark)),
+                  ],
+                ),
+              ),
+          ],
         ),
       ),
     );
