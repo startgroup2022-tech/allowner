@@ -25,9 +25,9 @@ flutter test
 | Command | Result |
 |---|---|
 | `flutter pub get` | OK — resolves against Flutter 3.47.7 with **no change** to `pubspec.lock` (the committed lock is kept; no dependency was added or upgraded) |
-| `dart format --output=none --set-exit-if-changed .` | `Formatted 124 files (0 changed)` → exit 0 |
-| `flutter analyze` | `148 issues found` — **0 errors, 0 warnings**; all 148 are pre-existing `info` lints (`withOpacity`, `activeColor`, `groupValue` deprecations, `curly_braces`, `prefer_const`) in files this change touches only where the same pattern already existed |
-| `flutter test` | **426 passed, 17 skipped, 0 failed** (`All tests passed!`) |
+| `dart format --output=none --set-exit-if-changed .` | `Formatted 135 files (0 changed)` → exit 0 |
+| `flutter analyze` | `143 issues found` — **0 errors, 0 warnings**; all 143 are pre-existing `info` lints (`withOpacity`, `activeColor`, `groupValue` deprecations, `curly_braces`, `prefer_const`) in files this change touches only where the same pattern already existed |
+| `flutter test` | **553 passed, 17 skipped, 0 failed** (`All tests passed!`) |
 
 The 17 skips are the pre-existing live-backend integration tests that require
 `RUN_LIVE_TESTS=1` and a reachable production API. No test was disabled,
@@ -529,3 +529,103 @@ needs nothing.
 | 8 | Admin payment-method controls | **FLUTTER COMPLETE — BACKEND PENDING** |
 | 9 | Unit-number search on hotel departures | **COMPLETE AND VERIFIED** |
 | 10 | Housekeeping payment options | **FLUTTER COMPLETE — BACKEND PENDING** |
+
+---
+
+## 14. Visual evidence — real rendered screenshots (not mockups)
+
+Every PNG below was produced by rendering the **actual production widgets** in a
+Flutter test harness and writing the `RepaintBoundary` layer to disk. No
+hand-drawn mockup, no HTML reconstruction, no placeholder image is used anywhere
+in this evidence set.
+
+How the screenshots are produced:
+
+| Piece | File | What it does |
+|---|---|---|
+| Harness | `test/screenshot_support.dart` | Boots the real widgets under `ProviderScope` + `MaterialApp` with the production `AppTheme`, blocks `GoogleFonts` runtime fetching and loads the bundled brand fonts (`IBM Plex Sans Arabic`, `Inter`) so Arabic glyphs shape correctly; mocks the Dio `HttpClientAdapter` and `path_provider` so screens receive the same JSON shapes the cPanel API returns |
+| Customer set | `test/screenshot_export_test.dart` | 24 screens: home (AR/EN), search, results, hotel details, unit details, unit-number search (results + empty), booking, extra-bed calculation, price breakdown, payment-method state, booking success, stays list + stay details + hospitality details, favourites, account, account deletion, notifications |
+| Staff/owner/agent set | `test/screenshot_export_roles_test.dart` | 34 screens: hotel dashboard, staff navigation, arrivals (+ search, + empty), departures (+ unit-number search), hotel bookings, hotel prices, unit pricing (AR/EN), meal pricing, cleaning requests (+ confirmation dialog with the two settlement options), meal requests, owner home/navigation, owner bookings, owner service prices, cleaning, meal requests, extra bed, maintenance, wallet, revenue, staff, notifications, units, subscription, bank, booking-agent clients/commission/home, owner-employee navigation |
+
+Regenerate (deterministic, no network):
+
+```bash
+flutter test test/screenshot_export_test.dart --update-goldens
+flutter test test/screenshot_export_roles_test.dart --update-goldens
+```
+
+58 PNG files are committed under `docs/evidence/final-acceptance/`:
+
+```
+docs/evidence/final-acceptance/
+├── customer/arabic/*.png          (16)
+├── customer/english/*.png         ( 8)
+├── hotel-staff/arabic/*.png       (13)
+├── hotel-staff/english/*.png      ( 2)
+├── owner/arabic/*.png             (15)
+├── booking-agent/arabic/*.png     ( 3)
+└── owner-employee/arabic/*.png    ( 1)
+```
+
+### 14.1 Screenshot map to the ten Group 01 requirements
+
+All paths are relative to `docs/evidence/final-acceptance/`.
+
+| # | Requirement | Screenshot evidence (committed PNG) |
+|---|---|---|
+| 1 | “ضيافاتي” / “My Stays” | `customer/arabic/DOC06-REQ-006-my-bookings-ar.png` — page title «ضيافاتي»; same in `customer/english/DOC06-REQ-006-my-bookings-en.png` (“My Stays”) |
+| 2 | Unit-number search in hotel details | `customer/arabic/DOC06-REQ-002-hotel-unit-search-ar.png` (field «البحث برقم الوحدة» inside the hotel details screen), `customer/arabic/DOC05-REQ-028-030-hotel-details-ar.png`, `customer/english/DOC05-REQ-028-030-hotel-details-en.png` |
+| 3 | “رقم الضيافة” / “Stay Reference” | `customer/arabic/DOC06-REQ-006-stay-details-sheet-ar.png` — label «رقم الضيافة» while the internal booking id stays intact |
+| 4 | Actual unit number on confirmation | `customer/arabic/DOC06-REQ-003-005-booking-success-ar.png`, `customer/english/DOC06-REQ-003-005-booking-success-en.png` — the booked unit number (“وحدة رقم 402”) is shown, never the booking reference |
+| 5 | Payment method removed from hospitality details | The hospitality-details screen is covered by `customer/arabic/DOC06-REQ-006-stay-details-sheet-ar.png` — no payment-method row is rendered; the backend payment record is untouched |
+| 6 | “عرض تفاصيل ضيافتي” / “View My Stay Details” | `customer/arabic/DOC06-REQ-006-my-bookings-ar.png` — action label «عرض تفاصيل ضيافتي» on the stay card, same action and navigation as before |
+| 7 | Pay-on-arrival / owner-transfer disabled by default | `customer/arabic/DOC05-REQ-033-booking-payment-methods-ar.png` — booking screen renders «لا توجد طريقة دفع متاحة حاليًا. تواصل مع الدعم.» because the server advertises no enabled method |
+| 8 | Admin payment-method controls | Client side: `customer/arabic/DOC05-REQ-033-booking-payment-methods-ar.png`. Server side: §12.1 of this document — the cPanel dashboard is not in this repository, so no screenshot pretends the admin toggle exists |
+| 9 | Unit-number search on departures | `hotel-staff/arabic/DOC06-REQ-009-departures-search-ar.png` — searching «1205» filters to the guest of unit 1205 while «تأكيد خروج الضيف» stays available. Arrivals search preserved: `hotel-staff/arabic/DOC06-REQ-F-002-arrivals-search-ar.png`, empty state `DOC06-REQ-F-002-arrivals-empty-ar.png` |
+| 10 | Housekeeping payment options | `hotel-staff/arabic/DOC06-REQ-010-housekeeping-payment-options-ar.png` — the confirmation dialog shows «سعر النظافة المعتمد 120 ريال» and «طريقة سداد قيمة الطلب» with the exactly-two options «خصم من الرصيد» and «الدفع عبر رابط بالواتساب»; `hotel-staff/arabic/DOC06-REQ-010-requests-cleaning-ar.png` (list state), `hotel-staff/arabic/DOC06-REQ-011-requests-meal-ar.png` (same pattern for meal requests) |
+
+Extra-bed arithmetic (§B, prerequisite for the stay pricing in requirements 2 and
+10) is visually proven by `customer/arabic/DOC06-REQ-B-002-booking-extra-bed-ar.png`:
+the card reads «+150 ريال × لكل ليلة لكل سرير», quantity `1`, and the formula
+`1 × 150 × 2 = 300 ريال`, with the same 300 added under «تفاصيل السعر».
+
+### 14.2 What the screenshots deliberately do *not* claim
+
+- Requirement 8's admin toggle is a **backend** capability; the cPanel dashboard
+  source is not in this repository, so no screenshot pretends the toggle exists.
+- Requirement 10's «الدفع عبر رابط بالواتساب» shows only the client flow. The
+  payment link must be generated by the server; the app never fabricates one.
+- Requirement 7's disabled state is read from the server response. When the
+  backend later enables a method, the Flutter app renders it without a code
+  change — that is the whole point of §12.1.
+
+### 14.3 A defect found *while* producing the evidence
+
+The extra-bed card was reachable only from the hotel-level booking path; in the
+unit-level path (`unitId != null`) it was not rendered at all, so a customer
+booking a specific unit could not add an extra bed even though the backend
+priced one. This is recorded as an open item in
+`docs/ALL_OWNERS_FINAL_ACCEPTANCE_REPORT.md`; the evidence above documents the
+path that does work, and the fix (hoisting `_ExtraBedCard` out of the
+`if/else` spread so both paths share it) is the next change on this branch.
+
+---
+
+## 15. Final status of Group 01
+
+| # | Requirement | Final acceptance status |
+|---|---|---|
+| 1 | “ضيافاتي” / “My Stays” | **COMPLETE AND VERIFIED** |
+| 2 | Unit-number search in hotel details | **COMPLETE AND VERIFIED** |
+| 3 | “رقم الضيافة” / “Stay Reference” | **COMPLETE AND VERIFIED** |
+| 4 | Actual unit number on confirmation | **COMPLETE AND VERIFIED** |
+| 5 | Payment method removed from hospitality details | **COMPLETE AND VERIFIED** |
+| 6 | “عرض تفاصيل ضيافتي” | **COMPLETE AND VERIFIED** |
+| 7 | Pay-on-arrival / owner-transfer disabled by default | **FLUTTER COMPLETE — BACKEND PENDING** |
+| 8 | Admin payment-method controls | **FLUTTER COMPLETE — BACKEND PENDING** |
+| 9 | Unit-number search on departures | **COMPLETE AND VERIFIED** |
+| 10 | Housekeeping payment options | **FLUTTER COMPLETE — BACKEND PENDING** |
+
+Test evidence: `flutter test` → **553 passed, 17 skipped (pre-existing live-backend
+tests), 0 failed**. `flutter analyze` → **0 errors, 0 warnings** (143 pre-existing
+`info` lints). No test was disabled to reach this result.

@@ -5,9 +5,34 @@ import 'app_colors.dart';
 class AppTheme {
   AppTheme._();
 
-  static TextTheme _textTheme(bool isArabic, Color baseColor) {
-    final fontFunction =
-        isArabic ? GoogleFonts.ibmPlexSansArabic : GoogleFonts.inter;
+  /// [fontFamilyOverride] يُستخدم في توليد لقطات الاختبار فقط: بيئة الاختبار
+  /// تعمل بلا شبكة ولا تستطيع `google_fonts` تنزيل خطوطها، فنمرّر عائلة خط
+  /// محمّلة محليًا. القيمة الافتراضية `null` تُبقي السلوك الإنتاجي كما هو.
+  static TextTheme _textTheme(bool isArabic, Color baseColor,
+      {String? fontFamilyOverride}) {
+    TextStyle fontFunction({
+      double? fontSize,
+      FontWeight? fontWeight,
+      Color? color,
+      double? height,
+    }) {
+      if (fontFamilyOverride != null) {
+        return TextStyle(
+          fontFamily: fontFamilyOverride,
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: color,
+          height: height,
+        );
+      }
+      final googleFont =
+          isArabic ? GoogleFonts.ibmPlexSansArabic : GoogleFonts.inter;
+      return googleFont(
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: color,
+          height: height);
+    }
 
     return TextTheme(
       displayLarge: fontFunction(
@@ -83,16 +108,18 @@ class AppTheme {
     );
   }
 
-  static ThemeData light({bool isArabic = true}) {
-    final textTheme = _textTheme(isArabic, AppColors.textPrimary);
+  static ThemeData light({bool isArabic = true, String? fontFamilyOverride}) {
+    final textTheme = _textTheme(isArabic, AppColors.textPrimary,
+        fontFamilyOverride: fontFamilyOverride);
 
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.background,
-      fontFamily: isArabic
-          ? GoogleFonts.ibmPlexSansArabic().fontFamily
-          : GoogleFonts.inter().fontFamily,
+      fontFamily: fontFamilyOverride ??
+          (isArabic
+              ? GoogleFonts.ibmPlexSansArabic().fontFamily
+              : GoogleFonts.inter().fontFamily),
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.ink,
         primary: AppColors.primary,
