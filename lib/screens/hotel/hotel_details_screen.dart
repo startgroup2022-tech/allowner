@@ -11,6 +11,7 @@ import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../utils/session_provider.dart';
+import '../../utils/unit_search.dart';
 import '../../widgets/cards.dart';
 import '../../widgets/state_views.dart';
 import '../booking/booking_screen.dart';
@@ -592,6 +593,8 @@ class _UnitsList extends StatefulWidget {
 
 class _UnitsListState extends State<_UnitsList> {
   late Future<List<UnitModel>> _future;
+  final TextEditingController _searchController = TextEditingController();
+  String _query = '';
 
   @override
   void initState() {
@@ -600,11 +603,47 @@ class _UnitsListState extends State<_UnitsList> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   void didUpdateWidget(covariant _UnitsList oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.hotelId != widget.hotelId) {
       _future = widget.service.getUnits(widget.hotelId);
+      // البحث يخص الفندق المعروض فقط: تغيير الفندق يصفّر البحث.
+      _searchController.clear();
+      _query = '';
     }
+  }
+
+  /// حقل البحث برقم الوحدة داخل شاشة تفاصيل الفندق (المتطلب 2 من المستند 06).
+  Widget _buildSearchField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppDimens.sm),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (value) => setState(() => _query = value),
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
+          isDense: true,
+          prefixIcon: const Icon(Icons.search_rounded, size: 20),
+          hintText: AppStrings.t(widget.isArabic, 'search_unit_number_hint'),
+          suffixIcon: _query.trim().isEmpty
+              ? null
+              : IconButton(
+                  tooltip: AppStrings.t(widget.isArabic, 'clear_search'),
+                  icon: const Icon(Icons.close_rounded, size: 18),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() => _query = '');
+                  },
+                ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -628,87 +667,109 @@ class _UnitsListState extends State<_UnitsList> {
             }),
           );
         }
-        final units = snapshot.data ?? const <UnitModel>[];
-        if (units.isEmpty) {
+        final allUnits = snapshot.data ?? const <UnitModel>[];
+        if (allUnits.isEmpty) {
           return EmptyView(
             compact: true,
             icon: Icons.king_bed_outlined,
             message: AppStrings.t(widget.isArabic, 'no_units'),
           );
         }
+        // البحث داخل وحدات هذا الفندق فقط؛ الفلاتر والحجز يبقيان كما هما.
+        final units = filterUnitsByUnitNumber(
+          units: allUnits,
+          query: _query,
+          unitNumberOf: (unit) => unit.unitNumber,
+        );
+        if (units.isEmpty) {
+          return Column(
+            children: [
+              _buildSearchField(),
+              EmptyView(
+                compact: true,
+                icon: Icons.search_off_rounded,
+                message: AppStrings.t(widget.isArabic, 'no_matching_units'),
+              ),
+            ],
+          );
+        }
         return Column(
-          children: units.map((unit) {
-            return Container(
-              margin: const EdgeInsets.only(bottom: AppDimens.sm),
-              padding: const EdgeInsets.all(AppDimens.sm),
-              decoration: BoxDecoration(
-                color: AppColors.background,
-                borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-                border: Border.all(color: AppColors.cardBorder),
-              ),
-              child: Row(
-                children: [
-                  AppNetworkImage(
-                    url: unit.coverImage,
-                    width: 60,
-                    height: 60,
-                    borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-                  ),
-                  const SizedBox(width: AppDimens.sm),
-                  Expanded(
-                    child: InkWell(
-                      onTap: () => Navigator.of(context).push(
+          children: [
+            _buildSearchField(),
+            ...units.map((unit) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: AppDimens.sm),
+                padding: const EdgeInsets.all(AppDimens.sm),
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                  border: Border.all(color: AppColors.cardBorder),
+                ),
+                child: Row(
+                  children: [
+                    AppNetworkImage(
+                      url: unit.coverImage,
+                      width: 60,
+                      height: 60,
+                      borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                    ),
+                    const SizedBox(width: AppDimens.sm),
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => UnitDetailsScreen(unitId: unit.id),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              unit.name(widget.isArabic),
+                              style: textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w700),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            PriceText(
+                              amount: unit.pricePerNight,
+                              isArabic: widget.isArabic,
+                              fontSize: 12,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppDimens.sm),
+                    ElevatedButton(
+                      onPressed: () => Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => UnitDetailsScreen(unitId: unit.id),
+                          builder: (_) => BookingScreen(
+                            hotel: widget.hotel,
+                            unitId: unit.id,
+                            unitName: unit.name(widget.isArabic),
+                            unitNumber: unit.unitNumber,
+                            unitPricePerNight: unit.pricePerNight,
+                            unitImageUrl: unit.coverImage,
+                            ownerBank: unit.ownerBank,
+                            unitAvailability: unit.availability,
+                          ),
                         ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            unit.name(widget.isArabic),
-                            style: textTheme.bodyMedium
-                                ?.copyWith(fontWeight: FontWeight.w700),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 2),
-                          PriceText(
-                            amount: unit.pricePerNight,
-                            isArabic: widget.isArabic,
-                            fontSize: 12,
-                          ),
-                        ],
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                      ),
+                      child: Text(
+                        AppStrings.t(widget.isArabic, 'book_now'),
+                        style: const TextStyle(fontSize: 13),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: AppDimens.sm),
-                  ElevatedButton(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => BookingScreen(
-                          hotel: widget.hotel,
-                          unitId: unit.id,
-                          unitName: unit.name(widget.isArabic),
-                          unitPricePerNight: unit.pricePerNight,
-                          unitImageUrl: unit.coverImage,
-                          ownerBank: unit.ownerBank,
-                          unitAvailability: unit.availability,
-                        ),
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                    ),
-                    child: Text(
-                      AppStrings.t(widget.isArabic, 'book_now'),
-                      style: const TextStyle(fontSize: 13),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
+                  ],
+                ),
+              );
+            }),
+          ],
         );
       },
     );

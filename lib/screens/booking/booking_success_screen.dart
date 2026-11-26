@@ -11,13 +11,20 @@ import '../owner/owner_navigation_screen.dart';
 import '../owner/owner_bookings_screen.dart';
 
 /// صفوف صفحة نجاح الحجز. دالة نقية حتى يمكن اختبار ما يُعرض فعلًا (المتطلبات
-/// 33 و46 و146): كل صف يُضاف فقط عند وجود بياناته الحقيقية، ولا يُختلق بديل.
+/// 33 و46 و146، والمتطلبات 3 و4 و5 من المستند 06): كل صف يُضاف فقط عند وجود
+/// بياناته الحقيقية، ولا يُختلق بديل.
+///
+/// - الحقل الأول صار «رقم الضيافة» (المتطلب 3) ويعرض **رقم الوحدة الفعلي**
+///   (المتطلب 4) الذي وصل من استجابة الحجز أو من الوحدة المختارة. إن لم يصل رقم
+///   وحدة حقيقي نعرض رقم الحجز الحقيقي بدل اختلاق رقم.
+/// - لا تُعرض طريقة الدفع إطلاقًا (المتطلب 5) مع بقاء تسجيلها في السيرفر.
 List<(String, String)> buildBookingSuccessRows({
   required bool isArabic,
   required String hotelName,
   String? city,
   String? address,
   String? unitName,
+  String? unitNumber,
   String? bookingRef,
   DateTime? checkIn,
   DateTime? checkOut,
@@ -26,7 +33,6 @@ List<(String, String)> buildBookingSuccessRows({
   String? guestName,
   String? guestPhone,
   String? guestIdNumber,
-  String? paymentMethod,
   String? status,
   double? total,
 }) {
@@ -36,8 +42,15 @@ List<(String, String)> buildBookingSuccessRows({
 
   String t(String key) => AppStrings.t(isArabic, key);
 
+  final actualUnitNumber = (unitNumber ?? '').trim();
+  final stayReference = actualUnitNumber.isNotEmpty
+      ? actualUnitNumber
+      : (bookingRef ?? '').trim().isNotEmpty
+          ? bookingRef!.trim()
+          : '-';
+
   final rows = <(String, String)>[
-    (t('booking_reference'), bookingRef ?? '-'),
+    (t('stay_reference'), stayReference),
     (t('hotel'), hotelName),
     // المتطلب 46: بيانات وصول الضيف للوحدة — من بيانات الفندق الحقيقية فقط،
     // وتُخفى كليًا إن لم تُرجع.
@@ -60,8 +73,6 @@ List<(String, String)> buildBookingSuccessRows({
     // بريد التأكيد — يُعرض للضيف للتأكد من صحته قبل إرسال البريد.
     if ((guestIdNumber ?? '').trim().isNotEmpty)
       (t('guest_id_number'), guestIdNumber!.trim()),
-    if ((paymentMethod ?? '').trim().isNotEmpty)
-      (t('payment_method_label'), t('pay_method_$paymentMethod')),
     if ((status ?? '').trim().isNotEmpty)
       (t('booking_status_label'), t('status_$status')),
     if (total != null)
@@ -70,10 +81,16 @@ List<(String, String)> buildBookingSuccessRows({
   return rows;
 }
 
-/// صفحة نجاح الحجز — تعرض بيانات الحجز الفعلية (رقم الحجز، التواريخ، الوحدة، العميل، الحالة، المبلغ)
+/// صفحة نجاح الحجز — تعرض بيانات الحجز الفعلية (رقم الوحدة كمرجع ضيافة،
+/// التواريخ، الوحدة، العميل، الحالة، المبلغ). لا تُعرض طريقة الدفع (المتطلب 5
+/// من المستند 06) مع بقاء تسجيلها في السيرفر.
 class BookingSuccessScreen extends ConsumerWidget {
   final HotelModel hotel;
   final String? bookingRef;
+
+  /// رقم الوحدة الفعلي (المتطلب 4 من المستند 06) — من استجابة الحجز أو الوحدة
+  /// المختارة، ولا يُختلق إن لم يصل.
+  final String? unitNumber;
   final double? total;
   final DateTime? checkIn;
   final DateTime? checkOut;
@@ -84,12 +101,12 @@ class BookingSuccessScreen extends ConsumerWidget {
   final String? guestPhone;
   final String? guestIdNumber;
   final String? status;
-  final String? paymentMethod;
 
   const BookingSuccessScreen({
     super.key,
     required this.hotel,
     this.bookingRef,
+    this.unitNumber,
     this.total,
     this.checkIn,
     this.checkOut,
@@ -100,7 +117,6 @@ class BookingSuccessScreen extends ConsumerWidget {
     this.guestPhone,
     this.guestIdNumber,
     this.status,
-    this.paymentMethod,
   });
 
   @override
@@ -117,6 +133,7 @@ class BookingSuccessScreen extends ConsumerWidget {
       city: hotel.city(isArabic),
       address: hotel.address,
       unitName: unitName,
+      unitNumber: unitNumber,
       bookingRef: bookingRef,
       checkIn: checkIn,
       checkOut: checkOut,
@@ -125,7 +142,6 @@ class BookingSuccessScreen extends ConsumerWidget {
       guestName: guestName,
       guestPhone: guestPhone,
       guestIdNumber: guestIdNumber,
-      paymentMethod: paymentMethod,
       status: status,
       total: total,
     );
@@ -191,7 +207,7 @@ class BookingSuccessScreen extends ConsumerWidget {
                 height: AppDimens.buttonHeight,
                 child: ElevatedButton(
                   onPressed: () {
-                    // نفتح الرئيسية ثم نعرض حجوزاتي / حجوزات الوكيل
+                    // نفتح الرئيسية ثم نعرض ضيافاتي / حجوزات الوكيل
                     final nav = Navigator.of(context);
                     nav.pushAndRemoveUntil(
                       MaterialPageRoute(
@@ -205,7 +221,13 @@ class BookingSuccessScreen extends ConsumerWidget {
                           builder: (_) => const OwnerBookingsScreen()));
                     }
                   },
-                  child: Text(AppStrings.t(isArabic, 'view_booking_details')),
+                  // المتطلب 6 من المستند 06: إجراء الضيف «عرض تفاصيل ضيافتي»،
+                  // ويبقى «عرض تفاصيل الحجز» لمصطلح الوكيل/المالك.
+                  child: Text(AppStrings.t(
+                      isArabic,
+                      ownerSide
+                          ? 'view_booking_details'
+                          : 'view_stay_details')),
                 ),
               ),
               const SizedBox(height: AppDimens.sm),

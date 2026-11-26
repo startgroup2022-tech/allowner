@@ -6,6 +6,7 @@ import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 import '../../services/hotel_staff_service.dart';
 import '../../utils/safe_parse.dart';
+import 'hotel_departures_screen.dart';
 
 class HotelDashboardScreen extends ConsumerStatefulWidget {
   const HotelDashboardScreen({super.key});
@@ -76,30 +77,36 @@ class _HotelDashboardScreenState extends ConsumerState<HotelDashboardScreen> {
                   asInt(pending['extra_bed']) +
                   asInt(pending['maintenance']) +
                   asInt(pending['meal']);
-              final cards = <(String, dynamic, IconData, Color)>[
+              final cards = <(String, dynamic, IconData, Color, VoidCallback?)>[
                 (
                   AppStrings.t(isArabic, 'arrivals_today'),
                   data['arrivals_today'] ?? 0,
                   Icons.login_rounded,
-                  AppColors.success
+                  AppColors.success,
+                  null
                 ),
                 (
                   AppStrings.t(isArabic, 'departures_today'),
                   data['departures_today'] ?? 0,
                   Icons.logout_rounded,
-                  AppColors.secondary
+                  AppColors.secondary,
+                  // المتطلب 9 من المستند 06: شاشة المغادرات مع بحث برقم الوحدة.
+                  () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const HotelDeparturesScreen()))
                 ),
                 (
                   AppStrings.t(isArabic, 'in_house_now'),
                   data['in_house'] ?? 0,
                   Icons.event_available_rounded,
-                  AppColors.ink
+                  AppColors.ink,
+                  null
                 ),
                 (
                   AppStrings.t(isArabic, 'open_requests'),
                   openRequests,
                   Icons.pending_actions_rounded,
-                  AppColors.warning
+                  AppColors.warning,
+                  null
                 ),
               ];
 
@@ -123,27 +130,33 @@ class _HotelDashboardScreenState extends ConsumerState<HotelDashboardScreen> {
                     // التسمية 2px؛ 1.15 يمنح ارتفاعًا كافيًا مع بقاء الشبكة مدمجة.
                     childAspectRatio: 1.15,
                     children: cards
-                        .map((c) => Container(
-                              padding: const EdgeInsets.all(AppDimens.md),
-                              decoration: BoxDecoration(
-                                color: AppColors.surface,
-                                borderRadius:
-                                    BorderRadius.circular(AppDimens.radiusLg),
-                                border: Border.all(color: AppColors.cardBorder),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Icon(c.$3, color: c.$4),
-                                  const Spacer(),
-                                  Text('${c.$2}',
-                                      style: textTheme.headlineSmall),
-                                  Text(c.$1,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: textTheme.bodySmall?.copyWith(
-                                          color: AppColors.textMuted)),
-                                ],
+                        .map((c) => InkWell(
+                              borderRadius:
+                                  BorderRadius.circular(AppDimens.radiusLg),
+                              onTap: c.$5,
+                              child: Container(
+                                padding: const EdgeInsets.all(AppDimens.md),
+                                decoration: BoxDecoration(
+                                  color: AppColors.surface,
+                                  borderRadius:
+                                      BorderRadius.circular(AppDimens.radiusLg),
+                                  border:
+                                      Border.all(color: AppColors.cardBorder),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(c.$3, color: c.$4),
+                                    const Spacer(),
+                                    Text('${c.$2}',
+                                        style: textTheme.headlineSmall),
+                                    Text(c.$1,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: textTheme.bodySmall?.copyWith(
+                                            color: AppColors.textMuted)),
+                                  ],
+                                ),
                               ),
                             ))
                         .toList(),

@@ -66,7 +66,9 @@ class HotelStaffService {
   /// [settlement] (المتطلبات 390–394): عند تأكيد طلب الصيانة يختار المستخدم
   /// «خصم من رصيد الوحدة» أو «إرسال رابط الدفع عبر واتساب». القيمة تُرسل في
   /// الحقل `settlement`؛ إن لم يعرفها السيرفر بعد فلا يضر وجودها.
-  Future<void> actOnRequest({
+  /// ينفّذ إجراءً على طلب خدمة، ويُعيد استجابة السيرفر كي يقرأ النداء رابط
+  /// الدفع الذي أصدره السيرفر (المتطلب 10 من المستند 06) دون اختلاق رابط.
+  Future<Map<String, dynamic>> actOnRequest({
     required String type,
     required int id,
     required String action,
@@ -87,10 +89,10 @@ class HotelStaffService {
           if (settlement != null) 'settlement': settlement,
           'image': await MultipartFile.fromFile(imagePath),
         });
-        await _dio.post('/hotel/requests.php', data: form);
-        return;
+        final res = await _dio.post('/hotel/requests.php', data: form);
+        return _asResponseMap(res.data);
       }
-      await _dio.post('/hotel/requests.php', data: {
+      final res = await _dio.post('/hotel/requests.php', data: {
         'type': type,
         'id': id,
         'action': action,
@@ -98,10 +100,14 @@ class HotelStaffService {
         if (price != null) 'price': price,
         if (settlement != null) 'settlement': settlement,
       });
+      return _asResponseMap(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
   }
+
+  Map<String, dynamic> _asResponseMap(Object? data) =>
+      data is Map<String, dynamic> ? data : const <String, dynamic>{};
 
   // ===== أسعار خدمات الفندق (لكل جناح/نوع خدمة) =====
 

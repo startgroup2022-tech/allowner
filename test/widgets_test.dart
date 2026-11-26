@@ -1219,12 +1219,12 @@ void main() {
       }
     });
   });
-  group('صفوف صفحة نجاح الحجز (المتطلبات 33 و46 و146)', () {
+  group('صفوف صفحة نجاح الحجز (المتطلبات 33 و46 و146، والمستند 06)', () {
     List<(String, String)> rows({
       String? city,
       String? address,
       String? guestId,
-      String? payment,
+      String? unitNumber,
       String? status,
       double? total,
     }) =>
@@ -1234,6 +1234,7 @@ void main() {
           city: city,
           address: address,
           unitName: '4005',
+          unitNumber: unitNumber,
           bookingRef: 'BK-100',
           checkIn: DateTime(2026, 11, 1),
           checkOut: DateTime(2026, 11, 3),
@@ -1242,7 +1243,6 @@ void main() {
           guestName: 'سالم',
           guestPhone: '0500000000',
           guestIdNumber: guestId,
-          paymentMethod: payment,
           status: status,
           total: total,
         );
@@ -1279,20 +1279,30 @@ void main() {
               .$2,
           '1234567890');
     });
-    test('طريقة الدفع والحالة تُترجمان عبر مفاتيحهما', () {
-      final r = rows(payment: 'owner_transfer', status: 'confirmed');
-      expect(
-          r
-              .firstWhere(
-                  (e) => e.$1 == AppStrings.t(true, 'payment_method_label'))
-              .$2,
-          AppStrings.t(true, 'pay_method_owner_transfer'));
+    test('الحالة تُترجم عبر مفتاحها، وطريقة الدفع لا تُعرض إطلاقًا', () {
+      final r = rows(status: 'confirmed');
+      expect(r.any((e) => e.$1 == AppStrings.t(true, 'payment_method_label')),
+          isFalse,
+          reason:
+              'المتطلب 5 من المستند 06: شاشة تفاصيل الضيافة لا تعرض طريقة الدفع');
       expect(
           r
               .firstWhere(
                   (e) => e.$1 == AppStrings.t(true, 'booking_status_label'))
               .$2,
           AppStrings.t(true, 'status_confirmed'));
+    });
+    test('المتطلب 3 من المستند 06: التسمية «رقم الضيافة» لا «رقم الحجز»', () {
+      final labels = rows().map((e) => e.$1).toList();
+      expect(labels.first, AppStrings.t(true, 'stay_reference'));
+      expect(labels.contains(AppStrings.t(true, 'booking_reference')), isFalse);
+    });
+    test('المتطلب 4 من المستند 06: يُعرض رقم الوحدة الفعلي بدل رقم الحجز', () {
+      final r = rows(unitNumber: '4005');
+      expect(r.first.$2, '4005');
+      // بلا رقم وحدة حقيقي نعرض رقم الحجز الحقيقي ولا نختلق رقمًا.
+      expect(rows().first.$2, 'BK-100');
+      expect(rows(unitNumber: '   ').first.$2, 'BK-100');
     });
     test('الإجمالي يُعرض بالريال فقط عند وصوله من السيرفر', () {
       expect(rows().any((e) => e.$1 == AppStrings.t(true, 'total_price')),

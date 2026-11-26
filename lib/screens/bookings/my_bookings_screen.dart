@@ -209,6 +209,10 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
   Widget build(BuildContext context) {
     final isArabic = ref.watch(localeProvider).languageCode == 'ar';
     final isLoggedIn = ref.watch(sessionProvider).isLoggedIn;
+    // المتطلب 1 من المستند 06: الضيف يرى «ضيافاتي»، ويبقى «حجوزاتي» للوكيل
+    // والمالك كما هو.
+    final isAgent = ref.watch(sessionProvider).user?.role == 'booking_agent';
+    final titleKey = isAgent ? 'my_bookings' : 'my_stays';
 
     // استعادة الجلسة غير متزامنة وتنتهي غالبًا بعد `initState`، لذا لا يكفي
     // تحميل الحجوزات مرة واحدة هناك: عند اكتمال تسجيل الدخول نُعيد التحميل.
@@ -220,7 +224,7 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(AppStrings.t(isArabic, 'my_bookings')),
+        title: Text(AppStrings.t(isArabic, titleKey)),
         bottom: TabBar(
           controller: _tabController,
           tabs: [
@@ -234,9 +238,8 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
         child: !isLoggedIn
             ? _EmptyState(
                 icon: Icons.lock_outline_rounded,
-                message: isArabic
-                    ? 'سجّل الدخول لعرض حجوزاتك'
-                    : 'Log in to view your bookings',
+                message: AppStrings.t(isArabic,
+                    isAgent ? 'login_to_view_bookings' : 'login_to_view_stays'),
                 actionLabel: AppStrings.t(isArabic, 'login'),
                 onAction: () => Navigator.of(context)
                     .push(
@@ -432,6 +435,9 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
   }
 
   Widget _buildList(List<Map<String, dynamic>> items, bool isArabic) {
+    // المتطلبان 1 و6 من المستند 06: تسمية الضيف «ضيافاتي» وإجراء
+    // «عرض تفاصيل ضيافتي»، مع إبقاء مصطلحات الوكيل كما هي.
+    final isAgent = ref.read(sessionProvider).user?.role == 'booking_agent';
     if (items.isEmpty) {
       return ListView(
         children: [
@@ -444,7 +450,9 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
                   Icon(Icons.calendar_today_outlined,
                       size: 56, color: AppColors.textMuted),
                   const SizedBox(height: AppDimens.md),
-                  Text(AppStrings.t(isArabic, 'no_bookings_yet'),
+                  Text(
+                      AppStrings.t(isArabic,
+                          isAgent ? 'no_bookings_yet' : 'no_stays_yet'),
                       style: const TextStyle(color: AppColors.textMuted)),
                 ],
               ),
@@ -546,15 +554,17 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
                     ),
                   ],
                 ),
-                // المتطلب 97: زر عرض تفاصيل الحجز — متاح دائمًا لأن البيانات
+                // المتطلب 97: زر عرض التفاصيل — متاح دائمًا لأن البيانات
                 // موجودة أصلًا في البطاقة ولا يحتاج صلاحية من السيرفر.
+                // المتطلب 6 من المستند 06: الضيف يرى «عرض تفاصيل ضيافتي».
                 const SizedBox(height: AppDimens.sm),
                 SizedBox(
                   width: double.infinity,
                   child: TextButton.icon(
                     onPressed: () => _showBookingDetails(isArabic, b),
                     icon: const Icon(Icons.receipt_long_outlined, size: 18),
-                    label: Text(AppStrings.t(isArabic, 'view_details')),
+                    label: Text(AppStrings.t(isArabic,
+                        isAgent ? 'view_details' : 'view_stay_details')),
                   ),
                 ),
                 if (canCancel || canEdit) ...[

@@ -379,10 +379,25 @@ class AppStrings {
       'en': 'Your booking details are ready. Have a great trip!'
     },
     'booking_reference': {'ar': 'رقم الحجز', 'en': 'Booking Reference'},
+    // المتطلب 3 من المستند 06: التسمية الموجّهة للضيف «رقم الضيافة».
+    'stay_reference': {'ar': 'رقم الضيافة', 'en': 'Stay Reference'},
     'view_booking': {'ar': 'عرض الحجز', 'en': 'View Booking'},
 
     // ===== My Bookings =====
+    // «حجوزاتي» تبقى لمصطلح الوكيل والمالك كما هي (المتطلب 1 من المستند 06).
     'my_bookings': {'ar': 'حجوزاتي', 'en': 'My Bookings'},
+    // المتطلب 1 من المستند 06: التسمية الموجّهة للضيف «ضيافاتي» / My Stays.
+    'my_stays': {'ar': 'ضيافاتي', 'en': 'My Stays'},
+    'nav_stays': {'ar': 'ضيافاتي', 'en': 'Stays'},
+    'login_to_view_stays': {
+      'ar': 'سجّل الدخول لعرض ضيافاتك',
+      'en': 'Log in to view your stays'
+    },
+    'login_to_view_bookings': {
+      'ar': 'سجّل الدخول لعرض حجوزاتك',
+      'en': 'Log in to view your bookings'
+    },
+    'no_stays_yet': {'ar': 'لا توجد ضيافات حتى الآن', 'en': 'No stays yet'},
     'upcoming': {'ar': 'القادمة', 'en': 'Upcoming'},
     'past': {'ar': 'السابقة', 'en': 'Past'},
     'cancelled': {'ar': 'ملغية', 'en': 'Cancelled'},
@@ -681,6 +696,11 @@ class AppStrings {
       'ar': 'عرض تفاصيل الحجز',
       'en': 'View booking details'
     },
+    // المتطلب 6 من المستند 06: إجراء الضيف «عرض تفاصيل ضيافتي».
+    'view_stay_details': {
+      'ar': 'عرض تفاصيل ضيافتي',
+      'en': 'View My Stay Details'
+    },
     'stay_dates': {'ar': 'فترة الإقامة', 'en': 'Stay dates'},
     'unit_label': {'ar': 'الوحدة', 'en': 'Unit'},
     'customer_label': {'ar': 'بيانات العميل', 'en': 'Customer'},
@@ -726,6 +746,41 @@ class AppStrings {
     'settle_whatsapp_link': {
       'ar': 'إرسال رابط الدفع عبر واتساب',
       'en': 'Send payment link via WhatsApp'
+    },
+    // المتطلب 10 من المستند 06: خيارا سداد طلب النظافة بنفس منطق الصيانة.
+    'housekeeping_settlement': {
+      'ar': 'طريقة سداد قيمة النظافة',
+      'en': 'Housekeeping payment method'
+    },
+    'settle_wallet_balance': {
+      'ar': 'خصم من الرصيد',
+      'en': 'Deduct from Balance'
+    },
+    'settle_whatsapp_pay_link': {
+      'ar': 'الدفع عبر رابط بالواتساب',
+      'en': 'Pay via WhatsApp Link'
+    },
+    'approved_housekeeping_price': {
+      'ar': 'سعر النظافة المعتمد',
+      'en': 'Approved housekeeping price'
+    },
+    'housekeeping_price_missing': {
+      'ar': 'لا يوجد سعر معتمد لهذا الطلب — حدّد السعر أولًا',
+      'en': 'No approved price for this request — set the price first'
+    },
+    'permission_denied': {
+      'ar': 'لا تملك صلاحية تنفيذ هذا الإجراء',
+      'en': 'You do not have permission to perform this action'
+    },
+    'settlement_already_recorded': {
+      'ar': 'تم تسجيل تسوية هذا الطلب مسبقًا',
+      'en': 'This request has already been settled'
+    },
+    'payment_link_not_available': {
+      'ar':
+          'رابط الدفع يُصدره السيرفر بعد تفعيل بوابة الدفع. لا يُنشئ التطبيق رابطًا بديلًا.',
+      'en':
+          'The payment link is issued by the server once the payment gateway is enabled. The app never invents a link.'
     },
     'whatsapp_no_number': {
       'ar': 'لا يوجد رقم هاتف صالح لإرسال رابط الدفع',
@@ -917,6 +972,39 @@ class AppStrings {
     'search_unit_number': {
       'ar': 'ابحث برقم الوحدة',
       'en': 'Search by unit number'
+    },
+    // المتطلب 2 من المستند 06: البحث برقم الوحدة داخل شاشة تفاصيل الفندق.
+    'search_unit_number_hint': {
+      'ar': 'البحث برقم الوحدة',
+      'en': 'Search by unit number'
+    },
+    'no_matching_units': {
+      'ar': 'لا توجد وحدات مطابقة لرقم الوحدة',
+      'en': 'No units match that unit number'
+    },
+    // المتطلب 9 من المستند 06: بحث المغادرات برقم الغرفة/الوحدة.
+    'departures': {'ar': 'المغادرات', 'en': 'Departures'},
+    'departures_today_title': {'ar': 'مغادرات اليوم', 'en': 'Departures Today'},
+    'no_departures': {
+      'ar': 'لا توجد مغادرات مطابقة',
+      'en': 'No matching departures'
+    },
+    'room_or_unit_number': {
+      'ar': 'رقم الغرفة / الوحدة',
+      'en': 'Room / unit number'
+    },
+    // المتطلبان 7 و8 من المستند 06: إتاحة وسائل الدفع من إعدادات السيرفر.
+    'payment_method_unavailable': {
+      'ar': 'طريقة الدفع هذه غير متاحة حاليًا',
+      'en': 'This payment method is currently unavailable'
+    },
+    'no_payment_method_available': {
+      'ar': 'لا توجد طريقة دفع متاحة حاليًا. تواصل مع الدعم.',
+      'en': 'No payment method is available right now. Contact support.'
+    },
+    'payment_method_required': {
+      'ar': 'اختر طريقة دفع متاحة',
+      'en': 'Select an available payment method'
     },
     'unit_no': {'ar': 'وحدة رقم', 'en': 'Unit'},
     'no_matching_bookings': {

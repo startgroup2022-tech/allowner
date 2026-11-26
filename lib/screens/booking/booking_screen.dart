@@ -7,6 +7,7 @@ import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/app_settings_provider.dart';
 import '../../utils/locale_provider.dart';
+import '../../utils/payment_methods_config.dart';
 import '../../utils/payment_security.dart';
 import '../../utils/session_provider.dart';
 import '../../models/hotel_model.dart';
@@ -19,7 +20,8 @@ import '../../utils/safe_parse.dart';
 import '../auth/login_screen.dart';
 import 'booking_success_screen.dart';
 
-enum PaymentMethod { online, atHotel, ownerTransfer }
+// المتطلبان 7 و8 من المستند 06: الوسائل المتاحة تأتي من إعدادات السيرفر،
+// والتطبيق لا يعرض ولا يرسل وسيلة معطّلة (`PaymentMethodKey`).
 
 /// المتطلب 56: تصحيح حسابية السرير الإضافي.
 ///
@@ -68,6 +70,10 @@ class BookingScreen extends ConsumerStatefulWidget {
   final HotelModel hotel;
   final int? unitId;
   final String? unitName;
+
+  /// رقم الوحدة الحقيقي كما ورد في `units` من الـ API — يُعرض في شاشة التأكيد
+  /// (المتطلب 4 من المستند 06) ولا يُختلق إن لم يصل.
+  final String? unitNumber;
   final double? unitPricePerNight;
   final String? unitImageUrl;
 
@@ -84,6 +90,7 @@ class BookingScreen extends ConsumerStatefulWidget {
     required this.hotel,
     this.unitId,
     this.unitName,
+    this.unitNumber,
     this.unitPricePerNight,
     this.unitImageUrl,
     this.ownerBank,
@@ -97,7 +104,9 @@ class BookingScreen extends ConsumerStatefulWidget {
 class _BookingScreenState extends ConsumerState<BookingScreen> {
   final HotelService _hotelService = HotelService();
 
-  PaymentMethod _paymentMethod = PaymentMethod.online;
+  /// الوسيلة التي اختارها الضيف. `null` يعني «لم يختر بعد» فنستخدم أول وسيلة
+  /// متاحة من السيرفر.
+  PaymentMethodKey? _chosenPaymentMethod;
   int _guests = 2;
   DateTime _checkIn = DateTime.now().add(const Duration(days: 1));
   DateTime _checkOut = DateTime.now().add(const Duration(days: 3));
@@ -231,6 +240,18 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   HostedCheckoutConfig? get _hostedCheckout =>
       resolveHostedCheckout(ref.watch(appSettingsProvider).valueOrNull);
 
+  /// إتاحة وسائل الدفع كما أعلنها السيرفر (المتطلبان 7 و8 من المستند 06).
+  PaymentMethodAvailability get _paymentAvailability =>
+      resolvePaymentMethods(ref.watch(appSettingsProvider).valueOrNull);
+
+  /// الوسيلة الفعّالة: اختيار الضيف إن كان ما زال متاحًا، وإلا أول وسيلة متاحة.
+  PaymentMethodKey? get _paymentMethod {
+    final availability = _paymentAvailability;
+    final chosen = _chosenPaymentMethod;
+    if (chosen != null && availability.isEnabled(chosen)) return chosen;
+    return availability.defaultMethod;
+  }
+
   /// نتيجة فحص الإتاحة المحلي للتواريخ المختارة (المتطلب 45).
   AvailabilityVerdict get _availabilityVerdict => checkAvailability(
         checkIn: _checkIn,
@@ -262,11 +283,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         final taxes = totals.taxes;
         final total = totals.total;
 
-        final paymentLabel = switch (_paymentMethod) {
-          PaymentMethod.online => 'pay_online',
-          PaymentMethod.atHotel => 'pay_at_hotel',
-          PaymentMethod.ownerTransfer => 'pay_owner_transfer',
-        };
+        final selectedMethod = _paymentMethod;
+        final paymentLabel =
+            selectedMethod?.labelKey ?? 'no_payment_method_available';
 
         return Padding(
           padding: EdgeInsets.only(
@@ -374,7 +393,22 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       return;
     }
 
-    if (_paymentMethod == PaymentMethod.online) {
+    // المتطلبان 7 و8: لا يُرسل التطبيق وسيلة دفع لم تُفعّلها الإدارة، حتى لو
+    // حاول مستخدم تجاوز الواجهة.
+    final method = _paymentMethod;
+    final blockReason =
+        paymentMethodBlockReason(_paymentAvailability, method?.wireName);
+    if (method == null || blockReason != null) {
+      final messageKey = method == null
+          ? 'no_payment_method_available'
+          : (blockReason ?? 'payment_method_unavailable');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppStrings.t(isArabic, messageKey))),
+      );
+      return;
+    }
+
+    if (method == PaymentMethodKey.online) {
       // لا نجمع بيانات البطاقة ولا نرسلها. الدفع الإلكتروني لا يعمل إلا عبر
       // صفحة دفع مستضافة عند مزوّد مرخّص؛ وإن لم تُعلن الإعدادات رابطها بعد
       // نرفض المتابعة بدل اختراع نجاح دفع وهمي.
@@ -419,11 +453,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         checkIn: _checkIn,
         checkOut: _checkOut,
         guests: _guests,
-        paymentMethod: _paymentMethod == PaymentMethod.online
-            ? 'online'
-            : _paymentMethod == PaymentMethod.ownerTransfer
-                ? 'owner_transfer'
-                : 'at_hotel',
+        paymentMethod: method.wireName,
         mealTypes: _selectedLegacyMeals.toList(),
         extraBed: _extraBed,
         addonIds: addonIds.isNotEmpty ? addonIds : null,
@@ -438,7 +468,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       // رقم الحجز فقط. لا يمرّ التطبيق مبلغًا ولا بيانات بطاقة.
       final checkout = _hostedCheckout;
       final ref0 = booking['booking_ref']?.toString();
-      if (_paymentMethod == PaymentMethod.online &&
+      if (method == PaymentMethodKey.online &&
           checkout != null &&
           ref0 != null &&
           ref0.isNotEmpty) {
@@ -461,6 +491,12 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             nights: asInt(booking['nights'], _nights),
             guests: _guests,
             unitName: widget.unitName,
+            // المتطلب 4 من المستند 06: رقم الوحدة الفعلي من استجابة الحجز أولًا،
+            // ثم رقم الوحدة الحقيقي المُختار من قائمة وحدات الفندق.
+            unitNumber:
+                (booking['unit_number']?.toString().trim().isNotEmpty ?? false)
+                    ? booking['unit_number'].toString().trim()
+                    : widget.unitNumber,
             guestName: _isAgent
                 ? _customerNameController.text.trim()
                 : ref.read(sessionProvider).user?.fullName,
@@ -469,7 +505,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 : ref.read(sessionProvider).user?.phone,
             guestIdNumber: _guestIdNumberController.text.trim(),
             status: booking['status']?.toString(),
-            paymentMethod: booking['payment_method']?.toString(),
           ),
         ),
       );
@@ -1007,40 +1042,52 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                         Text(AppStrings.t(isArabic, 'payment_method'),
                             style: textTheme.titleMedium),
                         const SizedBox(height: AppDimens.sm),
-                        _PaymentOption(
-                          icon: Icons.credit_card_rounded,
-                          label: AppStrings.t(isArabic, 'pay_online'),
-                          selected: _paymentMethod == PaymentMethod.online,
-                          onTap: () => setState(
-                              () => _paymentMethod = PaymentMethod.online),
-                        ),
-                        const SizedBox(height: AppDimens.sm),
-                        _PaymentOption(
-                          icon: Icons.storefront_outlined,
-                          label: AppStrings.t(isArabic, 'pay_at_hotel'),
-                          selected: _paymentMethod == PaymentMethod.atHotel,
-                          onTap: () => setState(
-                              () => _paymentMethod = PaymentMethod.atHotel),
-                        ),
-                        if (widget.unitId != null) ...[
-                          const SizedBox(height: AppDimens.sm),
-                          _PaymentOption(
-                            icon: Icons.account_balance_outlined,
-                            label: AppStrings.t(isArabic, 'pay_owner_transfer'),
-                            selected:
-                                _paymentMethod == PaymentMethod.ownerTransfer,
-                            onTap: () => setState(() =>
-                                _paymentMethod = PaymentMethod.ownerTransfer),
-                          ),
-                        ],
+                        // المتطلبان 7 و8 من المستند 06: نعرض الوسائل التي
+                        // سمح بها السيرفر فقط. الافتراضي: «الدفع عند الوصول»
+                        // و«التحويل للمالك» معطّلان حتى تُفعّلهما الإدارة.
+                        if (!_paymentAvailability.hasAny)
+                          Container(
+                            padding: const EdgeInsets.all(AppDimens.md),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceMuted,
+                              borderRadius:
+                                  BorderRadius.circular(AppDimens.radiusMd),
+                            ),
+                            child: Text(
+                              AppStrings.t(
+                                  isArabic, 'no_payment_method_available'),
+                              style: textTheme.bodySmall,
+                            ),
+                          )
+                        else
+                          for (final option
+                              in _paymentAvailability.available) ...[
+                            if (option != _paymentAvailability.available.first)
+                              const SizedBox(height: AppDimens.sm),
+                            _PaymentOption(
+                              icon: switch (option) {
+                                PaymentMethodKey.online =>
+                                  Icons.credit_card_rounded,
+                                PaymentMethodKey.atHotel =>
+                                  Icons.storefront_outlined,
+                                PaymentMethodKey.ownerTransfer =>
+                                  Icons.account_balance_outlined,
+                              },
+                              label: AppStrings.t(isArabic, option.labelKey),
+                              selected: _paymentMethod == option,
+                              onTap: () =>
+                                  setState(() => _chosenPaymentMethod = option),
+                            ),
+                          ],
 
-                        if (_paymentMethod == PaymentMethod.ownerTransfer) ...[
+                        if (_paymentMethod ==
+                            PaymentMethodKey.ownerTransfer) ...[
                           const SizedBox(height: AppDimens.md),
                           _OwnerBankPanel(
                               bank: widget.ownerBank, isArabic: isArabic),
                         ],
 
-                        if (_paymentMethod == PaymentMethod.online) ...[
+                        if (_paymentMethod == PaymentMethodKey.online) ...[
                           const SizedBox(height: AppDimens.md),
                           _HostedCheckoutNotice(
                             config: _hostedCheckout,

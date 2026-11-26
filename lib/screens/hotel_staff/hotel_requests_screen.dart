@@ -6,8 +6,10 @@ import 'package:image_picker/image_picker.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_dimens.dart';
 import '../../utils/app_strings.dart';
+import '../../utils/housekeeping_settlement.dart';
 import '../../utils/maintenance_settlement.dart';
 import '../../utils/locale_provider.dart';
+import '../../utils/session_provider.dart';
 import '../../services/hotel_staff_service.dart';
 import '../../services/api_client.dart';
 import '../../utils/safe_parse.dart';
@@ -65,131 +67,216 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
     final isMaintenanceConfirm = canAttachImage && action == 'confirm';
     MaintenanceSettlement settlement = MaintenanceSettlement.unitBalance;
 
+    // المتطلب 10 من المستند 06: تأكيد طلب النظافة يتطلب اختيار طريقة سداد
+    // (خصم من الرصيد أو رابط دفع عبر واتساب) بعد ظهور السعر المعتمد.
+    final isCleaningConfirm =
+        (r['type'] ?? '').toString() == 'cleaning' && action == 'confirm';
+    final canSettle =
+        canConfirmHousekeepingSettlement(ref.read(sessionProvider).user?.role);
+    final approvedPrice = approvedHousekeepingPrice(r);
+    HousekeepingSettlement? housekeepingChoice;
+    String? dialogError;
+
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(AppStrings.t(
-            isArabic,
-            action == 'confirm'
-                ? 'confirm_request'
-                : action == 'done'
-                    ? 'mark_done'
-                    : 'reject_request')),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (action != 'reject')
-              TextField(
-                controller: priceCtrl,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                    labelText: AppStrings.t(isArabic, 'price_optional')),
-              ),
-            const SizedBox(height: AppDimens.sm),
-            TextField(
-              controller: noteCtrl,
-              maxLines: 2,
-              decoration: InputDecoration(
-                  labelText: AppStrings.t(
-                      isArabic, needsNote ? 'reject_reason' : 'note_optional')),
-            ),
-            if (isMaintenanceConfirm) ...[
-              const SizedBox(height: AppDimens.sm),
-              StatefulBuilder(
-                builder: (ictx, setSettleState) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppStrings.t(isArabic, 'maintenance_settlement'),
-                      style: Theme.of(ictx).textTheme.titleSmall,
-                    ),
-                    RadioListTile<MaintenanceSettlement>(
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                      value: MaintenanceSettlement.unitBalance,
-                      groupValue: settlement,
-                      onChanged: (v) => setSettleState(() => settlement = v!),
-                      title:
-                          Text(AppStrings.t(isArabic, 'settle_unit_balance')),
-                    ),
-                    RadioListTile<MaintenanceSettlement>(
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                      value: MaintenanceSettlement.whatsappLink,
-                      groupValue: settlement,
-                      onChanged: (v) => setSettleState(() => settlement = v!),
-                      title:
-                          Text(AppStrings.t(isArabic, 'settle_whatsapp_link')),
-                    ),
-                  ],
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: Text(AppStrings.t(
+              isArabic,
+              action == 'confirm'
+                  ? 'confirm_request'
+                  : action == 'done'
+                      ? 'mark_done'
+                      : 'reject_request')),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (action != 'reject')
+                  TextField(
+                    controller: priceCtrl,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                        labelText: AppStrings.t(isArabic, 'price_optional')),
+                  ),
+                const SizedBox(height: AppDimens.sm),
+                TextField(
+                  controller: noteCtrl,
+                  maxLines: 2,
+                  decoration: InputDecoration(
+                      labelText: AppStrings.t(isArabic,
+                          needsNote ? 'reject_reason' : 'note_optional')),
                 ),
-              ),
-            ],
-            if (canAttachImage) ...[
-              const SizedBox(height: AppDimens.sm),
-              StatefulBuilder(
-                builder: (ictx, setDlgState) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    OutlinedButton.icon(
-                      onPressed: () async {
-                        final picked = await ImagePicker().pickImage(
-                            source: ImageSource.gallery, imageQuality: 85);
-                        if (picked != null)
-                          setDlgState(() => imageFile = File(picked.path));
-                      },
-                      icon: const Icon(Icons.add_photo_alternate_outlined,
-                          size: 18),
-                      label: Text(imageFile == null
-                          ? AppStrings.t(isArabic, 'attach_image')
-                          : AppStrings.t(isArabic, 'image_attached')),
-                    ),
-                    if (imageFile != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: AppDimens.sm),
-                        child: ClipRRect(
-                          borderRadius:
-                              BorderRadius.circular(AppDimens.radiusMd),
-                          child: Image.file(imageFile!,
-                              height: 100, fit: BoxFit.cover),
+                if (isCleaningConfirm) ...[
+                  const SizedBox(height: AppDimens.sm),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          AppStrings.t(isArabic, 'approved_housekeeping_price'),
+                          style: Theme.of(ctx).textTheme.titleSmall,
                         ),
                       ),
-                  ],
-                ),
-              ),
-            ],
+                      Text(
+                        approvedPrice == null
+                            ? '—'
+                            : '${approvedPrice.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                        style: Theme.of(ctx)
+                            .textTheme
+                            .titleSmall
+                            ?.copyWith(color: AppColors.goldDark),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppDimens.sm),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      AppStrings.t(isArabic, 'housekeeping_settlement'),
+                      style: Theme.of(ctx).textTheme.titleSmall,
+                    ),
+                  ),
+                  for (final option in HousekeepingSettlement.values)
+                    RadioListTile<HousekeepingSettlement>(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      value: option,
+                      groupValue: housekeepingChoice,
+                      onChanged: (v) =>
+                          setDialogState(() => housekeepingChoice = v),
+                      title: Text(AppStrings.t(
+                          isArabic, housekeepingSettlementLabelKey(option))),
+                    ),
+                ],
+                if (isMaintenanceConfirm) ...[
+                  const SizedBox(height: AppDimens.sm),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      AppStrings.t(isArabic, 'maintenance_settlement'),
+                      style: Theme.of(ctx).textTheme.titleSmall,
+                    ),
+                  ),
+                  RadioListTile<MaintenanceSettlement>(
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    value: MaintenanceSettlement.unitBalance,
+                    groupValue: settlement,
+                    onChanged: (v) => setDialogState(() => settlement = v!),
+                    title: Text(AppStrings.t(isArabic, 'settle_unit_balance')),
+                  ),
+                  RadioListTile<MaintenanceSettlement>(
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    value: MaintenanceSettlement.whatsappLink,
+                    groupValue: settlement,
+                    onChanged: (v) => setDialogState(() => settlement = v!),
+                    title: Text(AppStrings.t(isArabic, 'settle_whatsapp_link')),
+                  ),
+                ],
+                if (canAttachImage) ...[
+                  const SizedBox(height: AppDimens.sm),
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final picked = await ImagePicker().pickImage(
+                          source: ImageSource.gallery, imageQuality: 85);
+                      if (picked != null) {
+                        setDialogState(() => imageFile = File(picked.path));
+                      }
+                    },
+                    icon: const Icon(Icons.add_photo_alternate_outlined,
+                        size: 18),
+                    label: Text(imageFile == null
+                        ? AppStrings.t(isArabic, 'attach_image')
+                        : AppStrings.t(isArabic, 'image_attached')),
+                  ),
+                  if (imageFile != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: AppDimens.sm),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                        child: Image.file(imageFile!,
+                            height: 100, fit: BoxFit.cover),
+                      ),
+                    ),
+                ],
+                if (dialogError != null) ...[
+                  const SizedBox(height: AppDimens.sm),
+                  Text(
+                    AppStrings.t(isArabic, dialogError!),
+                    style:
+                        const TextStyle(color: AppColors.danger, fontSize: 12),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(AppStrings.t(isArabic, 'cancel'))),
+            TextButton(
+              onPressed: () {
+                if (needsNote && noteCtrl.text.trim().isEmpty) return;
+                if (isCleaningConfirm) {
+                  final typedPrice =
+                      double.tryParse(priceCtrl.text.trim()) ?? approvedPrice;
+                  final error = validateHousekeepingSettlement(
+                    request: r,
+                    choice: housekeepingChoice,
+                    price: typedPrice,
+                    canConfirm: canSettle,
+                  );
+                  if (error != null) {
+                    setDialogState(() => dialogError = error);
+                    return;
+                  }
+                }
+                Navigator.pop(ctx, true);
+              },
+              child: Text(AppStrings.t(isArabic, 'confirm')),
+            ),
           ],
         ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(AppStrings.t(isArabic, 'cancel'))),
-          TextButton(
-            onPressed: () {
-              if (needsNote && noteCtrl.text.trim().isEmpty) return;
-              Navigator.pop(ctx, true);
-            },
-            child: Text(AppStrings.t(isArabic, 'confirm')),
-          ),
-        ],
       ),
     );
     if (confirmed != true) return;
+    if (!mounted) return;
 
     final parsedPrice = priceCtrl.text.trim().isNotEmpty
         ? double.tryParse(priceCtrl.text.trim())
         : null;
 
+    // فحص نهائي قبل الإرسال: يمنع الخصم المزدوج وطلب الدفع المكرر، ويوقف أي
+    // محاولة تجاوز للصلاحيات من واجهة الفندق.
+    if (isCleaningConfirm) {
+      final error = validateHousekeepingSettlement(
+        request: r,
+        choice: housekeepingChoice,
+        price: parsedPrice ?? approvedPrice,
+        canConfirm: canSettle,
+      );
+      if (error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppStrings.t(isArabic, error))));
+        return;
+      }
+    }
+
     setState(() => _busyId = asInt(r['id']));
     try {
-      await _service.actOnRequest(
+      final response = await _service.actOnRequest(
         type: asString(r['type']),
         id: asInt(r['id']),
         action: action,
         note: noteCtrl.text.trim().isNotEmpty ? noteCtrl.text.trim() : null,
         price: parsedPrice,
         imagePath: imageFile?.path,
-        settlement: isMaintenanceConfirm ? settlementPayload(settlement) : null,
+        settlement: isMaintenanceConfirm
+            ? settlementPayload(settlement)
+            : isCleaningConfirm
+                ? housekeepingSettlementPayload(housekeepingChoice!)
+                : null,
       );
       if (!mounted) return;
       // عند اختيار رابط واتساب نفتح المحادثة فعلًا برسالة تحمل رقم الطلب
@@ -205,6 +292,38 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
           requestId: asInt(r['id']),
           unitName: unitName,
           amount: parsedPrice,
+        );
+        if (uri == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(AppStrings.t(isArabic, 'whatsapp_no_number'))),
+          );
+        } else {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+          if (!mounted) return;
+        }
+      }
+      // المتطلب 10 من المستند 06: رابط الدفع يُقرأ من استجابة السيرفر فقط.
+      if (isCleaningConfirm &&
+          housekeepingChoice == HousekeepingSettlement.whatsappLink) {
+        final paymentLink = extractServerPaymentLink(response);
+        if (paymentLink == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content:
+                    Text(AppStrings.t(isArabic, 'payment_link_not_available'))),
+          );
+        }
+        final unitName =
+            (isArabic ? r['unit_name_ar'] : r['unit_name_en'])?.toString();
+        final uri = buildHousekeepingWhatsAppUri(
+          phone: (r['requester_phone'] ?? r['owner_phone'] ?? r['guest_phone'])
+              ?.toString(),
+          isArabic: isArabic,
+          requestId: asInt(r['id']),
+          unitName: unitName,
+          amount: parsedPrice ?? approvedPrice,
+          paymentLink: paymentLink,
         );
         if (uri == null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -300,6 +419,12 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
                   final unitName =
                       isArabic ? r['unit_name_ar'] : r['unit_name_en'];
                   final busy = _busyId == r['id'];
+                  // المتطلب 10 من المستند 06: السعر المعتمد ظاهر لموظف الفندق،
+                  // والتأكيد معطّل إن سبق تسجيل سداد الطلب (منع التكرار).
+                  final isCleaning = (r['type'] ?? '').toString() == 'cleaning';
+                  final cleaningPrice = approvedHousekeepingPrice(r);
+                  final cleaningSettled =
+                      isCleaning && isHousekeepingSettlementRecorded(r);
                   return Container(
                     padding: const EdgeInsets.all(AppDimens.md),
                     decoration: BoxDecoration(
@@ -351,6 +476,22 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
                                   color: AppColors.goldDark,
                                   fontWeight: FontWeight.w600)),
                         ],
+                        if (isCleaning && cleaningPrice != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                              '${AppStrings.t(isArabic, 'approved_housekeeping_price')}: ${cleaningPrice.toStringAsFixed(0)} ${AppStrings.t(isArabic, 'sar')}',
+                              style: textTheme.bodySmall?.copyWith(
+                                  color: AppColors.goldDark,
+                                  fontWeight: FontWeight.w600)),
+                        ],
+                        if (cleaningSettled) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                              AppStrings.t(
+                                  isArabic, 'settlement_already_recorded'),
+                              style: textTheme.bodySmall
+                                  ?.copyWith(color: AppColors.success)),
+                        ],
                         if (status == 'pending' || status == 'confirmed') ...[
                           const SizedBox(height: AppDimens.sm),
                           Row(
@@ -360,7 +501,7 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor: AppColors.secondary),
-                                    onPressed: busy
+                                    onPressed: busy || cleaningSettled
                                         ? null
                                         : () => _act(isArabic, r, 'confirm'),
                                     child: Text(AppStrings.t(

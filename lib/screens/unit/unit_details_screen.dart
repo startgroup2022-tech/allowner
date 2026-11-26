@@ -109,6 +109,7 @@ class _UnitDetailsScreenState extends ConsumerState<UnitDetailsScreen> {
             hotel: detail.hotel,
             unitId: unit.id,
             unitName: unit.name(isArabic),
+            unitNumber: unit.unitNumber,
             unitPricePerNight: unit.pricePerNight,
             unitImageUrl: unit.coverImage.isNotEmpty
                 ? unit.coverImage

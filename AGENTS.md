@@ -256,3 +256,26 @@ export PATH=~/sdk/flutter/bin:$PATH
 ```
 
 Extracting to `/opt` fails on a symlinked pub-cache entry; extract to `$HOME`.
+
+## Document 06 — Group 01 (requirements 1–10)
+
+Implemented and documented in `docs/DOCUMENT_06_GROUP_01.md`. Key invariants to
+preserve:
+
+- Guest-facing hospitality vocabulary is «ضيافاتي» / “My Stays”, «رقم الضيافة» /
+  “Stay Reference”, «عرض تفاصيل ضيافتي» / “View My Stay Details”. Owner and
+  booking-agent wording («حجوزاتي», «عرض تفاصيل الحجز») must stay unchanged.
+- `lib/utils/payment_methods_config.dart` is the only source of truth for payment
+  method availability. Defaults are **all disabled**; `online` additionally
+  requires an `https` hosted-checkout URL from the server. Never enable a method
+  client-side and never collect card data.
+- `lib/utils/unit_search.dart` holds the shared unit/room-number matcher
+  (Arabic-Indic digits, exact → prefix → substring). Reuse it instead of writing
+  new filters.
+- `lib/utils/housekeeping_settlement.dart` owns the housekeeping settlement rules
+  (approved price required, duplicate-settlement guard, role check, server-only
+  payment link). Payment links are never synthesised in the app.
+- `HotelStaffService.actOnRequest` returns the server response so callers can read
+  a server-issued `payment_link`.
+- `pubspec.lock` requires Flutter >= 3.47.0. Do not run `flutter pub get` with an
+  older SDK and commit the lock: it silently downgrades ~50 packages.
