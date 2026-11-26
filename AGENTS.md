@@ -350,3 +350,19 @@ Implemented and documented in `docs/DOCUMENT_06_GROUP_02.md`. Invariants:
   hotel-level payloads need `extra_bed_price`, otherwise booking sections stay hidden.
 - The extra-bed card only renders on the hotel-level booking path today
   (`unitId == null`); unit-level booking lacks it — tracked as an open defect.
+
+## Booking extras: one builder, two paths (fixed 2026-11-26)
+
+- `booking_screen.dart` builds the extras through `_buildExtrasSection(context, isArabic)`.
+  Never re-introduce the `if (unitId != null) … else …` collection spread: that is
+  exactly how `_ExtraBedCard` became invisible on unit-level bookings.
+- The extra-bed price lives on the hotel, so the card and the stepper must render in
+  both booking paths. Hide it only when a unit addon has `category == 'extra_bed'`
+  (otherwise the bed is billed twice).
+- `test/booking_extra_bed_paths_test.dart` pins both paths, the 4-bed cap, the free
+  price state and the `extra_bed` / `extra_bed_qty` payload. Run it before touching
+  anything in that screen.
+- The guest stepper uses the same `Icons.add_circle_outline_rounded` as the extra-bed
+  stepper; scope finders to the `Row` that contains the label.
+- Screenshot taps on cards below the fold need `ensureVisible`/`scrollUntilVisible`
+  first, otherwise the tap silently lands outside the viewport.
