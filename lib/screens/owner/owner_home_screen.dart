@@ -172,8 +172,7 @@ class _OwnerHomeScreenState extends ConsumerState<OwnerHomeScreen> {
                               Expanded(
                                 child: _MetricCard(
                                   icon: Icons.check_circle_outline_rounded,
-                                  label:
-                                      AppStrings.t(isArabic, 'commission_paid'),
+                                  label: AppStrings.t(isArabic, 'paid'),
                                   value: sar(stats['paid']),
                                 ),
                               ),

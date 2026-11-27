@@ -29,8 +29,9 @@ class _OwnerCleaningScreenState extends ConsumerState<OwnerCleaningScreen> {
     _future = _service.getOwnerHotelRequests(type: 'cleaning');
   }
 
-  void _reload() => setState(
-      () => _future = _service.getOwnerHotelRequests(type: 'cleaning'));
+  void _reload() => setState(() {
+        _future = _service.getOwnerHotelRequests(type: 'cleaning');
+      });
 
   Color _statusColor(String status) {
     switch (status) {

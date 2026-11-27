@@ -708,9 +708,39 @@ const paymentSettingsJson = {
   },
 };
 
+/// إعدادات الموقع كما يعلنها `content/settings.php` في عقد
+/// `docs/API_HANDOVER_AUTHORITATIVE.md` §5 — تُستخدم فقط في لقطات الاشتراك
+/// والحالة المعلنة، فلا تتغيّر لقطات سابقة.
+const contentSettingsJson = {
+  'success': true,
+  'subscription_active': true,
+  'subscription_expires_at': '2027-01-01',
+  'commission_percent': 10,
+  'subscription_annual_fee': 1200,
+  'currency': 'SAR',
+};
+
+/// بيانات الحساب البنكي للمالك كما تُقرأ من `user/owner-bank.php`.
+const ownerBankJson = {
+  'success': true,
+  'bank': {
+    'bank_name': 'البنك الأهلي السعودي',
+    'account_name': 'محمد علي',
+    'account_number': '1234567890',
+    'iban': 'SA0380000000608010167519',
+    'holder_name': 'محمد علي',
+  },
+};
+
 /// محوّل Dio يخدم الحمولات أعلاه حسب المسار.
 class ShotAdapter implements HttpClientAdapter {
-  ShotAdapter({this.failPath, this.emptyAddons = false});
+  ShotAdapter({
+    this.failPath,
+    this.emptyAddons = false,
+    this.richSettings = false,
+    this.availabilityOutside = false,
+    this.ownerTransferEnabled = false,
+  });
 
   /// عند تحديده، يُعاد المسار بخطأ 500 (لتصوير حالة الخطأ).
   final String? failPath;
@@ -718,6 +748,19 @@ class ShotAdapter implements HttpClientAdapter {
   /// يجعل `units/addons.php` بلا إضافات — لتصوير مسار الحجز التقليدي
   /// (اختيار الوجبات + بطاقة السرير الإضافي بعدّاد الكمية).
   final bool emptyAddons;
+
+  /// يجعل `content/settings.php` تُعلن الاشتراك والعمولة (لقطات المتطلبات
+  /// 122–125) بدل الاستجابة الفارغة الافتراضية.
+  final bool richSettings;
+
+  /// يجعل فترة إتاحة الوحدة في الماضي — لتصوير تحذير المتطلب 45 حين تقع
+  /// التواريخ المختارة خارج كل فترة مُعلنة.
+  final bool availabilityOutside;
+
+  /// يُعلن «التحويل المباشر للمالك» مُفعَّلًا من السيرفر — لتصوير المتطلبين
+  /// 119 و120 (بيانات حساب المالك تظهر بعد اختيار التحويل). الوضع الافتراضي
+  /// معطّل كما في المتطلب 7 من المستند 06.
+  final bool ownerTransferEnabled;
 
   @override
   void close({bool force = false}) {}
@@ -751,7 +794,14 @@ class ShotAdapter implements HttpClientAdapter {
     } else if (path.contains('hotels/list')) {
       body = hotelsJson;
     } else if (path.contains('units/detail')) {
-      body = unitDetailJson;
+      body = availabilityOutside
+          ? {
+              ...unitDetailJson,
+              'availability': const [
+                {'date_from': '2020-01-01', 'date_to': '2020-12-31'},
+              ],
+            }
+          : unitDetailJson;
     } else if (path.contains('units/addons')) {
       body = {
         'success': true,
@@ -802,8 +852,17 @@ class ShotAdapter implements HttpClientAdapter {
       body = notificationsJson;
     } else if (path.contains('bookings/my')) {
       body = myBookingsJson;
+    } else if (path.contains('owner-bank')) {
+      body = ownerBankJson;
     } else if (path.contains('content/settings')) {
-      body = {'success': true};
+      if (ownerTransferEnabled) {
+        body = {
+          ...contentSettingsJson,
+          'payment_methods': const {'owner_transfer': true},
+        };
+      } else {
+        body = richSettings ? contentSettingsJson : {'success': true};
+      }
     } else {
       body = {'success': true};
     }
@@ -862,9 +921,20 @@ Widget wrapShot(Widget child, {required bool isArabic}) {
 }
 
 /// يضبط المخوّل ويسجّل الجلسة (يُنادى في بداية كل اختبار لقطة).
-void installShotAdapter({String? failPath, bool emptyAddons = false}) {
-  ApiClient.instance.dio.httpClientAdapter =
-      ShotAdapter(failPath: failPath, emptyAddons: emptyAddons);
+void installShotAdapter({
+  String? failPath,
+  bool emptyAddons = false,
+  bool richSettings = false,
+  bool availabilityOutside = false,
+  bool ownerTransferEnabled = false,
+}) {
+  ApiClient.instance.dio.httpClientAdapter = ShotAdapter(
+    failPath: failPath,
+    emptyAddons: emptyAddons,
+    richSettings: richSettings,
+    availabilityOutside: availabilityOutside,
+    ownerTransferEnabled: ownerTransferEnabled,
+  );
 }
 
 void restoreShotAdapter(HttpClientAdapter original) {
@@ -988,6 +1058,7 @@ Future<void> capture(
   double width = 390,
   double height = 844,
   Future<void> Function(WidgetTester tester)? interact,
+  Duration? drainTimers,
 }) async {
   useScreenshotComparator();
   tester.view.physicalSize = Size(width, height);
@@ -1002,8 +1073,33 @@ Future<void> capture(
     await tester.pumpAndSettle();
   }
 
+  // بعض الشاشات (شريط التنقل الذي يبني كل التبويبات) تُشغّل
+  // `flutter_cache_manager` الذي يجدول مؤقّت تنظيف بعد 10 ثوانٍ. لا بد من
+  // تفريغه **قبل** المقارنة: أثناء كتابة الصورة الذهبية يستمر العمل الحقيقي
+  // فيجدول مؤقّتًا جديدًا يبقى معلّقًا بعد تدمير الشجرة.
+  if (drainTimers != null) {
+    for (var i = 0; i < 4; i++) {
+      await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 30)));
+      await tester.pump(drainTimers);
+    }
+    await tester.pumpAndSettle();
+  }
+
   await expectLater(
     find.byType(RepaintBoundary).first,
     matchesGoldenFile('$kShotDir/$relativePath'),
   );
+
+  // المقارنة نفسها تمنح العمل الحقيقي فرصةً لجدولة مؤقّت جديد. نُدمّر الشجرة
+  // صراحةً، نُفرّغ العمل الحقيقي، ثم نُقدّم الزمن — وإلا بقي المؤقّت معلّقًا
+  // بعد نهاية الاختبار.
+  if (drainTimers != null) {
+    await tester.pumpWidget(const SizedBox.shrink());
+    for (var i = 0; i < 3; i++) {
+      await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 30)));
+      await tester.pump(drainTimers);
+    }
+  }
 }

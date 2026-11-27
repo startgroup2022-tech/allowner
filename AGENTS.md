@@ -444,9 +444,18 @@ Implemented and documented in `docs/DOCUMENT_06_GROUP_02.md`. Invariants:
 
 ## Screenshot captures
 
-- Add a capture in `test/screenshot_export_test.dart` (customer) or
-  `test/screenshot_export_roles_test.dart` (staff/owner/agent), run with
-  `--update-goldens`, then `git status docs/evidence` — only new files should
-  appear. Existing goldens changing means the capture is non-deterministic.
+- Add a capture in `test/screenshot_export_test.dart` (customer),
+  `test/screenshot_export_roles_test.dart` (staff/owner/agent) or
+  `test/screenshot_export_doc05_test.dart` (the Doc 05 top-up batch: one
+  `testWidgets` per screenshot), run with `--update-goldens`, then
+  `git status docs/evidence` — only new files should appear. Existing goldens
+  changing means the capture is non-deterministic.
+- `test/screenshot_support.dart` `capture()` takes `drainTimers: true` when the
+  screen kicks off `flutter_cache_manager` fetches: it drains the 10s cache
+  timer inside `runAsync`, otherwise the test fails with "Pending timers".
+- `shotPair()` in `test/screenshot_export_doc05_test.dart` renders AR and EN from
+  the same `build`; pass `buildEn` when the widget takes localized strings as
+  constructor arguments (`ServiceRequestScreen` title/description), otherwise
+  Arabic text leaks into the English file.
 - English captures must set `locale: 'en'` **and** pass `isArabic: false`;
   forgetting the flag renders Arabic text into an English file.

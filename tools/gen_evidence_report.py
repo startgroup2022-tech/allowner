@@ -192,19 +192,20 @@ def main():
     add("")
     add("## 4. متطلبات بلا لقطة شاشة — ولماذا")
     add("")
-    add("لا يوجد متطلب «مُهمَل»؛ إنما تُصنَّف المتطلبات بلا لقطة إلى ثلاث فئات، "
+    add("لا يوجد متطلب «مُهمَل»؛ إنما تُصنَّف المتطلبات بلا لقطة إلى فئتين، "
         "وكل فئة موثّقة أدناه بأرقامها:")
     add("")
     no_shot = [i for i in items if not shots.get(i["num"])]
     non_visual = [i for i in no_shot if i.get("اعتماد الـ API", "—") in ("—", "", "-")]
     backend_only = [i for i in no_shot if i not in non_visual]
-    add("**أ) متطلب نصي/سلوكي غير مرئي (نص، ترتيب بيانات، صلاحية، نسخ ولصق):** "
-        + ", ".join(str(i["num"]) for i in non_visual[:120]))
-    add("")
+    if non_visual:
+        add("**أ) متطلب نصي/سلوكي غير مرئي (نص، ترتيب بيانات، صلاحية، نسخ ولصق):** "
+            + ", ".join(str(i["num"]) for i in non_visual[:120]))
+        add("")
     add("**ب) متطلب يعتمد على السيرفر أو مزوّد دفع، فلا يمكن إثباته بلقطة عميل:** "
         + ", ".join(str(i["num"]) for i in backend_only))
     add("")
-    add("هذان السردان يُظهران أن غياب اللقطة ليس إغفالًا بل حدود إثبات.")
+    add("هذا السرد يُظهر أن غياب اللقطة ليس إغفالًا بل حدود إثبات.")
     add("")
     add("## 5. مستوى الإثبات وتعليمات إعادة التوليد")
     add("")
@@ -212,6 +213,7 @@ def main():
     add("# اللقطات الحقيقية (بلا شبكة، بخطوط عربية حقيقية)")
     add("flutter test test/screenshot_export_test.dart --update-goldens")
     add("flutter test test/screenshot_export_roles_test.dart --update-goldens")
+    add("flutter test test/screenshot_export_doc05_test.dart --update-goldens")
     add("# هذا التقرير")
     add("python3 tools/gen_evidence_report.py")
     add("```")

@@ -32,8 +32,9 @@ class _OwnerExtraBedScreenState extends ConsumerState<OwnerExtraBedScreen> {
     _future = _service.getOwnerHotelRequests(type: 'extra_bed');
   }
 
-  void _reload() => setState(
-      () => _future = _service.getOwnerHotelRequests(type: 'extra_bed'));
+  void _reload() => setState(() {
+        _future = _service.getOwnerHotelRequests(type: 'extra_bed');
+      });
 
   Color _statusColor(String status) {
     switch (status) {
