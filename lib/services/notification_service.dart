@@ -74,12 +74,25 @@ class PushRegistrationResult {
 /// كل ما يخرج من الجهاز هنا هو الرمز والمنصّة واللغة — لا بيانات حجز ولا مبالغ.
 /// ولا يُرسل أي شيء إن لم يكن هناك رمز حقيقي من المزوّد.
 class NotificationService {
-  NotificationService({PushProvider? provider, Dio? dio})
-      : _provider = provider ?? const UnavailablePushProvider(),
-        _dio = dio ?? ApiClient.instance.dio;
+  NotificationService({
+    PushProvider? provider,
+    Dio? dio,
+    List<Duration>? retryDelays,
+  })  : _provider = provider ?? const UnavailablePushProvider(),
+        _dio = dio ?? ApiClient.instance.dio,
+        _retryDelays = retryDelays ??
+            const [
+              Duration(milliseconds: 300),
+              Duration(milliseconds: 900),
+              Duration(milliseconds: 2700),
+            ];
 
   final PushProvider _provider;
   final Dio _dio;
+
+  /// فواصل إعادة المحاولة للأعطال العابرة (شبكة/5xx). تُحقن في الاختبارات
+  /// كي لا ينتظر أحد ثلاث ثوانٍ حقيقية.
+  final List<Duration> _retryDelays;
 
   /// بثّ الإشعارات التي يجب أن تُعرض داخل التطبيق (snackbar/banner) بعد إزالة
   /// التكرار. الشاشات تستهلكه عند الحاجة.
@@ -127,29 +140,53 @@ class NotificationService {
 
   Future<PushRegistrationResult> _sendToken(String token,
       {required String locale}) async {
-    try {
-      await _dio.post('/user/device-token.php', data: {
-        'token': token.trim(),
-        'platform': _platformName(),
-        'locale': locale,
-      });
-      return const PushRegistrationResult(registered: true);
-    } on DioException catch (e) {
-      return PushRegistrationResult(
-          registered: false,
-          reason: 'api_${ApiException.fromDioError(e).statusCode ?? 0}');
+    final payload = {
+      'token': token.trim(),
+      'platform': _platformName(),
+      'locale': locale,
+    };
+    var lastReason = 'api_0';
+    for (var attempt = 0; attempt <= _retryDelays.length; attempt++) {
+      try {
+        await _dio.post('/user/device-token.php', data: payload);
+        return const PushRegistrationResult(registered: true);
+      } on DioException catch (e) {
+        final status = ApiException.fromDioError(e).statusCode ?? 0;
+        lastReason = 'api_$status';
+        if (!_isTransient(status) || attempt == _retryDelays.length) break;
+        await Future<void>.delayed(_retryDelays[attempt]);
+      }
     }
+    return PushRegistrationResult(registered: false, reason: lastReason);
   }
 
-  /// إلغاء التسجيل عند تسجيل الخروج حتى لا تصل إشعارات مستخدم لحساب آخر.
-  Future<void> unregister({required String token}) async {
-    if (token.trim().isEmpty || !_provider.isConfigured) return;
-    try {
-      await _dio.post('/user/device-token.php',
-          data: {'token': token.trim(), 'action': 'unregister'});
-    } on DioException {
-      // لا نُسقط تسجيل الخروج بسبب فشل شبكي.
+  /// العطل العابر: انقطاع شبكة (بلا رمز حالة) أو خطأ خادم 5xx.
+  /// 4xx قرار نهائي من السيرفر ولا يُعاد.
+  static bool _isTransient(int status) => status == 0 || status >= 500;
+
+  /// إلغاء التسجيل عند تسجيل الخروج أو تبديل الحساب.
+  ///
+  /// يُرجع `true` فقط إذا أكّد الخادم الحذف (أو لم يكن هناك مزوّد أصلًا فلا
+  /// شيء يُلغى). المتصل يحتفظ بالرمز كـ«معلّق» عند `false` كي يُعاد لاحقًا —
+  /// وإلا بقي الجهاز يستقبل إشعارات حساب سابق إلى الأبد.
+  Future<bool> unregister({required String token}) async {
+    final clean = token.trim();
+    if (clean.isEmpty) return true;
+    if (!_provider.isConfigured) return true;
+    for (var attempt = 0; attempt <= _retryDelays.length; attempt++) {
+      try {
+        await _dio.post('/user/device-token.php',
+            data: {'token': clean, 'action': 'unregister'});
+        return true;
+      } on DioException catch (e) {
+        final status = ApiException.fromDioError(e).statusCode ?? 0;
+        if (!_isTransient(status) || attempt == _retryDelays.length) {
+          return false;
+        }
+        await Future<void>.delayed(_retryDelays[attempt]);
+      }
     }
+    return false;
   }
 
   /// بثّ تجديد الرمز كما يصل من المزوّد (فارغ إن لم يكن مهيّأً).

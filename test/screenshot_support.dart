@@ -11,7 +11,6 @@ library;
 
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:allowners/services/api_client.dart';
 import 'package:allowners/theme/app_theme.dart';
@@ -23,6 +22,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'image_diff.dart';
 
 /// مسار مجلد اللقطات، نسبيًا لملف الاختبار (`test/`).
 const String kShotDir = '../docs/evidence/final-acceptance';
@@ -885,8 +886,41 @@ class ScreenshotComparator extends LocalFileComparator {
       : super(
             Uri.file('${Directory.current.path}/test/screenshot_support.dart'));
 
-  static const double maxDiffPercent = 3.0;
-  static const double maxMeanChannelDelta = 12.0;
+  /// القرار الافتراضي: **مساواة بكسلية تامة**. أي فرق — حرف واحد أو أيقونة أو
+  /// لون أو إزاحة — يُفشل الاختبار. هذا ممكن لأن سلسلة الأدوات مثبّتة على
+  /// Flutter 3.44.9 (انظر `docs/SCREENSHOT_TOOLCHAIN.md`).
+  ///
+  /// `SCREENSHOT_TOLERANT=1` يُفعّل وضع التشخيص عبر إصدار Flutter آخر، ويقبل
+  /// فروقًا في حدود `RasterDriftLimits` فقط (فحص موضعي بمربّعات + مساحة حبر،
+  /// لا عتبة كلية واحدة). لا يُستخدم في أي بوابة قبول.
+  static bool get tolerant =>
+      Platform.environment['SCREENSHOT_TOLERANT'] == '1';
+
+  /// الحكم على صورتين: مطابقة، أو انحراف رسم مقبول (وضع التشخيص فقط)، أو رفض.
+  static Future<DiffVerdict> verdict(
+    Uint8List actualPng,
+    Uint8List goldenPng, {
+    bool tolerant = false,
+  }) async {
+    if (_sameBytes(actualPng, goldenPng)) return DiffVerdict.identical;
+    final a = await decodePng(actualPng);
+    final b = await decodePng(goldenPng);
+    if (a == null || b == null) return DiffVerdict.rejected;
+    if (a.$1 != b.$1 || a.$2 != b.$2) return DiffVerdict.rejected;
+    final diff = analyzeRgba(a.$3, b.$3, a.$1, a.$2);
+    if (diff == null) return DiffVerdict.rejected;
+    if (diff.isIdentical) return DiffVerdict.identical;
+    if (tolerant && isRasterDriftOnly(diff)) return DiffVerdict.driftAccepted;
+    return DiffVerdict.rejected;
+  }
+
+  static bool _sameBytes(Uint8List a, Uint8List b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
 
   @override
   Future<bool> compare(Uint8List imageBytes, Uri golden) async {
@@ -894,47 +928,45 @@ class ScreenshotComparator extends LocalFileComparator {
     final result =
         await GoldenFileComparator.compareLists(imageBytes, goldenBytes);
     if (result.passed) return true;
-    if (await _rasterDriftOnly(imageBytes, goldenBytes)) return true;
+
+    final diff = await _report(imageBytes, goldenBytes);
+    if (tolerant && isRasterDriftOnly(diff)) {
+      // وضع التشخيص فقط: نُمرّر مع تسجيل صريح بالفرق المقبول.
+      // ignore: avoid_print
+      print('screenshot drift accepted (diagnostic mode): ${golden.path} '
+          '${diff.toString()}');
+      return true;
+    }
+
     final error = await generateFailureOutput(result, golden, basedir);
-    throw FlutterError(error);
+    throw FlutterError(
+      '$error\n'
+      '${diff == null ? 'أبعاد مختلفة أو صورة غير قابلة للفك.' : 'تحليل الفرق: $diff'}\n'
+      'المرجع معتمد على Flutter 3.44.9. إن كان الإصدار مختلفًا استخدم '
+      'SCREENSHOT_TOLERANT=1 للتشخيص فقط، أو أعد توليد اللقطات بعد موافقة '
+      'المالك على التغيير البصري.',
+    );
   }
 
-  Future<bool> _rasterDriftOnly(Uint8List a, Uint8List b) async {
-    final first = await _rgba(a);
-    final second = await _rgba(b);
-    if (first == null || second == null) return false;
-    if (first.$1 != second.$1 || first.$2 != second.$2) return false;
-    final bytesA = first.$3;
-    final bytesB = second.$3;
-    var differing = 0;
-    var deltaSum = 0;
-    for (var i = 0; i < bytesA.length; i += 4) {
-      var maxChannel = 0;
-      for (var c = 0; c < 3; c++) {
-        final d = (bytesA[i + c] - bytesB[i + c]).abs();
-        if (d > maxChannel) maxChannel = d;
-      }
-      deltaSum += maxChannel;
-      if (maxChannel > 16) differing++;
-    }
-    final pixels = bytesA.length ~/ 4;
-    final diffPercent = differing * 100 / pixels;
-    final meanDelta = deltaSum / pixels;
-    return diffPercent <= maxDiffPercent && meanDelta <= maxMeanChannelDelta;
+  Future<RgbaDiff?> _report(Uint8List a, Uint8List b) async {
+    final first = await decodePng(a);
+    final second = await decodePng(b);
+    if (first == null || second == null) return null;
+    if (first.$1 != second.$1 || first.$2 != second.$2) return null;
+    return analyzeRgba(first.$3, second.$3, first.$1, first.$2);
   }
+}
 
-  Future<(int, int, Uint8List)?> _rgba(Uint8List png) async {
-    try {
-      final codec = await ui.instantiateImageCodec(png);
-      final frame = await codec.getNextFrame();
-      final data =
-          await frame.image.toByteData(format: ui.ImageByteFormat.rawRgba);
-      if (data == null) return null;
-      return (frame.image.width, frame.image.height, data.buffer.asUint8List());
-    } catch (_) {
-      return null;
-    }
-  }
+/// نتيجة مقارنة لقطة بلقطة مرجعية.
+enum DiffVerdict {
+  /// لا فرق بكسل واحد.
+  identical,
+
+  /// فرق في حدود انحراف محرّك الرسم — مقبول في وضع التشخيص فقط.
+  driftAccepted,
+
+  /// فرق حقيقي: نص أو أيقونة أو زر أو لون أو موضع أو تخطيط.
+  rejected,
 }
 
 /// يُثبّت المقارن المتسامح مرة واحدة لكل ملف اختبار لقطات.

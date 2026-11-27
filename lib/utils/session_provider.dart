@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/app_user.dart';
 import '../services/auth_service.dart';
+import 'push_bootstrap.dart';
 import 'push_lifecycle.dart';
 
 class SessionState {
@@ -23,12 +24,14 @@ class SessionState {
 }
 
 class SessionNotifier extends StateNotifier<SessionState> {
-  SessionNotifier() : super(const SessionState(isLoading: true)) {
+  SessionNotifier({PushLifecycle? push})
+      : _push = push ?? PushLifecycle(),
+        super(const SessionState(isLoading: true)) {
     _restore();
   }
 
   final AuthService _authService = AuthService();
-  final PushLifecycle _push = PushLifecycle();
+  final PushLifecycle _push;
 
   Future<void> _restore() async {
     final user = await _authService.restoreSession();
@@ -77,7 +80,8 @@ class SessionNotifier extends StateNotifier<SessionState> {
   /// في [PushLifecycle.lastReason] كي تعرضها الشاشات بصدق.
   Future<void> _registerPush() async {
     try {
-      await _push.onLogin(locale: await storedLocale());
+      await _push.onLogin(
+          locale: await storedLocale(), userId: state.user?.id.toString());
     } catch (_) {
       // الإشعارات ليست شرطًا للدخول.
     }
@@ -129,5 +133,5 @@ class SessionNotifier extends StateNotifier<SessionState> {
 }
 
 final sessionProvider = StateNotifierProvider<SessionNotifier, SessionState>(
-  (ref) => SessionNotifier(),
+  (ref) => SessionNotifier(push: ref.watch(pushLifecycleProvider)),
 );

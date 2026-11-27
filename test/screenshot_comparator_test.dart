@@ -5,10 +5,13 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'image_diff.dart';
 import 'screenshot_support.dart';
 
-/// يثبت أن مقارن اللقطات ما زال يكشف الانحدار الحقيقي رغم تسامحه مع فروق
-/// التنعيم. بلا هذا الاختبار قد يصبح التسامح بابًا يمرّ منه أي تغيير بصري.
+/// سياسة المقارن: المساواة البكسلية هي البوابة، والتسامح وضع تشخيص صريح.
+///
+/// هذا الملف يثبت **السياسة**، و`test/screenshot_visual_regression_test.dart`
+/// يثبت أن أنواع التغيير البصري الحقيقية تُرفض على لقطات فعلية من التطبيق.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -39,64 +42,57 @@ void main() {
     return file.uri;
   }
 
-  test('الاختلاف الطفيف (تنعيم) يمرّ', () async {
-    final golden = await png((canvas) {
-      canvas.drawRect(
-        const Rect.fromLTWH(20, 20, 160, 40),
-        Paint()..color = const Color(0xFF123456),
-      );
-    });
-    final uri = await writeGolden(golden);
+  Future<Uint8List> driftVersion() => png((canvas) {
+        canvas.drawRect(
+          const Rect.fromLTWH(20, 20, 160, 40),
+          Paint()..color = const Color(0xFF143458),
+        );
+      });
 
-    // نفس الشكل مع وردية أفتح قليلًا في حدود الحروف: فرق صغير في كل قناة.
-    final drifted = await png((canvas) {
-      canvas.drawRect(
-        const Rect.fromLTWH(20, 20, 160, 40),
-        Paint()..color = const Color(0xFF143458),
-      );
-    });
+  Future<Uint8List> baseVersion() => png((canvas) {
+        canvas.drawRect(
+          const Rect.fromLTWH(20, 20, 160, 40),
+          Paint()..color = const Color(0xFF123456),
+        );
+      });
 
+  test('الوضع الافتراضي صارم: فرق طفيف يُرفض', () async {
+    final uri = await writeGolden(await baseVersion());
     final comparator = ScreenshotComparator();
-    expect(await comparator.compare(drifted, uri), isTrue);
-  });
 
-  test('تغيّر عنصر حقيقي يُفشل المقارنة', () async {
-    final golden = await png((canvas) {
-      canvas.drawRect(
-        const Rect.fromLTWH(20, 20, 160, 40),
-        Paint()..color = const Color(0xFF123456),
-      );
-    });
-    final uri = await writeGolden(golden);
-
-    // مستطيل أسود كبير مكان مساحة بيضاء: انحدار تخطيط واضح.
-    final changed = await png((canvas) {
-      canvas.drawRect(
-        const Rect.fromLTWH(20, 20, 160, 40),
-        Paint()..color = const Color(0xFF123456),
-      );
-      canvas.drawRect(
-        const Rect.fromLTWH(10, 100, 180, 90),
-        Paint()..color = const Color(0xFF000000),
-      );
-    });
-
-    final comparator = ScreenshotComparator();
     await expectLater(
-      comparator.compare(changed, uri),
+      comparator.compare(await driftVersion(), uri),
       throwsA(isA<FlutterError>()),
     );
   });
 
-  test('اختلاف الأبعاد يُفشل دائمًا', () async {
-    final golden = await png((canvas) {
-      canvas.drawRect(
-        const Rect.fromLTWH(0, 0, 200, 200),
-        Paint()..color = const Color(0xFFFFFFFF),
-      );
-    });
+  test('الوضع الافتراضي صارم: المطابق تمامًا يمرّ', () async {
+    final golden = await baseVersion();
     final uri = await writeGolden(golden);
+    final comparator = ScreenshotComparator();
 
+    expect(await comparator.compare(golden, uri), isTrue);
+  });
+
+  test('وضع التشخيص يقبل الانحراف الصغير فقط', () async {
+    expect(
+      await ScreenshotComparator.verdict(
+        await driftVersion(),
+        await baseVersion(),
+        tolerant: true,
+      ),
+      DiffVerdict.driftAccepted,
+    );
+    expect(
+      await ScreenshotComparator.verdict(
+        await driftVersion(),
+        await baseVersion(),
+      ),
+      DiffVerdict.rejected,
+    );
+  });
+
+  test('اختلاف الأبعاد يُرفض في الوضعين', () async {
     final recorder = ui.PictureRecorder();
     Canvas(recorder).drawRect(
       const Rect.fromLTWH(0, 0, 100, 100),
@@ -107,10 +103,19 @@ void main() {
         .buffer
         .asUint8List();
 
-    final comparator = ScreenshotComparator();
-    await expectLater(
-      comparator.compare(small, uri),
-      throwsA(isA<FlutterError>()),
+    expect(
+      await ScreenshotComparator.verdict(small, await baseVersion(),
+          tolerant: true),
+      DiffVerdict.rejected,
     );
+  });
+
+  test('العتبات معلنة وصغيرة بما يكفي لكشف تغيير موضعي', () {
+    // مربّع 24×24 = 576 بكسل. 0.5% = أقل من 3 بكسلات: حرف واحد يكفي.
+    expect(kRasterDriftLimits.maxBlockInkFlip, lessThanOrEqualTo(0.5));
+    expect(kRasterDriftLimits.maxBlockMean, lessThanOrEqualTo(12));
+    expect(kRasterDriftLimits.maxDiffPercent, lessThanOrEqualTo(1.5));
+    expect(kSolidInkLuminance, lessThan(kInkLuminance));
+    expect(kInkLuminance, lessThan(kSolidBackgroundLuminance));
   });
 }
