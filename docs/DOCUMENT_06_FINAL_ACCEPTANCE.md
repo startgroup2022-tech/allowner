@@ -11,12 +11,12 @@
 
 | المقياس | القيمة |
 |---|---|
-| `flutter test` | **637 ناجح، 17 متخطّى، 0 فاشل** (`All tests passed!`, exit 0) |
+| `flutter test` | **676 ناجح، 17 متخطّى، 0 فاشل** (`All tests passed!`, exit 0) |
 | المتخطّى | 17 اختبارًا حيًّا يحتاج `RUN_LIVE_TESTS=1` + باك إند (لا يُتخطّى شيء آخر) |
 | `flutter analyze` | **No issues found!** (كان 143 ملاحظة في بداية الجولة) |
-| `dart format --output=none --set-exit-if-changed .` | **151 ملفًا، 0 تغيير** |
-| ملفات الاختبار | 32 ملفًا |
-| لقطات الشاشة الحقيقية | **86 صورة** تحت `docs/evidence/final-acceptance/` |
+| `dart format --output=none --set-exit-if-changed .` | **157 ملفًا، 0 تغيير** |
+| ملفات الاختبار | 36 ملفًا |
+| لقطات الشاشة الحقيقية | **93 صورة** تحت `docs/evidence/final-acceptance/` |
 | متطلبات تحمل لقطة شاشة | **53** متطلبًا (كانت 47) |
 | متطلبات تحمل دليل اختبار | **53** متطلبًا |
 

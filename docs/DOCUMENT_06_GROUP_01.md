@@ -15,8 +15,8 @@
 > |---|---|---|
 > | Flutter | 3.47.7 | **3.44.9** (pinned: it is the version that yields a clean analyzer; 3.50.1 adds 120 `cupertino_ui` deprecations) |
 > | `flutter analyze` | 143 infos | **No issues found!** |
-> | `flutter test` | 553 passed | **637 passed / 17 skipped / 0 failed** |
-> | `dart format` | 135 files | **151 files, 0 changed** |
+> | `flutter test` | 553 passed | **676 passed / 17 skipped / 0 failed** |
+> | `dart format` | 135 files | **157 files, 0 changed** |
 >
 > See `docs/DOCUMENT_06_FINAL_ACCEPTANCE.md` for the current numbers and §4.5–4.6
 > for the notification lifecycle and the screenshot-toolchain pin.

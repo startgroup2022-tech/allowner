@@ -133,6 +133,7 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
                           style: Theme.of(ctx).textTheme.titleSmall,
                         ),
                       ),
+                      const SizedBox(width: AppDimens.sm),
                       Text(
                         approvedPrice == null
                             ? '—'
@@ -629,8 +630,11 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
                                         ? null
                                         : () =>
                                             _act(isArabic, r, 'confirm', role),
-                                    child: Text(AppStrings.t(
-                                        isArabic, 'confirm_request')),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(AppStrings.t(
+                                          isArabic, 'confirm_request')),
+                                    ),
                                   ),
                                 ),
                               if (status == 'pending')
@@ -642,8 +646,11 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
                                   onPressed: busy
                                       ? null
                                       : () => _act(isArabic, r, 'done', role),
-                                  child:
-                                      Text(AppStrings.t(isArabic, 'mark_done')),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                        AppStrings.t(isArabic, 'mark_done')),
+                                  ),
                                 ),
                               ),
                               if (status == 'pending') ...[
@@ -658,8 +665,11 @@ class _HotelRequestsScreenState extends ConsumerState<HotelRequestsScreen>
                                         ? null
                                         : () =>
                                             _act(isArabic, r, 'reject', role),
-                                    child: Text(AppStrings.t(
-                                        isArabic, 'reject_request')),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(AppStrings.t(
+                                          isArabic, 'reject_request')),
+                                    ),
                                   ),
                                 ),
                               ],

@@ -106,6 +106,20 @@ void main() {
       );
     });
 
+    testWidgets('DOC06-REQ-009-departures-search-en', (tester) async {
+      setSession(role: 'hotel_manager', name: 'Hotel Manager', locale: 'en');
+      await capture(
+        tester,
+        const HotelDeparturesScreen(),
+        'hotel-staff/english/DOC06-REQ-009-departures-search-en.png',
+        isArabic: false,
+        interact: (t) async {
+          await t.enterText(find.byType(TextField).first, '1205');
+          await t.pumpAndSettle();
+        },
+      );
+    });
+
     testWidgets('DOC05-REQ-082-hotel-bookings-ar', (tester) async {
       await capture(tester, const HotelBookingsScreen(),
           'hotel-staff/arabic/DOC05-REQ-082-hotel-bookings-ar.png');
@@ -155,6 +169,25 @@ void main() {
           final confirm = find.text('تأكيد الطلب');
           expect(confirm, findsWidgets,
               reason: 'زر تأكيد طلب التنظيف يجب أن يكون ظاهرًا');
+          await t.tap(confirm.first);
+          await t.pumpAndSettle();
+        },
+      );
+    });
+
+    testWidgets('DOC06-REQ-010-housekeeping-payment-options-en',
+        (tester) async {
+      setSession(role: 'hotel_manager', name: 'Hotel Manager', locale: 'en');
+      await capture(
+        tester,
+        const HotelRequestsScreen(),
+        'hotel-staff/english/DOC06-REQ-010-housekeeping-payment-options-en.png',
+        isArabic: false,
+        height: 1200,
+        interact: (t) async {
+          final confirm = find.text('Confirm Request');
+          expect(confirm, findsWidgets,
+              reason: 'زر تأكيد طلب التنظيف بالإنجليزية يجب أن يكون ظاهرًا');
           await t.tap(confirm.first);
           await t.pumpAndSettle();
         },
@@ -289,6 +322,44 @@ void main() {
     testWidgets('DOC05-REQ-075-employee-staff-navigation-ar', (tester) async {
       await capture(tester, const HotelStaffNavigationScreen(),
           'owner-employee/arabic/DOC05-REQ-075-employee-staff-navigation-ar.png');
+    });
+    testWidgets('DOC06-REQ-011-requests-meal-en', (tester) async {
+      setSession(role: 'hotel_manager', name: 'Hotel Manager', locale: 'en');
+      await capture(
+        tester,
+        const HotelRequestsScreen(),
+        'hotel-staff/english/DOC06-REQ-011-requests-meal-en.png',
+        isArabic: false,
+        height: 1200,
+        interact: (t) async {
+          final tab = find.textContaining('Meal');
+          if (tab.evaluate().isNotEmpty) {
+            await t.tap(tab.first);
+            await t.pumpAndSettle();
+          }
+        },
+      );
+    });
+
+    testWidgets('DOC06-REQ-016-meal-pricing-en', (tester) async {
+      setSession(role: 'hotel_manager', name: 'Hotel Manager', locale: 'en');
+      await capture(tester, const HotelMealPricingScreen(),
+          'hotel-staff/english/DOC06-REQ-016-meal-pricing-en.png',
+          isArabic: false, height: 1000);
+    });
+
+    testWidgets('DOC06-REQ-F-002-arrivals-search-en', (tester) async {
+      setSession(role: 'hotel_manager', name: 'Hotel Manager', locale: 'en');
+      await capture(
+        tester,
+        const HotelArrivalsScreen(),
+        'hotel-staff/english/DOC06-REQ-F-002-arrivals-search-en.png',
+        isArabic: false,
+        interact: (t) async {
+          await t.enterText(find.byType(TextField).first, '402');
+          await t.pumpAndSettle();
+        },
+      );
     });
   });
 }

@@ -184,6 +184,22 @@ void main() {
       );
     });
 
+    testWidgets('DOC06-REQ-002-hotel-unit-search-en', (tester) async {
+      setSession(locale: 'en');
+      await capture(
+        tester,
+        HotelDetailsScreen(hotel: hotel),
+        'customer/english/DOC06-REQ-002-hotel-unit-search-en.png',
+        isArabic: false,
+        interact: (t) async {
+          await t.drag(find.byType(Scrollable).first, const Offset(0, -420));
+          await t.pumpAndSettle();
+          await t.enterText(find.byType(TextField).first, '402');
+          await t.pumpAndSettle();
+        },
+      );
+    });
+
     testWidgets('DOC05-REQ-030-unit-details-ar', (tester) async {
       await capture(tester, const UnitDetailsScreen(unitId: 13),
           'customer/arabic/DOC05-REQ-030-unit-details-ar.png');
@@ -342,6 +358,24 @@ void main() {
         height: 1200,
         interact: (t) async {
           final action = find.text(AppStrings.t(true, 'view_my_stay_details'));
+          if (action.evaluate().isNotEmpty) {
+            await t.tap(action.first);
+            await t.pumpAndSettle();
+          }
+        },
+      );
+    });
+
+    testWidgets('DOC06-REQ-006-stay-details-sheet-en', (tester) async {
+      setSession(locale: 'en');
+      await capture(
+        tester,
+        const MyBookingsScreen(),
+        'customer/english/DOC06-REQ-006-stay-details-sheet-en.png',
+        isArabic: false,
+        height: 1200,
+        interact: (t) async {
+          final action = find.text(AppStrings.t(false, 'view_my_stay_details'));
           if (action.evaluate().isNotEmpty) {
             await t.tap(action.first);
             await t.pumpAndSettle();
