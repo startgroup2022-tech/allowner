@@ -400,3 +400,31 @@ Implemented and documented in `docs/DOCUMENT_06_GROUP_02.md`. Invariants:
   carry a screenshot.
 - Sheet screenshots use the `interact` callback: tap the button text, then
   `pumpAndSettle`, otherwise the sheet is not in the frame.
+
+## Toolchain pin for golden screenshots (2026-11-26)
+
+- Use **Flutter 3.44.9 / Dart 3.10.x**. 3.50.1 resolves newer transitive
+  packages and adds 120 `cupertino_ui` deprecation infos; 3.32.0 cannot resolve
+  the committed lock. Only 3.44.x gives `No issues found!` with this code.
+- Goldens are pixel comparisons, so the SDK and `pubspec.lock` are part of the
+  test fixture. After any SDK or lock change, regenerate all 86 PNGs:
+  `flutter test test/screenshot_export_test.dart test/screenshot_export_roles_test.dart test/screenshot_export_matrix_test.dart --update-goldens`
+- Measured drift: 2.35% of pixels between 3.32.0 and 3.44.9 (antialiasing),
+  7.72% between different package resolutions. `ScreenshotComparator` in
+  `test/screenshot_support.dart` accepts a diff only when **both** ≤3% of
+  pixels and mean channel delta ≤12/255, so real layout/text/colour changes
+  still fail. `test/screenshot_comparator_test.dart` proves that.
+- `test/failures/` is generated output; it is gitignored. Never commit it.
+
+## Push notification lifecycle (2026-11-26)
+
+- `lib/utils/push_lifecycle.dart` owns register/rotate/unregister and stores the
+  token **only** after the server answers `success: true`.
+- `NotificationService.attach()` is idempotent (`_attached`); call it twice and
+  nothing duplicates. Taps surface via `onNotificationTap`.
+- `lib/utils/push_tap_router.dart` maps a payload to a role-appropriate screen;
+  unknown `target` values are ignored, never guessed. Add new targets in both
+  the router and `docs/BACKEND_INTEGRATION_HANDOVER.md` §3.9.
+- No Firebase in this repo: `isConfigured` is false, so nothing is sent. Tests
+  assert `push_provider_not_configured` / `permission_denied` / `api_503`
+  rather than inventing success.

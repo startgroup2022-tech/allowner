@@ -36,3 +36,6 @@ ios/.symlinks/
 # Python tooling (tools/*.py)
 __pycache__/
 *.pyc
+
+# مخرجات فشل مقارنة اللقطات (تُولَّد محليًا)
+test/failures/

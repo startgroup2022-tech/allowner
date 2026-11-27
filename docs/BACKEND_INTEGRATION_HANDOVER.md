@@ -242,6 +242,69 @@ Content-Type: application/json
   machine belong to PHP. Idempotency (one pending request per agent per period)
   must be enforced server-side.
 
+### 3.9 Push notifications — device token lifecycle (Flutter side shipped, provider pending)
+
+The app now owns the full client lifecycle: register on login, rotate on token
+refresh, unregister on logout, and route taps. Nothing fires today because the
+repository contains no Firebase configuration, and the app says so instead of
+pretending notifications work.
+
+**Client → server**
+
+```http
+POST /user/device-token.php
+Content-Type: application/json
+
+{ "token": "fcm-…", "platform": "android", "locale": "ar" }
+```
+
+Unregister uses the same endpoint with an explicit action:
+
+```http
+POST /user/device-token.php
+{ "token": "fcm-…", "action": "unregister" }
+```
+
+Behaviour the PHP side must match:
+
+* Store one row per `(user_id, token)`; a token that moves to another account
+  must be reassigned, not duplicated, or two users receive each other's pushes.
+* Reply `{"success": true}` only after the row is committed. The app persists
+  the token locally **only** on success, so a failed call leaves no stale token
+  that would later be "unregistered" silently.
+* On refresh the app first unregisters the previous token, then registers the
+  new one. If the first call fails the app still registers the new token and
+  logs the reason — PHP should treat an unknown token on unregister as success.
+* Deleting a device token must be idempotent and must never return 5xx for an
+  already-removed token.
+
+**Server → device (FCM data payload)**
+
+Required keys so a tap can be routed without guessing:
+
+| Key | Purpose |
+| --- | --- |
+| `type` | `booking`, `service_request`, `payment`, `wallet`, `subscription` |
+| `target` | optional explicit screen hint; wins over `type` when present |
+| `message_id` | dedupe key — the app shows a foreground message once |
+| `booking_id` / `request_id` | entity the screen should focus |
+
+Accepted `target` values: `booking`, `service`, `service_request`, `wallet`,
+`subscription`, `payment`. Any other value is ignored and the tap falls back to
+the user's notification list — the app never opens a screen the role cannot
+access.
+
+**Still required before notifications can be claimed as working**
+
+1. Firebase project + `google-services.json` / `GoogleService-Info.plist` added
+   to the build (not in this repository, and not something the Flutter side can
+   invent).
+2. A concrete `PushProvider` implementation (the app talks to an interface with
+   an `UnavailablePushProvider` default, so no Firebase dependency leaks into
+   tests).
+3. `device-token.php` per the contract above.
+4. A server-side sender that respects the `target`/`type` vocabulary.
+
 ---
 
 ## 4. Reconciliation checklist for the cPanel phase (Codex)

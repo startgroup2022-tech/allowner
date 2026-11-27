@@ -88,6 +88,9 @@ class NotificationService {
   Stream<Map<String, dynamic>> get inAppMessages => _inApp.stream;
 
   final Set<String> _delivered = <String>{};
+  final StreamController<Map<String, dynamic>> _taps =
+      StreamController<Map<String, dynamic>>.broadcast();
+  bool _attached = false;
 
   bool get isConfigured => _provider.isConfigured;
 
@@ -149,8 +152,19 @@ class NotificationService {
     }
   }
 
+  /// بثّ تجديد الرمز كما يصل من المزوّد (فارغ إن لم يكن مهيّأً).
+  Stream<String> get tokenRefreshes => _provider.onTokenRefresh;
+
+  /// بثّ ضغطات الإشعارات بعد ربط المزوّد عبر [attach].
+  Stream<Map<String, dynamic>> get onNotificationTap => _taps.stream;
+
   /// يربط بثّ المزوّد بالخدمة: عرض الرسائل في المقدمة وإعادة توجيه الضغطات.
+  ///
+  /// الربط مرة واحدة فقط: الاستدعاء الثاني لا يضاعف الاشتراكات ولا يُكرّر
+  /// عرض الرسالة نفسها.
   void attach() {
+    if (_attached) return;
+    _attached = true;
     _provider.onForegroundMessage.listen((data) {
       final key = notificationDedupeKey(data);
       if (key != null) {
@@ -158,6 +172,16 @@ class NotificationService {
       }
       _inApp.add(data);
     });
+    _provider.onNotificationTap.listen(_taps.add);
+  }
+
+  /// الرمز الحالي من المزوّد إن وُجد وكان مهيّأً. تُستخدم بعد نجاح التسجيل
+  /// لحفظ الرمز نفسه الذي وافق عليه الخادم بدل تخمينه.
+  Future<String?> currentProviderToken() async {
+    if (!_provider.isConfigured) return null;
+    final token = await _provider.currentToken();
+    final clean = token?.trim();
+    return (clean == null || clean.isEmpty) ? null : clean;
   }
 
   /// حمولة تعريفية للتسجيل — تُستخدم في الاختبارات لإثبات ما يُرسل.
@@ -177,9 +201,10 @@ class NotificationService {
     return 'web';
   }
 
-  /// إغلاق البث (يُستخدم في الاختبارات وفي dispose).
+  /// إغلاق البثوث (يُستخدم في الاختبارات وفي dispose).
   Future<void> dispose() async {
     await _inApp.close();
+    await _taps.close();
   }
 }
 
