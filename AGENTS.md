@@ -428,3 +428,25 @@ Implemented and documented in `docs/DOCUMENT_06_GROUP_02.md`. Invariants:
 - No Firebase in this repo: `isConfigured` is false, so nothing is sent. Tests
   assert `push_provider_not_configured` / `permission_denied` / `api_503`
   rather than inventing success.
+
+## Traceability matrices (2026-11-26)
+
+- Two independent matrices, both generated — never hand-edit the `.md`:
+  - `python3 tools/gen_doc05_matrix.py` → `docs/MATRIX_DOCUMENT_05.md` (148 rows
+    from `tools/matrix_data.py` + the verbatim inventory).
+  - `python3 tools/gen_doc06_matrix.py` → `docs/MATRIX_DOCUMENT_06.md` (21 rows
+    from `tools/doc06_matrix_data.py`).
+- The Doc 06 generator **fails** if a row names a `lib/`, `test/` or screenshot
+  path that does not exist. Keep it that way: it is what stops the matrix from
+  becoming a claim.
+- Neither document carries per-requirement page numbers in this repo; both
+  matrices say so instead of inventing citations.
+
+## Screenshot captures
+
+- Add a capture in `test/screenshot_export_test.dart` (customer) or
+  `test/screenshot_export_roles_test.dart` (staff/owner/agent), run with
+  `--update-goldens`, then `git status docs/evidence` — only new files should
+  appear. Existing goldens changing means the capture is non-deterministic.
+- English captures must set `locale: 'en'` **and** pass `isArabic: false`;
+  forgetting the flag renders Arabic text into an English file.
