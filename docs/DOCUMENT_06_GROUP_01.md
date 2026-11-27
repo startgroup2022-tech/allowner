@@ -6,6 +6,21 @@
 **Flutter:** 3.47.7 (stable) · **Dart:** 3.13.5
 **Application ID:** `com.superai.allowners` (unchanged) · **Signing:** unchanged · **Codemagic:** unchanged
 
+> **Current state (supersedes the numbers in §0).** This document was written
+> while Group 01 was being delivered. Later rounds on the same branch changed the
+> toolchain and the gate numbers; the requirement-by-requirement content below
+> still stands.
+>
+> | Metric | Then (§0) | Now |
+> |---|---|---|
+> | Flutter | 3.47.7 | **3.44.9** (pinned: it is the version that yields a clean analyzer; 3.50.1 adds 120 `cupertino_ui` deprecations) |
+> | `flutter analyze` | 143 infos | **No issues found!** |
+> | `flutter test` | 553 passed | **637 passed / 17 skipped / 0 failed** |
+> | `dart format` | 135 files | **151 files, 0 changed** |
+>
+> See `docs/DOCUMENT_06_FINAL_ACCEPTANCE.md` for the current numbers and §4.5–4.6
+> for the notification lifecycle and the screenshot-toolchain pin.
+
 This is an implementation report, not an audit. Every requirement below was
 implemented in the Flutter client. Where a requirement needs PHP/admin work that
 does not exist in this repository, the exact cPanel backend contract is specified
