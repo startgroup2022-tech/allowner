@@ -14,10 +14,12 @@ class HotelStaffNavigationScreen extends ConsumerStatefulWidget {
   const HotelStaffNavigationScreen({super.key});
 
   @override
-  ConsumerState<HotelStaffNavigationScreen> createState() => _HotelStaffNavigationScreenState();
+  ConsumerState<HotelStaffNavigationScreen> createState() =>
+      _HotelStaffNavigationScreenState();
 }
 
-class _HotelStaffNavigationScreenState extends ConsumerState<HotelStaffNavigationScreen> {
+class _HotelStaffNavigationScreenState
+    extends ConsumerState<HotelStaffNavigationScreen> {
   int _currentIndex = 0;
 
   @override

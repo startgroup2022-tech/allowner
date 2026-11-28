@@ -1,3 +1,9 @@
+import '../utils/safe_parse.dart';
+
+/// فندق / عقار — يبني من استجابات `/api/hotels/list.php` و `/api/hotels/detail.php`.
+///
+/// كل الحقول الرقمية تُقرأ عبر `asInt`/`asDouble` لأن السيرفر يعيد أعمدة
+/// DECIMAL/INT أحيانًا كأرقام وأحيانًا كنصوص.
 class HotelModel {
   final String id;
   final String name;
@@ -14,7 +20,11 @@ class HotelModel {
   final bool freeCancellation;
   final bool breakfastIncluded;
   final bool isFavorite;
+  final bool isFeatured;
   final double? extraBedPrice;
+  final String descriptionAr;
+  final String descriptionEn;
+  final String? address;
 
   HotelModel({
     required this.id,
@@ -32,150 +42,91 @@ class HotelModel {
     this.freeCancellation = true,
     this.breakfastIncluded = false,
     this.isFavorite = false,
+    this.isFeatured = false,
     this.extraBedPrice,
+    this.descriptionAr = '',
+    this.descriptionEn = '',
+    this.address,
   });
 
   /// يبني الموديل من استجابة الـ API الحقيقية (/api/hotels/list.php و detail.php)
-  factory HotelModel.fromJson(Map<String, dynamic> json, {List<String>? gallery, bool isFavorite = false}) {
+  factory HotelModel.fromJson(
+    Map<String, dynamic> json, {
+    List<String>? gallery,
+    bool isFavorite = false,
+  }) {
+    final cover = asString(json['cover_image']);
+    final resolvedGallery = gallery ?? asStringList(json['gallery']);
     return HotelModel(
-      id: json['id'].toString(),
-      name: json['name']?.toString() ?? '',
-      cityAr: json['city_ar']?.toString() ?? '',
-      cityEn: json['city_en']?.toString() ?? '',
-      typeAr: json['type_ar']?.toString() ?? '',
-      typeEn: json['type_en']?.toString() ?? '',
-      rating: double.tryParse(json['rating']?.toString() ?? '0') ?? 0,
-      reviewsCount: int.tryParse(json['reviews_count']?.toString() ?? '0') ?? 0,
-      pricePerNight: double.tryParse(json['price_per_night']?.toString() ?? '0') ?? 0,
-      stars: int.tryParse(json['stars']?.toString() ?? '0') ?? 0,
-      imageUrl: json['cover_image']?.toString() ?? '',
-      galleryUrls: gallery ?? (json['cover_image'] != null ? [json['cover_image'].toString()] : const []),
-      freeCancellation: json['free_cancellation'] == true || json['free_cancellation'] == 1,
-      breakfastIncluded: json['breakfast_included'] == true || json['breakfast_included'] == 1,
+      id: asString(json['id']),
+      name: asString(json['name']),
+      cityAr: asString(json['city_ar']),
+      cityEn: asString(json['city_en']),
+      typeAr: asString(json['type_ar']),
+      typeEn: asString(json['type_en']),
+      rating: asDouble(json['rating']),
+      reviewsCount: asInt(json['reviews_count']),
+      pricePerNight: asDouble(json['price_per_night']),
+      stars: asInt(json['stars']),
+      imageUrl: cover,
+      galleryUrls: resolvedGallery.isNotEmpty
+          ? resolvedGallery
+          : (cover.isEmpty ? const [] : [cover]),
+      freeCancellation: asBool(json['free_cancellation'], true),
+      breakfastIncluded: asBool(json['breakfast_included']),
       isFavorite: isFavorite,
-      extraBedPrice: json['extra_bed_price'] == null ? null : double.tryParse(json['extra_bed_price'].toString()),
+      isFeatured: asBool(json['is_featured']),
+      extraBedPrice: asDoubleOrNull(json['extra_bed_price']),
+      descriptionAr: asString(json['description_ar']),
+      descriptionEn: asString(json['description_en']),
+      address: asStringOrNull(json['address']),
     );
   }
 
   HotelModel copyWith({bool? isFavorite}) {
     return HotelModel(
-      id: id, name: name, cityAr: cityAr, cityEn: cityEn, typeAr: typeAr, typeEn: typeEn,
-      rating: rating, reviewsCount: reviewsCount, pricePerNight: pricePerNight, stars: stars,
-      imageUrl: imageUrl, galleryUrls: galleryUrls, freeCancellation: freeCancellation,
-      breakfastIncluded: breakfastIncluded, isFavorite: isFavorite ?? this.isFavorite,
+      id: id,
+      name: name,
+      cityAr: cityAr,
+      cityEn: cityEn,
+      typeAr: typeAr,
+      typeEn: typeEn,
+      rating: rating,
+      reviewsCount: reviewsCount,
+      pricePerNight: pricePerNight,
+      stars: stars,
+      imageUrl: imageUrl,
+      galleryUrls: galleryUrls,
+      freeCancellation: freeCancellation,
+      breakfastIncluded: breakfastIncluded,
+      isFavorite: isFavorite ?? this.isFavorite,
+      isFeatured: isFeatured,
       extraBedPrice: extraBedPrice,
+      descriptionAr: descriptionAr,
+      descriptionEn: descriptionEn,
+      address: address,
     );
   }
 
-  String city(bool isArabic) => isArabic ? cityAr : cityEn;
-  String type(bool isArabic) => isArabic ? typeAr : typeEn;
+  String city(bool isArabic) {
+    final preferred = isArabic ? cityAr : cityEn;
+    if (preferred.isNotEmpty) return preferred;
+    return isArabic ? cityEn : cityAr;
+  }
 
-  /// @deprecated بيانات وهمية للاختبار فقط بدون اتصال إنترنت — الشاشات الفعلية تستخدم HotelService
-  static List<HotelModel> demoList() => [
-        HotelModel(
-          id: '1',
-          name: 'Ritz Carlton Riyadh',
-          cityAr: 'الرياض',
-          cityEn: 'Riyadh',
-          typeAr: 'فندق',
-          typeEn: 'Hotel',
-          rating: 4.9,
-          reviewsCount: 1284,
-          pricePerNight: 1450,
-          stars: 5,
-          breakfastIncluded: true,
-          imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
-          galleryUrls: [
-            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
-            'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&q=80',
-            'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80',
-          ],
-        ),
-        HotelModel(
-          id: '2',
-          name: 'Al Faisaliah Suites',
-          cityAr: 'الرياض',
-          cityEn: 'Riyadh',
-          typeAr: 'شقق فندقية',
-          typeEn: 'Apartments',
-          rating: 4.6,
-          reviewsCount: 542,
-          pricePerNight: 620,
-          stars: 4,
-          imageUrl: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80',
-          galleryUrls: [
-            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80',
-            'https://images.unsplash.com/photo-1560185007-5f0bb1866cab?w=800&q=80',
-          ],
-        ),
-        HotelModel(
-          id: '3',
-          name: 'Jeddah Hilton Corniche',
-          cityAr: 'جدة',
-          cityEn: 'Jeddah',
-          typeAr: 'فندق',
-          typeEn: 'Hotel',
-          rating: 4.7,
-          reviewsCount: 980,
-          pricePerNight: 890,
-          stars: 5,
-          breakfastIncluded: true,
-          imageUrl: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&q=80',
-          galleryUrls: [
-            'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&q=80',
-            'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&q=80',
-          ],
-        ),
-        HotelModel(
-          id: '4',
-          name: 'Boudl Al Khobar',
-          cityAr: 'الخبر',
-          cityEn: 'Al Khobar',
-          typeAr: 'شقق فندقية',
-          typeEn: 'Apartments',
-          rating: 4.3,
-          reviewsCount: 312,
-          pricePerNight: 380,
-          stars: 3,
-          imageUrl: 'https://images.unsplash.com/photo-1560185127-6ed189bf02f4?w=800&q=80',
-          galleryUrls: [
-            'https://images.unsplash.com/photo-1560185127-6ed189bf02f4?w=800&q=80',
-          ],
-        ),
-        HotelModel(
-          id: '5',
-          name: 'Shaza Makkah',
-          cityAr: 'مكة المكرمة',
-          cityEn: 'Makkah',
-          typeAr: 'فندق',
-          typeEn: 'Hotel',
-          rating: 4.8,
-          reviewsCount: 2150,
-          pricePerNight: 1100,
-          stars: 5,
-          breakfastIncluded: true,
-          imageUrl: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80',
-          galleryUrls: [
-            'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80',
-            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
-          ],
-        ),
-        HotelModel(
-          id: '6',
-          name: 'Narcissus Resort Abha',
-          cityAr: 'أبها',
-          cityEn: 'Abha',
-          typeAr: 'منتجع',
-          typeEn: 'Resort',
-          rating: 4.5,
-          reviewsCount: 198,
-          pricePerNight: 720,
-          stars: 4,
-          imageUrl: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&q=80',
-          galleryUrls: [
-            'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&q=80',
-            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80',
-          ],
-        ),
-      ];
+  String type(bool isArabic) {
+    final preferred = isArabic ? typeAr : typeEn;
+    if (preferred.isNotEmpty) return preferred;
+    return isArabic ? typeEn : typeAr;
+  }
+
+  /// وصف الفندق الحقيقي من الـ API. يُرجع نصًا فارغًا إذا لم تُدخل الإدارة وصفًا
+  /// — الشاشة تعرض حالة "لا يوجد وصف" بدلًا من نص مُصاغ آليًا.
+  String description(bool isArabic) {
+    final preferred = isArabic ? descriptionAr : descriptionEn;
+    if (preferred.isNotEmpty) return preferred;
+    return (isArabic ? descriptionEn : descriptionAr);
+  }
+
+  String get heroTag => 'hotel_$id';
 }

@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/app_user.dart';
 import '../services/auth_service.dart';
+import 'push_bootstrap.dart';
+import 'push_lifecycle.dart';
 
 class SessionState {
   final AppUser? user;
@@ -11,7 +13,8 @@ class SessionState {
 
   bool get isLoggedIn => user != null;
 
-  SessionState copyWith({AppUser? user, bool? isLoading, String? error, bool clearUser = false}) {
+  SessionState copyWith(
+      {AppUser? user, bool? isLoading, String? error, bool clearUser = false}) {
     return SessionState(
       user: clearUser ? null : (user ?? this.user),
       isLoading: isLoading ?? this.isLoading,
@@ -21,11 +24,14 @@ class SessionState {
 }
 
 class SessionNotifier extends StateNotifier<SessionState> {
-  SessionNotifier() : super(const SessionState(isLoading: true)) {
+  SessionNotifier({PushLifecycle? push})
+      : _push = push ?? PushLifecycle(),
+        super(const SessionState(isLoading: true)) {
     _restore();
   }
 
   final AuthService _authService = AuthService();
+  final PushLifecycle _push;
 
   Future<void> _restore() async {
     final user = await _authService.restoreSession();
@@ -37,6 +43,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
     try {
       final user = await _authService.login(email: email, password: password);
       state = SessionState(user: user, isLoading: false);
+      await _registerPush();
       return true;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -61,6 +68,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
         role: role,
       );
       state = SessionState(user: user, isLoading: false);
+      await _registerPush();
       return true;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -68,8 +76,40 @@ class SessionNotifier extends StateNotifier<SessionState> {
     }
   }
 
+  /// تسجيل رمز الجهاز بعد الدخول. لا يُفشل الدخول إن تعذّر: النتيجة تُخزَّن
+  /// في [PushLifecycle.lastReason] كي تعرضها الشاشات بصدق.
+  Future<void> _registerPush() async {
+    try {
+      await _push.onLogin(
+          locale: await storedLocale(), userId: state.user?.id.toString());
+    } catch (_) {
+      // الإشعارات ليست شرطًا للدخول.
+    }
+  }
+
+  /// حالة الإشعارات الأخيرة لعرضها في الملف الشخصي دون ادّعاء عملها.
+  PushRegistrationResult? get pushResult => _push.lastResult;
+  String? get pushReason => _push.lastReason;
+
   Future<void> logout() async {
+    try {
+      await _push.onLogout();
+    } catch (_) {
+      // لا نُسقط الخروج بسبب فشل إلغاء تسجيل الرمز.
+    }
     await _authService.logout();
+    state = const SessionState(user: null, isLoading: false);
+  }
+
+  /// حذف الحساب نهائيًا. يُطلق الاستثناء للشاشة كي تعرض سبب الفشل بدقة،
+  /// ولا تُمسح الجلسة إلا بعد نجاح السيرفر.
+  Future<void> deleteAccount({String? reason}) async {
+    await _authService.deleteAccount(reason: reason);
+    try {
+      await _push.onLogout();
+    } catch (_) {
+      // رمز الجهاز يُلغى من السيرفر مع الحساب أصلًا.
+    }
     state = const SessionState(user: null, isLoading: false);
   }
 
@@ -96,12 +136,14 @@ class SessionNotifier extends StateNotifier<SessionState> {
     );
     updateLocalUser(user);
   }
+
   Future<void> updateAvatar({String? filePath, bool remove = false}) async {
-    final user = await _authService.updateAvatar(filePath: filePath, remove: remove);
+    final user =
+        await _authService.updateAvatar(filePath: filePath, remove: remove);
     updateLocalUser(user);
   }
 }
 
 final sessionProvider = StateNotifierProvider<SessionNotifier, SessionState>(
-  (ref) => SessionNotifier(),
+  (ref) => SessionNotifier(push: ref.watch(pushLifecycleProvider)),
 );

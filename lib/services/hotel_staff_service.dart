@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../utils/safe_parse.dart';
 import 'api_client.dart';
 
 /// كل استدعاءات الـ API الخاصة بحساب "إدارة الفندق" (وصول/مغادرة الضيوف،
@@ -9,7 +10,7 @@ class HotelStaffService {
   Future<Map<String, dynamic>> getDashboard() async {
     try {
       final res = await _dio.get('/hotel/dashboard.php');
-      return res.data as Map<String, dynamic>;
+      return asMap(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -17,10 +18,12 @@ class HotelStaffService {
 
   // ===== حجوزات الفندق: تأكيد دخول/خروج الضيف =====
 
-  Future<List<Map<String, dynamic>>> getBookings({String scope = 'active'}) async {
+  Future<List<Map<String, dynamic>>> getBookings(
+      {String scope = 'active'}) async {
     try {
-      final res = await _dio.get('/hotel/bookings.php', queryParameters: {'scope': scope});
-      return (res.data['bookings'] as List).cast<Map<String, dynamic>>();
+      final res = await _dio
+          .get('/hotel/bookings.php', queryParameters: {'scope': scope});
+      return asMapList(res.data['bookings']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -28,7 +31,8 @@ class HotelStaffService {
 
   Future<void> checkIn(int bookingId) async {
     try {
-      await _dio.post('/hotel/bookings.php', data: {'booking_id': bookingId, 'action': 'check_in'});
+      await _dio.post('/hotel/bookings.php',
+          data: {'booking_id': bookingId, 'action': 'check_in'});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -36,7 +40,8 @@ class HotelStaffService {
 
   Future<void> checkOut(int bookingId) async {
     try {
-      await _dio.post('/hotel/bookings.php', data: {'booking_id': bookingId, 'action': 'check_out'});
+      await _dio.post('/hotel/bookings.php',
+          data: {'booking_id': bookingId, 'action': 'check_out'});
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
@@ -45,35 +50,64 @@ class HotelStaffService {
   // ===== طلبات الخدمة: نظافة | صيانة | وجبات | سرير إضافي =====
   // type: cleaning | maintenance | meal | extra_bed
 
-  Future<List<Map<String, dynamic>>> getRequests({required String type, String status = 'open'}) async {
+  Future<List<Map<String, dynamic>>> getRequests(
+      {required String type, String status = 'open'}) async {
     try {
-      final res = await _dio.get('/hotel/requests.php', queryParameters: {'type': type, 'status': status});
-      return (res.data['requests'] as List).cast<Map<String, dynamic>>();
+      final res = await _dio.get('/hotel/requests.php',
+          queryParameters: {'type': type, 'status': status});
+      return asMapList(res.data['requests']);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
   }
 
   /// action: confirm | done | reject | preparing | delivered
-  Future<void> actOnRequest({
+  ///
+  /// [settlement] (المتطلبات 390–394): عند تأكيد طلب الصيانة يختار المستخدم
+  /// «خصم من رصيد الوحدة» أو «إرسال رابط الدفع عبر واتساب». القيمة تُرسل في
+  /// الحقل `settlement`؛ إن لم يعرفها السيرفر بعد فلا يضر وجودها.
+  /// ينفّذ إجراءً على طلب خدمة، ويُعيد استجابة السيرفر كي يقرأ النداء رابط
+  /// الدفع الذي أصدره السيرفر (المتطلب 10 من المستند 06) دون اختلاق رابط.
+  Future<Map<String, dynamic>> actOnRequest({
     required String type,
     required int id,
     required String action,
     String? note,
     double? price,
+    String? imagePath,
+    String? settlement,
   }) async {
     try {
-      await _dio.post('/hotel/requests.php', data: {
+      // المتطلب 92: صورة اختيارية لطلب الصيانة من حساب إدارة الفندق.
+      if (imagePath != null) {
+        final form = FormData.fromMap({
+          'type': type,
+          'id': id.toString(),
+          'action': action,
+          if (note != null) 'note': note,
+          if (price != null) 'price': price.toString(),
+          if (settlement != null) 'settlement': settlement,
+          'image': await MultipartFile.fromFile(imagePath),
+        });
+        final res = await _dio.post('/hotel/requests.php', data: form);
+        return _asResponseMap(res.data);
+      }
+      final res = await _dio.post('/hotel/requests.php', data: {
         'type': type,
         'id': id,
         'action': action,
         if (note != null) 'note': note,
         if (price != null) 'price': price,
+        if (settlement != null) 'settlement': settlement,
       });
+      return _asResponseMap(res.data);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
   }
+
+  Map<String, dynamic> _asResponseMap(Object? data) =>
+      data is Map<String, dynamic> ? data : const <String, dynamic>{};
 
   // ===== أسعار خدمات الفندق (لكل جناح/نوع خدمة) =====
 
@@ -81,9 +115,9 @@ class HotelStaffService {
     try {
       final res = await _dio.get('/hotel/prices.php');
       return {
-        'prices': (res.data['prices'] as List).cast<Map<String, dynamic>>(),
-        'units': (res.data['units'] as List).cast<Map<String, dynamic>>(),
-        'hotels': (res.data['hotels'] as List).cast<Map<String, dynamic>>(),
+        'prices': asMapList(res.data['prices']),
+        'units': asMapList(res.data['units']),
+        'hotels': asMapList(res.data['hotels']),
       };
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
@@ -119,7 +153,49 @@ class HotelStaffService {
 
   Future<void> deletePrice(int id) async {
     try {
-      await _dio.post('/hotel/prices.php', data: {'action': 'delete', 'id': id});
+      await _dio
+          .post('/hotel/prices.php', data: {'action': 'delete', 'id': id});
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  // ===== تسعير الوحدات وتسعير الوجبات (المتطلبات 13–16 من المستند 06) =====
+
+  /// سجلات تسعير الوحدات المحفوظة وأنواع الوحدات الحقيقية في الفندق.
+  Future<Map<String, dynamic>> getUnitPricing() async {
+    try {
+      final res = await _dio.get('/hotel/unit-pricing.php');
+      return {
+        'records': asMapList(res.data['records']),
+        'units': asMapList(res.data['units']),
+      };
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  Future<void> saveUnitPricing(Map<String, dynamic> payload) async {
+    try {
+      await _dio.post('/hotel/unit-pricing.php', data: payload);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  /// سجلات تسعير الوجبات المحفوظة (عنوان + تاريخ + ثلاث وجبات بأسعارها).
+  Future<Map<String, dynamic>> getMealPricing() async {
+    try {
+      final res = await _dio.get('/hotel/meal-pricing.php');
+      return {'records': asMapList(res.data['records'])};
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  Future<void> saveMealPricing(Map<String, dynamic> payload) async {
+    try {
+      await _dio.post('/hotel/meal-pricing.php', data: payload);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }

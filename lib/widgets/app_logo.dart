@@ -17,10 +17,12 @@ class AppLogo extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (!full) {
-      return Image.asset('assets/images/logo.png', width: width, fit: BoxFit.contain);
+      return Image.asset('assets/images/logo.png',
+          width: width, fit: BoxFit.contain);
     }
 
-    final localFallback = Image.asset('assets/images/logo_full.png', width: width, fit: BoxFit.contain);
+    final localFallback = Image.asset('assets/images/logo_full.png',
+        width: width, fit: BoxFit.contain);
     final settings = ref.watch(appSettingsProvider);
 
     return settings.when(

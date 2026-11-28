@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
+import '../../utils/role_permissions.dart';
 import '../../utils/session_provider.dart';
+import '../bookings/my_bookings_screen.dart';
 import 'owner_home_screen.dart';
 import 'owner_units_screen.dart';
 import 'owner_revenue_screen.dart';
+import 'owner_maintenance_screen.dart';
 import 'owner_commission_screen.dart';
 import 'owner_notifications_screen.dart';
 import 'owner_profile_screen.dart';
@@ -14,7 +17,8 @@ class OwnerNavigationScreen extends ConsumerStatefulWidget {
   const OwnerNavigationScreen({super.key});
 
   @override
-  ConsumerState<OwnerNavigationScreen> createState() => _OwnerNavigationScreenState();
+  ConsumerState<OwnerNavigationScreen> createState() =>
+      _OwnerNavigationScreenState();
 }
 
 class _OwnerNavigationScreenState extends ConsumerState<OwnerNavigationScreen> {
@@ -24,13 +28,23 @@ class _OwnerNavigationScreenState extends ConsumerState<OwnerNavigationScreen> {
   Widget build(BuildContext context) {
     final isArabic = ref.watch(localeProvider).languageCode == 'ar';
     final role = ref.watch(sessionProvider).user?.role;
+    final perms = RolePermissions(role);
     // وكيل الحجوزات يشوف "عمولتي" (بياناته هو بس) — أبداً لا يشوف إيرادات المالك الكاملة
-    final isAgent = role == 'booking_agent';
+    final isAgent = perms.isAgent;
+    // موظف الوحدة لا يرى الإيرادات ولا المحفظة (المتطلب 74) — تبويب الحجوزات
+    // المتاحة له بديلًا عن تبويب الإيرادات الممنوع.
+    final isUnitManager = perms.isUnitManager;
 
     final screens = <Widget>[
       const OwnerHomeScreen(),
-      const OwnerUnitsScreen(),
-      isAgent ? const OwnerCommissionScreen() : const OwnerRevenueScreen(),
+      // الوكيل لا يملك وحدات: التبويب الثاني يعرض حجوزات عملائه لا «وحداتي».
+      if (isAgent) const MyBookingsScreen() else const OwnerUnitsScreen(),
+      if (isAgent)
+        const OwnerCommissionScreen()
+      else if (isUnitManager)
+        const OwnerMaintenanceScreen()
+      else
+        const OwnerRevenueScreen(),
       const OwnerNotificationsScreen(),
       const OwnerProfileScreen(),
     ];
@@ -49,12 +63,18 @@ class _OwnerNavigationScreenState extends ConsumerState<OwnerNavigationScreen> {
           BottomNavigationBarItem(
             icon: const Icon(Icons.apartment_outlined),
             activeIcon: const Icon(Icons.apartment_rounded),
-            label: AppStrings.t(isArabic, 'nav_units'),
+            label: isAgent
+                ? AppStrings.t(isArabic, 'my_bookings')
+                : AppStrings.t(isArabic, 'nav_units'),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.account_balance_wallet_outlined),
             activeIcon: const Icon(Icons.account_balance_wallet_rounded),
-            label: isAgent ? AppStrings.t(isArabic, 'my_commission') : AppStrings.t(isArabic, 'nav_revenue'),
+            label: isAgent
+                ? AppStrings.t(isArabic, 'my_commission')
+                : isUnitManager
+                    ? AppStrings.t(isArabic, 'maintenance_requests')
+                    : AppStrings.t(isArabic, 'nav_revenue'),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.notifications_outlined),

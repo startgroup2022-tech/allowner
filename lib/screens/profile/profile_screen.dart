@@ -7,11 +7,12 @@ import '../../utils/locale_provider.dart';
 import '../../utils/session_provider.dart';
 import '../../widgets/editable_avatar.dart';
 import '../shared/help_support_screen.dart';
-import '../shared/content_page_screen.dart';
+import '../shared/app_about_screen.dart';
 import '../owner/owner_notifications_screen.dart';
 import '../auth/login_screen.dart';
 import '../home/main_navigation_screen.dart';
 import '../services/hotel_services_screen.dart';
+import 'delete_account_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -33,19 +34,22 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: AppDimens.md),
               user != null
                   ? EditableAvatar(avatarUrl: user.avatarUrl, radius: 44)
-                  : CircleAvatar(
+                  : const CircleAvatar(
                       radius: 44,
                       backgroundColor: AppColors.surfaceMuted,
-                      child: const Icon(Icons.person_rounded, color: AppColors.textMuted, size: 46),
+                      child: Icon(Icons.person_rounded,
+                          color: AppColors.textMuted, size: 46),
                     ),
               const SizedBox(height: AppDimens.md),
               if (user != null) ...[
                 Text(user.fullName, style: textTheme.headlineSmall),
                 Text(user.phone?.isNotEmpty == true ? user.phone! : user.email,
-                    style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                    style: textTheme.bodyMedium
+                        ?.copyWith(color: AppColors.textSecondary),
                     textDirection: TextDirection.ltr),
               ] else ...[
-                Text(isArabic ? 'غير مسجّل الدخول' : 'Not logged in', style: textTheme.headlineSmall),
+                Text(isArabic ? 'غير مسجّل الدخول' : 'Not logged in',
+                    style: textTheme.headlineSmall),
                 const SizedBox(height: AppDimens.sm),
                 ElevatedButton(
                   onPressed: () => Navigator.of(context).push(
@@ -55,48 +59,59 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ],
               const SizedBox(height: AppDimens.xl),
-
               _MenuSection(items: [
                 _MenuItem(
                   icon: Icons.room_service_outlined,
                   label: AppStrings.t(isArabic, 'available_services'),
                   onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const HotelServicesScreen()),
+                    MaterialPageRoute(
+                        builder: (_) => const HotelServicesScreen()),
                   ),
                 ),
                 _MenuItem(
                   icon: Icons.notifications_outlined,
                   label: AppStrings.t(isArabic, 'notifications'),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OwnerNotificationsScreen())),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const OwnerNotificationsScreen())),
                 ),
                 _MenuItem(
                   icon: Icons.language_rounded,
                   label: AppStrings.t(isArabic, 'language'),
                   trailing: Text(isArabic ? 'العربية' : 'English',
-                      style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
+                      style: const TextStyle(
+                          color: AppColors.textMuted, fontSize: 13)),
                   onTap: () => ref.read(localeProvider.notifier).toggleLocale(),
                 ),
               ]),
               const SizedBox(height: AppDimens.md),
-
               _MenuSection(items: [
                 _MenuItem(
                   icon: Icons.help_outline_rounded,
                   label: AppStrings.t(isArabic, 'help_support'),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HelpSupportScreen())),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const HelpSupportScreen())),
                 ),
+                // المتطلبات 3-5: تعريف التطبيق بالنص المعتمد من المستند.
                 _MenuItem(
                   icon: Icons.info_outline_rounded,
                   label: AppStrings.t(isArabic, 'about_us'),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const ContentPageScreen(contentKey: 'about_us', titleKey: 'about_us'),
+                    builder: (_) => const AppAboutScreen(),
                   )),
                 ),
               ]),
               const SizedBox(height: AppDimens.md),
-
               if (user != null)
                 _MenuSection(items: [
+                  // حذف الحساب من داخل التطبيق (سياسة Google Play).
+                  _MenuItem(
+                    icon: Icons.delete_forever_outlined,
+                    label: AppStrings.t(isArabic, 'delete_account'),
+                    iconColor: AppColors.danger,
+                    textColor: AppColors.danger,
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const DeleteAccountScreen())),
+                  ),
                   _MenuItem(
                     icon: Icons.logout_rounded,
                     label: AppStrings.t(isArabic, 'logout'),
@@ -106,7 +121,8 @@ class ProfileScreen extends ConsumerWidget {
                       await ref.read(sessionProvider.notifier).logout();
                       if (context.mounted) {
                         Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+                          MaterialPageRoute(
+                              builder: (_) => const MainNavigationScreen()),
                           (route) => false,
                         );
                       }
@@ -161,10 +177,13 @@ class _MenuSection extends StatelessWidget {
                 onTap: item.onTap,
                 borderRadius: BorderRadius.circular(AppDimens.radiusLg),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppDimens.md, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppDimens.md, vertical: 14),
                   child: Row(
                     children: [
-                      Icon(item.icon, size: 22, color: item.iconColor ?? AppColors.textSecondary),
+                      Icon(item.icon,
+                          size: 22,
+                          color: item.iconColor ?? AppColors.textSecondary),
                       const SizedBox(width: AppDimens.md),
                       Expanded(
                         child: Text(
@@ -178,13 +197,15 @@ class _MenuSection extends StatelessWidget {
                       ),
                       if (item.trailing != null) item.trailing!,
                       const SizedBox(width: 4),
-                      const Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textMuted),
+                      const Icon(Icons.chevron_right_rounded,
+                          size: 18, color: AppColors.textMuted),
                     ],
                   ),
                 ),
               ),
               if (index != items.length - 1)
-                const Divider(height: 1, indent: AppDimens.md, endIndent: AppDimens.md),
+                const Divider(
+                    height: 1, indent: AppDimens.md, endIndent: AppDimens.md),
             ],
           );
         }),

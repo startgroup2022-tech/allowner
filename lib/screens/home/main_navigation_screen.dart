@@ -13,7 +13,8 @@ class MainNavigationScreen extends ConsumerStatefulWidget {
   const MainNavigationScreen({super.key, this.initialIndex = 0});
 
   @override
-  ConsumerState<MainNavigationScreen> createState() => _MainNavigationScreenState();
+  ConsumerState<MainNavigationScreen> createState() =>
+      _MainNavigationScreenState();
 }
 
 class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
@@ -50,7 +51,8 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
           BottomNavigationBarItem(
             icon: const Icon(Icons.calendar_month_outlined),
             activeIcon: const Icon(Icons.calendar_month_rounded),
-            label: AppStrings.t(isArabic, 'nav_bookings'),
+            // المتطلب 1 من المستند 06: تبويب الضيف «ضيافاتي» لا «حجوزاتي».
+            label: AppStrings.t(isArabic, 'nav_stays'),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.favorite_border_rounded),

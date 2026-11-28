@@ -6,15 +6,43 @@ import '../../utils/app_strings.dart';
 import '../../utils/locale_provider.dart';
 
 class FiltersSheet extends ConsumerStatefulWidget {
-  const FiltersSheet({super.key});
+  final double? initialMinPrice;
+  final double? initialMaxPrice;
+  final int? initialMinCapacity;
+
+  const FiltersSheet({
+    super.key,
+    this.initialMinPrice,
+    this.initialMaxPrice,
+    this.initialMinCapacity,
+  });
 
   @override
   ConsumerState<FiltersSheet> createState() => _FiltersSheetState();
 }
 
 class _FiltersSheetState extends ConsumerState<FiltersSheet> {
-  RangeValues _priceRange = const RangeValues(0, 3000);
-  int _minCapacity = 0;
+  static const double _maxPriceLimit = 3000;
+
+  late RangeValues _priceRange;
+  late int _minCapacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _priceRange = RangeValues(
+      (widget.initialMinPrice ?? 0).clamp(0, _maxPriceLimit),
+      (widget.initialMaxPrice ?? _maxPriceLimit).clamp(0, _maxPriceLimit),
+    );
+    _minCapacity = widget.initialMinCapacity ?? 0;
+  }
+
+  void _reset() {
+    setState(() {
+      _priceRange = const RangeValues(0, _maxPriceLimit);
+      _minCapacity = 0;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +52,8 @@ class _FiltersSheetState extends ConsumerState<FiltersSheet> {
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppDimens.radiusXl)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(AppDimens.radiusXl)),
       ),
       padding: const EdgeInsets.all(AppDimens.pagePadding),
       child: SingleChildScrollView(
@@ -36,47 +65,48 @@ class _FiltersSheetState extends ConsumerState<FiltersSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                    color: AppColors.cardBorder, borderRadius: BorderRadius.circular(2)),
+                    color: AppColors.cardBorder,
+                    borderRadius: BorderRadius.circular(2)),
               ),
             ),
             const SizedBox(height: AppDimens.md),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(AppStrings.t(isArabic, 'filters'), style: textTheme.headlineSmall),
+                Text(AppStrings.t(isArabic, 'filters'),
+                    style: textTheme.headlineSmall),
                 TextButton(
-                  onPressed: () => setState(() {
-                    _priceRange = const RangeValues(0, 3000);
-                    _minCapacity = 0;
-                  }),
+                  onPressed: _reset,
                   child: Text(AppStrings.t(isArabic, 'reset')),
                 ),
               ],
             ),
             const SizedBox(height: AppDimens.md),
-
-            Text(AppStrings.t(isArabic, 'price_range'), style: textTheme.titleSmall),
+            Text(AppStrings.t(isArabic, 'price_range'),
+                style: textTheme.titleSmall),
             RangeSlider(
               values: _priceRange,
               min: 0,
-              max: 3000,
+              max: _maxPriceLimit,
               divisions: 30,
               activeColor: AppColors.gold,
               inactiveColor: AppColors.surfaceMuted,
-              labels: RangeLabels('${_priceRange.start.toInt()}', '${_priceRange.end.toInt()}'),
+              labels: RangeLabels(
+                  '${_priceRange.start.toInt()}', '${_priceRange.end.toInt()}'),
               onChanged: (values) => setState(() => _priceRange = values),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('${_priceRange.start.toInt()} ${AppStrings.t(isArabic, "sar")}',
+                Text(
+                    '${_priceRange.start.toInt()} ${AppStrings.t(isArabic, "sar")}',
                     style: textTheme.bodySmall),
-                Text('${_priceRange.end.toInt()} ${AppStrings.t(isArabic, "sar")}',
+                Text(
+                    '${_priceRange.end.toInt()} ${AppStrings.t(isArabic, "sar")}',
                     style: textTheme.bodySmall),
               ],
             ),
             const SizedBox(height: AppDimens.md),
-
             Text(AppStrings.t(isArabic, 'guests'), style: textTheme.titleSmall),
             const SizedBox(height: AppDimens.sm),
             Wrap(
@@ -88,7 +118,8 @@ class _FiltersSheetState extends ConsumerState<FiltersSheet> {
                   onTap: () => setState(() => _minCapacity = n),
                   borderRadius: BorderRadius.circular(AppDimens.radiusFull),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
                       color: selected ? AppColors.ink : AppColors.surfaceMuted,
                       borderRadius: BorderRadius.circular(AppDimens.radiusFull),
@@ -98,7 +129,8 @@ class _FiltersSheetState extends ConsumerState<FiltersSheet> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: selected ? Colors.white : AppColors.textSecondary,
+                        color:
+                            selected ? Colors.white : AppColors.textSecondary,
                       ),
                     ),
                   ),
@@ -106,14 +138,14 @@ class _FiltersSheetState extends ConsumerState<FiltersSheet> {
               }).toList(),
             ),
             const SizedBox(height: AppDimens.xl),
-
             SizedBox(
               width: double.infinity,
               height: AppDimens.buttonHeight,
               child: ElevatedButton(
                 onPressed: () => Navigator.of(context).pop({
                   'min_price': _priceRange.start > 0 ? _priceRange.start : null,
-                  'max_price': _priceRange.end < 3000 ? _priceRange.end : null,
+                  'max_price':
+                      _priceRange.end < _maxPriceLimit ? _priceRange.end : null,
                   'min_capacity': _minCapacity > 0 ? _minCapacity : null,
                 }),
                 child: Text(AppStrings.t(isArabic, 'apply_filters')),
