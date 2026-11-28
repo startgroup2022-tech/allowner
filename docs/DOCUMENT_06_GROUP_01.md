@@ -691,6 +691,21 @@ and screenshot. The backend-side contract for those API dependencies is in
 | 9 | Unit-number search on departures | **COMPLETE AND VERIFIED** |
 | 10 | Housekeeping payment options | **FLUTTER COMPLETE — BACKEND PENDING** |
 
-Test evidence: `flutter test` → **553 passed, 17 skipped (pre-existing live-backend
-tests), 0 failed**. `flutter analyze` → **0 errors, 0 warnings** (143 pre-existing
-`info` lints). No test was disabled to reach this result.
+Test evidence (re-verified on the current HEAD): `flutter test` → **777 passed,
+17 skipped (pre-existing live-backend tests gated by `RUN_LIVE_TESTS=1`),
+0 failed**; `dart format --set-exit-if-changed .` → 162 files, 0 changed;
+`flutter analyze` → **no issues**; the 157 approved screenshots still match
+pixel-for-pixel. No test was disabled to reach this result.
+
+### 15.1 Addendum — re-verified during the final integration round
+
+- Group 01 code was re-checked, not re-written: `test/document06_group01_test.dart`
+  runs 35 tests green on the current branch.
+- The screenshot suite had been failing intermittently for a reason unrelated to
+  Group 01: `booking_screen` defaulted the check-in date from `DateTime.now()`,
+  so five goldens broke whenever the calendar advanced. Fixed with
+  `lib/utils/app_clock.dart` and a frozen clock in the capture helper; **no
+  golden was regenerated**, so every Group 01 screenshot is still the approved
+  one.
+- Current full-repo status, the financial-safety evidence and the exact cPanel
+  contract are in `docs/FINAL_INTEGRATION_REPORT.md`.
