@@ -12,6 +12,7 @@ import '../owner/owner_notifications_screen.dart';
 import '../auth/login_screen.dart';
 import '../home/main_navigation_screen.dart';
 import '../services/hotel_services_screen.dart';
+import 'delete_account_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -102,6 +103,15 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: AppDimens.md),
               if (user != null)
                 _MenuSection(items: [
+                  // حذف الحساب من داخل التطبيق (سياسة Google Play).
+                  _MenuItem(
+                    icon: Icons.delete_forever_outlined,
+                    label: AppStrings.t(isArabic, 'delete_account'),
+                    iconColor: AppColors.danger,
+                    textColor: AppColors.danger,
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const DeleteAccountScreen())),
+                  ),
                   _MenuItem(
                     icon: Icons.logout_rounded,
                     label: AppStrings.t(isArabic, 'logout'),

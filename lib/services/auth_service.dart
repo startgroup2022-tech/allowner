@@ -103,6 +103,30 @@ class AuthService {
     await ApiClient.instance.clearToken();
   }
 
+  /// حذف الحساب نهائيًا من داخل التطبيق (متطلب Google Play).
+  ///
+  /// لا نُعلن النجاح إلا بردّ `success: true` من السيرفر. إذا كان المسار غير
+  /// مُنفَّذ (404) يصل الخطأ بنوع `notFound` فتعرض الشاشة «غير مُفعَّلة» ولا
+  /// يُمحى شيء محليًا.
+  Future<void> deleteAccount({String? reason}) async {
+    try {
+      final res = await _dio.post('/user/delete-account.php', data: {
+        'confirm': true,
+        if (reason != null && reason.isNotEmpty) 'reason': reason,
+      });
+      final data = res.data;
+      if (data is Map && data['success'] == false) {
+        throw ApiException(
+          (data['message'] ?? 'delete_failed').toString(),
+          statusCode: res.statusCode,
+        );
+      }
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+    await ApiClient.instance.clearToken();
+  }
+
   /// يحاول استرجاع المستخدم من التخزين المحلي، ويتحقق من صلاحية التوكن مع السيرفر.
   ///
   /// مهم: لا نمسح الجلسة عند انقطاع الشبكة — فقط عند رد السيرفر بأن التوكن غير

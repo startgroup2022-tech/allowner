@@ -3,7 +3,7 @@ workflows:
     name: All Owners - REAL DEBUG (shows actual errors)
     max_build_duration: 30
     environment:
-      flutter: stable
+      flutter: 3.44.9
       vars:
         PACKAGE_NAME: "com.superai.allowners"
     scripts:
@@ -24,7 +24,7 @@ workflows:
     name: All Owners - Android APK (Debug/Preview)
     max_build_duration: 30
     environment:
-      flutter: stable
+      flutter: 3.44.9
       vars:
         PACKAGE_NAME: "com.superai.allowners"
     scripts:
@@ -45,7 +45,7 @@ workflows:
     name: All Owners - AAB (Signed Release for Google Play)
     max_build_duration: 30
     environment:
-      flutter: stable
+      flutter: 3.44.9
       android_signing:
         - allowners_keystor
       vars:
@@ -71,3 +71,27 @@ workflows:
           flutter build appbundle --release
     artifacts:
       - build/app/outputs/bundle/release/*.aab
+
+  # بوابة تحقق لا تُنتج أي ملف تثبيت: تنسيق + تحليل + اختبارات (بما فيها
+  # لقطات المرجع البصرية). نسخة Flutter مثبّتة على نفس نسخة توليد اللقطات،
+  # وإلا فشلت المقارنة البصرية بسبب اختلاف تنعيم الحروف بين الإصدارات.
+  flutter-verify:
+    name: All Owners - Verify (format, analyze, tests)
+    max_build_duration: 60
+    environment:
+      flutter: 3.44.9
+    scripts:
+      - name: Get Flutter packages
+        script: |
+          flutter pub get
+      - name: Check formatting
+        script: |
+          dart format --output=none --set-exit-if-changed lib test
+      - name: Analyze
+        script: |
+          flutter analyze
+      - name: Tests
+        script: |
+          flutter test
+    artifacts:
+      - test/failures/**

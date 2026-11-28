@@ -299,6 +299,65 @@ ENTRIES = [
         'مقيّدة بفندق الموظف على السيرفر.',
         'بحث الوصولات والمغادرات يعمل محليًا على بيانات السيرفر المحمّلة.',
     ),
+    (
+        '§P-01',
+        'حذف الحساب من داخل التطبيق (سياسة Google Play)',
+        'In-app account deletion (Google Play policy)',
+        'Section P — Policy',
+        FLUTTER,
+        'lib/screens/profile/delete_account_screen.dart, '
+        'lib/services/auth_service.dart (deleteAccount), '
+        'lib/utils/session_provider.dart (deleteAccount), '
+        'lib/screens/profile/profile_screen.dart (مدخل «حذف الحساب»)',
+        'test/delete_account_test.dart (10 اختبارات: نصوص ar/en، تعطيل الزر قبل '
+        'التأكيد، كلمة التأكيد، حجز قادم يمنع الحذف، نجاح فعلي، 404 بلا نجاح وهمي، '
+        'فشل شبكة، success:false، حمولة reason، ترجمة 404)',
+        'customer/arabic/DOC06-POLICY-delete-account-form-ar.png, '
+        'customer/english/DOC06-POLICY-delete-account-form-en.png, '
+        'customer/arabic/DOC06-POLICY-delete-account-done-ar.png, '
+        'customer/english/DOC06-POLICY-delete-account-done-en.png, '
+        'customer/arabic/DOC06-POLICY-delete-account-blocked-ar.png, '
+        'customer/english/DOC06-POLICY-delete-account-blocked-en.png, '
+        'customer/arabic/DOC06-POLICY-profile-delete-entry-ar.png, '
+        'customer/english/DOC06-POLICY-profile-delete-entry-en.png',
+        '`POST /user/delete-account.php` — غير مُنفَّذ على الخادم (المتوقع 404). '
+        'التطبيق يعرض «غير مُفعَّلة» ولا يمسح الجلسة ولا يدّعي حذفًا.',
+        'لا يُعلن النجاح إلا بردّ `success: true`. شاشة الإتمام وصفحة الويب '
+        '(all-owner.online/delete-account) بديلان لمن لا يستطيع فتح التطبيق.',
+    ),
+    (
+        '§P-02',
+        'حالة إشعارات الجهاز وطلب الإذن داخل التطبيق',
+        'Device notification status and permission request in-app',
+        'Section P — Policy',
+        FLUTTER,
+        'lib/widgets/push_status_banner.dart, '
+        'lib/screens/owner/owner_notifications_screen.dart, '
+        'lib/services/notification_service.dart (register)',
+        'test/push_status_banner_test.dart (6 اختبارات: نصوص ar/en، بلا مزوّع، '
+        'نجاح التسجيل، رفض الإذن، سبب أولي من الجلسة، سبب خادم)',
+        'owner/arabic/DOC05-REQ-134-owner-notifications-ar.png, '
+        'owner/english/DOC05-REQ-134-owner-notifications-en.png',
+        '`POST /user/device-token.php` (موجود في التطبيق) + إعداد Firebase '
+        '(`google-services.json` + `firebase_options.dart`) غير موجودين في '
+        'المستودع، لذلك `isConfigured = false` ولا يصل أي إشعار.',
+        'الشريط يعرض آخر نتيجة تسجيل فعلية وسببها، ويسمح بإعادة المحاولة؛ '
+        'لا يدّعي تفعيلًا لم يحدث.',
+    ),
+    (
+        '§P-03',
+        'جاهزية Codemagic (تثبيت نسخة Flutter + بوابة تحقق)',
+        'Codemagic readiness (pinned Flutter + verify gate)',
+        'Section P — Policy',
+        COMPLETE,
+        'codemagic.yaml',
+        'يُتحقق منه بتشغيل البوابة محليًا: `dart format --set-exit-if-changed lib test` '
+        '+ `flutter analyze` + `flutter test` (813 اختبارًا ناجحًا)',
+        '—',
+        '—',
+        'نسخة Flutter مثبّتة على 3.44.9 (نسخة توليد اللقطات) في كل مسارات العمل، '
+        'وأُضيف مسار `flutter-verify` لا يُنتج APK/AAB. لم يُشغَّل أي بناء هنا.',
+    ),
 ]
 
 # متطلبات المستند 06 التي لا يوجد لها نص أصلي حرفي في المستودع.
@@ -308,4 +367,7 @@ NO_ORIGINAL_TEXT = [
     '§B-002',
     '§D',
     '§F',
+    '§P-01',
+    '§P-02',
+    '§P-03',
 ]

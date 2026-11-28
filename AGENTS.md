@@ -428,14 +428,63 @@ Implemented and documented in `docs/DOCUMENT_06_GROUP_02.md`. Invariants:
 - No Firebase in this repo: `isConfigured` is false, so nothing is sent. Tests
   assert `push_provider_not_configured` / `permission_denied` / `api_503`
   rather than inventing success.
+- `lib/widgets/push_status_banner.dart` is the only UI that surfaces that state
+  (top of the notifications screen): it shows the last real `register()` result,
+  offers a retry, and never claims "enabled" without `registered == true`.
+  `test/push_status_banner_test.dart` covers each reason branch.
+
+## Account deletion (Google Play policy, 2026-11-28)
+
+- `lib/screens/profile/delete_account_screen.dart` is reachable from the profile
+  menu ("حذف الحساب") for signed-in users. It requires: an explicit
+  acknowledgement checkbox, typing the confirmation word (`حذف` / `DELETE`), and
+  no upcoming booking (`bookings/my.php` filtered to `pending|confirmed|checked_in`
+  with `check_out` today or later).
+- It posts `{"confirm": true, "reason": <key|null>}` to
+  `/user/delete-account.php`. **Only** `success: true` shows the done screen and
+  clears the token; `404` maps to "not enabled on the server" and clears nothing.
+  Never add a local-only "delete" that pretends to erase the account.
+- `AuthService.deleteAccount` + `SessionNotifier.deleteAccount` are the only
+  entry points; `test/delete_account_test.dart` asserts payload, 404, network
+  failure and `success:false` paths.
+- The profile menu keeps "تسجيل الخروج" below it — deleting the account is not a
+  replacement for signing out.
+
+## Regenerating goldens after a UI change (2026-11-28)
+
+Screens are captured from several files; check all of these before assuming a
+golden failure is drift:
+
+| screen | owning test file |
+| --- | --- |
+| profile, favorites, account extras | `test/screenshot_export_test.dart` |
+| customer/owner Doc 05 flows (incl. avatar sheet, notification body) | `test/screenshot_export_doc05_test.dart` |
+| role menus, hotel-staff dashboard, owner extras | `test/screenshot_export_roles_test.dart`, `test/screenshot_export_matrix_test.dart` |
+| account deletion, policy shots | `test/screenshot_export_account_deletion_test.dart` |
+
+- The avatar-options golden renders the profile **behind** the sheet scrim, so
+  adding a profile row changes it too — that diff was 4.8 % of pixels with a mean
+  of 0.24, i.e. real but visually tiny.
+- Regenerate only what changed:
+  `flutter test <file> --update-goldens`, then `git status docs/evidence/final-acceptance`
+  and confirm no unrelated PNG moved. Review the image, don't trust the pass.
+
+## Codemagic readiness (2026-11-28)
+
+- `codemagic.yaml` pins `flutter: 3.44.9` in every workflow — the same version
+  the goldens were rasterised with. Do not go back to `stable`.
+- The added `flutter-verify` workflow runs format + analyze + tests and produces
+  no APK/AAB. Local rules still apply: never run `flutter build apk|appbundle`
+  here and never trigger a Codemagic build from this workspace.
 
 ## Traceability matrices (2026-11-26)
 
 - Two independent matrices, both generated — never hand-edit the `.md`:
   - `python3 tools/gen_doc05_matrix.py` → `docs/MATRIX_DOCUMENT_05.md` (148 rows
     from `tools/matrix_data.py` + the verbatim inventory).
-  - `python3 tools/gen_doc06_matrix.py` → `docs/MATRIX_DOCUMENT_06.md` (21 rows
-    from `tools/doc06_matrix_data.py`).
+  - `python3 tools/gen_doc06_matrix.py` → `docs/MATRIX_DOCUMENT_06.md` (24 rows
+    from `tools/doc06_matrix_data.py`: 10 original + 11 expanded + 3 policy
+    rows `§P-01..§P-03`).
 - The Doc 06 generator **fails** if a row names a `lib/`, `test/` or screenshot
   path that does not exist. Keep it that way: it is what stops the matrix from
   becoming a claim.
@@ -511,7 +560,12 @@ Implemented and documented in `docs/DOCUMENT_06_GROUP_02.md`. Invariants:
   `docs/evidence/final-acceptance-hires`. Never hand-edit the .docx.
 - PDF companion: `LD_LIBRARY_PATH=/usr/lib/libreoffice/program soffice
   --headless --convert-to pdf --outdir /tmp/pdfout docs/ALL_OWNERS_FINAL_IMPLEMENTATION_REPORT.docx`
-  then copy it to `docs/`.
+  then copy it to `docs/`. If `soffice` dies with `libreglo.so: cannot open
+  shared object file`, the inherited `LD_LIBRARY_PATH` from the shell is wrong —
+  run it as `env -u LD_LIBRARY_PATH soffice ...` (or set it to
+  `/usr/lib/libreoffice/program`).
+- Test totals come from `/tmp/allowner_test_summary.txt` (one line). Write it
+  after the last full `flutter test` run, before regenerating the report.
 - python-docx pitfalls fixed here: `w:bidiVisual` and `w:tblBorders` must be
   inserted in `tblPr` schema order (a trailing append is silently ignored by
   Word), set `table.columns[i].width` as well as `cell.width` or the grid stays

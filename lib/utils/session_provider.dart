@@ -101,6 +101,18 @@ class SessionNotifier extends StateNotifier<SessionState> {
     state = const SessionState(user: null, isLoading: false);
   }
 
+  /// حذف الحساب نهائيًا. يُطلق الاستثناء للشاشة كي تعرض سبب الفشل بدقة،
+  /// ولا تُمسح الجلسة إلا بعد نجاح السيرفر.
+  Future<void> deleteAccount({String? reason}) async {
+    await _authService.deleteAccount(reason: reason);
+    try {
+      await _push.onLogout();
+    } catch (_) {
+      // رمز الجهاز يُلغى من السيرفر مع الحساب أصلًا.
+    }
+    state = const SessionState(user: null, isLoading: false);
+  }
+
   void clearError() {
     state = state.copyWith(error: null);
   }

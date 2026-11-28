@@ -15,18 +15,19 @@
 
 | المقياس | القيمة |
 |---|---|
-| إجمالي بنود المستند 06 | 21 |
+| إجمالي بنود المستند 06 | 24 |
 | Group 01 | 10 |
 | Group 02 | 7 |
 | Section A | 1 |
 | Section B | 1 |
 | Section D | 1 |
 | Section F | 1 |
+| Section P — Policy | 3 |
 
 | الحالة | العدد |
 |---|---|
-| COMPLETE AND VERIFIED | 11 |
-| FLUTTER COMPLETE — BACKEND PENDING | 10 |
+| COMPLETE AND VERIFIED | 12 |
+| FLUTTER COMPLETE — BACKEND PENDING | 12 |
 
 ## 2. المصفوفة
 
@@ -53,6 +54,9 @@
 | §B-002 | حسابية السرير الإضافي والليالي | Section B | COMPLETE AND VERIFIED | test/document06_final_test.dart — «§B» | customer/arabic/DOC06-REQ-B-002-booking-extra-bed-hotel-ar.png |
 | §D | توجيه الإشعارات ونصوصها | Section D | COMPLETE AND VERIFIED | test/document06_final_test.dart — «§D» | — |
 | §F | لوحة إدارة الفندق (78–92) والوصولات | Section F | COMPLETE AND VERIFIED | test/document06_final_test.dart — «§F» | hotel-staff/arabic/DOC06-REQ-F-002-arrivals-search-ar.png |
+| §P-01 | حذف الحساب من داخل التطبيق (سياسة Google Play) | Section P — Policy | FLUTTER COMPLETE — BACKEND PENDING | test/delete_account_test.dart (10 اختبارات: نصوص ar/en، تعطيل الزر قبل التأكيد، كلمة التأكيد، حجز قادم يمنع الحذف، نجاح فعلي، 404 بلا نجاح وهمي، فشل شبكة، success:false، حمولة reason، ترجمة 404) | customer/arabic/DOC06-POLICY-delete-account-form-ar.png |
+| §P-02 | حالة إشعارات الجهاز وطلب الإذن داخل التطبيق | Section P — Policy | FLUTTER COMPLETE — BACKEND PENDING | test/push_status_banner_test.dart (6 اختبارات: نصوص ar/en، بلا مزوّع، نجاح التسجيل، رفض الإذن، سبب أولي من الجلسة، سبب خادم) | owner/arabic/DOC05-REQ-134-owner-notifications-ar.png |
+| §P-03 | جاهزية Codemagic (تثبيت نسخة Flutter + بوابة تحقق) | Section P — Policy | COMPLETE AND VERIFIED | يُتحقق منه بتشغيل البوابة محليًا: `dart format --set-exit-if-changed lib test` + `flutter analyze` + `flutter test` (813 اختبارًا ناجحًا) | — |
 
 ## 3. التفاصيل
 
@@ -287,6 +291,39 @@
 - **اعتماد السيرفر:** `hotel/dashboard.php`, `hotel/bookings.php`, `hotel/requests.php` مقيّدة بفندق الموظف على السيرفر.
 - **ملاحظة:** بحث الوصولات والمغادرات يعمل محليًا على بيانات السيرفر المحمّلة.
 
+### §P-01 — حذف الحساب من داخل التطبيق (سياسة Google Play)
+
+- **English:** In-app account deletion (Google Play policy)
+- **المجموعة:** Section P — Policy
+- **الحالة:** FLUTTER COMPLETE — BACKEND PENDING
+- **ملفات Flutter:** lib/screens/profile/delete_account_screen.dart, lib/services/auth_service.dart (deleteAccount), lib/utils/session_provider.dart (deleteAccount), lib/screens/profile/profile_screen.dart (مدخل «حذف الحساب»)
+- **الاختبارات:** test/delete_account_test.dart (10 اختبارات: نصوص ar/en، تعطيل الزر قبل التأكيد، كلمة التأكيد، حجز قادم يمنع الحذف، نجاح فعلي، 404 بلا نجاح وهمي، فشل شبكة، success:false، حمولة reason، ترجمة 404)
+- **اللقطات:** customer/arabic/DOC06-POLICY-delete-account-form-ar.png, customer/english/DOC06-POLICY-delete-account-form-en.png, customer/arabic/DOC06-POLICY-delete-account-done-ar.png, customer/english/DOC06-POLICY-delete-account-done-en.png, customer/arabic/DOC06-POLICY-delete-account-blocked-ar.png, customer/english/DOC06-POLICY-delete-account-blocked-en.png, customer/arabic/DOC06-POLICY-profile-delete-entry-ar.png, customer/english/DOC06-POLICY-profile-delete-entry-en.png
+- **اعتماد السيرفر:** `POST /user/delete-account.php` — غير مُنفَّذ على الخادم (المتوقع 404). التطبيق يعرض «غير مُفعَّلة» ولا يمسح الجلسة ولا يدّعي حذفًا.
+- **ملاحظة:** لا يُعلن النجاح إلا بردّ `success: true`. شاشة الإتمام وصفحة الويب (all-owner.online/delete-account) بديلان لمن لا يستطيع فتح التطبيق.
+
+### §P-02 — حالة إشعارات الجهاز وطلب الإذن داخل التطبيق
+
+- **English:** Device notification status and permission request in-app
+- **المجموعة:** Section P — Policy
+- **الحالة:** FLUTTER COMPLETE — BACKEND PENDING
+- **ملفات Flutter:** lib/widgets/push_status_banner.dart, lib/screens/owner/owner_notifications_screen.dart, lib/services/notification_service.dart (register)
+- **الاختبارات:** test/push_status_banner_test.dart (6 اختبارات: نصوص ar/en، بلا مزوّع، نجاح التسجيل، رفض الإذن، سبب أولي من الجلسة، سبب خادم)
+- **اللقطات:** owner/arabic/DOC05-REQ-134-owner-notifications-ar.png, owner/english/DOC05-REQ-134-owner-notifications-en.png
+- **اعتماد السيرفر:** `POST /user/device-token.php` (موجود في التطبيق) + إعداد Firebase (`google-services.json` + `firebase_options.dart`) غير موجودين في المستودع، لذلك `isConfigured = false` ولا يصل أي إشعار.
+- **ملاحظة:** الشريط يعرض آخر نتيجة تسجيل فعلية وسببها، ويسمح بإعادة المحاولة؛ لا يدّعي تفعيلًا لم يحدث.
+
+### §P-03 — جاهزية Codemagic (تثبيت نسخة Flutter + بوابة تحقق)
+
+- **English:** Codemagic readiness (pinned Flutter + verify gate)
+- **المجموعة:** Section P — Policy
+- **الحالة:** COMPLETE AND VERIFIED
+- **ملفات Flutter:** codemagic.yaml
+- **الاختبارات:** يُتحقق منه بتشغيل البوابة محليًا: `dart format --set-exit-if-changed lib test` + `flutter analyze` + `flutter test` (813 اختبارًا ناجحًا)
+- **اللقطات:** —
+- **اعتماد السيرفر:** —
+- **ملاحظة:** نسخة Flutter مثبّتة على 3.44.9 (نسخة توليد اللقطات) في كل مسارات العمل، وأُضيف مسار `flutter-verify` لا يُنتج APK/AAB. لم يُشغَّل أي بناء هنا.
+
 ## 4. تدقيق الإسناد إلى المستند الأصلي
 
 ملف المستند 06 الأصلي **ليس في هذا المستودع** (المستودع يحتوي المستند 05 فقط: 
@@ -301,6 +338,9 @@
 - §B-002
 - §D
 - §F
+- §P-01
+- §P-02
+- §P-03
 
 لإغلاق هذا النقص: إرفاق ملف المستند 06 الأصلي في `docs/` ثم إعادة التوليد 
 مع إضافة رقم الصفحة لكل بند في `tools/doc06_matrix_data.py`.

@@ -1401,6 +1401,130 @@ class AppStrings {
       'en':
           'Commission transfer requests are executed on the server; no balance is invented.'
     },
+
+    // ===== حذف الحساب =====
+    'delete_account': {'ar': 'حذف الحساب', 'en': 'Delete account'},
+    'delete_account_intro': {
+      'ar':
+          'سيُحذف حسابك وبياناتك الشخصية نهائيًا ولا يمكن استرجاعها. يمكنك أيضًا طلب الحذف من الموقع دون تثبيت التطبيق.',
+      'en':
+          'Your account and personal data will be deleted permanently and cannot be recovered. You can also request deletion from the website without installing the app.'
+    },
+    'delete_account_what_is_deleted': {
+      'ar':
+          'ما سيُحذف: الحساب، الملف الشخصي، المفضلة، الإشعارات، وطلبات الخدمات المرتبطة بك.',
+      'en':
+          'Deleted: the account, profile, favourites, notifications and the service requests linked to you.'
+    },
+    'delete_account_what_is_kept': {
+      'ar':
+          'ما يبقى: سجلات الحجوزات والفواتير التي يفرض النظام الاحتفاظ بها، وتُحفظ منفصلة عن هويتك.',
+      'en':
+          'Kept: booking and invoice records the system is required to retain; they are kept separate from your identity.'
+    },
+    'delete_account_bookings_warning': {
+      'ar': 'لديك حجوزات قادمة. يجب إلغاؤها أو انتظار انتهائها قبل حذف الحساب.',
+      'en':
+          'You have upcoming bookings. Cancel them or wait until they finish before deleting the account.'
+    },
+    'delete_account_reason': {
+      'ar': 'سبب الحذف (اختياري)',
+      'en': 'Reason for deletion (optional)'
+    },
+    'delete_account_reason_no_longer': {
+      'ar': 'لم أعد أحتاج الخدمة',
+      'en': 'I no longer need the service'
+    },
+    'delete_account_reason_privacy': {
+      'ar': 'مخاوف على الخصوصية',
+      'en': 'Privacy concerns'
+    },
+    'delete_account_reason_other': {'ar': 'سبب آخر', 'en': 'Other reason'},
+    'delete_account_ack': {
+      'ar': 'أفهم أن حذف الحساب نهائي ولا يمكن التراجع عنه.',
+      'en':
+          'I understand that deleting the account is permanent and cannot be undone.'
+    },
+    'delete_account_type_confirm': {
+      'ar': 'اكتب كلمة «حذف» لتأكيد الطلب',
+      'en': 'Type DELETE to confirm'
+    },
+    'delete_account_word': {'ar': 'حذف', 'en': 'DELETE'},
+    'delete_account_submit': {
+      'ar': 'حذف حسابي نهائيًا',
+      'en': 'Delete my account permanently'
+    },
+    'delete_account_need_ack': {
+      'ar': 'يجب تأكيد الفهم قبل المتابعة.',
+      'en': 'Please confirm you understand before continuing.'
+    },
+    'delete_account_need_word': {
+      'ar': 'اكتب كلمة التأكيد كما هي للمتابعة.',
+      'en': 'Type the confirmation word exactly to continue.'
+    },
+    'delete_account_done_title': {
+      'ar': 'تم حذف حسابك',
+      'en': 'Your account was deleted'
+    },
+    'delete_account_done_body': {
+      'ar':
+          'أُغلق حسابك وسُجّل الخروج من هذا الجهاز. شكرًا لاستخدامك All Owners.',
+      'en':
+          'Your account is closed and you have been signed out on this device. Thank you for using All Owners.'
+    },
+    'delete_account_unavailable': {
+      'ar':
+          'خدمة حذف الحساب غير مُفعَّلة على الخادم بعد. لم يُحذف أي شيء؛ تواصل مع الدعم أو اطلب الحذف من الموقع.',
+      'en':
+          'Account deletion is not enabled on the server yet. Nothing was deleted; contact support or request deletion from the website.'
+    },
+    'delete_account_failed': {
+      'ar': 'تعذّر حذف الحساب، حاول مرة أخرى.',
+      'en': 'Could not delete the account, please try again.'
+    },
+    'delete_account_web': {
+      'ar': 'طلب الحذف من الموقع',
+      'en': 'Request deletion from the website'
+    },
+    'delete_account_web_failed': {
+      'ar': 'تعذّر فتح الرابط على هذا الجهاز.',
+      'en': 'Could not open the link on this device.'
+    },
+
+    // ===== حالة الإشعارات على الجهاز =====
+    'push_status_title': {
+      'ar': 'إشعارات هذا الجهاز',
+      'en': 'Device notifications'
+    },
+    'push_enable': {'ar': 'تفعيل الإشعارات', 'en': 'Enable notifications'},
+    'push_retry': {'ar': 'إعادة المحاولة', 'en': 'Try again'},
+    'push_enabled_on_device': {
+      'ar': 'الإشعارات مُفعّلة على هذا الجهاز.',
+      'en': 'Notifications are enabled on this device.'
+    },
+    'push_not_requested': {
+      'ar': 'لم تُطلب صلاحية الإشعارات بعد.',
+      'en': 'Notification permission has not been requested yet.'
+    },
+    'push_not_configured': {
+      'ar':
+          'هذا البناء لا يحتوي إعداد Firebase، لذلك لن تصل إشعارات. يلزم إضافة google-services.json وإعادة البناء.',
+      'en':
+          'This build has no Firebase configuration, so no notifications can arrive. google-services.json and a rebuild are required.'
+    },
+    'push_permission_denied': {
+      'ar': 'الإذن مرفوض من إعدادات النظام؛ اسمح بالإشعارات من إعدادات الجهاز.',
+      'en':
+          'Permission is denied in system settings; allow notifications there.'
+    },
+    'push_no_token': {
+      'ar': 'لم يُصدر مزوّد الإشعارات رمزًا للجهاز، حاول لاحقًا.',
+      'en': 'The push provider did not issue a device token; try again later.'
+    },
+    'push_register_failed': {
+      'ar': 'تعذّر تسجيل الجهاز على الخادم.',
+      'en': 'Could not register the device on the server.'
+    },
   };
 
   /// هل يوجد نص لهذا المفتاح؟ يُستخدم في اختبار التغطية الذي يمنع ظهور

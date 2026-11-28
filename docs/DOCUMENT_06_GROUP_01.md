@@ -709,3 +709,24 @@ pixel-for-pixel. No test was disabled to reach this result.
   one.
 - Current full-repo status, the financial-safety evidence and the exact cPanel
   contract are in `docs/FINAL_INTEGRATION_REPORT.md`.
+
+### 15.2 Addendum — policy round (2026-11-28)
+
+The ten Group 01 requirements are unchanged; this round closed the two policy gaps that
+were still open and made the Codemagic pipeline reproducible:
+
+- **Account deletion inside the app** (Google Play): `lib/screens/profile/delete_account_screen.dart`,
+  `AuthService.deleteAccount`, `SessionNotifier.deleteAccount`, profile menu entry —
+  10 tests in `test/delete_account_test.dart`, 8 new screenshots
+  (`DOC06-POLICY-delete-account-*`, `DOC06-POLICY-profile-delete-entry-*`).
+  Backend endpoint `POST /user/delete-account.php` is still missing, so the row is
+  **FLUTTER COMPLETE — BACKEND PENDING**.
+- **Device notification state**: `lib/widgets/push_status_banner.dart` in the owner
+  notification screen — 6 tests in `test/push_status_banner_test.dart`. Firebase
+  configuration and server-side sending are still missing (**FLUTTER COMPLETE — BACKEND PENDING**).
+- **Codemagic readiness**: `flutter: 3.44.9` pinned in every workflow plus a
+  `flutter-verify` workflow (format → analyze → test, no APK/AAB).
+
+Final gate on this branch: `dart format --set-exit-if-changed lib test` → 0 changed;
+`flutter analyze` → no issues; `flutter test` → **813 passed, 17 pre-existing skips,
+0 failed**. Full details: `docs/ALL_OWNERS_FINAL_FLUTTER_COMPLETION.md`.
