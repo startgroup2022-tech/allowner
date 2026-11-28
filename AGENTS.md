@@ -502,3 +502,21 @@ Implemented and documented in `docs/DOCUMENT_06_GROUP_02.md`. Invariants:
   (unpaid ≠ revenue, no fake payment links, no double settlement, disabled
   payment methods never submitted, wallet/commission from server only, staff
   finance permission default-closed).
+
+## Final Word report (Arabic RTL deliverable)
+
+- `python3 tools/gen_final_word_report.py` rebuilds
+  `docs/ALL_OWNERS_FINAL_IMPLEMENTATION_REPORT.docx` from
+  `tools/matrix_data.py` + `tools/doc06_matrix_data.py` +
+  `docs/evidence/final-acceptance-hires`. Never hand-edit the .docx.
+- PDF companion: `LD_LIBRARY_PATH=/usr/lib/libreoffice/program soffice
+  --headless --convert-to pdf --outdir /tmp/pdfout docs/ALL_OWNERS_FINAL_IMPLEMENTATION_REPORT.docx`
+  then copy it to `docs/`.
+- python-docx pitfalls fixed here: `w:bidiVisual` and `w:tblBorders` must be
+  inserted in `tblPr` schema order (a trailing append is silently ignored by
+  Word), set `table.columns[i].width` as well as `cell.width` or the grid stays
+  equal-width, and use `w:jc="start"/"end"` instead of right/left for
+  bidi-correct alignment in both Word and LibreOffice.
+- AR/EN screenshot stems differ per language (`-ar` vs `-en` with different
+  requirement ranges), so pair them by screen slug inside the same role folder,
+  not by exact file name.

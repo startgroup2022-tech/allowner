@@ -15,6 +15,9 @@ import 'dart:io';
 import 'package:allowners/services/api_client.dart';
 import 'package:allowners/utils/app_clock.dart';
 import 'package:allowners/theme/app_theme.dart';
+import 'dart:ui' as ui;
+
+import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +31,14 @@ import 'image_diff.dart';
 
 /// مسار مجلد اللقطات، نسبيًا لملف الاختبار (`test/`).
 const String kShotDir = '../docs/evidence/final-acceptance';
+
+/// تصدير نسخ بدقة مضاعفة لملف Word (لا يمسّ الصور الذهبية).
+///
+/// التشغيل: `flutter test test/screenshot_export_doc05_test.dart \
+/// --dart-define=HIRES_EXPORT=1`. عند التفعيل تُكتب PNG بعرض 780 بكسل في
+/// `docs/evidence/final-acceptance-hires/` ولا تُقارن أي صورة ذهبية.
+final bool kHiresExport = Platform.environment['HIRES_EXPORT'] == '1';
+const String kHiresDir = 'docs/evidence/final-acceptance-hires';
 
 /// اللحظة التي اعتُمدت فيها اللقطات (تاريخ الوصول الافتراضي ٢٨ نوفمبر ٢٠٢٦).
 final DateTime kShotNow = DateTime(2026, 11, 27, 10);
@@ -1094,10 +1105,14 @@ Future<void> capture(
     await tester.pumpAndSettle();
   }
 
-  await expectLater(
-    find.byType(RepaintBoundary).first,
-    matchesGoldenFile('$kShotDir/$relativePath'),
-  );
+  if (kHiresExport) {
+    await exportHiresPng(tester, '$kHiresDir/$relativePath');
+  } else {
+    await expectLater(
+      find.byType(RepaintBoundary).first,
+      matchesGoldenFile('$kShotDir/$relativePath'),
+    );
+  }
 
   // المقارنة نفسها تمنح العمل الحقيقي فرصةً لجدولة مؤقّت جديد. نُدمّر الشجرة
   // صراحةً، نُفرّغ العمل الحقيقي، ثم نُقدّم الزمن — وإلا بقي المؤقّت معلّقًا
@@ -1110,4 +1125,23 @@ Future<void> capture(
       await tester.pump(drainTimers);
     }
   }
+}
+
+/// يرسم الشجرة نفسها بدقة مضاعفة ويكتبها ملفًا — بلا مقارنة ذهبية.
+///
+/// `toImage(pixelRatio: 2)` يعيد تنقيط النص والأيقونات على 2×، فلا يُنتج
+/// تكبيرًا مصطنعًا لصورة 1×.
+Future<void> exportHiresPng(WidgetTester tester, String path) async {
+  final boundary = tester.renderObject<RenderRepaintBoundary>(
+    find.byType(RepaintBoundary).first,
+  );
+  // `toImage` عملية حقيقية غير متزامنة: داخل نطاق الزمن الاصطناعي تنتظر للأبد.
+  await tester.runAsync(() async {
+    final image = await boundary.toImage(pixelRatio: 2);
+    final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+    image.dispose();
+    final file = File(path);
+    await file.parent.create(recursive: true);
+    await file.writeAsBytes(bytes!.buffer.asUint8List(), flush: true);
+  });
 }
