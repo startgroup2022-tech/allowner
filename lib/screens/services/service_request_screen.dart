@@ -7,6 +7,7 @@ import '../../utils/locale_provider.dart';
 import '../../services/hotel_service.dart';
 import '../../services/api_client.dart';
 import '../../utils/safe_parse.dart';
+import '../../utils/service_request_store.dart';
 
 class ServiceRequestScreen extends ConsumerStatefulWidget {
   final IconData icon;
@@ -64,14 +65,21 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
     if (roomEmpty) return;
 
     setState(() => _submitting = true);
+    final description = _detailsController.text.trim();
     try {
-      await _service.submitServiceRequest(
+      final response = await _service.submitServiceRequest(
         bookingId: _selectedBookingId,
         roomNumber: _roomController.text.trim(),
         serviceType: widget.serviceType,
-        description: _detailsController.text.trim().isNotEmpty
-            ? _detailsController.text.trim()
-            : null,
+        description: description.isNotEmpty ? description : null,
+      );
+      await const ServiceRequestStore().add(
+        ServiceRequestRecord.fromServer(
+          response,
+          type: widget.serviceType,
+          roomNumber: _roomController.text.trim(),
+          description: description.isNotEmpty ? description : null,
+        ),
       );
       if (!mounted) return;
       setState(() => _submitting = false);

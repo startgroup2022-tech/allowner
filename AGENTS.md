@@ -459,3 +459,46 @@ Implemented and documented in `docs/DOCUMENT_06_GROUP_02.md`. Invariants:
   Arabic text leaks into the English file.
 - English captures must set `locale: 'en'` **and** pass `isArabic: false`;
   forgetting the flag renders Arabic text into an English file.
+
+## Gate baseline and environment (2026-11-26)
+
+- Green baseline to preserve: `dart format` 0 changed (162 files), `flutter
+  analyze` clean, `flutter test` **777 passed / 17 skipped / 0 failed**, and 157
+  goldens in `docs/evidence/final-acceptance` unchanged.
+- The 17 skipped tests are `test/integration/live_backend_test.dart`, gated by
+  `RUN_LIVE_TESTS=1` (they hit the production API). Never "fix" the skip count.
+- The container may start without a Flutter SDK. Install the pinned version
+  before running gates:
+  `curl -sL https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.44.9-stable.tar.xz | tar xJ -C /tmp/sdk`,
+  then `export PATH=/tmp/sdk/flutter/bin:$PATH`. Goldens are pinned to 3.44.9.
+- `ApiConfig.baseUrl` honours `--dart-define=API_BASE_URL=…` (default: production),
+  so live tests can point at a staging copy without touching production.
+
+## Time-dependent UI must read AppClock
+
+- `lib/utils/app_clock.dart` is the single clock. Screens that build default
+  dates (e.g. `booking_screen.dart`) call `AppClock.now()`, never
+  `DateTime.now()`; otherwise goldens fail every day the clock advances (this
+  actually happened: golden showed 28 Nov while the test rendered 27 Nov).
+- `capture()` in `test/screenshot_support.dart` freezes the clock at `kShotNow`
+  (2026-11-27, the date the goldens were approved). If a screen needs a
+  different "today", pass it explicitly instead of regenerating goldens.
+
+## Requirement matrix statuses
+
+- `tools/gen_requirements_matrix.py` accepts
+  `FLUTTER COMPLETE — BACKEND PENDING` — use it when the Flutter side and its
+  tests exist but a specific server endpoint is missing (name the endpoint).
+  Reserve `BACKEND BLOCKED` for work that has no Flutter surface at all.
+- Adding a status also requires updating the known-status set in
+  `test/matrix_sync_test.dart`.
+
+## Honesty rules that tests enforce
+
+- Never fabricate a status, balance, payment link, revenue figure or unit
+  number. Missing server data renders as "—"/empty state plus an explicit
+  "not enabled on the server yet" line.
+- `test/financial_safety_test.dart` locks the eight financial guarantees
+  (unpaid ≠ revenue, no fake payment links, no double settlement, disabled
+  payment methods never submitted, wallet/commission from server only, staff
+  finance permission default-closed).

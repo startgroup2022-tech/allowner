@@ -69,6 +69,7 @@ present, but the client also accepts payloads without it (older endpoints).
 |---|---|---|---|
 | `/services/request.php` | POST | `type` (`maintenance`\|`cleaning`\|`extra_bed`), `unit_id?`, `hotel_id?`, `description`, `preferred_date?` | `request{id,status}` |
 | `/services/meal-request.php` | POST | `hotel_id`, `unit_id?`, `meal_type`, `guests`, `date` | `request{id,status}` |
+| `/services/my-requests.php` | GET | — | `requests[]{id,type,status,room_number,created_at}` — **مطلوب من السيرفر، غير منفّذ بعد (404)**؛ التطبيق يعرض ما حُفظ محليًا من استجابات الإرسال ويقول ذلك صراحة |
 |  `/user/notifications.php` | GET | — | `notifications[]{id,title,body,type,created_at,read}` |
 | `/messages/conversations.php` | GET | — | `conversations[]{id,peer_name,last_message,unread}` |
 | `/messages/directory.php` | GET | — | `users[]{id,name,role}` |

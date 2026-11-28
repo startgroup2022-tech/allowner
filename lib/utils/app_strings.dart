@@ -963,6 +963,18 @@ class AppStrings {
     'status_checked_out': {'ar': 'تم تسجيل الخروج', 'en': 'Checked Out'},
     'status_done': {'ar': 'تم التنفيذ', 'en': 'Done'},
     'status_rejected': {'ar': 'مرفوض', 'en': 'Rejected'},
+    'status_unknown': {'ar': '—', 'en': '—'},
+    'my_service_requests': {'ar': 'طلباتي', 'en': 'My Requests'},
+    'no_service_requests': {
+      'ar': 'ما أرسلت طلب خدمة بعد.',
+      'en': "You haven't sent a service request yet."
+    },
+    'service_requests_local_only': {
+      'ar':
+          'تُعرض الطلبات المرسلة من هذا الجهاز. التحديث الحيّ للحالة غير مُفعَّل بعد على السيرفر.',
+      'en':
+          'Showing requests sent from this device. Live status updates are not enabled on the server yet.'
+    },
     'new_cleaning_request': {
       'ar': 'طلب نظافة جديد',
       'en': 'New Cleaning Request'

@@ -25,6 +25,7 @@ OUTPUT = os.path.join(_ROOT, "docs/ALL_OWNERS_REQUIREMENTS_MATRIX.md")
 STATUS_ORDER = (
     'VERIFIED PASS',
     'INTEGRATION VERIFIED',
+    'FLUTTER COMPLETE — BACKEND PENDING',
     'IMPLEMENTED UNTESTED',
     'PARTIAL',
     'NOT IMPLEMENTED',
@@ -79,6 +80,7 @@ def main():
     lines.append('> «INTEGRATION VERIFIED» تعني: مسار الخدمة وعقد الـ API مُثبتان باختبار تكامل حيّ ضد all-owner.online، لكن العرض البصري على جهاز لم يُتحقق منه بعد.  ')
     lines.append('> «IMPLEMENTED UNTESTED» تعني: الكود مكتمل ومربوط لكن لم يُختبر على جهاز حقيقي.  ')
     lines.append('> «PARTIAL» تعني: جانب التطبيق مكتمل ومُختبَر، والمتبقي عمل سيرفر/مزوّد دفع.  ')
+    lines.append('> «FLUTTER COMPLETE — BACKEND PENDING» تعني: واجهة Flutter واختباراتها مكتملة، وينقص نقطة سيرفر محدّدة مذكورة في العمود.  ')
     lines.append('> «BACKEND BLOCKED» تعني: يحتاج تعديل PHP/قاعدة البيانات على السيرفر (خارج نطاق التطبيق).\n')
     lines.append('## ملخّص\n')
     lines.append('| المقياس | القيمة |')

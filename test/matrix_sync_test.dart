@@ -64,6 +64,7 @@ void main() {
     const known = {
       'VERIFIED PASS',
       'INTEGRATION VERIFIED',
+      'FLUTTER COMPLETE — BACKEND PENDING',
       'IMPLEMENTED UNTESTED',
       'PARTIAL',
       'NOT IMPLEMENTED',

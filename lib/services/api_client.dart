@@ -1,9 +1,15 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// عنوان الـ API — نفس السيرفر يلي عليه لوحة التحكم والموقع
+/// عنوان الـ API — نفس السيرفر يلي عليه لوحة التحكم والموقع.
+///
+/// يمكن تجاوزه وقت البناء لبيئة اختبار معزولة:
+/// `flutter test --dart-define=API_BASE_URL=https://staging.example.com/api`
+/// القيمة الافتراضية هي الإنتاج، فلا يتغيّر سلوك أي بناء عادي.
 class ApiConfig {
-  static const String baseUrl = 'https://all-owner.online/api';
+  static const String defaultBaseUrl = 'https://all-owner.online/api';
+  static const String baseUrl =
+      String.fromEnvironment('API_BASE_URL', defaultValue: defaultBaseUrl);
 }
 
 /// عميل HTTP مركزي يضيف التوكن تلقائياً لكل طلب بعد تسجيل الدخول

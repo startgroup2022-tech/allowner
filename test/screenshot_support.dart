@@ -13,6 +13,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:allowners/services/api_client.dart';
+import 'package:allowners/utils/app_clock.dart';
 import 'package:allowners/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dio/dio.dart';
@@ -27,6 +28,9 @@ import 'image_diff.dart';
 
 /// مسار مجلد اللقطات، نسبيًا لملف الاختبار (`test/`).
 const String kShotDir = '../docs/evidence/final-acceptance';
+
+/// اللحظة التي اعتُمدت فيها اللقطات (تاريخ الوصول الافتراضي ٢٨ نوفمبر ٢٠٢٦).
+final DateTime kShotNow = DateTime(2026, 11, 27, 10);
 
 /// يحمّل خطوط العلامة الحقيقية داخل بيئة الاختبار حتى تُرسم النصوص العربية
 /// والأيقونات بلا مربعات (الحالة الافتراضية في flutter_test هي خط Ahem).
@@ -1061,6 +1065,10 @@ Future<void> capture(
   Duration? drainTimers,
 }) async {
   useScreenshotComparator();
+  // تثبيت الزمن على لحظة اعتماد اللقطات: الشاشات التي تبني تواريخ افتراضية
+  // (الحجز مثلًا) كانت تتغيّر كل يوم فيفشل الاختبار بلا أي تغيير في الكود.
+  AppClock.freeze(kShotNow);
+  addTearDown(() => AppClock.freeze(null));
   tester.view.physicalSize = Size(width, height);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.resetPhysicalSize);

@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_dimens.dart';
+import '../../utils/app_clock.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/app_settings_provider.dart';
 import '../../utils/locale_provider.dart';
@@ -127,8 +128,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   /// متاحة من السيرفر.
   PaymentMethodKey? _chosenPaymentMethod;
   int _guests = 2;
-  DateTime _checkIn = DateTime.now().add(const Duration(days: 1));
-  DateTime _checkOut = DateTime.now().add(const Duration(days: 3));
+  DateTime _checkIn = AppClock.now().add(const Duration(days: 1));
+  DateTime _checkOut = AppClock.now().add(const Duration(days: 3));
   final Set<String> _selectedLegacyMeals =
       {}; // للحجز العام: يسمح باختيار أكثر من وجبة
   bool _extraBed = false;
@@ -232,14 +233,14 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   Future<void> _pickDate({required bool isCheckIn}) async {
     final initial = isCheckIn ? _checkIn : _checkOut;
     final firstDate =
-        isCheckIn ? DateTime.now() : _checkIn.add(const Duration(days: 1));
+        isCheckIn ? AppClock.now() : _checkIn.add(const Duration(days: 1));
     final picked = await showDatePicker(
       selectableDayPredicate: (day) =>
           isDaySelectable(day: day, periods: widget.unitAvailability),
       context: context,
       initialDate: initial.isBefore(firstDate) ? firstDate : initial,
       firstDate: firstDate,
-      lastDate: DateTime.now().add(const Duration(days: 730)),
+      lastDate: AppClock.now().add(const Duration(days: 730)),
     );
     if (picked == null) return;
 

@@ -425,7 +425,9 @@ class HotelService {
     }
   }
 
-  Future<void> submitServiceRequest({
+  /// يُرجع استجابة السيرفر كما هي (`request{id,status}`) حتى تعرض الشاشة
+  /// الحالة التي أعلنها السيرفر بدل اختراع واحدة.
+  Future<Map<String, dynamic>> submitServiceRequest({
     int? bookingId,
     required String roomNumber,
     required String serviceType,
@@ -440,6 +442,21 @@ class HotelService {
             description: description,
           ));
       _ensureSuccess(res.data);
+      return res.data is Map ? (res.data as Map).cast<String, dynamic>() : {};
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  /// قراءة طلبات الخدمات التي أرسلها الضيف (المتطلب 59).
+  ///
+  /// النقطة مطلوبة من السيرفر ولم تُنفَّذ بعد؛ حين تغيب (404) يرمي
+  /// [ApiException] بنوع [ApiErrorKind.notFound] فتتحوّل الشاشة إلى ما حفظته
+  /// محليًا مع نص صريح — لا نتظاهر بوجود حالة حيّة.
+  Future<List<Map<String, dynamic>>> myServiceRequests() async {
+    try {
+      final res = await _dio.get('/services/my-requests.php');
+      return asMapList(res.data is Map ? res.data['requests'] : null);
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
